@@ -1,0 +1,8 @@
+node_modules/*
+vendor/*
+composer.phar
+.DS_Store
+Thumbs.db
+.idea
+.vagrant
+.sass-cache

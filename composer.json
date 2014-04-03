@@ -1,0 +1,31 @@
+{
+    "name": "gzero/cms",
+    "description": "Gzero CMS",
+    "keywords": ["framework", "laravel", "cms"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Adrian Skierniewski",
+            "email": "adrian.skierniewski@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.4.0",
+        "laravel/framework": "4.1.21",
+        "atrauzzi/laravel-doctrine": "dev-master",
+        "robclancy/presenter": "1.2.0",
+        "machuga/authority-l4": "2.1.0",
+        "barryvdh/laravel-twigbridge": "dev-master",
+        "bigecko/laravel-theme": "dev-master"
+    },
+    "require-dev": {
+        "fzaninotto/faker": "v1.3.0",
+        "mockery/mockery": "dev-master"
+    },
+    "autoload": {
+        "psr-4": {
+            "Gzero\\": "src/Gzero"
+        }
+    },
+    "minimum-stability": "dev"
+}
