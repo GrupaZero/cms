@@ -18,6 +18,9 @@
         "barryvdh/laravel-twigbridge": "dev-master",
         "bigecko/laravel-theme": "dev-master"
     },
+    "replace": {
+        "gzero/entity": "self.version"
+    },
     "require-dev": {
         "fzaninotto/faker": "v1.3.0",
         "mockery/mockery": "dev-master"
