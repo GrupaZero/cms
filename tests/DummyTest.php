@@ -5,27 +5,19 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  *
- * Class BlockTest
+ * Class DummyTest
  *
- * @package    tests\Entity
+ * @package    tests
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2014, Adrian Skierniewski
  */
 
-namespace tests\Entity;
+namespace tests;
 
+class DummyTest extends \Doctrine2TestCase {
 
-use Gzero\Entity\Block;
-
-class BlockTest extends \PHPUnit_Framework_TestCase {
-
-    /**
-     * @test
-     */
-    public function is_instantiable()
+    public function testDummy()
     {
-        $this->assertInstanceOf('Gzero\Entity\Block', new Block());
+        // Temporary solution for checking doctrine 2 table creation
     }
-
 }
-

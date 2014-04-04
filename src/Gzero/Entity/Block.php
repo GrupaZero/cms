@@ -36,8 +36,8 @@ class Block {
     private $menu;
 
     /**
-     * @Column(type="string")
-     * @var string
+     * @Column(type="json_array")
+     * @var Array
      */
     private $region;
 

@@ -22,7 +22,7 @@ class Doctrine2TestCase extends \PHPUnit_Framework_TestCase {
 
     public function setUp()
     {
-        $paths     = array(__DIR__ . "/../../src/Gzero/Entity");
+        $paths     = array(__DIR__ . "/../src/Gzero/Entity");
         $isDevMode = TRUE;
 
         // the db connection configuration
