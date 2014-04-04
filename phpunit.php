@@ -12,7 +12,10 @@
 |
 */
 
-require __DIR__.'/vendor/autoload.php';
+require __DIR__ . '/vendor/autoload.php';
+
+// Doctrine2 Test Case
+require_once __DIR__ . '/tests/Doctrine2TestCase.php';
 
 /*
 |--------------------------------------------------------------------------
