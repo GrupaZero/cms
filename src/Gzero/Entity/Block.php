@@ -1,5 +1,7 @@
 <?php namespace Gzero\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+
 /**
  * This file is part of the GZERO CMS package.
  *
@@ -14,12 +16,12 @@
  * @Entity @Table(name="blocks")
  */
 class Block {
-
     /**
      * @Id @GeneratedValue @Column(type="integer")
      * @var integer
      */
     private $id;
+
 
     /**
      * @ManyToOne(targetEntity="BlockType")
@@ -76,6 +78,58 @@ class Block {
      * @var \DateTime
      */
     private $deleted_at;
+
+    private $translation;
+
+    private $upload;
+
+    public function __construct()
+    {
+        $this->translation = new ArrayCollection();
+        $this->upload      = new ArrayCollection();
+    }
+
+    /**
+     * @param BlockUpload $upload
+     */
+    public function addUpload(BlockUpload $upload)
+    {
+        $this->upload->add($upload);
+    }
+
+    /**
+     * @return ArrayCollection
+     */
+    public function getUploadsCollection()
+    {
+        return $this->upload;
+    }
+
+    /**
+     * @param BlockTranslation $translation
+     */
+    public function addTranslation(BlockTranslation $translation)
+    {
+        $this->translation->add($translation);
+    }
+
+    /**
+     * @return ArrayCollection
+     */
+    public function getTranslationsCollection()
+    {
+        return $this->translation;
+    }
+
+    /**
+     * @param int $id
+     *
+     * @return BlockTranslation
+     */
+    public function findTranslation($id = 1)
+    {
+        return $this->translation->first();
+    }
 
     /**
      * @param \stdClass $created_at
