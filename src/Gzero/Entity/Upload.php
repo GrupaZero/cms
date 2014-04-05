@@ -1,7 +1,6 @@
 <?php namespace Gzero\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use Gzero\Entity\UploadTranslation;
 
 /**
  * This file is part of the GZERO CMS package.

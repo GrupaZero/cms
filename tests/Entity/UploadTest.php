@@ -48,7 +48,8 @@ class UploadTest extends \PHPUnit_Framework_TestCase {
      */
     public function can_add_and_get_translation()
     {
-        $upload = new Upload();
+        $upload  = new Upload();
+        $storage = [];
         for ($i = 0; $i < 3; $i++) {
             $translation = m::mock('Gzero\Entity\UploadTranslation');
             $storage[]   = $translation;
@@ -59,4 +60,21 @@ class UploadTest extends \PHPUnit_Framework_TestCase {
         $this->assertSame($storage[1], $upload->getTranslations()->get(1));
     }
 
+
+    /**
+     * @test
+     */
+    public function can_find_exact_translation()
+    {
+        $upload  = new Upload();
+        $storage = [];
+        $langs   = ['pl', 'en', 'de'];
+        for ($i = 0; $i < count($langs); $i++) {
+            $translation = m::mock('Gzero\Entity\UploadTranslation');
+            $translation->shouldReceive('getLangCode')->andReturn($langs[$i]);
+            $storage[] = $translation;
+            $upload->addTranslation($translation);
+        }
+        $this->assertSame($storage[1], $upload->findTranslation('en'));
+    }
 }
