@@ -29,6 +29,7 @@ class ContentTest extends \PHPUnit_Framework_TestCase {
 
     /**
      * @test
+     * @expectedException \PHPUnit_Framework_Error
      */
     public function can_get_and_set_type()
     {
@@ -37,6 +38,7 @@ class ContentTest extends \PHPUnit_Framework_TestCase {
         $type = new ContentType();
         $content->setType($type);
         $this->assertEquals($type, $content->getType());
+        $content->setType(new \stdClass()); // Wrong type set
     }
 
 }
