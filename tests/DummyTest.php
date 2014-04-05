@@ -14,6 +14,8 @@
 
 namespace tests;
 
+use Gzero\Entity\Block;
+
 class DummyTest extends \Doctrine2TestCase {
 
     public function testDummy()

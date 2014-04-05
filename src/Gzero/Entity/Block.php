@@ -17,7 +17,7 @@ class Block {
 
     /**
      * @Id @GeneratedValue @Column(type="integer")
-     * @var string
+     * @var integer
      */
     private $id;
 
@@ -203,6 +203,38 @@ class Block {
     public function getType()
     {
         return $this->type;
+    }
+
+    /**
+     * @param \DateTime $deleted_at
+     */
+    public function setDeletedAt($deleted_at)
+    {
+        $this->deleted_at = $deleted_at;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getDeletedAt()
+    {
+        return $this->deleted_at;
+    }
+
+    /**
+     * @param \DateTime $updated_at
+     */
+    public function setUpdatedAt($updated_at)
+    {
+        $this->updated_at = $updated_at;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getUpdatedAt()
+    {
+        return $this->updated_at;
     }
 
 }
