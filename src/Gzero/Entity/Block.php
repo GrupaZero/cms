@@ -1,6 +1,8 @@
 <?php namespace Gzero\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Gzero\Entity\Traits\SoftDelete;
+use Gzero\Entity\Traits\Timestamp;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -13,155 +15,117 @@ use Doctrine\Common\Collections\ArrayCollection;
  * @package    Gzero\Entity
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2014, Adrian Skierniewski
- * @Entity @Table(name="blocks")
+ * @Entity @HasLifecycleCallbacks
  */
-class Block {
+class Block extends AbstractEntity {
+
+    use Timestamp;
+    use SoftDelete;
+
     /**
      * @Id @GeneratedValue @Column(type="integer")
      * @var integer
      */
-    private $id;
-
+    protected $id;
 
     /**
      * @ManyToOne(targetEntity="BlockType")
      * @JoinColumn(name="type_id", referencedColumnName="id")
      * @var BlockType
      **/
-    private $type;
+    protected $type;
 
     /**
      * @ManyToOne(targetEntity="Menu")
      * @JoinColumn(name="menu_id", referencedColumnName="id")
      * @var Menu
      **/
-    private $menu;
+    protected $menu;
 
     /**
-     * @Column(type="json_array")
+     * @Column(type="json_array", nullable=TRUE)
      * @var Array
      */
-    private $region;
+    protected $region;
+
+    /**
+     * @OneToMany(targetEntity="BlockTranslation", mappedBy="block")
+     * @var \Doctrine\Common\Collections\ArrayCollection
+     */
+    protected $translations;
+
+    /**
+     * @var \Doctrine\Common\Collections\ArrayCollection
+     */
+    protected $uploads;
 
     /**
      * @Column(type="boolean")
      * @var boolean
      */
-    private $is_cacheable;
+    protected $is_cacheable = FALSE;
 
     /**
      * @Column(type="boolean")
      * @var boolean
      */
-    private $is_active;
+    protected $is_active = FALSE;
 
     /**
      * @Column(type="object")
      * @var \stdClass
      */
-    private $options;
-
-    /**
-     * @Column(type="datetime")
-     * @var \DateTime
-     */
-    private $created_at;
-
-    /**
-     * @Column(type="datetime")
-     * @var \DateTime
-     */
-    private $updated_at;
-
-    /**
-     * @Column(type="datetime")
-     * @var \DateTime
-     */
-    private $deleted_at;
-
-    private $translation;
-
-    private $upload;
+    protected $options;
 
     public function __construct()
     {
-        $this->translation = new ArrayCollection();
-        $this->upload      = new ArrayCollection();
+        $this->translations = new ArrayCollection();
+        $this->uploads      = new ArrayCollection();
     }
 
+    //-----------------------------------------------------------------------------------------------
+    // START: Getters & Setters
+    //-----------------------------------------------------------------------------------------------
     /**
-     * @param BlockUpload $upload
-     */
-    public function addUpload(BlockUpload $upload)
-    {
-        $this->upload->add($upload);
-    }
-
-    /**
-     * @return ArrayCollection
-     */
-    public function getUploadsCollection()
-    {
-        return $this->upload;
-    }
-
-    /**
-     * @param BlockTranslation $translation
-     */
-    public function addTranslation(BlockTranslation $translation)
-    {
-        $this->translation->add($translation);
-    }
-
-    /**
-     * @return ArrayCollection
-     */
-    public function getTranslationsCollection()
-    {
-        return $this->translation;
-    }
-
-    /**
-     * @param int $id
-     *
-     * @return BlockTranslation
-     */
-    public function findTranslation($id = 1)
-    {
-        return $this->translation->first();
-    }
-
-    /**
-     * @param \stdClass $created_at
-     */
-    public function setCreatedAt($created_at)
-    {
-        $this->created_at = $created_at;
-    }
-
-    /**
-     * @return \stdClass
-     */
-    public function getCreatedAt()
-    {
-        return $this->created_at;
-    }
-
-    /**
-     * @param string $id
-     */
-    public function setId($id)
-    {
-        $this->id = $id;
-    }
-
-    /**
-     * @return string
+     * @return int
      */
     public function getId()
     {
         return $this->id;
     }
+
+    /**
+     * @param \Gzero\Entity\BlockType $type
+     */
+    public function setType($type)
+    {
+        $this->type = $type;
+    }
+
+    /**
+     * @return \Gzero\Entity\BlockType
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    /**
+     * @param \Doctrine\Common\Collections\ArrayCollection $translation
+     */
+    public function setTranslations($translation)
+    {
+        $this->translations = $translation;
+    }
+
+    /**
+     * @return \Doctrine\Common\Collections\ArrayCollection
+     */
+    public function getTranslations()
+    {
+        return $this->translations;
+    }
+
 
     /**
      * @param boolean $is_active
@@ -196,15 +160,15 @@ class Block {
     }
 
     /**
-     * @param mixed $menu
+     * @param \Gzero\Entity\Menu $menu
      */
-    public function setMenu(Menu $menu = NULL)
+    public function setMenu($menu)
     {
         $this->menu = $menu;
     }
 
     /**
-     * @return mixed
+     * @return \Gzero\Entity\Menu
      */
     public function getMenu()
     {
@@ -228,7 +192,7 @@ class Block {
     }
 
     /**
-     * @param string $region
+     * @param Array $region
      */
     public function setRegion($region)
     {
@@ -236,59 +200,32 @@ class Block {
     }
 
     /**
-     * @return string
+     * @return Array
      */
     public function getRegion()
     {
         return $this->region;
     }
 
-    /**
-     * @param mixed $type
+        /**
+     * @param \Doctrine\Common\Collections\ArrayCollection $upload
      */
-    public function setType($type)
+    public function setUploads($upload)
     {
-        $this->type = $type;
+        $this->uploads = $upload;
     }
 
     /**
-     * @return mixed
+     * @return \Doctrine\Common\Collections\ArrayCollection
      */
-    public function getType()
+    public function getUploads()
     {
-        return $this->type;
+        return $this->uploads;
     }
 
-    /**
-     * @param \DateTime $deleted_at
-     */
-    public function setDeletedAt($deleted_at)
-    {
-        $this->deleted_at = $deleted_at;
-    }
+    //-----------------------------------------------------------------------------------------------
+    // END:  Getters & Setters
+    //-----------------------------------------------------------------------------------------------
 
-    /**
-     * @return \DateTime
-     */
-    public function getDeletedAt()
-    {
-        return $this->deleted_at;
-    }
-
-    /**
-     * @param \DateTime $updated_at
-     */
-    public function setUpdatedAt($updated_at)
-    {
-        $this->updated_at = $updated_at;
-    }
-
-    /**
-     * @return \DateTime
-     */
-    public function getUpdatedAt()
-    {
-        return $this->updated_at;
-    }
 
 }

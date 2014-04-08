@@ -47,17 +47,17 @@ class BlockTest extends \PHPUnit_Framework_TestCase {
     }
 
 
-    /**
-     * @test
-     */
-    public function can_add_and_find_translation()
-    {
-        $translation = M::mock('Gzero\Entity\BlockTranslation');
-
-        $block = new Block();
-        $block->addTranslation($translation);
-        $this->assertInstanceOf('Doctrine\Common\Collections\ArrayCollection', $block->getTranslationsCollection());
-        $this->assertSame($translation, $block->findTranslation());
-    }
+//    /**
+//     * @test
+//     */
+//    public function can_add_and_find_translation()
+//    {
+//        $translation = M::mock('Gzero\Entity\BlockTranslation');
+//
+//        $block = new Block();
+//        $block->addTranslation($translation);
+//        $this->assertInstanceOf('Doctrine\Common\Collections\ArrayCollection', $block->getTranslationsCollection());
+//        $this->assertSame($translation, $block->findTranslation());
+//    }
 }
 
