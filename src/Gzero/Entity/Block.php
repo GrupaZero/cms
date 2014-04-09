@@ -90,9 +90,10 @@ class Block extends AbstractEntity {
         $this->translations->add($translation);
     }
 
-    //-----------------------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------------------------
     // START: Getters & Setters
-    //-----------------------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------------------------
+
     /**
      * @return int
      */
@@ -104,7 +105,7 @@ class Block extends AbstractEntity {
     /**
      * @param \Gzero\Entity\BlockType $type
      */
-    public function setType($type)
+    public function setType(BlockType $type)
     {
         $this->type = $type;
     }
@@ -125,34 +126,31 @@ class Block extends AbstractEntity {
         return $this->translations;
     }
 
-    /**
-     * @param boolean $is_active
-     */
-    public function setIsActive($is_active)
+    public function setActive($active)
     {
-        $this->is_active = $is_active;
+        $this->is_active = $active;
     }
 
     /**
      * @return boolean
      */
-    public function getIsActive()
+    public function isActive()
     {
         return $this->is_active;
     }
 
     /**
-     * @param boolean $is_cacheable
+     * @param boolean $cacheable
      */
-    public function setIsCacheable($is_cacheable)
+    public function setCacheable($cacheable)
     {
-        $this->is_cacheable = $is_cacheable;
+        $this->is_cacheable = $cacheable;
     }
 
     /**
      * @return boolean
      */
-    public function getIsCacheable()
+    public function isCacheable()
     {
         return $this->is_cacheable;
     }
@@ -224,6 +222,5 @@ class Block extends AbstractEntity {
     //-----------------------------------------------------------------------------------------------
     // END:  Getters & Setters
     //-----------------------------------------------------------------------------------------------
-
 
 }

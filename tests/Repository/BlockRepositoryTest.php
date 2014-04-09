@@ -14,7 +14,6 @@
 
 namespace tests\Repository;
 
-
 use Gzero\Entity\Block;
 use Gzero\Entity\BlockType;
 
@@ -29,17 +28,22 @@ class BlockRepositoryTest extends \Doctrine2TestCase {
     /**
      * @test
      */
-    public function it_works()
+    public function is_the_repository_works()
     {
         $repo = $this->em->getRepository('Gzero\Entity\Block');
         $this->assertEquals(10, count($repo->findAll()));
+        $this->assertEquals(1, count($repo->findBy(['id' => 5])));
     }
 
+    /**
+     * Generate example data for this test
+     */
     private function exampleData()
     {
         $type = new BlockType('normal');
         for ($i = 0; $i < 10; $i++) {
             $block = new Block($type);
+            $block->setActive(rand(0, 1));
             $this->em->persist($block);
         }
         $this->em->persist($type);

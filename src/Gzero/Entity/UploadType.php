@@ -11,7 +11,38 @@
  * @package    Gzero\Entity
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2014, Adrian Skierniewski
+ * @Entity
  */
 class UploadType {
 
-} 
+    /**
+     * @Id @Column(type="string")
+     * @var string
+     */
+    protected $name;
+
+    /**
+     * @param string $name
+     */
+    function __construct($name)
+    {
+        $this->name = $name;
+    }
+
+    //------------------------------------------------------------------------------------------------
+    // START: Getters & Setters
+    //------------------------------------------------------------------------------------------------
+
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    //-----------------------------------------------------------------------------------------------
+    // END:  Getters & Setters
+    //-----------------------------------------------------------------------------------------------
+
+}

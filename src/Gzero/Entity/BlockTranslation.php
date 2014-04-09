@@ -49,6 +49,12 @@ class BlockTranslation {
      * @Column(type="string")
      * @var string
      */
+    protected $sites = 'all';
+
+    /**
+     * @Column(type="string")
+     * @var string
+     */
     protected $title;
 
     /**
@@ -67,53 +73,9 @@ class BlockTranslation {
         $this->title = $title;
     }
 
-    /**
-     * @param mixed $body
-     */
-    public function setBody($body)
-    {
-        $this->body = $body;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getBody()
-    {
-        return $this->body;
-    }
-
-    /**
-     * @param \Gzero\Entity\Lang $lang
-     */
-    public function setLang($lang)
-    {
-        $this->lang = $lang;
-    }
-
-    /**
-     * @return \Gzero\Entity\Lang
-     */
-    public function getLang()
-    {
-        return $this->lang;
-    }
-
-    /**
-     * @param mixed $title
-     */
-    public function setTitle($title)
-    {
-        $this->title = $title;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getTitle()
-    {
-        return $this->title;
-    }
+    //------------------------------------------------------------------------------------------------
+    // START: Getters & Setters
+    //------------------------------------------------------------------------------------------------
 
     /**
      * @return int
@@ -138,5 +100,89 @@ class BlockTranslation {
     {
         return $this->block;
     }
+
+    /**
+     * @param \Gzero\Entity\Lang $lang
+     */
+    public function setLang($lang)
+    {
+        $this->lang = $lang;
+    }
+
+    /**
+     * @return \Gzero\Entity\Lang
+     */
+    public function getLang()
+    {
+        return $this->lang;
+    }
+
+    /**
+     * @param \Gzero\Entity\User $user
+     */
+    public function setUser($user)
+    {
+        $this->user = $user;
+    }
+
+    /**
+     * @return \Gzero\Entity\User
+     */
+    public function getUser()
+    {
+        return $this->user;
+    }
+
+    /**
+     * @param string $sites
+     */
+    public function setSites($sites)
+    {
+        $this->sites = $sites;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSites()
+    {
+        return $this->sites;
+    }
+
+    /**
+     * @param mixed $title
+     */
+    public function setTitle($title)
+    {
+        $this->title = $title;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getTitle()
+    {
+        return $this->title;
+    }
+
+    /**
+     * @param mixed $body
+     */
+    public function setBody($body)
+    {
+        $this->body = $body;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getBody()
+    {
+        return $this->body;
+    }
+
+    //------------------------------------------------------------------------------------------------
+    // END:  Getters & Setters
+    //------------------------------------------------------------------------------------------------
 
 }

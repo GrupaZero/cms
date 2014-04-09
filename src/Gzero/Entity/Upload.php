@@ -1,6 +1,8 @@
 <?php namespace Gzero\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Gzero\Entity\Traits\SoftDelete;
+use Gzero\Entity\Traits\Timestamp;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -13,14 +15,56 @@ use Doctrine\Common\Collections\ArrayCollection;
  * @package    Gzero\Entity
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2014, Adrian Skierniewski
+ * @Entity @HasLifecycleCallbacks
  */
 class Upload {
 
-    private $type;
-    private $translations;
+    use Timestamp;
+    use SoftDelete;
 
-    public function __construct()
+    /**
+     * @Id @GeneratedValue @Column(type="integer")
+     * @var integer
+     */
+    protected $id;
+
+    /**
+     * @ManyToOne(targetEntity="UploadType")
+     * @JoinColumn(name="type", referencedColumnName="name")
+     * @var UploadType
+     **/
+    protected $type;
+
+    /**
+     * @OneToMany(targetEntity="UploadTranslation", mappedBy="upload", cascade={"persist"})
+     * @var \Doctrine\Common\Collections\ArrayCollection
+     */
+    protected $translations;
+
+    /**
+     * @Column(type="string")
+     * @var string
+     */
+    protected $path;
+
+    /**
+     * @Column(type="string")
+     * @var string
+     */
+    protected $mime;
+
+    /**
+     * @Column(type="string")
+     * @var integer
+     */
+    protected $size;
+
+    /**
+     * @param UploadType $type
+     */
+    function __construct(UploadType $type)
     {
+        $this->type         = $type;
         $this->translations = new ArrayCollection();
     }
 
@@ -29,33 +73,24 @@ class Upload {
      */
     public function addTranslation(UploadTranslation $translation)
     {
+        $translation->setUpload($this);
         $this->translations->add($translation);
     }
 
+    //------------------------------------------------------------------------------------------------
+    // START: Getters & Setters
+    //------------------------------------------------------------------------------------------------
+
     /**
-     * @return ArrayCollection
+     * @return int
      */
-    public function getTranslations()
+    public function getId()
     {
-        return $this->translations;
+        return $this->id;
     }
 
     /**
-     * @param string $langCode
-     *
-     * @return UploadTranslation
-     */
-    public function findTranslation($langCode)
-    {
-        foreach ($this->translations as $key => $trans) {
-            if ($trans->getLangCode() == $langCode) {
-                return $this->translations->get($key);
-            }
-        }
-    }
-
-    /**
-     * @param UploadType $type
+     * @param \Gzero\Entity\UploadType $type
      */
     public function setType(UploadType $type)
     {
@@ -63,10 +98,71 @@ class Upload {
     }
 
     /**
-     * @return UploadType
+     * @return \Gzero\Entity\UploadType
      */
     public function getType()
     {
         return $this->type;
     }
+
+    /**
+     * @return \Doctrine\Common\Collections\ArrayCollection
+     */
+    public function getTranslations()
+    {
+        return $this->translations;
+    }
+
+    /**
+     * @param string $path
+     */
+    public function setPath($path)
+    {
+        $this->path = $path;
+    }
+
+    /**
+     * @return string
+     */
+    public function getPath()
+    {
+        return $this->path;
+    }
+
+    /**
+     * @param string $mime
+     */
+    public function setMime($mime)
+    {
+        $this->mime = $mime;
+    }
+
+    /**
+     * @return string
+     */
+    public function getMime()
+    {
+        return $this->mime;
+    }
+
+    /**
+     * @param int $size
+     */
+    public function setSize($size)
+    {
+        $this->size = $size;
+    }
+
+    /**
+     * @return int
+     */
+    public function getSize()
+    {
+        return $this->size;
+    }
+
+    //-----------------------------------------------------------------------------------------------
+    // END:  Getters & Setters
+    //-----------------------------------------------------------------------------------------------
+
 }
