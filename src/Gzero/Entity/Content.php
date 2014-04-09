@@ -19,7 +19,7 @@ class Content {
      * @Id @GeneratedValue @Column(type="integer")
      * @var integer
      */
-    private $id;
+    protected $id;
 
     /**
      * @return integer
@@ -34,7 +34,14 @@ class Content {
      * @JoinColumn(name="type_id", referencedColumnName="id")
      * @var ContentType
      */
-    private $type;
+    protected $type;
+
+    /**
+     * @ManyToOne(targetEntity="User")
+     * @JoinColumn(name="author", referencedColumnName="id")
+     * @var User
+     **/
+    protected $author;
 
     /**
      * @param ContentType $type

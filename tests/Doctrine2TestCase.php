@@ -18,27 +18,24 @@ use Doctrine\ORM\Tools\Setup;
 
 class Doctrine2TestCase extends \PHPUnit_Framework_TestCase {
 
-    protected $entityManager;
+    protected $dbParams = [
+        'driver' => 'pdo_sqlite',
+        'memory' => TRUE
+    ];
+    /**
+     * @var EntityManager
+     */
+    protected $em;
 
     public function setUp()
     {
         $paths     = array(__DIR__ . "/../src/Gzero/Entity");
         $isDevMode = TRUE;
 
-        // the db connection configuration
-//        $dbParams = array(
-//            'driver'   => 'pdo_sqlite',
-//            'memory' => true
-//        );
-        $dbParams = array(
-            'driver'   => 'pdo_mysql',
-            'user'     => 'doctrine2',
-            'password' => 'test',
-            'dbname'   => 'doctrine2',
-        );
+
 
         $config              = Setup::createAnnotationMetadataConfiguration($paths, $isDevMode);
-        $this->entityManager = EntityManager::create($dbParams, $config);
+        $this->em = EntityManager::create($this->dbParams, $config);
         // Build the schema for sqlite
         $this->generateSchema();
 
@@ -52,7 +49,7 @@ class Doctrine2TestCase extends \PHPUnit_Framework_TestCase {
 
         if (!empty($metadatas)) {
             // Create SchemaTool
-            $tool = new SchemaTool($this->entityManager);
+            $tool = new SchemaTool($this->em);
             $tool->updateSchema($metadatas);
         } else {
             throw new \Doctrine\DBAL\Schema\SchemaException('No Metadata Classes to process.');
@@ -66,7 +63,7 @@ class Doctrine2TestCase extends \PHPUnit_Framework_TestCase {
      */
     protected function getMetadatas()
     {
-        return $this->entityManager->getMetadataFactory()->getAllMetadata();
+        return $this->em->getMetadataFactory()->getAllMetadata();
     }
 
 }

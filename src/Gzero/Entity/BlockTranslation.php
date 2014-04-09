@@ -39,6 +39,13 @@ class BlockTranslation {
     protected $lang;
 
     /**
+     * @ManyToOne(targetEntity="User")
+     * @JoinColumn(name="user", referencedColumnName="id")
+     * @var User
+     **/
+    protected $user;
+
+    /**
      * @Column(type="string")
      * @var string
      */

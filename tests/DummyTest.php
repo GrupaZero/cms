@@ -21,25 +21,40 @@ use Gzero\Entity\Lang;
 
 class DummyTest extends \Doctrine2TestCase {
 
-    public function testDummy()
+    public function setUp()
     {
-        $type = $this->entityManager->find('Gzero\Entity\BlockType', 'normal');
+        $this->dbParams = array(
+            'driver'   => 'pdo_mysql',
+            'user'     => 'doctrine2',
+            'password' => 'test',
+            'dbname'   => 'doctrine2',
+        );
+        parent::setUp();
+    }
+
+    /**
+     * @test
+     * @group ignore
+     */
+    public function dummy()
+    {
+        $type = $this->em->find('Gzero\Entity\BlockType', 'normal');
         if (!$type) {
             $type = new BlockType('normal');
-            $this->entityManager->persist($type);
+            $this->em->persist($type);
         }
         $block = new Block($type);
         $block->setRegion(['footer', 'header']);
-        $lang = $this->entityManager->find('Gzero\Entity\Lang', 'pl');
+        $lang = $this->em->find('Gzero\Entity\Lang', 'pl');
         if (!$lang) {
             $lang = new Lang('pl', 'pl_PL');
-            $this->entityManager->persist($lang);
+            $this->em->persist($lang);
         }
         $translation = new BlockTranslation('Test', $lang);
         $translation->setBlock($block);
         $block->addTranslation($translation);
-        $this->entityManager->persist($block);
-        $this->entityManager->flush();
+        $this->em->persist($block);
+        $this->em->flush();
         // Temporary solution for checking doctrine 2 table creation
     }
 }
