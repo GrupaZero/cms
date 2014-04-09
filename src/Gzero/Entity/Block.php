@@ -30,15 +30,15 @@ class Block extends AbstractEntity {
 
     /**
      * @ManyToOne(targetEntity="BlockType")
-     * @JoinColumn(name="type_id", referencedColumnName="id")
+     * @JoinColumn(name="type", referencedColumnName="name")
      * @var BlockType
      **/
     protected $type;
 
     /**
-     * @ManyToOne(targetEntity="Menu")
+     * @ManyToOne(targetEntity="MenuLink")
      * @JoinColumn(name="menu_id", referencedColumnName="id")
-     * @var Menu
+     * @var MenuLink
      **/
     protected $menu;
 
@@ -77,8 +77,9 @@ class Block extends AbstractEntity {
      */
     protected $options;
 
-    public function __construct()
+    public function __construct(BlockType $type)
     {
+        $this->type         = $type;
         $this->translations = new ArrayCollection();
         $this->uploads      = new ArrayCollection();
     }
@@ -160,7 +161,7 @@ class Block extends AbstractEntity {
     }
 
     /**
-     * @param \Gzero\Entity\Menu $menu
+     * @param \Gzero\Entity\MenuLink $menu
      */
     public function setMenu($menu)
     {
@@ -168,7 +169,7 @@ class Block extends AbstractEntity {
     }
 
     /**
-     * @return \Gzero\Entity\Menu
+     * @return \Gzero\Entity\MenuLink
      */
     public function getMenu()
     {
@@ -207,7 +208,7 @@ class Block extends AbstractEntity {
         return $this->region;
     }
 
-        /**
+    /**
      * @param \Doctrine\Common\Collections\ArrayCollection $upload
      */
     public function setUploads($upload)

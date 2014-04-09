@@ -16,7 +16,8 @@ namespace tests\Entity;
 
 
 use Gzero\Entity\Block;
-use \Mockery as M;
+use Gzero\Entity\BlockType;
+use Mockery as M;
 
 class BlockTest extends \PHPUnit_Framework_TestCase {
 
@@ -31,7 +32,7 @@ class BlockTest extends \PHPUnit_Framework_TestCase {
      */
     public function is_instantiable()
     {
-        $this->assertInstanceOf('Gzero\Entity\Block', new Block());
+        $this->assertInstanceOf('Gzero\Entity\Block', new Block(new BlockType('normal')));
     }
 
     /**
@@ -39,10 +40,8 @@ class BlockTest extends \PHPUnit_Framework_TestCase {
      */
     public function can_get_and_set_type()
     {
-        $type = M::mock('Gzero\Entity\BlockType');
-
-        $block = new Block();
-        $block->setType($type);
+        $type  = M::mock('Gzero\Entity\BlockType');
+        $block = new Block($type);
         $this->assertEquals($type, $block->getType());
     }
 

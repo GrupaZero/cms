@@ -13,7 +13,7 @@
  * @copyright  Copyright (c) 2014, Adrian Skierniewski
  * @Entity
  */
-class Menu {
+class MenuLink {
 
     /**
      * @Id @GeneratedValue @Column(type="integer")

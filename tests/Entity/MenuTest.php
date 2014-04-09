@@ -15,7 +15,7 @@
 namespace tests\Entity;
 
 
-use Gzero\Entity\Menu;
+use Gzero\Entity\MenuLink;
 
 class MenuTest extends \PHPUnit_Framework_TestCase {
 
@@ -24,7 +24,7 @@ class MenuTest extends \PHPUnit_Framework_TestCase {
      */
     public function is_instantiable()
     {
-        $this->assertInstanceOf('Gzero\Entity\Menu', new Menu());
+        $this->assertInstanceOf('Gzero\Entity\MenuLink', new MenuLink());
     }
 
 }

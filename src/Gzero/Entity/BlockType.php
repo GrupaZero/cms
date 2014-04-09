@@ -16,9 +16,25 @@
 class BlockType {
 
     /**
-     * @Id @GeneratedValue @Column(type="integer")
+     * @Id @Column(type="string")
      * @var string
      */
-    private $id;
+    protected $name;
+
+    /**
+     * @param string $name
+     */
+    function __construct($name)
+    {
+        $this->name = $name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
 
 } 
