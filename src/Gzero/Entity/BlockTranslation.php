@@ -50,6 +50,10 @@ class BlockTranslation {
      */
     protected $body;
 
+    /**
+     * @param string $title
+     * @param Lang   $lang
+     */
     function __construct($title, Lang $lang)
     {
         $this->lang  = $lang;

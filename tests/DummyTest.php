@@ -37,8 +37,7 @@ class DummyTest extends \Doctrine2TestCase {
         }
         $translation = new BlockTranslation('Test', $lang);
         $translation->setBlock($block);
-        $block->getTranslations()->add($translation);
-        $this->entityManager->persist($translation);
+        $block->addTranslation($translation);
         $this->entityManager->persist($block);
         $this->entityManager->flush();
         // Temporary solution for checking doctrine 2 table creation

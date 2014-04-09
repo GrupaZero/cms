@@ -49,7 +49,7 @@ class Block extends AbstractEntity {
     protected $region;
 
     /**
-     * @OneToMany(targetEntity="BlockTranslation", mappedBy="block")
+     * @OneToMany(targetEntity="BlockTranslation", mappedBy="block", cascade={"persist"})
      * @var \Doctrine\Common\Collections\ArrayCollection
      */
     protected $translations;
@@ -84,6 +84,12 @@ class Block extends AbstractEntity {
         $this->uploads      = new ArrayCollection();
     }
 
+    public function addTranslation(BlockTranslation $translation)
+    {
+        $translation->setBlock($this);
+        $this->translations->add($translation);
+    }
+
     //-----------------------------------------------------------------------------------------------
     // START: Getters & Setters
     //-----------------------------------------------------------------------------------------------
@@ -112,21 +118,12 @@ class Block extends AbstractEntity {
     }
 
     /**
-     * @param \Doctrine\Common\Collections\ArrayCollection $translation
-     */
-    public function setTranslations($translation)
-    {
-        $this->translations = $translation;
-    }
-
-    /**
      * @return \Doctrine\Common\Collections\ArrayCollection
      */
     public function getTranslations()
     {
         return $this->translations;
     }
-
 
     /**
      * @param boolean $is_active
