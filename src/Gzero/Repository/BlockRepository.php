@@ -1,6 +1,6 @@
 <?php namespace Gzero\Repository;
 
-use Doctrine\ORM\EntityRepository;
+use Gzero\Doctrine2Extensions\Common\BaseRepository;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -14,6 +14,6 @@ use Doctrine\ORM\EntityRepository;
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2014, Adrian Skierniewski
  */
-class BlockRepository extends EntityRepository {
+class BlockRepository extends BaseRepository {
 
 }

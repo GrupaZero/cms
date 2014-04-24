@@ -15,6 +15,7 @@
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Tools\SchemaTool;
 use Doctrine\ORM\Tools\Setup;
+use Gzero\Doctrine2Extensions\Tree\TreeSubscriber;
 
 class Doctrine2TestCase extends \PHPUnit_Framework_TestCase {
 
@@ -33,9 +34,10 @@ class Doctrine2TestCase extends \PHPUnit_Framework_TestCase {
         $isDevMode = TRUE;
 
 
-
-        $config              = Setup::createAnnotationMetadataConfiguration($paths, $isDevMode);
-        $this->em = EntityManager::create($this->dbParams, $config);
+        $config = Setup::createAnnotationMetadataConfiguration($paths, $isDevMode);
+        $evm    = new \Doctrine\Common\EventManager();
+        $evm->addEventSubscriber(new TreeSubscriber());
+        $this->em = EntityManager::create($this->dbParams, $config, $evm);
         // Build the schema for sqlite
         $this->generateSchema();
 

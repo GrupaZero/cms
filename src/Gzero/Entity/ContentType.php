@@ -16,16 +16,33 @@
 class ContentType {
 
     /**
-     * @Id @GeneratedValue @Column(type="integer")
-     * @var integer
+     * @Id @Column(type="string")
+     * @var string
      */
-    private $id;
+    protected $name;
+
+    //------------------------------------------------------------------------------------------------
+    // START: Getters & Setters
+    //------------------------------------------------------------------------------------------------
 
     /**
-     * @return int
+     * @param string $name
      */
-    public function getId()
+    function __construct($name)
     {
-        return $this->id;
+        $this->name = $name;
     }
+
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
+    }
+
+    //------------------------------------------------------------------------------------------------
+    // END:  Getters & Setters
+    //------------------------------------------------------------------------------------------------
+
 } 

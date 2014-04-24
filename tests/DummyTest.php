@@ -17,6 +17,7 @@ namespace tests;
 use Gzero\Entity\Block;
 use Gzero\Entity\BlockTranslation;
 use Gzero\Entity\BlockType;
+use Gzero\Entity\Content;
 use Gzero\Entity\Lang;
 
 class DummyTest extends \Doctrine2TestCase {
@@ -38,12 +39,19 @@ class DummyTest extends \Doctrine2TestCase {
      */
     public function dummy()
     {
-        $type = $this->em->find('Gzero\Entity\BlockType', 'normal');
-        if (!$type) {
-            $type = new BlockType('normal');
-            $this->em->persist($type);
-        }
-        $block = new Block($type);
+        // Content
+        $contentType = $this->getType('Gzero\Entity\ContentType', 'category');
+        $content     = new Content($contentType);
+        $content2    = new Content($contentType);
+        $content->setPath('/s/ds/ds/d/');
+        $content2->setPath('/x/x');
+        $content->setChildOf($content2);
+        $this->em->persist($content);
+        $this->em->flush();
+
+        // Block
+        $blockType = $this->getType('Gzero\Entity\BlockType', 'normal');
+        $block     = new Block($blockType);
         $block->setRegion(['footer', 'header']);
         $lang = $this->em->find('Gzero\Entity\Lang', 'pl');
         if (!$lang) {
@@ -56,5 +64,22 @@ class DummyTest extends \Doctrine2TestCase {
         $this->em->persist($block);
         $this->em->flush();
         // Temporary solution for checking doctrine 2 table creation
+    }
+
+    /**
+     * @param $entityName
+     * @param $typeName
+     *
+     * @return BlockType|null|object
+     */
+    protected function getType($entityName, $typeName)
+    {
+        $type = $this->em->find($entityName, $typeName);
+        if (!$type) {
+            $type = new $entityName($typeName);
+            $this->em->persist($type);
+            return $type;
+        }
+        return $type;
     }
 }

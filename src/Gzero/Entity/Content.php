@@ -1,5 +1,10 @@
 <?php namespace Gzero\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Gzero\Doctrine2Extensions\Timestamp\TimestampTrait;
+use Gzero\Doctrine2Extensions\Tree\TreeNode;
+use Gzero\Doctrine2Extensions\Tree\TreeNodeTrait;
+
 /**
  * This file is part of the GZERO CMS package.
  *
@@ -11,9 +16,12 @@
  * @package    Gzero\Entity
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2014, Adrian Skierniewski
- * @Entity
+ * @Entity @HasLifecycleCallbacks
  */
-class Content {
+class Content implements TreeNode {
+
+    use TreeNodeTrait;
+    use TimestampTrait;
 
     /**
      * @Id @GeneratedValue @Column(type="integer")
@@ -22,16 +30,8 @@ class Content {
     protected $id;
 
     /**
-     * @return integer
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    /**
      * @ManyToOne(targetEntity="ContentType")
-     * @JoinColumn(name="type_id", referencedColumnName="id")
+     * @JoinColumn(name="type", referencedColumnName="name")
      * @var ContentType
      */
     protected $type;
@@ -43,12 +43,18 @@ class Content {
      **/
     protected $author;
 
-    /**
-     * @param ContentType $type
-     */
-    public function setType(ContentType $type)
+    public function __construct(ContentType $type)
     {
-        $this->type = $type;
+        $this->type     = $type;
+        $this->children = new ArrayCollection();
+    }
+
+    /**
+     * @return integer
+     */
+    public function getId()
+    {
+        return $this->id;
     }
 
     /**
@@ -58,4 +64,5 @@ class Content {
     {
         return $this->type;
     }
+
 } 

@@ -1,8 +1,8 @@
 <?php namespace Gzero\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use Gzero\Entity\Traits\SoftDelete;
-use Gzero\Entity\Traits\Timestamp;
+use Gzero\Doctrine2Extensions\Timestamp\TimestampTrait;
+
 
 /**
  * This file is part of the GZERO CMS package.
@@ -19,8 +19,7 @@ use Gzero\Entity\Traits\Timestamp;
  */
 class Upload {
 
-    use Timestamp;
-    use SoftDelete;
+    use TimestampTrait;
 
     /**
      * @Id @GeneratedValue @Column(type="integer")

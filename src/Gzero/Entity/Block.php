@@ -1,8 +1,7 @@
 <?php namespace Gzero\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use Gzero\Entity\Traits\SoftDelete;
-use Gzero\Entity\Traits\Timestamp;
+use Gzero\Doctrine2Extensions\Timestamp\TimestampTrait;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -19,8 +18,7 @@ use Gzero\Entity\Traits\Timestamp;
  */
 class Block extends AbstractEntity {
 
-    use Timestamp;
-    use SoftDelete;
+    use TimestampTrait;
 
     /**
      * @Id @GeneratedValue @Column(type="integer")
@@ -63,13 +61,13 @@ class Block extends AbstractEntity {
      * @Column(type="boolean")
      * @var boolean
      */
-    protected $is_cacheable = FALSE;
+    protected $isCacheable = FALSE;
 
     /**
      * @Column(type="boolean")
      * @var boolean
      */
-    protected $is_active = FALSE;
+    protected $isActive = FALSE;
 
     /**
      * @Column(type="object")
@@ -128,7 +126,7 @@ class Block extends AbstractEntity {
 
     public function setActive($active)
     {
-        $this->is_active = $active;
+        $this->isActive = $active;
     }
 
     /**
@@ -136,7 +134,7 @@ class Block extends AbstractEntity {
      */
     public function isActive()
     {
-        return $this->is_active;
+        return $this->isActive;
     }
 
     /**
@@ -144,7 +142,7 @@ class Block extends AbstractEntity {
      */
     public function setCacheable($cacheable)
     {
-        $this->is_cacheable = $cacheable;
+        $this->isCacheable = $cacheable;
     }
 
     /**
@@ -152,7 +150,7 @@ class Block extends AbstractEntity {
      */
     public function isCacheable()
     {
-        return $this->is_cacheable;
+        return $this->isCacheable;
     }
 
     /**

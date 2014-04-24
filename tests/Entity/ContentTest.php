@@ -16,29 +16,34 @@ namespace tests\Entity;
 
 use Gzero\Entity\Content;
 use Gzero\Entity\ContentType;
+use Mockery as M;
 
 class ContentTest extends \PHPUnit_Framework_TestCase {
+
+    public function tearDown()
+    {
+        M::close();
+    }
 
     /**
      * @test
      */
     public function is_instantiable()
     {
-        $this->assertInstanceOf('Gzero\Entity\Content', new Content());
+        $this->assertInstanceOf('Gzero\Entity\Content', new Content(new ContentType('xxx')));
     }
 
     /**
      * @test
-     * @expectedException \PHPUnit_Framework_Error
      */
     public function can_get_and_set_type()
     {
-        $content = new Content();
-        $this->assertInstanceOf('Gzero\Entity\ContentType', new ContentType());
-        $type = new ContentType();
-        $content->setType($type);
-        $this->assertEquals($type, $content->getType());
-        $content->setType(new \stdClass()); // Wrong type set
+        $type    = M::mock('Gzero\Entity\ContentType');
+        $type2   = M::mock('Gzero\Entity\ContentType');
+        $content = new Content($type); // on constructor
+        $this->assertSame($type, $content->getType());
+        $content->setType($type2); // with setter
+        $this->assertSame($type2, $content->getType());
     }
 
 }
