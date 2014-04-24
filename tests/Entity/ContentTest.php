@@ -33,18 +33,18 @@ class ContentTest extends \PHPUnit_Framework_TestCase {
         $this->assertInstanceOf('Gzero\Entity\Content', new Content(new ContentType('xxx')));
     }
 
-    /**
-     * @test
-     */
-    public function can_get_and_set_type()
-    {
-        $type    = M::mock('Gzero\Entity\ContentType');
-        $type2   = M::mock('Gzero\Entity\ContentType');
-        $content = new Content($type); // on constructor
-        $this->assertSame($type, $content->getType());
-        $content->setType($type2); // with setter
-        $this->assertSame($type2, $content->getType());
-    }
+//    /**
+//     * @test
+//     */
+//    public function can_get_and_set_type()
+//    {
+//        $type    = M::mock('Gzero\Entity\ContentType');
+//        $type2   = M::mock('Gzero\Entity\ContentType');
+//        $content = new Content($type); // on constructor
+//        $this->assertSame($type, $content->getType());
+//        $content->setType($type2); // with setter
+//        $this->assertSame($type2, $content->getType());
+//    }
 
 }
 
