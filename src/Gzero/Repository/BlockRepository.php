@@ -2,6 +2,7 @@
 
 use Doctrine\DBAL\Query\QueryBuilder;
 use Gzero\Doctrine2Extensions\Common\BaseRepository;
+use Gzero\Entity\Block;
 use Gzero\Entity\Lang;
 
 /**
@@ -17,6 +18,16 @@ use Gzero\Entity\Lang;
  * @copyright  Copyright (c) 2014, Adrian Skierniewski
  */
 class BlockRepository extends BaseRepository {
+
+    public function getById($id)
+    {
+        return $this->_em->find($this->getClassName(), $id);
+    }
+
+    public function getTypeById($id)
+    {
+        return $this->_em->find($this->getClassName() . 'Type', $id);
+    }
 
     /**
      * Gets all active blocks with translation in specified lang
@@ -37,5 +48,25 @@ class BlockRepository extends BaseRepository {
             ->orderBy('b.weight')
             ->setParameter('lang', $lang->getCode());
         return $qb->getQuery()->getResult();
+    }
+
+    public function create(Block $block)
+    {
+        $this->_em->persist($block);
+    }
+
+    public function update(Block $block)
+    {
+
+    }
+
+    public function delete(Block $block)
+    {
+
+    }
+
+    public function save()
+    {
+        $this->_em->flush();
     }
 }

@@ -19,18 +19,28 @@ use Gzero\Entity\BlockType;
 
 class BlockRepositoryTest extends \Doctrine2TestCase {
 
-    public function setUp()
+    function setUp()
     {
         parent::setUp();
         $this->exampleData();
     }
 
     /** @test */
-    public function is_the_repository_works()
+    function is_the_repository_works()
     {
         $repo = $this->em->getRepository('Gzero\Entity\Block');
         $this->assertEquals(10, count($repo->findAll()));
         $this->assertEquals(1, count($repo->findBy(['id' => 5])));
+    }
+
+    /** @test */
+    function can_add_new_block()
+    {
+        $repo = $this->em->getRepository('Gzero\Entity\Block');
+        $type = $repo->getTypeById('normal');
+        $repo->create(new Block($type));
+        $repo->save();
+        $this->assertEquals(11, count($repo->findAll())); // +1 with new block
     }
 
     /**
