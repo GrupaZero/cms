@@ -52,14 +52,14 @@ class DummyTest extends \Doctrine2TestCase {
         // Block
         $blockType = $this->getType('Gzero\Entity\BlockType', 'normal');
         $block     = new Block($blockType);
-        $block->setRegion(['footer', 'header']);
+        $block->setRegions(['footer', 'header']);
         $lang = $this->em->find('Gzero\Entity\Lang', 'pl');
         if (!$lang) {
             $lang = new Lang('pl', 'pl_PL');
             $this->em->persist($lang);
         }
-        $translation = new BlockTranslation('Test', $lang);
-        $translation->setBlock($block);
+        $translation = new BlockTranslation($block, $lang);
+        $translation->setTitle('test');
         $block->addTranslation($translation);
         $this->em->persist($block);
         $this->em->flush();

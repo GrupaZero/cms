@@ -25,9 +25,7 @@ class ContentTest extends \PHPUnit_Framework_TestCase {
         M::close();
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function is_instantiable()
     {
         $this->assertInstanceOf('Gzero\Entity\Content', new Content(new ContentType('xxx')));

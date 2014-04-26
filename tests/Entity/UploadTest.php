@@ -25,17 +25,13 @@ class UploadTest extends \PHPUnit_Framework_TestCase {
         M::close();
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function is_instantiable()
     {
         $this->assertInstanceOf('Gzero\Entity\Upload', new Upload(new UploadType('image')));
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function can_get_and_set_type()
     {
         $type   = M::mock('Gzero\Entity\UploadType');
@@ -46,9 +42,7 @@ class UploadTest extends \PHPUnit_Framework_TestCase {
         $this->assertSame($type2, $upload->getType());
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function can_add_and_get_translation()
     {
         $type    = M::mock('Gzero\Entity\UploadType');

@@ -65,13 +65,16 @@ class BlockTranslation {
     protected $body;
 
     /**
-     * @param string $title
-     * @param Lang   $lang
+     * @param Block $block
+     * @param Lang  $lang
+     *
+     * @param User  $user
      */
-    function __construct($title, Lang $lang)
+    function __construct(Block $block, Lang $lang, User $user = NULL)
     {
+        $this->block = $block;
         $this->lang  = $lang;
-        $this->title = $title;
+        $this->user  = $user;
     }
 
     //------------------------------------------------------------------------------------------------
@@ -87,14 +90,6 @@ class BlockTranslation {
     }
 
     /**
-     * @param \Gzero\Entity\Block $block
-     */
-    public function setBlock($block)
-    {
-        $this->block = $block;
-    }
-
-    /**
      * @return \Gzero\Entity\Block
      */
     public function getBlock()
@@ -103,27 +98,11 @@ class BlockTranslation {
     }
 
     /**
-     * @param \Gzero\Entity\Lang $lang
-     */
-    public function setLang($lang)
-    {
-        $this->lang = $lang;
-    }
-
-    /**
      * @return \Gzero\Entity\Lang
      */
     public function getLang()
     {
         return $this->lang;
-    }
-
-    /**
-     * @param \Gzero\Entity\User $user
-     */
-    public function setUser($user)
-    {
-        $this->user = $user;
     }
 
     /**

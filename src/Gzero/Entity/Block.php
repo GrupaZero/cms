@@ -41,12 +41,6 @@ class Block extends AbstractEntity {
     protected $menu;
 
     /**
-     * @Column(type="json_array", nullable=TRUE)
-     * @var Array
-     */
-    protected $region;
-
-    /**
      * @OneToMany(targetEntity="BlockTranslation", mappedBy="block", cascade={"persist"})
      * @var \Doctrine\Common\Collections\ArrayCollection
      */
@@ -56,6 +50,11 @@ class Block extends AbstractEntity {
      * @var \Doctrine\Common\Collections\ArrayCollection
      */
     protected $uploads;
+    /**
+     * @Column(type="json_array", nullable=TRUE)
+     * @var Array
+     */
+    protected $regions;
 
     /**
      * @Column(type="boolean")
@@ -75,6 +74,9 @@ class Block extends AbstractEntity {
      */
     protected $options;
 
+    /**
+     * @param BlockType $type
+     */
     public function __construct(BlockType $type)
     {
         $this->type         = $type;
@@ -82,10 +84,28 @@ class Block extends AbstractEntity {
         $this->uploads      = new ArrayCollection();
     }
 
+    /**
+     * @param BlockTranslation $translation
+     */
     public function addTranslation(BlockTranslation $translation)
     {
-        $translation->setBlock($this);
         $this->translations->add($translation);
+    }
+
+    /**
+     * @param Upload $upload
+     */
+    public function addUpload(Upload $upload)
+    {
+        $this->uploads->add($upload);
+    }
+
+    /**
+     * @param MenuLink $menu
+     */
+    public function addMenu(MenuLink $menu)
+    {
+        $this->menu = $menu;
     }
 
     //------------------------------------------------------------------------------------------------
@@ -101,14 +121,6 @@ class Block extends AbstractEntity {
     }
 
     /**
-     * @param \Gzero\Entity\BlockType $type
-     */
-    public function setType(BlockType $type)
-    {
-        $this->type = $type;
-    }
-
-    /**
      * @return \Gzero\Entity\BlockType
      */
     public function getType()
@@ -117,13 +129,25 @@ class Block extends AbstractEntity {
     }
 
     /**
-     * @return \Doctrine\Common\Collections\ArrayCollection
+     * @param Array $regions
      */
-    public function getTranslations()
+    public function setRegions($regions)
     {
-        return $this->translations;
+        /** @TODO Some validation */
+        $this->regions = $regions;
     }
 
+    /**
+     * @return Array
+     */
+    public function getRegions()
+    {
+        return $this->regions;
+    }
+
+    /**
+     * @param $active
+     */
     public function setActive($active)
     {
         $this->isActive = $active;
@@ -170,6 +194,22 @@ class Block extends AbstractEntity {
     }
 
     /**
+     * @return \Doctrine\Common\Collections\ArrayCollection
+     */
+    public function getTranslations()
+    {
+        return $this->translations;
+    }
+
+    /**
+     * @return \Doctrine\Common\Collections\ArrayCollection
+     */
+    public function getUploads()
+    {
+        return $this->uploads;
+    }
+
+    /**
      * @param \stdClass $options
      */
     public function setOptions($options)
@@ -183,38 +223,6 @@ class Block extends AbstractEntity {
     public function getOptions()
     {
         return $this->options;
-    }
-
-    /**
-     * @param Array $region
-     */
-    public function setRegion($region)
-    {
-        $this->region = $region;
-    }
-
-    /**
-     * @return Array
-     */
-    public function getRegion()
-    {
-        return $this->region;
-    }
-
-    /**
-     * @param \Doctrine\Common\Collections\ArrayCollection $upload
-     */
-    public function setUploads($upload)
-    {
-        $this->uploads = $upload;
-    }
-
-    /**
-     * @return \Doctrine\Common\Collections\ArrayCollection
-     */
-    public function getUploads()
-    {
-        return $this->uploads;
     }
 
     //-----------------------------------------------------------------------------------------------

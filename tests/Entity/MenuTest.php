@@ -19,9 +19,7 @@ use Gzero\Entity\MenuLink;
 
 class MenuTest extends \PHPUnit_Framework_TestCase {
 
-    /**
-     * @test
-     */
+    /** @test */
     public function is_instantiable()
     {
         $this->assertInstanceOf('Gzero\Entity\MenuLink', new MenuLink());

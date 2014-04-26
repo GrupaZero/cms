@@ -25,9 +25,7 @@ class BlockRepositoryTest extends \Doctrine2TestCase {
         $this->exampleData();
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function is_the_repository_works()
     {
         $repo = $this->em->getRepository('Gzero\Entity\Block');
