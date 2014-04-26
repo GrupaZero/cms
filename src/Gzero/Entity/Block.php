@@ -14,7 +14,7 @@ use Gzero\Doctrine2Extensions\Timestamp\TimestampTrait;
  * @package    Gzero\Entity
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2014, Adrian Skierniewski
- * @Entity @HasLifecycleCallbacks
+ * @Entity(repositoryClass="Gzero\Repository\BlockRepository") @HasLifecycleCallbacks
  */
 class Block extends AbstractEntity {
 
@@ -54,7 +54,13 @@ class Block extends AbstractEntity {
      * @Column(type="json_array", nullable=TRUE)
      * @var Array
      */
-    protected $regions;
+    protected $regions = NULL;
+
+    /**
+     * @Column(type="integer")
+     * @var boolean
+     */
+    protected $weight = 0;
 
     /**
      * @Column(type="boolean")
@@ -69,7 +75,7 @@ class Block extends AbstractEntity {
     protected $isActive = FALSE;
 
     /**
-     * @Column(type="object")
+     * @Column(type="object", nullable=TRUE)
      * @var \stdClass
      */
     protected $options;
