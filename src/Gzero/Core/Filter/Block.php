@@ -1,6 +1,7 @@
 <?php namespace Gzero\Core\Filter;
 
-use Gzero\BlockHandler;
+use Gzero\Core\BlockHandler;
+use Gzero\Entity\Lang;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -20,15 +21,15 @@ class Block {
     protected $langRepo;
     protected $handler;
 
-//    public function __construct(BlockHandler $block, LangRepository $lang)
-//    {
-//        $this->handler  = $block;
+    public function __construct(BlockHandler $block)
+    {
+        $this->handler  = $block;
 //        $this->langRepo = $lang;
-//    }
-//
-//    public function filter()
-//    {
-//        $this->handler->loadAllActive('/', $this->langRepo->getCurrent());
-//    }
+    }
+
+    public function filter()
+    {
+        $this->handler->loadAllActive('/', new Lang('pl', 'pl_PL'));
+    }
 
 } 

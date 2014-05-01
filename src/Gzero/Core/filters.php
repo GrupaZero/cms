@@ -1,3 +1,3 @@
 <?php
 
-Route::filter('block.build', 'Gzero\Filters\Block');
+Route::filter('block.build', 'Gzero\Core\Filter\Block');

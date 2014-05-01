@@ -1,5 +1,6 @@
 <?php namespace Gzero\Core;
 
+use Atrauzzi\LaravelDoctrine\Support\Facades\Doctrine;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\ServiceProvider as SP;
@@ -38,9 +39,20 @@ class ServiceProvider extends SP {
      */
     public function register()
     {
+        foreach ($this->app['config']['gzero.block_type'] as $type => $class) {
+            $this->app->bind("block_type:$type", $class);
+        }
+
         foreach ($this->app['config']['gzero.content_type'] as $type => $class) {
             $this->app->bind("content_type:$type", $class);
         }
+
+        $this->app->bind(
+            'BlockRepo',
+            function ($app) {
+                return \Doctrine::getRepository('Gzero\Entity\Block');
+            }
+        );
     }
 
     /**

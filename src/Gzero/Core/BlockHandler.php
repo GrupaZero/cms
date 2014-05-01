@@ -1,8 +1,7 @@
 <?php namespace Gzero\Core;
 
-use Gzero\EloquentBaseModel\Model\Collection;
-use Gzero\Models\Lang;
-use Gzero\Repositories\Block\BlockRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Gzero\Entity\Lang;
 use Illuminate\Cache\Repository as Cache;
 use Illuminate\Foundation\Application;
 
@@ -25,12 +24,12 @@ class BlockHandler {
     private $blockRepo;
     private $regions;
 
-    public function __construct(BlockRepository $block, Cache $cache, Application $app)
+    public function __construct(Cache $cache, Application $app)
     {
         $this->app       = $app;
-        $this->regions   = new Collection();
+        $this->regions   = new ArrayCollection();
         $this->cache     = $cache;
-        $this->blockRepo = $block;
+        $this->blockRepo = $app->make('BlockRepo');
     }
 
     public function loadAllActive($url, Lang $lang)
@@ -39,18 +38,18 @@ class BlockHandler {
         $blocks  = $this->cacheAll($lang);
         foreach ($blocks as $block) {
             if ($this->checkVisibility($block)) {
-                if (!$block->is_cacheable) { // Build not cached blocks
+                if (!$block->isCacheable()) { // Build not cached blocks
                     $this->build($block, $lang);
                 }
-                foreach (explode('|', $block->region) as $region) {
+                foreach ($block->getRegions() as $region) {
                     if (empty($regions[$region])) {
-                        $regions[$region] = new Collection();
+                        $regions[$region] = new ArrayCollection();
                     }
                     $regions[$region]->add($block);
                 }
             }
         }
-        $this->regions = $this->regions->make($regions);
+        $this->regions = new ArrayCollection($regions);
         \View::share('regions', $this->regions);
     }
 
@@ -59,11 +58,11 @@ class BlockHandler {
         if (!$this->cache->has('blocks')) {
             $blocks = $this->blockRepo->getAllActive($lang);
             foreach ($blocks as &$block) {
-                if ($block->is_cacheable) { // Build only for cacheable blocks
+                if ($block->isCacheable()) { // Build only for cacheable blocks
                     $this->build($block, $lang);
                 }
             }
-            $this->cache->forever('blocks', $blocks);
+//            $this->cache->forever('blocks', $blocks); TODO cache on DOCTRINE 2 entity
             return $blocks;
         } else {
             return $this->cache->get('blocks');
@@ -72,7 +71,7 @@ class BlockHandler {
 
     protected function build($block, Lang $lang)
     {
-        $type        = $this->resolveType($block->type->name);
+        $type        = $this->resolveType($block->getType()->getName());
         $block->view = $type->load($block, $lang)->render();
     }
 

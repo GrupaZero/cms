@@ -50,7 +50,7 @@ class DummyTest extends \Doctrine2TestCase {
         $this->em->flush();
 
         // Block
-        $blockType = $this->getType('Gzero\Entity\BlockType', 'normal');
+        $blockType = $this->getType('Gzero\Entity\BlockType', 'basic');
         $block     = new Block($blockType);
         $block->setRegions(['footer', 'header']);
         $lang = $this->em->find('Gzero\Entity\Lang', 'pl');
