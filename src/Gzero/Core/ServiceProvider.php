@@ -1,7 +1,7 @@
 <?php namespace Gzero\Core;
 
 use Atrauzzi\LaravelDoctrine\Support\Facades\Doctrine;
-use Illuminate\Support\Facades\Config;
+use Gzero\Core\Auth\Doctrine2UserProvider;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\ServiceProvider as SP;
 use Symfony\Component\HttpFoundation\Request;
@@ -39,24 +39,13 @@ class ServiceProvider extends SP {
      */
     public function register()
     {
-        foreach ($this->app['config']['gzero.block_type'] as $type => $class) {
-            $this->app->bind("block_type:$type", $class);
-        }
-
-        foreach ($this->app['config']['gzero.content_type'] as $type => $class) {
-            $this->app->bind("content_type:$type", $class);
-        }
-
-        $this->app->bind(
-            'BlockRepo',
-            function ($app) {
-                return \Doctrine::getRepository('Gzero\Entity\Block');
-            }
-        );
+        $this->bindRepositories();
+        $this->bindTypes();
+        $this->extendAuth();
     }
 
     /**
-     * Trying to detect language from uri
+     * Try to detect language from uri
      */
     protected function detectLanguage()
     {
@@ -75,6 +64,63 @@ class ServiceProvider extends SP {
     }
 
     /**
+     * Bind Doctrine 2 repositories
+     */
+    protected function bindRepositories()
+    {
+        $this->app->singleton( // We need only one LangRepository
+            'Gzero\Repository\LangRepository',
+            function ($app) {
+                $repo = Doctrine::getRepository('Gzero\Entity\Lang');
+                $repo->init(); // Use cache
+                return $repo;
+            }
+        );
+
+        $this->app->bind(
+            'Gzero\Repository\UserRepository',
+            function ($app) {
+                return Doctrine::getRepository('Gzero\Entity\User');
+            }
+        );
+
+        $this->app->bind(
+            'Gzero\Repository\BlockRepository',
+            function ($app) {
+                return Doctrine::getRepository('Gzero\Entity\Block');
+            }
+        );
+
+        $this->app->bind(
+            'Gzero\Repository\ContentRepository',
+            function ($app) {
+                return Doctrine::getRepository('Gzero\Entity\Content');
+            }
+        );
+
+        $this->app->bind(
+            'Gzero\Repository\MenuLinkRepository',
+            function ($app) {
+                return Doctrine::getRepository('Gzero\Entity\MenuLink');
+            }
+        );
+    }
+
+    /**
+     * Bind content and block types
+     */
+    protected function bindTypes()
+    {
+        foreach ($this->app['config']['gzero.block_type'] as $type => $class) {
+            $this->app->bind("block_type:$type", $class);
+        }
+
+        foreach ($this->app['config']['gzero.content_type'] as $type => $class) {
+            $this->app->bind("content_type:$type", $class);
+        }
+    }
+
+    /**
      * Register additional providers to system
      */
     protected function registerAdditionalProviders()
@@ -85,7 +131,22 @@ class ServiceProvider extends SP {
     }
 
     /**
-     * Add additional file to store filers
+     * Add doctrine2 driver to Laravel Auth
+     */
+    protected function extendAuth()
+    {
+        // We must load deferred auth provider to add doctrine2 driver
+        $this->app->registerDeferredProvider('Illuminate\Auth\AuthServiceProvider', 'auth');
+        $this->app['auth']->extend(
+            'doctrine2',
+            function ($app) {
+                return new Doctrine2UserProvider(Doctrine::getRepository('Gzero\Entity\User'));
+            }
+        );
+    }
+
+    /**
+     * Add additional file to store filters
      */
     protected function registerFilters()
     {

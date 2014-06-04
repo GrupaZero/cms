@@ -1,4 +1,4 @@
-<?php namespace Gzero\Handler\Block;
+<?php namespace Gzero\Core\Handler\Block;
 
 /**
  * This file is part of the GZERO CMS package.

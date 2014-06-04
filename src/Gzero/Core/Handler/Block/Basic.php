@@ -33,6 +33,7 @@ class Basic implements BlockTypeHandler {
      */
     public function render()
     {
-        return \View::make('blocks.basic', ['block' => $this->block])->render();
+        $translations = $this->block->getTranslations()->first();
+        return \View::make('blocks.basic', ['block' => $this->block, 'translations' => $translations])->render();
     }
 } 

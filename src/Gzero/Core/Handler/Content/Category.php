@@ -1,7 +1,7 @@
-<?php namespace Gzero\Handler\Content;
+<?php namespace Gzero\Core\Handler\Content;
 
-use Gzero\Models\Content\Content as ContentModel;
-use Gzero\Models\Lang;
+use Gzero\Entity\Content as ContentEntity;
+use Gzero\Entity\Lang;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -17,15 +17,12 @@ use Gzero\Models\Lang;
  */
 class Category extends Content {
 
-    /**
-     * @var \Gzero\EloquentBaseModel\Model\Collection
-     */
     protected $children;
 
-    public function load(ContentModel $content, Lang $lang)
+    public function load(ContentEntity $content, Lang $lang)
     {
         parent::load($content, $lang);
-//        $this->children = $this->contentRepo->getChildren($this->content);
+        $this->children = $this->contentRepo->findChildren($this->content);
 //        $this->contentRepo->loadThumb($this->children);
         return $this;
     }
@@ -33,7 +30,7 @@ class Category extends Content {
     public function render()
     {
         return \View::make(
-            'category',
+            'content.category',
             array(
                 'content'  => $this->content,
                 'children' => $this->children

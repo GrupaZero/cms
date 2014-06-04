@@ -1,9 +1,9 @@
 <?php namespace Gzero\Core;
 
-use Gzero\Handlers\Content\ContentTypeHandler;
-use Gzero\Models\Lang;
-use Gzero\Repositories\Content\ContentRepository;
+use Gzero\Repository\ContentRepository;
 use Illuminate\Foundation\Application;
+use Gzero\Entity\Lang;
+use Gzero\Core\Handler\Content\ContentTypeHandler;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
@@ -22,10 +22,10 @@ class DynamicRouter {
 
     private $app, $contentRepo;
 
-    public function __construct(Application $app, ContentRepository $content)
+    public function __construct(Application $app, ContentRepository $contentRepo)
     {
         $this->app         = $app;
-        $this->contentRepo = $content;
+        $this->contentRepo = $contentRepo;
     }
 
     /**
@@ -40,10 +40,10 @@ class DynamicRouter {
     public function handleRequest($url, Lang $lang)
     {
         try {
-            $page = $this->contentRepo->getByUrl($url, $lang);
-            if (!empty($page->is_active)) { // Only if page is visible on public
-                $type = $this->resolveType($page->getTypeName());
-                return $type->load($page, $lang)->render();
+            $content = $this->contentRepo->getByUrl($url, $lang);
+            if (!empty($content) and $content->isActive()) { // Only if page is visible on public
+                $type = $this->resolveType($content->getType()->getName());
+                return $type->load($content, $lang)->render();
             } else {
                 throw new NotFoundHttpException();
             }
@@ -60,7 +60,7 @@ class DynamicRouter {
      */
     private function resolveType($typeName)
     {
-        $type = $this->app->make('type:' . $typeName);
+        $type = $this->app->make('content_type:' . $typeName);
         if (!$type instanceof ContentTypeHandler) {
             throw new \ReflectionException("Type: $typeName must implement ContentTypeInterface");
         }

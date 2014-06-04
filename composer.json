@@ -20,7 +20,9 @@
         "bigecko/laravel-theme": "dev-master"
     },
     "replace": {
-        "gzero/entity": "self.version"
+        "gzero/core": "self.version",
+        "gzero/entity": "self.version",
+        "gzero/repository": "self.version"
     },
     "require-dev": {
         "fzaninotto/faker": "v1.3.0",

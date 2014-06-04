@@ -1,8 +1,9 @@
-<?php namespace Gzero\Handler\Content;
+<?php namespace Gzero\Core\Handler\Content;
 
-use Gzero\Models\Content\Content as ContentModel;
-use Gzero\Models\Lang;
-use Gzero\Repositories\Content\ContentRepository;
+use Gzero\Entity\Lang;
+use Gzero\Entity\Content as ContentEntity;
+use Gzero\Repository\ContentRepository;
+use Illuminate\Foundation\Application;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -18,29 +19,32 @@ use Gzero\Repositories\Content\ContentRepository;
  */
 class Content implements ContentTypeHandler {
 
+    protected $app;
     protected $parents;
     protected $content;
     protected $contentRepo;
 
-    public function __construct(ContentRepository $content)
+    public function __construct(Application $app, ContentRepository $contentRepo)
     {
-        $this->contentRepo = $content;
+        $this->app         = $app;
+        $this->contentRepo = $contentRepo;
     }
 
     /**
      * {@inheritdoc}
      */
-    public function load(ContentModel $content, Lang $lang)
+    public function load(ContentEntity $content, Lang $lang)
     {
-        $this->parents = $this->contentRepo->getAncestors($content); // Ancestors nodes
+//        $this->parents = $this->contentRepo->findAncestors($content); // Ancestors nodes
 //        $this->contentRepo->loadThumb($this->parents); // Thumbs for all contents
-        $this->content = $this->parents->pop(); // Removing our node
+//        $this->content = $this->parents->pop(); // Removing our node
+        $this->content = $content;
         return $this;
     }
 
     public function render()
     {
-        return \View::make('content', array('content' => $this->content, 'parents' => $this->parents));
+        return \View::make('content.content', array('content' => $this->content, 'parents' => NULL));
     }
 
 }

@@ -1,6 +1,6 @@
-<?php namespace Gzero\Handler\Block;
+<?php namespace Gzero\Core\Handler\Block;
 
-use Gzero\Models\Lang;
+use Gzero\Entity\Lang;
 
 /**
  * This file is part of the GZERO CMS package.

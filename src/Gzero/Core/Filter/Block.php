@@ -23,13 +23,15 @@ class Block {
 
     public function __construct(BlockHandler $block)
     {
-        $this->handler  = $block;
+        $this->handler = $block;
 //        $this->langRepo = $lang;
     }
 
     public function filter()
     {
-        $this->handler->loadAllActive('/', new Lang('pl', 'pl_PL'));
+        $regions = $this->handler->loadAllActive('/', new Lang('pl', 'pl_PL'))->getRegions();
+        \View::share('regions', $regions);
+
     }
 
 } 

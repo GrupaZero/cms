@@ -15,7 +15,6 @@
 namespace tests\Entity;
 
 use Gzero\Entity\Content;
-use Gzero\Entity\ContentType;
 use Mockery as M;
 
 class ContentTest extends \PHPUnit_Framework_TestCase {
@@ -28,21 +27,16 @@ class ContentTest extends \PHPUnit_Framework_TestCase {
     /** @test */
     public function is_instantiable()
     {
-        $this->assertInstanceOf('Gzero\Entity\Content', new Content(new ContentType('xxx')));
+        $this->assertInstanceOf('Gzero\Entity\Content', new Content(M::mock('Gzero\Entity\ContentType')));
     }
 
-//    /**
-//     * @test
-//     */
-//    public function can_get_and_set_type()
-//    {
-//        $type    = M::mock('Gzero\Entity\ContentType');
-//        $type2   = M::mock('Gzero\Entity\ContentType');
-//        $content = new Content($type); // on constructor
-//        $this->assertSame($type, $content->getType());
-//        $content->setType($type2); // with setter
-//        $this->assertSame($type2, $content->getType());
-//    }
-
+    /** @test */
+    public function add_get_translation()
+    {
+        $translation = M::mock('Gzero\Entity\ContentTranslation');
+        $content     = new Content(M::mock('Gzero\Entity\ContentType'));
+        $content->addTranslation($translation);
+        $this->assertInstanceOf('Doctrine\Common\Collections\ArrayCollection', $content->getTranslations());
+        $this->assertSame($translation, $content->getTranslations()->first());
+    }
 }
-

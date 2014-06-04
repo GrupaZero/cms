@@ -1,17 +1,17 @@
-<?php namespace Gzero\Handler\Content;
+<?php namespace Gzero\Core\Handler\Content;
 
-use Gzero\Models\Content\Content as ContentModel;
-use Gzero\Models\Lang;
+use Gzero\Entity\Content as ContentEntity;
+use Gzero\Entity\Lang;
 
 interface ContentTypeHandler {
 
     /**
-     * @param ContentModel $content
-     * @param Lang         $lang
+     * @param ContentEntity $content
+     * @param Lang          $lang
      *
-     * @return $this
+     * @return mixed
      */
-    public function load(ContentModel $content, Lang $lang);
+    public function load(ContentEntity $content, Lang $lang);
 
     /**
      * Returns complete View for specific type

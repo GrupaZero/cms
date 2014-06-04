@@ -1,7 +1,8 @@
-<?php namespace Gzero\Handler\Block;
+<?php namespace Gzero\Core\Handler\Block;
 
-use Gzero\Models\Lang;
-use Gzero\Repositories\MenuLink\MenuLinkRepository;
+use Gzero\Entity\Lang;
+use Gzero\Handler\Block\BlockHandlerException;
+use Gzero\Repository\MenuLinkRepository;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -30,9 +31,7 @@ class Menu implements BlockTypeHandler {
      */
     public function load($block, Lang $lang)
     {
-        if ($block->menu_id) {
-            $menu        = $this->menuRepo->getById($block->menu_id);
-            $block->menu = $this->menuRepo->buildTree($this->menuRepo->getDescendants($menu));
+        if ($block->getMenu()) {
             $this->block = $block;
         } else {
             throw new BlockHandlerException('Block Menu Handler: Menu not found!');
@@ -45,6 +44,8 @@ class Menu implements BlockTypeHandler {
      */
     public function render()
     {
-        return \View::make('blocks.menu', ['block' => $this->block])->render();
+        $translations = $this->block->getTranslations()->first();
+        $menu         = $this->block->getMenu();
+        return \View::make('blocks.menu', ['block' => $this->block, 'translations' => $translations, 'menu' => $menu])->render();
     }
 }

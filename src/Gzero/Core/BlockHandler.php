@@ -2,6 +2,7 @@
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Gzero\Entity\Lang;
+use Gzero\Repository\BlockRepository;
 use Illuminate\Cache\Repository as Cache;
 use Illuminate\Foundation\Application;
 
@@ -24,12 +25,20 @@ class BlockHandler {
     private $blockRepo;
     private $regions;
 
-    public function __construct(Cache $cache, Application $app)
+    /**
+     * @return \Doctrine\Common\Collections\ArrayCollection
+     */
+    public function getRegions()
+    {
+        return $this->regions;
+    }
+
+    public function __construct(Cache $cache, Application $app, BlockRepository $blockRepo)
     {
         $this->app       = $app;
         $this->regions   = new ArrayCollection();
         $this->cache     = $cache;
-        $this->blockRepo = $app->make('BlockRepo');
+        $this->blockRepo = $blockRepo;
     }
 
     public function loadAllActive($url, Lang $lang)
@@ -50,23 +59,23 @@ class BlockHandler {
             }
         }
         $this->regions = new ArrayCollection($regions);
-        \View::share('regions', $this->regions);
+        return $this;
     }
 
     protected function cacheAll($lang)
     {
-        if (!$this->cache->has('blocks')) {
-            $blocks = $this->blockRepo->getAllActive($lang);
-            foreach ($blocks as &$block) {
-                if ($block->isCacheable()) { // Build only for cacheable blocks
-                    $this->build($block, $lang);
-                }
+//        if (!$this->cache->has('blocks')) {
+        $blocks = $this->blockRepo->getAllActive($lang);
+        foreach ($blocks as &$block) {
+            if ($block->isCacheable()) { // Build only for cacheable blocks
+                $this->build($block, $lang);
             }
-//            $this->cache->forever('blocks', $blocks); TODO cache on DOCTRINE 2 entity
-            return $blocks;
-        } else {
-            return $this->cache->get('blocks');
         }
+//            $this->cache->forever('blocks', $blocks); TODO cache on DOCTRINE 2 entity
+        return $blocks;
+//        } else {
+//            return $this->cache->get('blocks');
+//        }
     }
 
     protected function build($block, Lang $lang)
