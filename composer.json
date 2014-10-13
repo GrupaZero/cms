@@ -11,7 +11,7 @@
     ],
     "require": {
         "php": ">=5.4.0",
-        "laravel/framework": "4.1.*",
+        "laravel/framework": "4.2.*",
         "gzero/doctrine2-extensions": "dev-master",
         "atrauzzi/laravel-doctrine": "dev-master",
         "robclancy/presenter": "1.2.0",
