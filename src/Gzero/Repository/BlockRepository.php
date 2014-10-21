@@ -1,8 +1,8 @@
 <?php namespace Gzero\Repository;
 
-use Doctrine\DBAL\Query\QueryBuilder;
-use Gzero\Doctrine2Extensions\Common\BaseRepository;
 use Gzero\Entity\Block;
+use Gzero\Entity\BlockTranslation;
+use Gzero\Entity\BlockType;
 use Gzero\Entity\Lang;
 
 /**
@@ -19,14 +19,52 @@ use Gzero\Entity\Lang;
  */
 class BlockRepository extends BaseRepository {
 
+    /**
+     * Get single block with active translations
+     *
+     * @param int $id
+     *
+     * @return Block
+     */
     public function getById($id)
     {
-        return $this->_em->find($this->getClassName(), $id);
+        $qb = $this->newQB()
+            ->select('b,t')
+            ->from($this->getClassName(), 'b')
+            ->leftJoin('b.translations', 't', 'WITH', 't.isActive = 1')
+            ->where('b.id = :id')
+            ->setParameter('id', $id);
+        return $qb->getQuery()->getSingleResult();
     }
 
+    /**
+     * Get block type by id
+     *
+     * @param $id
+     *
+     * @return BlockType
+     */
     public function getTypeById($id)
     {
-        return $this->_em->find($this->getClassName() . 'Type', $id);
+        return $this->_em->find($this->getTypeClassName(), $id);
+    }
+
+    /**
+     * Get block translation by id
+     *
+     * @param $id
+     *
+     * @return BlockTranslation
+     */
+    public function getTranslationById($id)
+    {
+        $qb = $this->newQB()
+            ->select('t')
+            ->from($this->getTranslationClassName(), 't')
+            ->where('t.id = :id')
+            ->orderBy('t.isActive')
+            ->setParameter('id', $id);
+        return $qb->getQuery()->getSingleResult();
     }
 
     /**
@@ -38,15 +76,53 @@ class BlockRepository extends BaseRepository {
      */
     public function getAllActive(Lang $lang)
     {
-        /* @var QueryBuilder $qb */
-        $qb = $this->_em->createQueryBuilder();
-        $qb->select('b')
+        $qb = $this->newQB();
+        $qb->select('b,t')
             ->from($this->getClassName(), 'b')
-            ->leftJoin('b.translations', 't', 'WITH', 't.lang = :lang')
+            ->innerJoin( // we need only blocks with active translations
+                'b.translations',
+                't',
+                'WITH',
+                $qb->expr()->andx(
+                    $qb->expr()->eq('t.lang', ':lang'),
+                    $qb->expr()->eq('t.isActive', '1')
+                )
+            )
             ->where('b.isActive = 1')
             ->where('b.regions IS NOT NULL')
             ->orderBy('b.weight')
             ->setParameter('lang', $lang->getCode());
+        return $qb->getQuery()->getResult();
+    }
+
+    /**
+     * Get all block types
+     *
+     * @return array
+     */
+    public function getAllTypes()
+    {
+        $qb = $this->newQB()
+            ->select('t')
+            ->from($this->getTypeClassName(), 't');
+        return $qb->getQuery()->getResult();
+    }
+
+    /**
+     * Get all block translations
+     *
+     * @param Block $block
+     *
+     * @return array
+     */
+    public function getAllTranslations(Block $block)
+    {
+        $qb = $this->newQB()
+            ->select('t')
+            ->from($this->getTranslationClassName(), 't')
+            ->where('IDENTITY(t.block) = :id')
+            ->orderBy('t.isActive')
+            ->setParameter('id', $block->getId());
         return $qb->getQuery()->getResult();
     }
 
@@ -57,15 +133,15 @@ class BlockRepository extends BaseRepository {
 
     public function update(Block $block)
     {
-
+        $this->_em->persist($block);
     }
 
     public function delete(Block $block)
     {
-
+        $this->_em->remove($block);
     }
 
-    public function save()
+    public function commit()
     {
         $this->_em->flush();
     }

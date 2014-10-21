@@ -40,7 +40,7 @@ class MenuLinkRepositoryTest extends \Doctrine2TestCase implements TreeRepositor
     {
         $repo = $this->em->getRepository('Gzero\Entity\MenuLink');
         $repo->create(new MenuLink());
-        $repo->save();
+        $repo->commit();
         $this->assertEquals(11, count($repo->findAll())); // +1 with new link
     }
 

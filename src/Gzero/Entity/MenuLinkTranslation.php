@@ -40,20 +40,16 @@ class MenuLinkTranslation {
     protected $lang;
 
     /**
+     * @Column(name="lang")
+     */
+    protected $langCode;
+
+    /**
      * @ManyToOne(targetEntity="User")
      * @JoinColumn(name="user", referencedColumnName="id")
      * @var User
      **/
     protected $user;
-
-    /**
-     * @param MenuLink $menuLink
-     * @param Lang     $lang
-     *
-     * @param User     $user
-     *
-     * @internal param \Gzero\Entity\Block $block
-     */
 
     /**
      * @Column(type="string")
@@ -73,6 +69,11 @@ class MenuLinkTranslation {
      */
     protected $alt;
 
+    /**
+     * @Column(type="boolean")
+     * @var boolean
+     */
+    protected $isActive = FALSE;
 
     function __construct(MenuLink $menuLink, Lang $lang, User $user = NULL)
     {
@@ -99,6 +100,14 @@ class MenuLinkTranslation {
     public function getLang()
     {
         return $this->lang;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLangCode()
+    {
+        return $this->langCode;
     }
 
     /**
@@ -163,6 +172,22 @@ class MenuLinkTranslation {
     public function getUser()
     {
         return $this->user;
+    }
+
+    /**
+     * @param $active
+     */
+    public function setActive($active)
+    {
+        $this->isActive = $active;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isActive()
+    {
+        return $this->isActive;
     }
 
     //------------------------------------------------------------------------------------------------

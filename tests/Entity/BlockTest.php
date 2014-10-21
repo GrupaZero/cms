@@ -14,12 +14,8 @@
 
 namespace tests\Entity;
 
-
-use Gzero\Core\BlockHandler;
 use Gzero\Entity\Block;
 use Gzero\Entity\BlockType;
-use Gzero\Entity\Lang;
-use Gzero\Repository\BlockRepository;
 use Mockery as M;
 
 class BlockTest extends \PHPUnit_Framework_TestCase {
@@ -39,7 +35,7 @@ class BlockTest extends \PHPUnit_Framework_TestCase {
     public function can_add_and_get_translation()
     {
         $translation = M::mock('Gzero\Entity\BlockTranslation');
-        $block       = new Block(M::mock('Gzero\Entity\BlockType'));
+        $block       = new Block(new BlockType('dummy'));
         $block->addTranslation($translation);
         $this->assertInstanceOf('Doctrine\Common\Collections\ArrayCollection', $block->getTranslations());
         $this->assertSame($translation, $block->getTranslations()->first());

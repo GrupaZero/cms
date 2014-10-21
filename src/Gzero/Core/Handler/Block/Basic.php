@@ -1,5 +1,6 @@
 <?php namespace Gzero\Core\Handler\Block;
 
+use Gzero\Entity\Block;
 use Gzero\Entity\Lang;
 
 
@@ -22,7 +23,7 @@ class Basic implements BlockTypeHandler {
     /**
      * {@inheritdoc}
      */
-    public function load($block, Lang $lang)
+    public function load(Block $block, Lang $lang)
     {
         $this->block = $block;
         return $this;
@@ -33,7 +34,9 @@ class Basic implements BlockTypeHandler {
      */
     public function render()
     {
-        $translations = $this->block->getTranslations()->first();
-        return \View::make('blocks.basic', ['block' => $this->block, 'translations' => $translations])->render();
+        return \View::make(
+            'blocks.basic',
+            ['block' => $this->block, 'translations' => $this->block->getTranslations()->first()]
+        )->render();
     }
-} 
+}

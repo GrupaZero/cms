@@ -1,5 +1,6 @@
 <?php namespace Gzero\Core\Handler\Block;
 
+use Gzero\Entity\Block;
 use Gzero\Entity\Lang;
 
 /**
@@ -21,7 +22,7 @@ class Slider implements BlockTypeHandler {
     /**
      * {@inheritdoc}
      */
-    public function load($block, Lang $lang)
+    public function load(Block $block, Lang $lang)
     {
         $this->block = $block;
         return $this;

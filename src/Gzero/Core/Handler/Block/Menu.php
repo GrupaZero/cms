@@ -1,7 +1,7 @@
 <?php namespace Gzero\Core\Handler\Block;
 
+use Gzero\Entity\Block;
 use Gzero\Entity\Lang;
-use Gzero\Handler\Block\BlockHandlerException;
 use Gzero\Repository\MenuLinkRepository;
 
 /**
@@ -29,7 +29,7 @@ class Menu implements BlockTypeHandler {
     /**
      * {@inheritdoc}
      */
-    public function load($block, Lang $lang)
+    public function load(Block $block, Lang $lang)
     {
         if ($block->getMenu()) {
             $this->block = $block;
@@ -44,8 +44,16 @@ class Menu implements BlockTypeHandler {
      */
     public function render()
     {
-        $translations = $this->block->getTranslations()->first();
-        $menu         = $this->block->getMenu();
-        return \View::make('blocks.menu', ['block' => $this->block, 'translations' => $translations, 'menu' => $menu])->render();
+        $translation = $this->block->getTranslations()->first();
+        $menu        = $this->block->getMenu();
+        $menuTree    = $this->menuRepo->getDescendants($menu, TRUE);
+        return \View::make(
+            'blocks.menu',
+            [
+                'block'        => $this->block,
+                'translations' => $translation,
+                'menu'         => $menuTree
+            ]
+        )->render();
     }
 }

@@ -1,7 +1,7 @@
 <?php namespace Gzero\Core\Filter;
 
 use Gzero\Core\BlockHandler;
-use Gzero\Entity\Lang;
+use Gzero\Repository\LangRepository;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -17,21 +17,23 @@ use Gzero\Entity\Lang;
  */
 class Block {
 
-    protected $regions;
     protected $langRepo;
     protected $handler;
 
-    public function __construct(BlockHandler $block)
+    public function __construct(BlockHandler $block, LangRepository $lang)
     {
-        $this->handler = $block;
-//        $this->langRepo = $lang;
+        $this->handler  = $block;
+        $this->langRepo = $lang;
     }
 
     public function filter()
     {
-        $regions = $this->handler->loadAllActive('/', new Lang('pl', 'pl_PL'))->getRegions();
+        $lang = $this->langRepo->getCurrent();
+        if (!empty($lang)) {
+            $regions = $this->handler->loadAllActive('/', $lang)->getRegions();
+        } else {
+            $regions = [];
+        }
         \View::share('regions', $regions);
-
     }
-
 } 

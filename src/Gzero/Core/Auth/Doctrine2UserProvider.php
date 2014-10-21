@@ -2,6 +2,7 @@
 
 use Illuminate\Auth\UserInterface;
 use Illuminate\Auth\UserProviderInterface;
+use Illuminate\Support\Facades\Hash;
 
 class Doctrine2UserProvider implements UserProviderInterface {
 
@@ -22,11 +23,7 @@ class Doctrine2UserProvider implements UserProviderInterface {
      */
     public function retrieveById($identifier)
     {
-        $user = $this->userRepo->find($identifier);
-
-        if (!is_null($user)) {
-            return $user;
-        }
+        return $this->userRepo->retrieveById($identifier);
     }
 
     /**
@@ -39,7 +36,7 @@ class Doctrine2UserProvider implements UserProviderInterface {
      */
     public function retrieveByToken($identifier, $token)
     {
-        // TODO: Implement retrieveByToken() method.
+        $this->userRepo->retrieveByToken($identifier, $token);
     }
 
     /**
@@ -52,7 +49,7 @@ class Doctrine2UserProvider implements UserProviderInterface {
      */
     public function updateRememberToken(UserInterface $user, $token)
     {
-        // TODO: Implement updateRememberToken() method.
+        $this->userRepo->updateRememberToken($user, $token);
     }
 
     /**
@@ -77,7 +74,6 @@ class Doctrine2UserProvider implements UserProviderInterface {
      */
     public function validateCredentials(UserInterface $user, array $credentials)
     {
-        return TRUE;
-        // TODO: Implement validateCredentials() method.
+        return $this->userRepo->validateCredentials($user, $credentials);
     }
 }

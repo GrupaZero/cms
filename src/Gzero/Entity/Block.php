@@ -34,6 +34,11 @@ class Block extends AbstractEntity {
     protected $type;
 
     /**
+     * @Column(name="type")
+     */
+    protected $typeName;
+
+    /**
      * @ManyToOne(targetEntity="MenuLink")
      * @JoinColumn(name="menu_id", referencedColumnName="id")
      * @var MenuLink
@@ -86,6 +91,7 @@ class Block extends AbstractEntity {
     public function __construct(BlockType $type)
     {
         $this->type         = $type;
+        $this->typeName     = $type->getName();
         $this->translations = new ArrayCollection();
         $this->uploads      = new ArrayCollection();
     }
@@ -132,6 +138,14 @@ class Block extends AbstractEntity {
     public function getType()
     {
         return $this->type;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTypeName()
+    {
+        return $this->typeName;
     }
 
     /**

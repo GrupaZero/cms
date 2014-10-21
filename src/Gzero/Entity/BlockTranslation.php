@@ -40,6 +40,11 @@ class BlockTranslation {
     protected $lang;
 
     /**
+     * @Column(name="lang")
+     */
+    protected $langCode;
+
+    /**
      * @ManyToOne(targetEntity="User")
      * @JoinColumn(name="user", referencedColumnName="id")
      * @var User
@@ -63,6 +68,12 @@ class BlockTranslation {
      * @var string
      */
     protected $body;
+
+    /**
+     * @Column(type="boolean")
+     * @var boolean
+     */
+    protected $isActive = FALSE;
 
     /**
      * @param Block $block
@@ -103,6 +114,14 @@ class BlockTranslation {
     public function getLang()
     {
         return $this->lang;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLangCode()
+    {
+        return $this->langCode;
     }
 
     /**
@@ -159,6 +178,22 @@ class BlockTranslation {
     public function getBody()
     {
         return $this->body;
+    }
+
+    /**
+     * @param $active
+     */
+    public function setActive($active)
+    {
+        $this->isActive = $active;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isActive()
+    {
+        return $this->isActive;
     }
 
     //------------------------------------------------------------------------------------------------

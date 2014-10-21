@@ -6,10 +6,12 @@ php:
   - hhvm
 
 before_script:
+  - mkdir -p shippable/codecoverage
+  - mkdir -p shippable/testresults
   - composer self-update
   - composer install --prefer-source --no-interaction --dev
 
-script: phpunit -d memory_limit=1024M --exclude-group ignore
+script: php vendor/phpunit/phpunit/phpunit --exclude-group ignore --log-junit shippable/testresults/junit.xml --coverage-xml shippable/codecoverage
 
 matrix:
   allow_failures:

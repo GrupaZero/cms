@@ -78,9 +78,9 @@ class BlockHandler {
 //        }
     }
 
-    protected function build($block, Lang $lang)
+    public function build($block, Lang $lang)
     {
-        $type        = $this->resolveType($block->getType()->getName());
+        $type        = $this->resolveType($block->getTypeName());
         $block->view = $type->load($block, $lang)->render();
     }
 

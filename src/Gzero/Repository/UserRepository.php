@@ -1,11 +1,13 @@
 <?php namespace Gzero\Repository;
 
 use Doctrine\DBAL\Query\QueryBuilder;
-use Gzero\Doctrine2Extensions\Common\BaseRepository;
+use Doctrine\ORM\Mapping;
+use Gzero\Entity\BaseUser;
 use Gzero\Entity\Block;
-use Gzero\Entity\Lang;
+use Gzero\Entity\User;
 use Illuminate\Auth\UserInterface;
 use Illuminate\Auth\UserProviderInterface;
+use Illuminate\Support\Facades\Hash;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -22,45 +24,50 @@ use Illuminate\Auth\UserProviderInterface;
 class UserRepository extends BaseRepository implements UserProviderInterface {
 
     /**
-     * Gets all active blocks with translation in specified lang
+     * Get single block with active translations
      *
-     * @param Lang $lang Lang model
+     * @param int $id
      *
-     * @return mixed
+     * @return Block
      */
-    public function getAllActive(Lang $lang)
+    public function getById($id)
     {
-        /* @var QueryBuilder $qb */
-        $qb = $this->_em->createQueryBuilder();
-        $qb->select('b')
-            ->from($this->getClassName(), 'b')
-            ->leftJoin('b.translations', 't', 'WITH', 't.lang = :lang')
-            ->where('b.isActive = 1')
-            ->where('b.regions IS NOT NULL')
-            ->orderBy('b.weight')
-            ->setParameter('lang', $lang->getCode());
-        return $qb->getQuery()->getResult();
+        return $this->find($id);
     }
 
-    public function create(Block $block)
+    public function create(array $data)
     {
-        $this->_em->persist($block);
+        $user = new User();
+        $user->setEmail($data['email']);
+        $user->setFirstName($data['firstName']);
+        $user->setLastName($data['lastName']);
+        $user->setPassword($data['password']);
+        $this->_em->persist($user);
     }
 
-    public function update(Block $block)
+    public function update(BaseUser $user, array $data)
     {
-
+        $user->setFirstName($data['firstName']);
+        $user->setLastName($data['lastName']);
+        $user->setPassword($data['password']);
+        $this->_em->persist($user);
     }
 
-    public function delete(Block $block)
+    public function delete(BaseUser $user)
     {
-
+        $this->_em->remove($user);
     }
 
-    public function save()
+    public function commit()
     {
         $this->_em->flush();
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | START UserProviderInterface
+    |--------------------------------------------------------------------------
+    */
 
     /**
      * Retrieve a user by their unique identifier.
@@ -71,7 +78,7 @@ class UserRepository extends BaseRepository implements UserProviderInterface {
      */
     public function retrieveById($identifier)
     {
-        return $this->find($identifier);
+        return $this->getById($identifier);
     }
 
     /**
@@ -84,20 +91,12 @@ class UserRepository extends BaseRepository implements UserProviderInterface {
      */
     public function retrieveByToken($identifier, $token)
     {
-        // TODO: Implement retrieveByToken() method.
-    }
-
-    /**
-     * Update the "remember me" token for the given user in storage.
-     *
-     * @param  \Illuminate\Auth\UserInterface $user
-     * @param  string                         $token
-     *
-     * @return void
-     */
-    public function updateRememberToken(UserInterface $user, $token)
-    {
-        // TODO: Implement updateRememberToken() method.
+        $qb = $this->newQB()
+            ->select('u')
+            ->from($this->getClassName(), 'u')
+            ->where('u.rememberToken = :token')
+            ->setParameter('token', $token);
+        return $qb->getQuery()->getOneOrNullResult();
     }
 
     /**
@@ -109,8 +108,15 @@ class UserRepository extends BaseRepository implements UserProviderInterface {
      */
     public function retrieveByCredentials(array $credentials)
     {
-        $list = $this->findBy($credentials);
-        return (!empty($list[0])) ? $list[0] : NULL;
+        $qb = $this->newQB()
+            ->select('u')
+            ->from($this->getClassName(), 'u');
+        foreach ($credentials as $key => $value) {
+            if (!str_contains($key, 'password')) {
+                $qb->where("u.$key=:value")->setParameter('value', $value);
+            };
+        }
+        return $qb->getQuery()->getOneOrNullResult();
     }
 
     /**
@@ -123,6 +129,28 @@ class UserRepository extends BaseRepository implements UserProviderInterface {
      */
     public function validateCredentials(UserInterface $user, array $credentials)
     {
-        return TRUE;
+        $plain = $credentials['password'];
+        return Hash::check($plain, $user->getAuthPassword());
     }
+
+    /**
+     * Update the "remember me" token for the given user in storage.
+     *
+     * @param  \Illuminate\Auth\UserInterface $user
+     * @param  string                         $token
+     *
+     * @return void
+     */
+    public function updateRememberToken(UserInterface $user, $token)
+    {
+        $user->setRememberToken($token);
+        $this->_em->persist($user);
+        $this->commit();
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | END UserProviderInterface
+    |--------------------------------------------------------------------------
+    */
 }

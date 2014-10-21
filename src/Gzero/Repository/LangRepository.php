@@ -1,7 +1,6 @@
 <?php namespace Gzero\Repository;
 
 use Doctrine\Common\Collections\ArrayCollection;
-use Gzero\Doctrine2Extensions\Common\BaseRepository;
 use Illuminate\Support\Facades\App;
 
 

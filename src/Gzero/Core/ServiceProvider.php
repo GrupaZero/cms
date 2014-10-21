@@ -2,6 +2,7 @@
 
 use Atrauzzi\LaravelDoctrine\Support\Facades\Doctrine;
 use Gzero\Core\Auth\Doctrine2UserProvider;
+use Gzero\Doctrine2Extensions\Tree\TreeSubscriber;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\ServiceProvider as SP;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,27 +22,30 @@ use Symfony\Component\HttpFoundation\Request;
 class ServiceProvider extends SP {
 
     /**
-     * Bootstrap the application events.
-     *
-     * @return void
-     */
-    public function boot()
-    {
-        $this->registerHelpers();
-        $this->registerFilters();
-        $this->detectLanguage();
-    }
-
-    /**
      * Register the service provider.
      *
      * @return void
      */
     public function register()
     {
+        $this->registerHelpers();
+        $this->registerFilters();
         $this->bindRepositories();
         $this->bindTypes();
+        $this->bindOtherStuff();
         $this->extendAuth();
+        $this->bindCommands();
+    }
+
+    /**
+     * Bootstrap the application events.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        $this->detectLanguage();
+        $this->registerCommands();
     }
 
     /**
@@ -68,6 +72,27 @@ class ServiceProvider extends SP {
      */
     protected function bindRepositories()
     {
+        $this->app->singleton(
+            'user.menu',
+            function ($app) {
+                return new MenuRegister();
+            }
+        );
+
+        $this->app->singleton(
+            'admin.menu',
+            function ($app) {
+                return new MenuRegister();
+            }
+        );
+
+        $this->app->singleton(
+            'option.menu',
+            function ($app) {
+                return new MenuRegister();
+            }
+        );
+
         $this->app->singleton( // We need only one LangRepository
             'Gzero\Repository\LangRepository',
             function ($app) {
@@ -120,6 +145,21 @@ class ServiceProvider extends SP {
         }
     }
 
+    public function bindCommands()
+    {
+        $this->app->bind(
+            'command.PublishMigrations',
+            function () {
+                return new PublishMigrations();
+            }
+        );
+    }
+
+    public function registerCommands()
+    {
+        $this->commands('command.PublishMigrations');
+    }
+
     /**
      * Register additional providers to system
      */
@@ -128,6 +168,22 @@ class ServiceProvider extends SP {
         foreach ($this->providers as $provider) {
             App::register($provider);
         }
+    }
+
+    /**
+     * Bind other services
+     */
+    protected function bindOtherStuff()
+    {
+        // Add TreeSubscriber
+        $this->app['doctrine']->getEventManager()->addEventSubscriber(new TreeSubscriber());
+        // Add EntitySerializer
+        $this->app->singleton(
+            'Gzero\Core\EntitySerializer',
+            function ($app) {
+                return new EntitySerializer($app['doctrine']);
+            }
+        );
     }
 
     /**
@@ -160,4 +216,5 @@ class ServiceProvider extends SP {
     {
         require_once __DIR__ . '/helpers.php';
     }
+
 }

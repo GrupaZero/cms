@@ -1,7 +1,8 @@
 <?php namespace Gzero\Entity;
 
 use Gzero\Doctrine2Extensions\Timestamp\TimestampTrait;
-
+use ReflectionClass;
+use ReflectionProperty;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -46,6 +47,11 @@ class ContentTranslation {
     protected $lang;
 
     /**
+     * @Column(name="lang")
+     */
+    protected $langCode;
+
+    /**
      * @ManyToOne(targetEntity="User")
      * @JoinColumn(name="user", referencedColumnName="id")
      * @var User
@@ -63,6 +69,14 @@ class ContentTranslation {
      * @var string
      */
     protected $body;
+
+    /**
+     * @Column(type="boolean")
+     * @var boolean
+     */
+    protected $isActive = FALSE;
+
+    protected $fillable = ['url', 'title', 'body', 'isActive'];
 
     /**
      * @param Content $content
@@ -121,6 +135,14 @@ class ContentTranslation {
     }
 
     /**
+     * @return string
+     */
+    public function getLangCode()
+    {
+        return $this->langCode;
+    }
+
+    /**
      * @return \Gzero\Entity\User
      */
     public function getUser()
@@ -160,8 +182,67 @@ class ContentTranslation {
         return $this->body;
     }
 
+    /**
+     * @param $active
+     */
+    public function setActive($active)
+    {
+        $this->isActive = $active;
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isActive()
+    {
+        return $this->isActive;
+    }
+
+    public function getFillable()
+    {
+        return $this->fillable;
+    }
+
+    public function setFillable(array $fillable)
+    {
+        $this->fillable = $fillable;
+    }
+
+    public function getAttributes()
+    {
+        $reflect    = new ReflectionClass($this);
+        $props      = $reflect->getProperties(ReflectionProperty::IS_PROTECTED);
+        $attributes = [];
+        foreach ($props as $prop) {
+            $attributes[] = $prop->getName();
+        }
+        return $attributes;
+    }
+
+    public function setAttribute($key, $value)
+    {
+        if (in_array($key, $this->getAttributes(), TRUE)) {
+            $this->$key = $value;
+        }
+    }
     //------------------------------------------------------------------------------------------------
     // END:  Getters & Setters
     //------------------------------------------------------------------------------------------------
 
+    public function isFillable($key)
+    {
+        if (in_array($key, $this->fillable, TRUE)) {
+            return TRUE;
+        }
+        return FALSE;
+    }
+
+    public function fill(array $data)
+    {
+        foreach ($data as $key => $value) {
+            if ($this->isFillable($key)) {
+                $this->setAttribute($key, $value);
+            }
+        }
+    }
 }

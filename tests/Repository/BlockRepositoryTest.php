@@ -39,7 +39,7 @@ class BlockRepositoryTest extends \Doctrine2TestCase {
         $repo = $this->em->getRepository('Gzero\Entity\Block');
         $type = $repo->getTypeById('normal');
         $repo->create(new Block($type));
-        $repo->save();
+        $repo->commit();
         $this->assertEquals(11, count($repo->findAll())); // +1 with new block
     }
 

@@ -22,7 +22,7 @@ class Category extends Content {
     public function load(ContentEntity $content, Lang $lang)
     {
         parent::load($content, $lang);
-        $this->children = $this->contentRepo->findChildren($this->content);
+        $this->children = $this->contentRepo->getChildren($this->content);
 //        $this->contentRepo->loadThumb($this->children);
         return $this;
     }

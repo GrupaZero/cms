@@ -37,7 +37,12 @@ class Content implements TreeNode {
     protected $type;
 
     /**
-     * @OneToMany(targetEntity="ContentTranslation", mappedBy="content", cascade={"persist"})
+     * @Column(name="type")
+     */
+    protected $typeName;
+
+    /**
+     * @OneToMany(targetEntity="ContentTranslation", mappedBy="content", cascade={"persist", "remove"})
      * @var \Doctrine\Common\Collections\ArrayCollection
      */
     protected $translations;
@@ -82,6 +87,14 @@ class Content implements TreeNode {
     public function getType()
     {
         return $this->type;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTypeName()
+    {
+        return $this->typeName;
     }
 
     /**

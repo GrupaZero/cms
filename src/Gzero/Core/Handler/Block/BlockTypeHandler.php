@@ -1,5 +1,6 @@
 <?php  namespace Gzero\Core\Handler\Block;
 
+use Gzero\Entity\Block;
 use Gzero\Entity\Lang;
 
 
@@ -23,7 +24,7 @@ interface BlockTypeHandler {
      *
      * @return BlockTypeHandler
      */
-    public function load($block, Lang $lang);
+    public function load(Block $block, Lang $lang);
 
     /**
      * @return string

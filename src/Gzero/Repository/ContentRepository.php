@@ -1,10 +1,11 @@
 <?php namespace Gzero\Repository;
 
-use Doctrine\DBAL\Query\QueryBuilder;
-use Gzero\Doctrine2Extensions\Common\BaseRepository;
+use Doctrine\ORM\Query;
+use Gzero\Doctrine2Extensions\Tree\TreeNode;
 use Gzero\Doctrine2Extensions\Tree\TreeRepository;
-use Gzero\Doctrine2Extensions\Tree\TreeRepositoryTrait;
 use Gzero\Entity\Content;
+use Gzero\Entity\ContentTranslation;
+use Gzero\Entity\ContentType;
 use Gzero\Entity\Lang;
 
 /**
@@ -21,25 +22,82 @@ use Gzero\Entity\Lang;
  */
 class ContentRepository extends BaseRepository implements TreeRepository {
 
-    use TreeRepositoryTrait;
-
+    /**
+     * Get single content with active translations and author
+     *
+     * @param int $id
+     *
+     * @return Content
+     */
     public function getById($id)
     {
-        return $this->_em->find($this->getClassName(), $id);
+        $qb = $this->newQB()
+            ->select('c,t,a')
+            ->from($this->getClassName(), 'c')
+            ->leftJoin('c.translations', 't', 'WITH', 't.isActive = 1')
+            ->leftJoin('c.author', 'a')
+            ->where('c.id = :id')
+            ->setParameter('id', $id);
+        return $qb->getQuery()->getOneOrNullResult();
     }
 
+    /**
+     * Get content type by id
+     *
+     * @param $id
+     *
+     * @return ContentType
+     */
     public function getTypeById($id)
     {
-        return $this->_em->find($this->getClassName() . 'Type', $id);
+        return $this->_em->find($this->getTypeClassName(), $id);
     }
 
-    public function getByUrl($url, Lang $lang)
+    /**
+     * Get content translation by id
+     *
+     * @param $id
+     *
+     * @return ContentTranslation
+     */
+    public function getTranslationById($id)
     {
-        /* @var QueryBuilder $qb */
-        $qb = $this->_em->createQueryBuilder();
+        $qb = $this->newQB()
+            ->select('t')
+            ->from($this->getTranslationClassName(), 't')
+            ->where('t.id = :id')
+            ->orderBy('t.isActive')
+            ->setParameter('id', $id);
+        return $qb->getQuery()->getOneOrNullResult();
+    }
+
+    /**
+     * @param string $url
+     * @param Lang   $lang
+     * @param bool   $isActiveCheck By default, we search only with active translation
+     *
+     * @return array
+     */
+    public function getByUrl($url, Lang $lang, $isActiveCheck = TRUE)
+    {
+        $qb = $this->newQB();
+        if ($isActiveCheck) { // isActive condition
+            $condition = $qb->expr()->andx(
+                $qb->expr()->eq('t.lang', ':lang'),
+                $qb->expr()->eq('t.isActive', '1')
+            );
+        } else {
+            $condition = 't.lang = :lang';
+        }
+
         $qb->select('c')
             ->from($this->getClassName(), 'c')
-            ->leftJoin('c.translations', 't', 'WITH', 't.lang = :lang')
+            ->leftJoin(
+                'c.translations',
+                't',
+                'WITH',
+                $condition
+            )
             ->where('t.url = :url')
             ->andWhere('c.isActive = 1')
             ->orderBy('c.weight')
@@ -49,22 +107,182 @@ class ContentRepository extends BaseRepository implements TreeRepository {
         return (!empty($result)) ? $result[0] : $result;
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | START TreeRepository
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Get all ancestors nodes to specific node
+     *
+     * @param TreeNode $node
+     * @param int      $hydrate
+     *
+     * @return mixed
+     */
+    public function getAncestors(TreeNode $node, $hydrate = Query::HYDRATE_ARRAY)
+    {
+        if ($node->getPath() != '/') { // root does not have ancestors
+            $ancestorsIds = $node->getAncestorsIds(); //
+
+            $qb = $this->newQB()
+                ->select('n')
+                ->from($this->getClassName(), 'n')
+                ->where('n.id IN(:ids)')
+                ->setParameter('ids', $ancestorsIds)
+                ->orderBy('n.level');
+
+            $nodes = $qb->getQuery()->getResult($hydrate);
+            return $nodes;
+        }
+        return [];
+    }
+
+    /**
+     * Get all descendants nodes to specific node
+     *
+     * @param TreeNode $node
+     * @param bool     $tree If you want get in tree structure instead of list
+     * @param int      $hydrate
+     *
+     * @return mixed
+     */
+    public function getDescendants(TreeNode $node, $tree = FALSE, $hydrate = Query::HYDRATE_ARRAY)
+    {
+        $qb = $this->newQB()
+            ->from($this->getClassName(), 'n')
+            ->where('n.path LIKE :path')
+            ->setParameter('path', $node->getChildrenPath() . '%')
+            ->orderBy('n.level');
+        if ($tree) {
+            $qb->select('n', 'c')
+                ->leftJoin(
+                    'n.children',
+                    'c',
+                    'WITH',
+                    'c.level > :nodeLevel'
+                )
+                ->setParameter('nodeLevel', $node->getLevel());
+        } else {
+            $qb->select('n');
+        }
+        $nodes = $qb->getQuery()->getResult($hydrate);
+        if ($tree) {
+            return array_filter(
+                $nodes,
+                function ($item) use ($node) { // We return children's array because we don't have one root
+                    $level = (is_array($item)) ? @$item['level'] : $item->getLevel(); // @TODO Ugly HAX ['level']
+                    return ($level == $node->getLevel() + 1);
+                }
+            );
+        } else {
+            return $nodes;
+        }
+    }
+
+    /**
+     * Get all children nodes to specific node
+     *
+     * @param TreeNode $node
+     * @param array    $criteria
+     * @param array    $orderBy
+     * @param null     $limit
+     * @param null     $offset
+     *
+     * @return mixed
+     */
+    public function getChildren(TreeNode $node, array $criteria = [], array $orderBy = [], $limit = NULL, $offset = NULL)
+    {
+        $qb = $this->newQB()
+            ->select('c,t,a')
+            ->from($this->getClassName(), 'c')
+            ->leftJoin('c.translations', 't', 'WITH', 't.isActive = 1')
+            ->leftJoin('c.author', 'a')
+            ->where('c.path = :path')
+            ->setParameter('path', $node->getChildrenPath())
+            ->setFirstResult($offset)
+            ->setMaxResults($limit);
+
+        foreach ($orderBy as $sort => $order) {
+            $qb->orderBy($sort, $order);
+        }
+        return $qb->getQuery()->getArrayResult();
+    }
+
+    /**
+     * Get all siblings nodes to specific node
+     *
+     * @param TreeNode $node
+     * @param array    $criteria
+     * @param array    $orderBy
+     * @param null     $limit
+     * @param null     $offset
+     *
+     * @return mixed
+     */
+    public function getSiblings(TreeNode $node, array $criteria = [], array $orderBy = NULL, $limit = NULL, $offset = NULL)
+    {
+        $siblings = parent::findBy(array_merge($criteria, ['path' => $node->getPath()]), $orderBy, $limit, $offset);
+        return array_filter( // skip $node
+            $siblings,
+            function ($var) use ($node) {
+                return $var->getId() != $node->getId();
+            }
+        );
+    }
+
+    /**
+     * Get active contents of all type in level 0
+     *
+     * @param null  $limit
+     * @param null  $offset
+     * @param array $orderBy
+     *
+     * @return array
+     */
+    public function getRootContents(array $orderBy = [], $limit = NULL, $offset = NULL)
+    {
+        $qb = $this->newQB()
+            ->select('c,t,a')
+            ->from($this->getClassName(), 'c')
+            ->leftJoin('c.translations', 't', 'WITH', 't.isActive = 1')
+            ->leftJoin('c.author', 'a')
+            ->where('c.level = :level')
+            ->setParameter('level', 0)
+            ->setFirstResult($offset)
+            ->setMaxResults($limit);
+
+        foreach ($orderBy as $sort => $order) {
+            $qb->orderBy($sort, $order);
+        }
+        return $qb->getQuery()->getArrayResult();
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | END TreeRepository
+    |--------------------------------------------------------------------------
+    */
+
     public function create(Content $content)
     {
         $this->_em->persist($content);
     }
 
-    public function update(Content $content)
+    public function update(Content $content, array $data)
     {
-
+        $translation = $content->getTranslations()->first();
+        $translation->fill($data);
+        $this->_em->persist($content);
     }
 
     public function delete(Content $content)
     {
-
+        $this->_em->remove($content);
     }
 
-    public function save()
+    public function commit()
     {
         $this->_em->flush();
     }
