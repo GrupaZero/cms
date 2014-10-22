@@ -14,8 +14,7 @@
 
 namespace tests\Core;
 
-
-use Gzero\Core\MenuRegister;
+use Gzero\Core\Menu\Register;
 
 class MenuRegisterTest extends \PHPUnit_Framework_TestCase {
 
@@ -40,7 +39,7 @@ class MenuRegisterTest extends \PHPUnit_Framework_TestCase {
      */
     private function exampleData()
     {
-        $this->userPanelMenu = new MenuRegister();
+        $this->userPanelMenu = new Register();
         for ($i = 0; $i < 10; $i++) {
             $this->userPanelMenu->addLink('url_' . $i, 'title');
         }
