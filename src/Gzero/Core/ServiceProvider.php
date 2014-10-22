@@ -2,6 +2,8 @@
 
 use Atrauzzi\LaravelDoctrine\Support\Facades\Doctrine;
 use Gzero\Core\Auth\Doctrine2UserProvider;
+use Gzero\Core\Menu\AdminRegister;
+use Gzero\Core\Menu\Register;
 use Gzero\Doctrine2Extensions\Tree\TreeSubscriber;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\ServiceProvider as SP;
@@ -75,21 +77,21 @@ class ServiceProvider extends SP {
         $this->app->singleton(
             'user.menu',
             function ($app) {
-                return new MenuRegister();
+                return new Register();
             }
         );
 
         $this->app->singleton(
             'admin.menu',
             function ($app) {
-                return new MenuRegister();
+                return new Register();
             }
         );
 
         $this->app->singleton(
             'option.menu',
             function ($app) {
-                return new MenuRegister();
+                return new AdminRegister();
             }
         );
 

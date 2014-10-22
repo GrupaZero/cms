@@ -1,4 +1,4 @@
-<?php namespace Gzero\Core;
+<?php namespace Gzero\Core\Menu;
 
 use Exception;
 
@@ -8,16 +8,16 @@ use Exception;
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  *
- * Class MenuRegister
+ * Class Register
  *
  * @package    Gzero\Core
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2014, Adrian Skierniewski
  */
-class MenuRegister {
+class Register {
 
 
-    protected $links = [];
+    protected $modules = [];
 
     /**
      * Function adds link to user panel menu
@@ -27,7 +27,7 @@ class MenuRegister {
      */
     public function addLink($url, $title)
     {
-        $this->links[] = ['url' => $url, 'title' => $title, 'children' => []];
+        $this->modules[] = ['url' => $url, 'title' => $title, 'children' => []];
     }
 
     /**
@@ -37,7 +37,7 @@ class MenuRegister {
      */
     public function getMenu()
     {
-        return $this->links;
+        return $this->modules;
     }
 
     /**
@@ -50,7 +50,7 @@ class MenuRegister {
      */
     public function addChild(array $child, $parentUrl)
     {
-        return $this->_addChild($child, $parentUrl, $this->links);
+        return $this->_addChild($child, $parentUrl, $this->modules);
     }
 
     /**
