@@ -2,6 +2,7 @@
 
 use Illuminate\Auth\Reminders\RemindableInterface;
 use Illuminate\Auth\UserInterface;
+use Illuminate\Hashing\BcryptHasher;
 
 /**
  * This file is part of the GZERO CMS package.
