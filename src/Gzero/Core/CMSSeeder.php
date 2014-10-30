@@ -1,18 +1,4 @@
-<?php
-/**
- * This file is part of the GZERO CMS package.
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- *
- * Class DummyTest
- *
- * @package    tests
- * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
- * @copyright  Copyright (c) 2014, Adrian Skierniewski
- */
-
-namespace tests;
+<?php namespace Gzero\Core;
 
 use Gzero\Entity\Block;
 use Gzero\Entity\BlockTranslation;
@@ -23,25 +9,33 @@ use Gzero\Entity\Lang;
 use Gzero\Entity\MenuLink;
 use Gzero\Entity\MenuLinkTranslation;
 use Gzero\Entity\User;
+use Illuminate\Database\Seeder;
 
-class DummyTest extends \Doctrine2TestCase {
-
-    public function setUp()
-    {
-        $this->dbParams = array(
-            'driver'   => 'pdo_mysql',
-            'user'     => 'doctrine2',
-            'password' => 'test',
-            'dbname'   => 'doctrine2',
-        );
-        parent::setUp();
-    }
+/**
+ * This file is part of the GZERO CMS package.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * Class CMSSeeder
+ *
+ * @package    Gzero\Core
+ * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
+ * @copyright  Copyright (c) 2014, Adrian Skierniewski
+ */
+class CMSSeeder extends Seeder {
 
     /**
-     * @test
-     * @group ignore
+     * @var \Doctrine\ORM\EntityManager
      */
-    public function dummy()
+    protected $em;
+
+    public function __construct(\Doctrine\ORM\EntityManager $em)
+    {
+        $this->em = $em;
+    }
+
+    public function run()
     {
         $lang = $this->em->find('Gzero\Entity\Lang', 'pl');
         if (!$lang) {
@@ -137,11 +131,10 @@ class DummyTest extends \Doctrine2TestCase {
             $user->setFirstName('John');
             $user->setLastName('Doe');
             $user->setEmail('a@a.pl');
-            $user->setPassword('misio');
+            $user->setPassword('test');
             $this->em->persist($user);
             $this->em->flush();
         }
-        // Temporary solution for checking doctrine 2 table creation
     }
 
     /**
