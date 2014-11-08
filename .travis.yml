@@ -11,7 +11,10 @@ before_script:
   - composer self-update
   - composer install --prefer-source --no-interaction --dev
 
-script: php vendor/phpunit/phpunit/phpunit --exclude-group ignore --log-junit shippable/testresults/junit.xml --coverage-xml shippable/codecoverage
+script:
+  - ./vendor/bin/phpmd src/ text phpmd.xml
+  - php vendor/phpunit/phpunit/phpunit --exclude-group ignore --log-junit shippable/testresults/junit.xml --coverage-xml
+  shippable/codecoverage
 
 matrix:
   allow_failures:

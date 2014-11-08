@@ -27,7 +27,8 @@
     "require-dev": {
         "fzaninotto/faker": "v1.3.0",
         "mockery/mockery": "dev-master",
-        "phpunit/phpunit": "4.3.*"
+        "phpunit/phpunit": "4.3.*",
+        "phpmd/phpmd": "*"
     },
     "autoload": {
         "psr-4": {

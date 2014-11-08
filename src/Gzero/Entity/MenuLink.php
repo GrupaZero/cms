@@ -43,7 +43,7 @@ class MenuLink implements TreeNode {
 
     /**
      * @Column(type="integer")
-     * @var boolean
+     * @var int
      */
     protected $weight = 0;
 
@@ -150,7 +150,7 @@ class MenuLink implements TreeNode {
     }
 
     /**
-     * @return boolean
+     * @return int
      */
     public function getWeight()
     {
