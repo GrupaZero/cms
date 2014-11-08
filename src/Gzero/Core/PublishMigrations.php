@@ -24,7 +24,6 @@ class PublishMigrations extends Command {
     /**
      * Create a new command instance.
      *
-     * @return void
      */
     public function __construct()
     {
@@ -35,6 +34,7 @@ class PublishMigrations extends Command {
      * Execute the console command.
      *
      * @return mixed
+     * @SuppressWarnings("complexity")
      */
     public function fire()
     {

@@ -197,7 +197,7 @@ class ServiceProvider extends SP {
         $this->app->registerDeferredProvider('Illuminate\Auth\AuthServiceProvider', 'auth');
         $this->app['auth']->extend(
             'doctrine2',
-            function ($app) {
+            function () {
                 return new Doctrine2UserProvider(Doctrine::getRepository('Gzero\Entity\User'));
             }
         );

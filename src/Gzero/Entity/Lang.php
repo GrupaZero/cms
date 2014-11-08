@@ -31,13 +31,13 @@ class Lang {
      * @Column(type="boolean")
      * @var boolean
      */
-    private $is_enabled = FALSE;
+    private $isEnabled = FALSE;
 
     /**
      * @Column(type="boolean")
      * @var boolean
      */
-    private $is_default = FALSE;
+    private $isDefault = FALSE;
 
     /**
      * @param string $code
@@ -78,11 +78,11 @@ class Lang {
     }
 
     /**
-     * @param mixed $is_default
+     * @param mixed $isDefault
      */
-    public function setIsDefault($is_default)
+    public function setIsDefault($isDefault)
     {
-        $this->is_default = $is_default;
+        $this->isDefault = $isDefault;
     }
 
     /**
@@ -90,15 +90,15 @@ class Lang {
      */
     public function getIsDefault()
     {
-        return $this->is_default;
+        return $this->isDefault;
     }
 
     /**
-     * @param mixed $is_enabled
+     * @param mixed $isEnabled
      */
-    public function setIsEnabled($is_enabled)
+    public function setIsEnabled($isEnabled)
     {
-        $this->is_enabled = $is_enabled;
+        $this->isEnabled = $isEnabled;
     }
 
     /**
@@ -106,7 +106,7 @@ class Lang {
      */
     public function getIsEnabled()
     {
-        return $this->is_enabled;
+        return $this->isEnabled;
     }
 
     //------------------------------------------------------------------------------------------------

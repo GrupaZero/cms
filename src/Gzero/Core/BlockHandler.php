@@ -41,6 +41,13 @@ class BlockHandler {
         $this->blockRepo = $blockRepo;
     }
 
+    /**
+     * @param      $url
+     * @param Lang $lang
+     *
+     * @return $this
+     * @SuppressWarnings("unused")
+     */
     public function loadAllActive($url, Lang $lang)
     {
         $regions = array();
@@ -89,6 +96,12 @@ class BlockHandler {
         return $this->app->make('block_type:' . $typeName);
     }
 
+    /**
+     * @param $block
+     *
+     * @return bool
+     * @SuppressWarnings("unused")
+     */
     protected function checkVisibility($block)
     {
         return TRUE;

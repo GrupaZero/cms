@@ -88,6 +88,7 @@ class UserRepository extends BaseRepository implements UserProviderInterface {
      * @param  string $token
      *
      * @return \Illuminate\Auth\UserInterface|null
+     * @SuppressWarnings("unused")
      */
     public function retrieveByToken($identifier, $token)
     {

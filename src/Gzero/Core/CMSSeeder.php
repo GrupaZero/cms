@@ -22,6 +22,7 @@ use Illuminate\Database\Seeder;
  * @package    Gzero\Core
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2014, Adrian Skierniewski
+ * @SuppressWarnings("PHPMD")
  */
 class CMSSeeder extends Seeder {
 
@@ -35,6 +36,12 @@ class CMSSeeder extends Seeder {
         $this->em = $em;
     }
 
+    /**
+     * @throws \Doctrine\ORM\ORMException
+     * @throws \Doctrine\ORM\OptimisticLockException
+     * @throws \Doctrine\ORM\TransactionRequiredException
+     * @SuppressWarnings("PHPMD")
+     */
     public function run()
     {
         $lang = $this->em->find('Gzero\Entity\Lang', 'pl');

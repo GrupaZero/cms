@@ -50,7 +50,7 @@ class Register {
      */
     public function addChild(array $child, $parentUrl)
     {
-        return $this->_addChild($child, $parentUrl, $this->modules);
+        return $this->addNextChild($child, $parentUrl, $this->modules);
     }
 
     /**
@@ -63,7 +63,7 @@ class Register {
      * @return bool Return true if link added successfully otherwise false
      * @throws Exception
      */
-    protected function _addChild(array $child, $url, array &$haystack)
+    protected function addNextChild(array $child, $url, array &$haystack)
     {
         if (!isset($child['url'])) {
             throw new Exception("Class UserPanelMenu: 'url' key i required");
@@ -75,7 +75,7 @@ class Register {
                 return TRUE;
             }
             if (isset($value['children']) and is_array($value['children'])) {
-                $this->_addChild($child, $url, $value['children']);
+                $this->addNextChild($child, $url, $value['children']);
             }
         }
         return FALSE;

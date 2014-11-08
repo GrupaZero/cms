@@ -22,17 +22,17 @@ class EntitySerializer {
     /**
      * @var \Doctrine\ORM\EntityManager
      */
-    protected $_em;
+    protected $em;
 
     /**
      * @var int
      */
-    protected $_recursionDepth = 0;
+    protected $recursionDepth = 0;
 
     /**
      * @var int
      */
-    protected $_maxRecursionDepth = 0;
+    protected $maxRecursionDepth = 0;
 
     public function __construct($em)
     {
@@ -45,20 +45,26 @@ class EntitySerializer {
      */
     public function getEntityManager()
     {
-        return $this->_em;
+        return $this->em;
     }
 
     public function setEntityManager(EntityManager $em)
     {
-        $this->_em = $em;
+        $this->em = $em;
 
         return $this;
     }
 
-    protected function _serializeEntity($entity)
+    /**
+     * @param $entity
+     *
+     * @return array
+     * @SuppressWarnings("complexity")
+     */
+    protected function serializeEntity($entity)
     {
         $className = get_class($entity);
-        $metadata  = $this->_em->getClassMetadata($className);
+        $metadata  = $this->em->getClassMetadata($className);
 
         $data = array();
 
@@ -80,17 +86,17 @@ class EntitySerializer {
             if ($mapping['isCascadeDetach']) {
                 $data[$key] = $metadata->reflFields[$field]->getValue($entity);
                 if (NULL !== $data[$key]) {
-                    $data[$key] = $this->_serializeEntity($data[$key]);
+                    $data[$key] = $this->serializeEntity($data[$key]);
                 }
             } elseif ($mapping['isOwningSide'] && $mapping['type'] & ClassMetadata::TO_ONE) {
                 if (NULL !== $metadata->reflFields[$field]->getValue($entity)) {
-                    if ($this->_recursionDepth < $this->_maxRecursionDepth) {
-                        $this->_recursionDepth++;
-                        $data[$key] = $this->_serializeEntity(
+                    if ($this->recursionDepth < $this->maxRecursionDepth) {
+                        $this->recursionDepth++;
+                        $data[$key] = $this->serializeEntity(
                             $metadata->reflFields[$field]
                                 ->getValue($entity)
                         );
-                        $this->_recursionDepth--;
+                        $this->recursionDepth--;
                     } else {
                         $data[$key] = $this->getEntityManager()
                             ->getUnitOfWork()
@@ -122,11 +128,11 @@ class EntitySerializer {
         if (is_array($entity)) {
             $arrayEntities = [];
             foreach ($entity as $ent) {
-                $arrayEntities[] = $this->_serializeEntity($ent);
+                $arrayEntities[] = $this->serializeEntity($ent);
             }
             return $arrayEntities;
         }
-        return $this->_serializeEntity($entity);
+        return $this->serializeEntity($entity);
     }
 
 
@@ -148,6 +154,9 @@ class EntitySerializer {
      * @param The entity $entity
      *
      * @throws Exception
+     * This will suppress UnusedLocalVariable warnings in this method
+     *
+     * @SuppressWarnings("unused")
      */
     public function toXml($entity)
     {
@@ -163,7 +172,7 @@ class EntitySerializer {
      */
     public function setMaxRecursionDepth($maxRecursionDepth)
     {
-        $this->_maxRecursionDepth = $maxRecursionDepth;
+        $this->maxRecursionDepth = $maxRecursionDepth;
     }
 
     /**
@@ -173,7 +182,7 @@ class EntitySerializer {
      */
     public function getMaxRecursionDepth()
     {
-        return $this->_maxRecursionDepth;
+        return $this->maxRecursionDepth;
     }
 
 }
