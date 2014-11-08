@@ -13,8 +13,7 @@ before_script:
 
 script:
   - ./vendor/bin/phpmd src/ text phpmd.xml
-  - php vendor/phpunit/phpunit/phpunit --exclude-group ignore --log-junit shippable/testresults/junit.xml --coverage-xml
-  shippable/codecoverage
+  - php vendor/phpunit/phpunit/phpunit --exclude-group ignore --log-junit shippable/testresults/junit.xml --coverage-xml shippable/codecoverage
 
 matrix:
   allow_failures:
