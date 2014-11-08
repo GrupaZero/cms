@@ -3,7 +3,6 @@
 use Gzero\Entity\Block;
 use Gzero\Entity\Lang;
 
-
 /**
  * This file is part of the GZERO CMS package.
  *
@@ -30,4 +29,4 @@ interface BlockTypeHandler {
      * @return string
      */
     public function render();
-} 
+}

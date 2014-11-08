@@ -14,4 +14,4 @@
  */
 class BlockHandlerException extends \Exception {
 
-} 
+}

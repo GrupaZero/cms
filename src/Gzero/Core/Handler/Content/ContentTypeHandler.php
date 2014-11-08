@@ -19,4 +19,4 @@ interface ContentTypeHandler {
      * @return \View
      */
     public function render();
-} 
+}

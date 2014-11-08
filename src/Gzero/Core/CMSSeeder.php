@@ -47,14 +47,14 @@ class CMSSeeder extends Seeder {
         $lang = $this->em->find('Gzero\Entity\Lang', 'pl');
         if (!$lang) {
             $lang = new Lang('pl', 'pl_PL');
-            $lang->setIsEnabled(TRUE);
+            $lang->setIsEnabled(true);
             $this->em->persist($lang);
         }
 
         $lang2 = $this->em->find('Gzero\Entity\Lang', 'en');
         if (!$lang2) {
             $lang2 = new Lang('en', 'en_US');
-            $lang2->setIsEnabled(TRUE);
+            $lang2->setIsEnabled(true);
             $this->em->persist($lang2);
         }
 
@@ -62,8 +62,8 @@ class CMSSeeder extends Seeder {
         $contentType = $this->getType('Gzero\Entity\ContentType', 'category');
         $content     = new Content($contentType);
         $content2    = new Content($contentType);
-        $content->setActive(TRUE);
-        $content2->setActive(TRUE);
+        $content->setActive(true);
+        $content2->setActive(true);
         $content->setChildOf($content2);
         $this->em->persist($content);
         $this->em->flush();
@@ -72,16 +72,20 @@ class CMSSeeder extends Seeder {
         $contentTranslation->setUrl('dummy-content');
         $contentTranslation->setTitle('Dummy content title');
         $contentTranslation->setBody(
-            'Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. '
+            'Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo,
+             tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.
+              Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. '
         );
-        $contentTranslation->setActive(TRUE);
+        $contentTranslation->setActive(true);
         $contentTranslation2 = new ContentTranslation($content2, $lang);
         $contentTranslation2->setUrl('dummy-content2');
         $contentTranslation2->setTitle('Dummy content2 title');
         $contentTranslation2->setBody(
-            'Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. '
+            'Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo,
+             tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.
+              Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. '
         );
-        $contentTranslation2->setActive(TRUE);
+        $contentTranslation2->setActive(true);
         $content->addTranslation($contentTranslation);
         $content->addTranslation($contentTranslation2);
 
@@ -97,11 +101,11 @@ class CMSSeeder extends Seeder {
         $translation = new MenuLinkTranslation($link, $lang);
         $translation->setUrl('/link/');
         $translation->setTitle('link');
-        $translation->setActive(TRUE);
+        $translation->setActive(true);
         $translation2 = new MenuLinkTranslation($link2, $lang);
         $translation2->setUrl('/link/link1');
         $translation2->setTitle('link1');
-        $translation2->setActive(TRUE);
+        $translation2->setActive(true);
         $link->addTranslation($translation);
         $link->addTranslation($translation2);
         $this->em->persist($link);
@@ -111,22 +115,24 @@ class CMSSeeder extends Seeder {
         $blockType = $this->getType('Gzero\Entity\BlockType', 'basic');
         $block     = new Block($blockType);
         $block->setRegions(['footer', 'header']);
-        $block->setActive(TRUE);
+        $block->setActive(true);
         $blockType2 = $this->getType('Gzero\Entity\BlockType', 'menu');
         $block2     = new Block($blockType2);
         $block2->setRegions(['footer', 'header']);
         $block2->setMenu($link);
-        $block2->setActive(TRUE);
+        $block2->setActive(true);
         $translation = new BlockTranslation($block, $lang);
         $translation->setTitle('Test Block');
-        $translation->setActive(TRUE);
+        $translation->setActive(true);
         $translation->setBody(
-            'Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. '
+            'Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo,
+             tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.
+              Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. '
         );
         $block->addTranslation($translation);
         $translation2 = new BlockTranslation($block2, $lang);
         $translation2->setTitle('Test menu Block');
-        $translation2->setActive(TRUE);
+        $translation2->setActive(true);
         $block2->addTranslation($translation2);
         $this->em->persist($block);
         $this->em->persist($block2);

@@ -73,9 +73,9 @@ class MenuLinkTranslation {
      * @Column(type="boolean")
      * @var boolean
      */
-    protected $isActive = FALSE;
+    protected $isActive = false;
 
-    function __construct(MenuLink $menuLink, Lang $lang, User $user = NULL)
+    public function __construct(MenuLink $menuLink, Lang $lang, User $user = null)
     {
         $this->menuLink = $menuLink;
         $this->lang     = $lang;

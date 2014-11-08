@@ -20,8 +20,20 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
  */
 class DynamicRouter {
 
-    private $app, $contentRepo;
+    /**
+     * @var Application
+     */
+    private $app;
 
+    /**
+     * @var ContentRepository
+     */
+    private $contentRepo;
+
+    /**
+     * @param Application       $app
+     * @param ContentRepository $contentRepo
+     */
     public function __construct(Application $app, ContentRepository $contentRepo)
     {
         $this->app         = $app;

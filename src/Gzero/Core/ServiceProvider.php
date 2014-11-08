@@ -61,10 +61,10 @@ class ServiceProvider extends SP {
             } else {
                 $locale = \Request::segment(1);
             }
-            $languages = array('pl', 'en');
-            if (in_array($locale, $languages, TRUE)) {
+            $languages = ['pl', 'en'];
+            if (in_array($locale, $languages, true)) {
                 App::setLocale($locale);
-                $this->app['config']['gzero.multilang.detected'] = TRUE;
+                $this->app['config']['gzero.multilang.detected'] = true;
             }
         }
     }
@@ -95,7 +95,8 @@ class ServiceProvider extends SP {
             }
         );
 
-        $this->app->singleton( // We need only one LangRepository
+        // We need only one LangRepository
+        $this->app->singleton(
             'Gzero\Repository\LangRepository',
             function ($app) {
                 $repo = Doctrine::getRepository('Gzero\Entity\Lang');

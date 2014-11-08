@@ -2,7 +2,6 @@
 
 use Gzero\Doctrine2Extensions\Timestamp\TimestampTrait;
 
-
 /**
  * This file is part of the GZERO CMS package.
  *

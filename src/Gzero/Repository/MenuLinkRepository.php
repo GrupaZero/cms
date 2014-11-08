@@ -79,7 +79,7 @@ class MenuLinkRepository extends BaseRepository implements TreeRepository {
      *
      * @return mixed
      */
-    public function getDescendants(TreeNode $node, $tree = FALSE, $hydrate = Query::HYDRATE_ARRAY)
+    public function getDescendants(TreeNode $node, $tree = false, $hydrate = Query::HYDRATE_ARRAY)
     {
         $qb = $this->newQB()
             ->from($this->getClassName(), 'n')
@@ -123,7 +123,7 @@ class MenuLinkRepository extends BaseRepository implements TreeRepository {
      *
      * @return mixed
      */
-    public function getChildren(TreeNode $node, array $criteria = [], array $orderBy = NULL, $limit = NULL, $offset = NULL)
+    public function getChildren(TreeNode $node, array $criteria = [], array $orderBy = null, $limit = null, $offset = null)
     {
         return parent::findBy(array_merge($criteria, ['path' => $node->getChildrenPath()]), $orderBy, $limit, $offset);
     }
@@ -139,10 +139,11 @@ class MenuLinkRepository extends BaseRepository implements TreeRepository {
      *
      * @return mixed
      */
-    public function getSiblings(TreeNode $node, array $criteria = [], array $orderBy = NULL, $limit = NULL, $offset = NULL)
+    public function getSiblings(TreeNode $node, array $criteria = [], array $orderBy = null, $limit = null, $offset = null)
     {
         $siblings = parent::findBy(array_merge($criteria, ['path' => $node->getPath()]), $orderBy, $limit, $offset);
-        return array_filter( // skip $node
+        // we skip $node
+        return array_filter(
             $siblings,
             function ($var) use ($node) {
                 return $var->getId() != $node->getId();
@@ -175,5 +176,4 @@ class MenuLinkRepository extends BaseRepository implements TreeRepository {
     {
         $this->_em->flush();
     }
-
-} 
+}

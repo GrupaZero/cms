@@ -54,7 +54,7 @@ class BaseUser implements UserInterface, RemindableInterface {
      * @Column(type="string", nullable=TRUE)
      * @var string
      */
-    protected $rememberToken = NULL;
+    protected $rememberToken = null;
 
     /**
      * @return int
@@ -208,5 +208,4 @@ class BaseUser implements UserInterface, RemindableInterface {
     {
         return $this->getEmail();
     }
-
-} 
+}

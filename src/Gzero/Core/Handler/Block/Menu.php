@@ -46,7 +46,7 @@ class Menu implements BlockTypeHandler {
     {
         $translation = $this->block->getTranslations()->first();
         $menu        = $this->block->getMenu();
-        $menuTree    = $this->menuRepo->getDescendants($menu, TRUE);
+        $menuTree    = $this->menuRepo->getDescendants($menu, true);
         return \View::make(
             'blocks.menu',
             [

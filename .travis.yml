@@ -13,6 +13,7 @@ before_script:
 
 script:
   - ./vendor/bin/phpmd src/ text phpmd.xml
+  - ./vendor/bin/phpcs --standard=ruleset.xml src/
   - php vendor/phpunit/phpunit/phpunit --exclude-group ignore --log-junit shippable/testresults/junit.xml --coverage-xml shippable/codecoverage
 
 matrix:

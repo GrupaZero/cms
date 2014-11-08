@@ -78,7 +78,7 @@ class ContentRepository extends BaseRepository implements TreeRepository {
      *
      * @return array
      */
-    public function getByUrl($url, Lang $lang, $isActiveCheck = TRUE)
+    public function getByUrl($url, Lang $lang, $isActiveCheck = true)
     {
         $qb = $this->newQB();
         if ($isActiveCheck) { // isActive condition
@@ -148,7 +148,7 @@ class ContentRepository extends BaseRepository implements TreeRepository {
      *
      * @return mixed
      */
-    public function getDescendants(TreeNode $node, $tree = FALSE, $hydrate = Query::HYDRATE_ARRAY)
+    public function getDescendants(TreeNode $node, $tree = false, $hydrate = Query::HYDRATE_ARRAY)
     {
         $qb = $this->newQB()
             ->from($this->getClassName(), 'n')
@@ -192,7 +192,7 @@ class ContentRepository extends BaseRepository implements TreeRepository {
      *
      * @return mixed
      */
-    public function getChildren(TreeNode $node, array $criteria = [], array $orderBy = [], $limit = NULL, $offset = NULL)
+    public function getChildren(TreeNode $node, array $criteria = [], array $orderBy = [], $limit = null, $offset = null)
     {
         $qb = $this->newQB()
             ->select('c,t,a')
@@ -221,10 +221,11 @@ class ContentRepository extends BaseRepository implements TreeRepository {
      *
      * @return mixed
      */
-    public function getSiblings(TreeNode $node, array $criteria = [], array $orderBy = NULL, $limit = NULL, $offset = NULL)
+    public function getSiblings(TreeNode $node, array $criteria = [], array $orderBy = null, $limit = null, $offset = null)
     {
         $siblings = parent::findBy(array_merge($criteria, ['path' => $node->getPath()]), $orderBy, $limit, $offset);
-        return array_filter( // skip $node
+        // we skip $node
+        return array_filter(
             $siblings,
             function ($var) use ($node) {
                 return $var->getId() != $node->getId();
@@ -241,7 +242,7 @@ class ContentRepository extends BaseRepository implements TreeRepository {
      *
      * @return array
      */
-    public function getRootContents(array $orderBy = [], $limit = NULL, $offset = NULL)
+    public function getRootContents(array $orderBy = [], $limit = null, $offset = null)
     {
         $qb = $this->newQB()
             ->select('c,t,a')

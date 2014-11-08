@@ -51,7 +51,7 @@ class MenuLink implements TreeNode {
      * @Column(type="boolean")
      * @var boolean
      */
-    protected $isActive = FALSE;
+    protected $isActive = false;
 
     /**
      * @Column(type="object", nullable=TRUE)

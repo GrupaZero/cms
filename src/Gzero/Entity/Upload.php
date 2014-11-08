@@ -3,7 +3,6 @@
 use Doctrine\Common\Collections\ArrayCollection;
 use Gzero\Doctrine2Extensions\Timestamp\TimestampTrait;
 
-
 /**
  * This file is part of the GZERO CMS package.
  *
@@ -61,7 +60,7 @@ class Upload {
     /**
      * @param UploadType $type
      */
-    function __construct(UploadType $type)
+    public function __construct(UploadType $type)
     {
         $this->type         = $type;
         $this->translations = new ArrayCollection();

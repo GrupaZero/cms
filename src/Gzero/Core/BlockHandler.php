@@ -50,7 +50,7 @@ class BlockHandler {
      */
     public function loadAllActive($url, Lang $lang)
     {
-        $regions = array();
+        $regions = [];
         $blocks  = $this->cacheAll($lang);
         foreach ($blocks as $block) {
             if ($this->checkVisibility($block)) {
@@ -104,6 +104,6 @@ class BlockHandler {
      */
     protected function checkVisibility($block)
     {
-        return TRUE;
+        return true;
     }
 }

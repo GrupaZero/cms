@@ -28,7 +28,7 @@ class ContentType {
     /**
      * @param string $name
      */
-    function __construct($name)
+    public function __construct($name)
     {
         $this->name = $name;
     }
@@ -45,4 +45,4 @@ class ContentType {
     // END:  Getters & Setters
     //------------------------------------------------------------------------------------------------
 
-} 
+}

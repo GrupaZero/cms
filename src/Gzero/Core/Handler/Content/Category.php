@@ -31,10 +31,10 @@ class Category extends Content {
     {
         return \View::make(
             'content.category',
-            array(
+            [
                 'content'  => $this->content,
                 'children' => $this->children
-            )
+            ]
         );
     }
 }

@@ -66,7 +66,7 @@ class EntitySerializer {
         $className = get_class($entity);
         $metadata  = $this->em->getClassMetadata($className);
 
-        $data = array();
+        $data = [];
 
         foreach ($metadata->fieldMappings as $field => $mapping) {
             $value = $metadata->reflFields[$field]->getValue($entity);
@@ -85,11 +85,11 @@ class EntitySerializer {
             $key = Inflector::tableize($field);
             if ($mapping['isCascadeDetach']) {
                 $data[$key] = $metadata->reflFields[$field]->getValue($entity);
-                if (NULL !== $data[$key]) {
+                if (null !== $data[$key]) {
                     $data[$key] = $this->serializeEntity($data[$key]);
                 }
             } elseif ($mapping['isOwningSide'] && $mapping['type'] & ClassMetadata::TO_ONE) {
-                if (NULL !== $metadata->reflFields[$field]->getValue($entity)) {
+                if (null !== $metadata->reflFields[$field]->getValue($entity)) {
                     if ($this->recursionDepth < $this->maxRecursionDepth) {
                         $this->recursionDepth++;
                         $data[$key] = $this->serializeEntity(
@@ -108,7 +108,7 @@ class EntitySerializer {
                 } else {
                     // In some case the relationship may not exist, but we want
                     // to know about it
-                    $data[$key] = NULL;
+                    $data[$key] = null;
                 }
             }
         }

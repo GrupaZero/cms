@@ -72,12 +72,12 @@ class Register {
             if ($value['url'] == $url) {
                 $child['children']   = [];
                 $value['children'][] = $child;
-                return TRUE;
+                return true;
             }
             if (isset($value['children']) and is_array($value['children'])) {
                 $this->addNextChild($child, $url, $value['children']);
             }
         }
-        return FALSE;
+        return false;
     }
 }

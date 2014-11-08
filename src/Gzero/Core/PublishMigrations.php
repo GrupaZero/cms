@@ -93,7 +93,7 @@ class PublishMigrations extends Command {
     protected function getOptions()
     {
         return [
-            ['package', NULL, InputOption::VALUE_OPTIONAL, 'Specified package.', NULL],
+            ['package', null, InputOption::VALUE_OPTIONAL, 'Specified package.', null],
         ];
     }
 

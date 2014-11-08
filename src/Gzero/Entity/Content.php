@@ -58,7 +58,7 @@ class Content implements TreeNode {
      * @Column(type="boolean")
      * @var boolean
      */
-    protected $isActive = FALSE;
+    protected $isActive = false;
 
     /**
      * @Column(type="integer")
@@ -144,4 +144,4 @@ class Content implements TreeNode {
     {
         return $this->translations;
     }
-} 
+}

@@ -31,19 +31,19 @@ class Lang {
      * @Column(type="boolean")
      * @var boolean
      */
-    private $isEnabled = FALSE;
+    private $isEnabled = false;
 
     /**
      * @Column(type="boolean")
      * @var boolean
      */
-    private $isDefault = FALSE;
+    private $isDefault = false;
 
     /**
      * @param string $code
      * @param string $i18n
      */
-    function __construct($code, $i18n)
+    public function __construct($code, $i18n)
     {
         $this->code = $code;
         $this->i18n = $i18n;

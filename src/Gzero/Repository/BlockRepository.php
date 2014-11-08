@@ -79,7 +79,8 @@ class BlockRepository extends BaseRepository {
         $qb = $this->newQB();
         $qb->select('b,t')
             ->from($this->getClassName(), 'b')
-            ->innerJoin( // we need only blocks with active translations
+            // we need only blocks with active translations
+            ->innerJoin(
                 'b.translations',
                 't',
                 'WITH',

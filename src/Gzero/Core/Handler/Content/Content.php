@@ -44,7 +44,6 @@ class Content implements ContentTypeHandler {
 
     public function render()
     {
-        return \View::make('content.content', array('content' => $this->content, 'parents' => NULL));
+        return \View::make('content.content', ['content' => $this->content, 'parents' => null]);
     }
-
 }

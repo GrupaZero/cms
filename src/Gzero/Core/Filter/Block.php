@@ -36,4 +36,4 @@ class Block {
         }
         \View::share('regions', $regions);
     }
-} 
+}

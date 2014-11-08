@@ -2,7 +2,6 @@
 
 use Gzero\Doctrine2Extensions\Timestamp\TimestampTrait;
 
-
 /**
  * This file is part of the GZERO CMS package.
  *
@@ -73,7 +72,7 @@ class BlockTranslation {
      * @Column(type="boolean")
      * @var boolean
      */
-    protected $isActive = FALSE;
+    protected $isActive = false;
 
     /**
      * @param Block $block
@@ -81,7 +80,7 @@ class BlockTranslation {
      *
      * @param User  $user
      */
-    function __construct(Block $block, Lang $lang, User $user = NULL)
+    public function __construct(Block $block, Lang $lang, User $user = null)
     {
         $this->block = $block;
         $this->lang  = $lang;

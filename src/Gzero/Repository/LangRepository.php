@@ -3,7 +3,6 @@
 use Doctrine\Common\Collections\ArrayCollection;
 use Illuminate\Support\Facades\App;
 
-
 /**
  * This file is part of the GZERO CMS package.
  *
@@ -54,9 +53,9 @@ class LangRepository extends BaseRepository {
         $cache = App::make('cache');
         if ($cache->has('langs')) {
             $cache->forget('langs');
-            return TRUE;
+            return true;
         } else {
-            return FALSE;
+            return false;
         }
     }
 

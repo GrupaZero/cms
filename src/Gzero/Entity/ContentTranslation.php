@@ -74,7 +74,7 @@ class ContentTranslation {
      * @Column(type="boolean")
      * @var boolean
      */
-    protected $isActive = FALSE;
+    protected $isActive = false;
 
     protected $fillable = ['url', 'title', 'body', 'isActive'];
 
@@ -83,7 +83,7 @@ class ContentTranslation {
      * @param Lang    $lang
      * @param User    $user
      */
-    function __construct(Content $content, Lang $lang, User $user = NULL)
+    public function __construct(Content $content, Lang $lang, User $user = null)
     {
         $this->content = $content;
         $this->lang    = $lang;
@@ -221,7 +221,7 @@ class ContentTranslation {
 
     public function setAttribute($key, $value)
     {
-        if (in_array($key, $this->getAttributes(), TRUE)) {
+        if (in_array($key, $this->getAttributes(), true)) {
             $this->$key = $value;
         }
     }
@@ -231,10 +231,10 @@ class ContentTranslation {
 
     public function isFillable($key)
     {
-        if (in_array($key, $this->fillable, TRUE)) {
-            return TRUE;
+        if (in_array($key, $this->fillable, true)) {
+            return true;
         }
-        return FALSE;
+        return false;
     }
 
     public function fill(array $data)

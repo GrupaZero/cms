@@ -59,7 +59,7 @@ class Block extends AbstractEntity {
      * @Column(type="json_array", nullable=TRUE)
      * @var Array
      */
-    protected $regions = NULL;
+    protected $regions = null;
 
     /**
      * @Column(type="integer")
@@ -71,13 +71,13 @@ class Block extends AbstractEntity {
      * @Column(type="boolean")
      * @var boolean
      */
-    protected $isCacheable = FALSE;
+    protected $isCacheable = false;
 
     /**
      * @Column(type="boolean")
      * @var boolean
      */
-    protected $isActive = FALSE;
+    protected $isActive = false;
 
     /**
      * @Column(type="object", nullable=TRUE)

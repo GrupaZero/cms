@@ -37,4 +37,4 @@ class PasswordReminder {
      */
     protected $token;
 
-} 
+}
