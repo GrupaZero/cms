@@ -19,11 +19,30 @@ use Illuminate\Foundation\Application;
  */
 class Content implements ContentTypeHandler {
 
+    /**
+     * @var Application
+     */
     protected $app;
+
+    /**
+     * @var
+     */
     protected $parents;
+
+    /**
+     * @var
+     */
     protected $content;
+
+    /**
+     * @var ContentRepository
+     */
     protected $contentRepo;
 
+    /**
+     * @param Application       $app
+     * @param ContentRepository $contentRepo
+     */
     public function __construct(Application $app, ContentRepository $contentRepo)
     {
         $this->app         = $app;
@@ -35,9 +54,9 @@ class Content implements ContentTypeHandler {
      */
     public function load(ContentEntity $content, Lang $lang)
     {
-//        $this->parents = $this->contentRepo->findAncestors($content); // Ancestors nodes
-//        $this->contentRepo->loadThumb($this->parents); // Thumbs for all contents
-//        $this->content = $this->parents->pop(); // Removing our node
+        // $this->parents = $this->contentRepo->findAncestors($content); // Ancestors nodes
+        // $this->contentRepo->loadThumb($this->parents); // Thumbs for all contents
+        // $this->content = $this->parents->pop(); // Removing our node
         $this->content = $content;
         return $this;
     }

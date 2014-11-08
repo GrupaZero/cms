@@ -55,6 +55,7 @@ class Block extends AbstractEntity {
      * @var \Doctrine\Common\Collections\ArrayCollection
      */
     protected $uploads;
+
     /**
      * @Column(type="json_array", nullable=TRUE)
      * @var Array

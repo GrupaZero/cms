@@ -55,7 +55,7 @@ class ServiceProvider extends SP {
      */
     protected function detectLanguage()
     {
-        if (\Request::segment(1) != 'admin' and $this->app['config']['gzero.multilang.enabled']) {
+        if (\Request::segment(1) != 'admin' &&  $this->app['config']['gzero.multilang.enabled']) {
             if ($this->app['config']['gzero.multilang.subdomain']) {
                 $locale = preg_replace('/\..+$/', '', Request::getHost());
             } else {
@@ -206,6 +206,8 @@ class ServiceProvider extends SP {
 
     /**
      * Add additional file to store filters
+     *
+     * @return void
      */
     protected function registerFilters()
     {
@@ -214,6 +216,8 @@ class ServiceProvider extends SP {
 
     /**
      * Add additional file to store helpers
+     *
+     * @return void
      */
     protected function registerHelpers()
     {

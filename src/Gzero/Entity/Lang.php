@@ -40,8 +40,10 @@ class Lang {
     private $isDefault = false;
 
     /**
-     * @param string $code
-     * @param string $i18n
+     * Lang entity constructor
+     *
+     * @param string $code Lang code
+     * @param string $i18n Lang_i18n symbol
      */
     public function __construct($code, $i18n)
     {
@@ -54,6 +56,8 @@ class Lang {
     //------------------------------------------------------------------------------------------------
 
     /**
+     * Get lang code
+     *
      * @return string
      */
     public function getCode()
@@ -62,7 +66,11 @@ class Lang {
     }
 
     /**
-     * @param mixed $i18n
+     * Set i18n code
+     *
+     * @param mixed $i18n i18n code
+     *
+     * @return void
      */
     public function setI18n($i18n)
     {
@@ -70,6 +78,8 @@ class Lang {
     }
 
     /**
+     * Get i18n code
+     *
      * @return mixed
      */
     public function getI18n()
@@ -78,14 +88,20 @@ class Lang {
     }
 
     /**
-     * @param mixed $isDefault
+     * Set isDefault property
+     *
+     * @param boolean $isDefault True or False
+     *
+     * @return void
      */
     public function setIsDefault($isDefault)
     {
-        $this->isDefault = $isDefault;
+        $this->isDefault = (boolean) $isDefault;
     }
 
     /**
+     * Get isDefault property
+     *
      * @return mixed
      */
     public function getIsDefault()
@@ -94,15 +110,21 @@ class Lang {
     }
 
     /**
-     * @param mixed $isEnabled
+     * Set isEnabled property
+     *
+     * @param boolean $isEnabled True or False
+     *
+     * @return void
      */
     public function setIsEnabled($isEnabled)
     {
-        $this->isEnabled = $isEnabled;
+        $this->isEnabled = (boolean) $isEnabled;
     }
 
     /**
-     * @return mixed
+     * Get sEnabled property
+     *
+     * @return boolean
      */
     public function getIsEnabled()
     {

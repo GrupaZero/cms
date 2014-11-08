@@ -54,7 +54,8 @@ class BlockHandler {
         $blocks  = $this->cacheAll($lang);
         foreach ($blocks as $block) {
             if ($this->checkVisibility($block)) {
-                if (!$block->isCacheable()) { // Build not cached blocks
+                // Build not cached blocks
+                if (!$block->isCacheable()) {
                     $this->build($block, $lang);
                 }
                 foreach ($block->getRegions() as $region) {
@@ -71,18 +72,19 @@ class BlockHandler {
 
     protected function cacheAll($lang)
     {
-//        if (!$this->cache->has('blocks')) {
+        // if (!$this->cache->has('blocks')) {
         $blocks = $this->blockRepo->getAllActive($lang);
         foreach ($blocks as &$block) {
-            if ($block->isCacheable()) { // Build only for cacheable blocks
+            // Build only for cacheable blocks
+            if ($block->isCacheable()) {
                 $this->build($block, $lang);
             }
         }
-//            $this->cache->forever('blocks', $blocks); TODO cache on DOCTRINE 2 entity
+        // $this->cache->forever('blocks', $blocks); TODO cache on DOCTRINE 2 entity
         return $blocks;
-//        } else {
-//            return $this->cache->get('blocks');
-//        }
+        //} else {
+        //  return $this->cache->get('blocks');
+        //}
     }
 
     public function build($block, Lang $lang)

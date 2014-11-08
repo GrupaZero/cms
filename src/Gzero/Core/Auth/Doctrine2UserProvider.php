@@ -17,7 +17,7 @@ class Doctrine2UserProvider implements UserProviderInterface {
     /**
      * Retrieve a user by their unique identifier.
      *
-     * @param  mixed $identifier
+     * @param mixed $identifier Unique identifier
      *
      * @return \Illuminate\Auth\UserInterface|null
      */
@@ -29,8 +29,8 @@ class Doctrine2UserProvider implements UserProviderInterface {
     /**
      * Retrieve a user by by their unique identifier and "remember me" token.
      *
-     * @param  mixed  $identifier
-     * @param  string $token
+     * @param mixed  $identifier Unique identifier
+     * @param string $token      "Remember me" token
      *
      * @return \Illuminate\Auth\UserInterface|null
      */
@@ -42,8 +42,8 @@ class Doctrine2UserProvider implements UserProviderInterface {
     /**
      * Update the "remember me" token for the given user in storage.
      *
-     * @param  \Illuminate\Auth\UserInterface $user
-     * @param  string                         $token
+     * @param \Illuminate\Auth\UserInterface $user  User entity
+     * @param string                         $token "Remember me" token
      *
      * @return void
      */
@@ -55,7 +55,7 @@ class Doctrine2UserProvider implements UserProviderInterface {
     /**
      * Retrieve a user by the given credentials.
      *
-     * @param  array $credentials
+     * @param array $credentials Array of credentials
      *
      * @return \Illuminate\Auth\UserInterface|null
      */
@@ -67,8 +67,8 @@ class Doctrine2UserProvider implements UserProviderInterface {
     /**
      * Validate a user against the given credentials.
      *
-     * @param  \Illuminate\Auth\UserInterface $user
-     * @param  array                          $credentials
+     * @param \Illuminate\Auth\UserInterface $user        User entity
+     * @param array                          $credentials Array of credentials
      *
      * @return bool
      */

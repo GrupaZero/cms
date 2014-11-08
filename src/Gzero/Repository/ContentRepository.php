@@ -23,9 +23,9 @@ use Gzero\Entity\Lang;
 class ContentRepository extends BaseRepository implements TreeRepository {
 
     /**
-     * Get single content with active translations and author
+     * Get single content with active translations and author.
      *
-     * @param int $id
+     * @param integer $id Test.
      *
      * @return Content
      */
@@ -42,9 +42,9 @@ class ContentRepository extends BaseRepository implements TreeRepository {
     }
 
     /**
-     * Get content type by id
+     * Get content type by id.
      *
-     * @param $id
+     * @param int $id
      *
      * @return ContentType
      */
@@ -54,7 +54,7 @@ class ContentRepository extends BaseRepository implements TreeRepository {
     }
 
     /**
-     * Get content translation by id
+     * Get content translation by id.
      *
      * @param $id
      *
@@ -81,7 +81,8 @@ class ContentRepository extends BaseRepository implements TreeRepository {
     public function getByUrl($url, Lang $lang, $isActiveCheck = true)
     {
         $qb = $this->newQB();
-        if ($isActiveCheck) { // isActive condition
+        // isActive condition
+        if ($isActiveCheck) {
             $condition = $qb->expr()->andx(
                 $qb->expr()->eq('t.lang', ':lang'),
                 $qb->expr()->eq('t.isActive', '1')
@@ -123,10 +124,10 @@ class ContentRepository extends BaseRepository implements TreeRepository {
      */
     public function getAncestors(TreeNode $node, $hydrate = Query::HYDRATE_ARRAY)
     {
-        if ($node->getPath() != '/') { // root does not have ancestors
-            $ancestorsIds = $node->getAncestorsIds(); //
-
-            $qb = $this->newQB()
+        // root does not have ancestors
+        if ($node->getPath() != '/') {
+            $ancestorsIds = $node->getAncestorsIds();
+            $qb           = $this->newQB()
                 ->select('n')
                 ->from($this->getClassName(), 'n')
                 ->where('n.id IN(:ids)')
@@ -182,7 +183,7 @@ class ContentRepository extends BaseRepository implements TreeRepository {
     }
 
     /**
-     * Get all children nodes to specific node
+     * Get all children nodes to specific node.
      *
      * @param TreeNode $node
      * @param array    $criteria
@@ -283,6 +284,11 @@ class ContentRepository extends BaseRepository implements TreeRepository {
         $this->_em->remove($content);
     }
 
+    /**
+     * Commit changes to database
+     *
+     * @return void
+     */
     public function commit()
     {
         $this->_em->flush();

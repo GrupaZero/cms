@@ -34,12 +34,18 @@ class EntitySerializer {
      */
     protected $maxRecursionDepth = 0;
 
+    /**
+     * EntitySerializer constructor
+     *
+     * @param EntityManager $em Doctrine2 entity manager
+     */
     public function __construct($em)
     {
         $this->setEntityManager($em);
     }
 
     /**
+     * Get Doctrine 2 entity manager
      *
      * @return \Doctrine\ORM\EntityManager
      */
@@ -48,6 +54,13 @@ class EntitySerializer {
         return $this->em;
     }
 
+    /**
+     * Set Doctrine 2 entity manager
+     *
+     * @param EntityManager $em Doctrine 2 entity manager
+     *
+     * @return $this
+     */
     public function setEntityManager(EntityManager $em)
     {
         $this->em = $em;
@@ -56,7 +69,9 @@ class EntitySerializer {
     }
 
     /**
-     * @param $entity
+     * This function serialize entity
+     *
+     * @param mixed $entity Entity to serialize
      *
      * @return array
      * @SuppressWarnings("complexity")

@@ -22,15 +22,6 @@ class PublishMigrations extends Command {
     protected $description = 'Publish migrations of specified package';
 
     /**
-     * Create a new command instance.
-     *
-     */
-    public function __construct()
-    {
-        parent::__construct();
-    }
-
-    /**
      * Execute the console command.
      *
      * @return mixed
@@ -45,7 +36,7 @@ class PublishMigrations extends Command {
         }
 
         $platformTarget = app_path() . '/database/doctrine-migrations';
-        if (!File::exists($platformTarget) and !File::isWritable($platformTarget)) {
+        if (!File::exists($platformTarget) && !File::isWritable($platformTarget)) {
             $this->error("\n\n  Path: 'app/database/doctrine-migrations' does not exist or is not writable!\n");
             return;
         }

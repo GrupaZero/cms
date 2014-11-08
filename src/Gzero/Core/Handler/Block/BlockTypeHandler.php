@@ -18,14 +18,18 @@ use Gzero\Entity\Lang;
 interface BlockTypeHandler {
 
     /**
-     * @param      $block
-     * @param Lang $lang
+     * Load block
+     *
+     * @param Block $block Block entity
+     * @param Lang  $lang  Lang entity
      *
      * @return BlockTypeHandler
      */
     public function load(Block $block, Lang $lang);
 
     /**
+     * Renders block
+     *
      * @return string
      */
     public function render();

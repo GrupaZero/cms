@@ -2,76 +2,70 @@
 <ruleset name="gzero-ruleset">
     <description>GZERO CMS PHP Coding Standards
     </description>
-
     <rule ref="PSR1"/>
     <rule ref="PSR2">
-        <!--but exclude their code analyzer-->
+        <!--but exclude their code ClassDeclaration-->
         <exclude name="PSR2.Classes.ClassDeclaration"/>
     </rule>
-    <rule ref="Generic.Commenting.Fixme"/>
-    <rule ref="Generic.Commenting.Todo"/>
+    <rule ref="PEAR">
+        <!--We use PSR2-->
+        <exclude name="PEAR.Classes"/>
+        <exclude name="PEAR.Files"/>
+        <exclude name="PEAR.Commenting.ClassComment"/>
+        <exclude name="PEAR.Commenting.FileComment"/>
+        <!--No _ in private methods/variables-->
+        <exclude name="PEAR.NamingConventions"/>
+    </rule>
+    <rule ref="Squiz">
+        <exclude name="Squiz.Classes.ClassDeclaration"/>
+        <exclude name="Squiz.WhiteSpace.FunctionSpacing"/>
+        <exclude name="Squiz.WhiteSpace.FunctionClosingBraceSpace"/>
+        <exclude name="Squiz.WhiteSpace.ControlStructureSpacing"/>
+        <exclude name="Squiz.NamingConventions"/>
+        <exclude name="Squiz.Commenting"/>
+        <exclude name="Squiz.Files"/>
+        <exclude name="Squiz.Formatting"/>
+        <exclude name="Squiz.PHP.CommentedOutCode"/>
+        <exclude name="Squiz.Operators.ComparisonOperatorUsage"/>
+        <exclude name="Squiz.Strings"/>
+        <exclude name="Squiz.ControlStructures.ElseIfDeclaration"/>
+        <!-- Issue with our arrays -->
+        <exclude name="Generic.Formatting.MultipleStatementAlignment"/>
+        <!-- Spaces before object operator -> -->
+        <exclude name="Squiz.WhiteSpace.ObjectOperatorSpacing"/>
+        <!-- disabled because returning error on function($arg1, $arg2 = true)-->
+        <exclude name="Squiz.Functions.FunctionDeclarationArgumentSpacing"/>
+        <exclude name="Squiz.PHP.DisallowInlineIf"/>
+    </rule>
     <rule ref="Generic.Files.LineLength">
         <properties>
             <property name="lineLimit" value="130"/>
             <property name="absoluteLineLimit" value="130"/>
         </properties>
     </rule>
-    <!--<rule ref="Generic.Classes.DuplicateClassName"/>-->
-    <!--<rule ref="Generic.CodeAnalysis.EmptyStatement"/>-->
-    <!--<rule ref="Generic.CodeAnalysis.ForLoopShouldBeWhileLoop"/>-->
-    <!--<rule ref="Generic.CodeAnalysis.JumbledIncrementer"/>-->
-    <!--<rule ref="Generic.CodeAnalysis.UnconditionalIfStatement"/>-->
-    <!--<rule ref="Generic.CodeAnalysis.UnnecessaryFinalModifier"/>-->
-    <!--<rule ref="Generic.CodeAnalysis.UnusedFunctionParameter"/>-->
-    <!--<rule ref="Generic.CodeAnalysis.UselessOverridingMethod"/>-->
-    <!--<rule ref="Generic.ControlStructures.InlineControlStructure"/>-->
-    <!--<rule ref="Generic.Debug.JSHint"/>-->
-    <!--<rule ref="Generic.Debug.CSSLint"/>-->
-    <!--<rule ref="Generic.Files.ByteOrderMark"/>-->
-    <!--<rule ref="Generic.Files.LineEndings"/>-->
-
-    <!--<rule ref="Generic.Formatting.DisallowMultipleStatements"/>-->
-    <!--<rule ref="Generic.Formatting.MultipleStatementAlignment"/>-->
-    <!--<rule ref="Generic.Formatting.SpaceAfterCast"/>-->
-    <!--<rule ref="Generic.Functions.FunctionCallArgumentSpacing"/>-->
-    <!--<rule ref="Generic.Functions.OpeningFunctionBraceBsdAllman"/>-->
-    <!--<rule ref="Generic.Metrics.CyclomaticComplexity">-->
-    <!--<properties>-->
-    <!--<property name="complexity" value="6"/>-->
-    <!--<property name="absoluteComplexity" value="7"/>-->
-    <!--</properties>-->
-    <!--</rule>-->
-    <!--<rule ref="Generic.Metrics.NestingLevel"/>-->
-    <!--<rule ref="Generic.NamingConventions.ConstructorName"/>-->
-    <!--<rule ref="Generic.NamingConventions.UpperCaseConstantName"/>-->
-    <!--<rule ref="Generic.NamingConventions.CamelCapsFunctionName"/>-->
-    <!--<rule ref="Generic.PHP.DeprecatedFunctions"/>-->
-    <!--<rule ref="Generic.PHP.DisallowShortOpenTag"/>-->
-    <!--<rule ref="Generic.PHP.ForbiddenFunctions"/>-->
-    <!--<rule ref="Generic.PHP.NoSilencedErrors"/>-->
-    <!--<rule ref="Generic.PHP.UpperCaseConstant"/>-->
-    <!--<rule ref="Generic.Strings.UnnecessaryStringConcat"/>-->
-    <!--<rule ref="Generic.WhiteSpace.DisallowTabIndent"/>-->
-    <!--<rule ref="Generic.WhiteSpace.ScopeIndent"/>-->
-    <!--<rule ref="MySource.PHP.EvalObjectFactory"/>-->
-    <!--<rule ref="MySource.PHP.GetRequestData"/>-->
-    <!--<rule ref="MySource.PHP.AjaxNullComparison"/>-->
-    <!--<rule ref="PEAR.Commenting.FileComment"/>-->
-    <!--<rule ref="PEAR.Commenting.FunctionComment"/>-->
-    <!--<rule ref="PEAR.Commenting.InlineComment"/>-->
-    <!--<rule ref="Squiz.PHP.DisallowObEndFlush"/>-->
-    <!--<rule ref="Squiz.PHP.DiscouragedFunctions">-->
-    <!--<properties>-->
-    <!--<property name="error" value="true"/>-->
-    <!--</properties>-->
-    <!--</rule>-->
-    <!--<rule ref="Squiz.PHP.ForbiddenFunctions"/>-->
-    <!--<rule ref="Squiz.PHP.GlobalKeyword"/>-->
-    <!--<rule ref="Squiz.PHP.Heredoc"/>-->
-    <!--<rule ref="Squiz.PHP.InnerFunctions"/>-->
-    <!--<rule ref="Squiz.PHP.LowercasePHPFunctions"/>-->
-    <!--<rule ref="Squiz.PHP.NonExecutableCode"/>-->
-    <!--<rule ref="Squiz.Scope.MemberVarScope"/>-->
-    <!--<rule ref="Squiz.Scope.MethodScope"/>-->
-    <!--<rule ref="Squiz.Scope.StaticThisUsage"/>-->
+    <rule ref="Generic.CodeAnalysis.EmptyStatement"/>
+    <rule ref="Generic.CodeAnalysis.ForLoopShouldBeWhileLoop"/>
+    <rule ref="Generic.CodeAnalysis.JumbledIncrementer"/>
+    <rule ref="Generic.CodeAnalysis.UnconditionalIfStatement"/>
+    <rule ref="Generic.CodeAnalysis.UnnecessaryFinalModifier"/>
+    <rule ref="Generic.CodeAnalysis.UnusedFunctionParameter"/>
+    <rule ref="Generic.CodeAnalysis.UselessOverridingMethod"/>
+    <rule ref="Generic.Commenting.Fixme"/>
+    <rule ref="Generic.ControlStructures.InlineControlStructure"/>
+    <rule ref="Generic.Files.ByteOrderMark"/>
+    <rule ref="Generic.Files.LineEndings"/>
+    <rule ref="Generic.Formatting.DisallowMultipleStatements"/>
+    <rule ref="Generic.Formatting.SpaceAfterCast"/>
+    <rule ref="Generic.Functions.FunctionCallArgumentSpacing"/>
+    <rule ref="Generic.Functions.OpeningFunctionBraceBsdAllman"/>
+    <rule ref="Generic.Metrics.NestingLevel"/>
+    <rule ref="Generic.PHP.DeprecatedFunctions"/>
+    <rule ref="Generic.PHP.DisallowShortOpenTag"/>
+    <rule ref="Generic.PHP.ForbiddenFunctions"/>
+    <rule ref="Generic.PHP.NoSilencedErrors"/>
+    <rule ref="Generic.Strings.UnnecessaryStringConcat"/>
+    <rule ref="Generic.WhiteSpace.ScopeIndent"/>
+    <rule ref="MySource.PHP.EvalObjectFactory"/>
+    <rule ref="MySource.PHP.GetRequestData"/>
+    <rule ref="MySource.PHP.AjaxNullComparison"/>
 </ruleset>

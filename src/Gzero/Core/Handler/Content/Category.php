@@ -2,6 +2,7 @@
 
 use Gzero\Entity\Content as ContentEntity;
 use Gzero\Entity\Lang;
+use View;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -19,17 +20,30 @@ class Category extends Content {
 
     protected $children;
 
+    /**
+     * Load data from database
+     *
+     * @param ContentEntity $content Content entity
+     * @param Lang          $lang    Current lang entity
+     *
+     * @return $this|mixed
+     */
     public function load(ContentEntity $content, Lang $lang)
     {
         parent::load($content, $lang);
         $this->children = $this->contentRepo->getChildren($this->content);
-//        $this->contentRepo->loadThumb($this->children);
+        // $this->contentRepo->loadThumb($this->children);
         return $this;
     }
 
+    /**
+     * Renders content
+     *
+     * @return View
+     */
     public function render()
     {
-        return \View::make(
+        return View::make(
             'content.category',
             [
                 'content'  => $this->content,

@@ -53,7 +53,8 @@ class DynamicRouter {
     {
         try {
             $content = $this->contentRepo->getByUrl($url, $lang);
-            if (!empty($content) and $content->isActive()) { // Only if page is visible on public
+            // Only if page is visible on public
+            if (!empty($content) &&  $content->isActive()) {
                 $type = $this->resolveType($content->getType()->getName());
                 return $type->load($content, $lang)->render();
             } else {

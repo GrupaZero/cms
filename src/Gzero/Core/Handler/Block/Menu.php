@@ -19,6 +19,7 @@ use Gzero\Repository\MenuLinkRepository;
 class Menu implements BlockTypeHandler {
 
     private $block;
+
     private $menuRepo;
 
     public function __construct(MenuLinkRepository $menu)

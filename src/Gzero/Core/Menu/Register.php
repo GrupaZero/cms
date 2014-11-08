@@ -16,14 +16,18 @@ use Exception;
  */
 class Register {
 
-
+    /**
+     * @var array
+     */
     protected $modules = [];
 
     /**
      * Function adds link to user panel menu
      *
-     * @param string $url
-     * @param string $title
+     * @param string $url   Link url
+     * @param string $title Link title
+     *
+     * @return void
      */
     public function addLink($url, $title)
     {
@@ -43,8 +47,8 @@ class Register {
     /**
      * Function adds child link to parent specified by url parameter
      *
-     * @param array  $child ['url' => $url, 'title' => $title, 'alt' => NULL]
-     * @param string $parentUrl
+     * @param array  $child     ['url' => $url, 'title' => $title, 'alt' => NULL]
+     * @param string $parentUrl Parent link url
      *
      * @return bool Return true if link added successfully otherwise false
      */
@@ -56,9 +60,9 @@ class Register {
     /**
      * Functions searches parent link specified by url and adds child link to the parent
      *
-     * @param array  $child
-     * @param string $url
-     * @param array  $haystack
+     * @param array  $child    ['url' => $url, 'title' => $title, 'alt' => NULL]
+     * @param string $url      Link url
+     * @param array  $haystack Links array
      *
      * @return bool Return true if link added successfully otherwise false
      * @throws Exception
@@ -74,7 +78,7 @@ class Register {
                 $value['children'][] = $child;
                 return true;
             }
-            if (isset($value['children']) and is_array($value['children'])) {
+            if (isset($value['children']) && is_array($value['children'])) {
                 $this->addNextChild($child, $url, $value['children']);
             }
         }
