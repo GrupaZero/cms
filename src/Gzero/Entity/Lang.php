@@ -42,8 +42,8 @@ class Lang {
     /**
      * Lang entity constructor
      *
-     * @param string $code Lang code
-     * @param string $i18n Lang_i18n symbol
+     * @param string $code Lang code eg. "en"
+     * @param string $i18n Lang_i18n symbol eg. "en_US"
      */
     public function __construct($code, $i18n)
     {
@@ -66,21 +66,9 @@ class Lang {
     }
 
     /**
-     * Set i18n code
-     *
-     * @param mixed $i18n i18n code
-     *
-     * @return void
-     */
-    public function setI18n($i18n)
-    {
-        $this->i18n = $i18n;
-    }
-
-    /**
      * Get i18n code
      *
-     * @return mixed
+     * @return string
      */
     public function getI18n()
     {
@@ -100,11 +88,11 @@ class Lang {
     }
 
     /**
-     * Get isDefault property
+     * Check if lang is default
      *
-     * @return mixed
+     * @return boolean
      */
-    public function getIsDefault()
+    public function isDefault()
     {
         return $this->isDefault;
     }
@@ -122,7 +110,7 @@ class Lang {
     }
 
     /**
-     * Get sEnabled property
+     * Check if lang is enabled
      *
      * @return boolean
      */
