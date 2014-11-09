@@ -195,6 +195,7 @@ class ContentRepository extends BaseRepository implements TreeRepository {
      * @param int|null $offset   Start from
      *
      * @return mixed
+     * @SuppressWarnings("unused") We'll refactor whole repository
      */
     public function getChildren(TreeNode $node, array $criteria = [], array $orderBy = [], $limit = null, $offset = null)
     {

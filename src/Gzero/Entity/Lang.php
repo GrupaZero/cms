@@ -126,7 +126,7 @@ class Lang {
      *
      * @return boolean
      */
-    public function getIsEnabled()
+    public function isEnabled()
     {
         return $this->isEnabled;
     }
