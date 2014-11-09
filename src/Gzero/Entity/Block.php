@@ -87,7 +87,9 @@ class Block extends AbstractEntity {
     protected $options;
 
     /**
-     * @param BlockType $type
+     * Block entity constructor
+     *
+     * @param BlockType $type BlockType entity
      */
     public function __construct(BlockType $type)
     {
@@ -98,7 +100,11 @@ class Block extends AbstractEntity {
     }
 
     /**
-     * @param BlockTranslation $translation
+     * Add BlockTranslation entity
+     *
+     * @param BlockTranslation $translation BlockTranslation entity
+     *
+     * @return void
      */
     public function addTranslation(BlockTranslation $translation)
     {
@@ -106,7 +112,11 @@ class Block extends AbstractEntity {
     }
 
     /**
-     * @param Upload $upload
+     * Add Upload entity
+     *
+     * @param Upload $upload Upload entity
+     *
+     * @return void
      */
     public function addUpload(Upload $upload)
     {
@@ -114,7 +124,11 @@ class Block extends AbstractEntity {
     }
 
     /**
-     * @param MenuLink $menu
+     * Add Menu entity
+     *
+     * @param MenuLink $menu Menu entity
+     *
+     * @return void
      */
     public function addMenu(MenuLink $menu)
     {
@@ -126,6 +140,8 @@ class Block extends AbstractEntity {
     //------------------------------------------------------------------------------------------------
 
     /**
+     * Get entity id
+     *
      * @return int
      */
     public function getId()
@@ -134,6 +150,8 @@ class Block extends AbstractEntity {
     }
 
     /**
+     * Get block type
+     *
      * @return \Gzero\Entity\BlockType
      */
     public function getType()
@@ -142,7 +160,9 @@ class Block extends AbstractEntity {
     }
 
     /**
-     * @return string
+     * Get block type name
+     *
+     * @return string Type name
      */
     public function getTypeName()
     {
@@ -150,7 +170,11 @@ class Block extends AbstractEntity {
     }
 
     /**
-     * @param Array $regions
+     * Set regions
+     *
+     * @param Array $regions Collection of regions
+     *
+     * @return void
      */
     public function setRegions($regions)
     {
@@ -159,6 +183,8 @@ class Block extends AbstractEntity {
     }
 
     /**
+     * Get all regions
+     *
      * @return Array
      */
     public function getRegions()
@@ -167,7 +193,11 @@ class Block extends AbstractEntity {
     }
 
     /**
-     * @param $active
+     * Set active flag
+     *
+     * @param boolean $active Active flag
+     *
+     * @return void
      */
     public function setActive($active)
     {
@@ -175,6 +205,8 @@ class Block extends AbstractEntity {
     }
 
     /**
+     * Check is block active
+     *
      * @return boolean
      */
     public function isActive()
@@ -183,7 +215,11 @@ class Block extends AbstractEntity {
     }
 
     /**
-     * @param boolean $cacheable
+     * Set cacheable flag
+     *
+     * @param boolean $cacheable Cacheable flag
+     *
+     * @return void
      */
     public function setCacheable($cacheable)
     {
@@ -191,6 +227,8 @@ class Block extends AbstractEntity {
     }
 
     /**
+     * Check is block can be cached
+     *
      * @return boolean
      */
     public function isCacheable()
@@ -199,7 +237,11 @@ class Block extends AbstractEntity {
     }
 
     /**
-     * @param \Gzero\Entity\MenuLink $menu
+     * Set menu entity for this block
+     *
+     * @param \Gzero\Entity\MenuLink $menu Menu entity
+     *
+     * @return void
      */
     public function setMenu($menu)
     {
@@ -207,6 +249,8 @@ class Block extends AbstractEntity {
     }
 
     /**
+     * Get menu entity for this block
+     *
      * @return \Gzero\Entity\MenuLink
      */
     public function getMenu()
@@ -215,6 +259,8 @@ class Block extends AbstractEntity {
     }
 
     /**
+     * Get translations entities for this block
+     *
      * @return \Doctrine\Common\Collections\ArrayCollection
      */
     public function getTranslations()
@@ -223,6 +269,8 @@ class Block extends AbstractEntity {
     }
 
     /**
+     * Get uploads entities for this block
+     *
      * @return \Doctrine\Common\Collections\ArrayCollection
      */
     public function getUploads()
@@ -231,7 +279,11 @@ class Block extends AbstractEntity {
     }
 
     /**
-     * @param \stdClass $options
+     * Set options
+     *
+     * @param \stdClass $options Options object
+     *
+     * @return void
      */
     public function setOptions($options)
     {
@@ -239,6 +291,8 @@ class Block extends AbstractEntity {
     }
 
     /**
+     * Get options object
+     *
      * @return \stdClass
      */
     public function getOptions()

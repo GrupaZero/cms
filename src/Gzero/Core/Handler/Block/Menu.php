@@ -22,10 +22,17 @@ class Menu implements BlockTypeHandler {
 
     private $menuRepo;
 
+    /**
+     * Menu constructor
+     *
+     * @param MenuLinkRepository $menu Menu repository
+     */
     public function __construct(MenuLinkRepository $menu)
     {
         $this->menuRepo = $menu;
     }
+
+    // @codingStandardsIgnoreStart
 
     /**
      * {@inheritdoc}
@@ -57,4 +64,6 @@ class Menu implements BlockTypeHandler {
             ]
         )->render();
     }
+
+    // @codingStandardsIgnoreEnd
 }

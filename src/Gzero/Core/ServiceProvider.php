@@ -52,10 +52,12 @@ class ServiceProvider extends SP {
 
     /**
      * Try to detect language from uri
+     *
+     * @return void
      */
     protected function detectLanguage()
     {
-        if (\Request::segment(1) != 'admin' &&  $this->app['config']['gzero.multilang.enabled']) {
+        if (\Request::segment(1) != 'admin' && $this->app['config']['gzero.multilang.enabled']) {
             if ($this->app['config']['gzero.multilang.subdomain']) {
                 $locale = preg_replace('/\..+$/', '', Request::getHost());
             } else {
@@ -71,6 +73,8 @@ class ServiceProvider extends SP {
 
     /**
      * Bind Doctrine 2 repositories
+     *
+     * @return void
      */
     protected function bindRepositories()
     {
@@ -136,6 +140,8 @@ class ServiceProvider extends SP {
 
     /**
      * Bind content and block types
+     *
+     * @return void
      */
     protected function bindTypes()
     {
@@ -148,6 +154,11 @@ class ServiceProvider extends SP {
         }
     }
 
+    /**
+     * Bind additional commands
+     *
+     * @return void
+     */
     public function bindCommands()
     {
         $this->app->bind(
@@ -158,6 +169,11 @@ class ServiceProvider extends SP {
         );
     }
 
+    /**
+     * Register additional commands
+     *
+     * @return void
+     */
     public function registerCommands()
     {
         $this->commands('command.PublishMigrations');
@@ -165,6 +181,8 @@ class ServiceProvider extends SP {
 
     /**
      * Register additional providers to system
+     *
+     * @return void
      */
     protected function registerAdditionalProviders()
     {
@@ -175,6 +193,8 @@ class ServiceProvider extends SP {
 
     /**
      * Bind other services
+     *
+     * @return void
      */
     protected function bindOtherStuff()
     {
@@ -191,6 +211,8 @@ class ServiceProvider extends SP {
 
     /**
      * Add doctrine2 driver to Laravel Auth
+     *
+     * @return void
      */
     protected function extendAuth()
     {

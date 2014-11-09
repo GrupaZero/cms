@@ -66,6 +66,11 @@ class Content implements TreeNode {
      */
     protected $weight = 0;
 
+    /**
+     * Content entity constructor
+     *
+     * @param ContentType $type Content type entity
+     */
     public function __construct(ContentType $type)
     {
         $this->type         = $type;
@@ -74,6 +79,8 @@ class Content implements TreeNode {
     }
 
     /**
+     * Get entity id
+     *
      * @return integer
      */
     public function getId()
@@ -82,6 +89,8 @@ class Content implements TreeNode {
     }
 
     /**
+     * Get content Type
+     *
      * @return ContentType
      */
     public function getType()
@@ -90,6 +99,9 @@ class Content implements TreeNode {
     }
 
     /**
+     * Get content type name
+     * NOTE: Without lazy loading
+     *
      * @return string
      */
     public function getTypeName()
@@ -98,6 +110,20 @@ class Content implements TreeNode {
     }
 
     /**
+     * Set active flag
+     *
+     * @param boolean $active Active flag
+     *
+     * @return void
+     */
+    public function setActive($active)
+    {
+        $this->isActive = $active;
+    }
+
+    /**
+     * Check is block active
+     *
      * @return boolean
      */
     public function isActive()
@@ -106,14 +132,8 @@ class Content implements TreeNode {
     }
 
     /**
-     * @param boolean $active
-     */
-    public function setActive($active)
-    {
-        $this->isActive = $active;
-    }
-
-    /**
+     * Get content weight
+     *
      * @return integer
      */
     public function getWeight()
@@ -122,7 +142,11 @@ class Content implements TreeNode {
     }
 
     /**
-     * @param $weight
+     * Set content weight
+     *
+     * @param int $weight Content weight
+     *
+     * @return void
      */
     public function setWeight($weight)
     {
@@ -130,7 +154,11 @@ class Content implements TreeNode {
     }
 
     /**
-     * @param ContentTranslation $translation
+     * Add BlockTranslation entity
+     *
+     * @param ContentTranslation $translation ContentTranslation entity
+     *
+     * @return void
      */
     public function addTranslation(ContentTranslation $translation)
     {
@@ -138,6 +166,8 @@ class Content implements TreeNode {
     }
 
     /**
+     * Get translations entities for this block
+     *
      * @return \Doctrine\Common\Collections\ArrayCollection
      */
     public function getTranslations()

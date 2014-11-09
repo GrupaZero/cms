@@ -1,6 +1,12 @@
 <?php
 
 if (!function_exists('setMultilangRouting')) {
+
+    /**
+     * Returns routing array with lang prefix
+     *
+     * @return array
+     */
     function setMultilangRouting()
     {
         if (Config::get('gzero.multilang.enabled')) {

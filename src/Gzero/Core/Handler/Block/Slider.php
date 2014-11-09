@@ -12,12 +12,14 @@ use Gzero\Entity\Lang;
  * Class Slider
  *
  * @namespace    Gzero\BlockTypeHandlers
- * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
- * @copyright  Copyright (c) 2014, Adrian Skierniewski
+ * @author       Adrian Skierniewski <adrian.skierniewski@gmail.com>
+ * @copyright    Copyright (c) 2014, Adrian Skierniewski
  */
 class Slider implements BlockTypeHandler {
 
     private $block;
+
+    // @codingStandardsIgnoreStart
 
     /**
      * {@inheritdoc}
@@ -35,4 +37,6 @@ class Slider implements BlockTypeHandler {
     {
         return \View::make('blocks.slider', ['block' => $this->block])->render();
     }
+
+    // @codingStandardsIgnoreEnd
 }

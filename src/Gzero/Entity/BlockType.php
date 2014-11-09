@@ -26,7 +26,9 @@ class BlockType {
     //------------------------------------------------------------------------------------------------
 
     /**
-     * @param string $name
+     * BlockType constructor
+     *
+     * @param string $name Type name
      */
     public function __construct($name)
     {
@@ -34,6 +36,8 @@ class BlockType {
     }
 
     /**
+     * Get block type name
+     *
      * @return string
      */
     public function getName()

@@ -44,7 +44,7 @@ class ContentRepository extends BaseRepository implements TreeRepository {
     /**
      * Get content type by id.
      *
-     * @param int $id
+     * @param int $id Content id
      *
      * @return ContentType
      */
@@ -56,7 +56,7 @@ class ContentRepository extends BaseRepository implements TreeRepository {
     /**
      * Get content translation by id.
      *
-     * @param $id
+     * @param int $id Content Translation id
      *
      * @return ContentTranslation
      */
@@ -72,8 +72,10 @@ class ContentRepository extends BaseRepository implements TreeRepository {
     }
 
     /**
-     * @param string $url
-     * @param Lang   $lang
+     * Get content entity by url address
+     *
+     * @param string $url           Url address
+     * @param Lang   $lang          Lang entity
      * @param bool   $isActiveCheck By default, we search only with active translation
      *
      * @return array
@@ -117,8 +119,8 @@ class ContentRepository extends BaseRepository implements TreeRepository {
     /**
      * Get all ancestors nodes to specific node
      *
-     * @param TreeNode $node
-     * @param int      $hydrate
+     * @param TreeNode $node    Node to find ancestors
+     * @param int      $hydrate Doctrine2 hydrate mode. Default - Query::HYDRATE_ARRAY
      *
      * @return mixed
      */
@@ -143,9 +145,9 @@ class ContentRepository extends BaseRepository implements TreeRepository {
     /**
      * Get all descendants nodes to specific node
      *
-     * @param TreeNode $node
-     * @param bool     $tree If you want get in tree structure instead of list
-     * @param int      $hydrate
+     * @param TreeNode $node    Node to find descendants
+     * @param bool     $tree    If you want get in tree structure instead of list
+     * @param int      $hydrate Doctrine2 hydrate mode. Default - Query::HYDRATE_ARRAY
      *
      * @return mixed
      */
@@ -173,7 +175,8 @@ class ContentRepository extends BaseRepository implements TreeRepository {
             return array_filter(
                 $nodes,
                 function ($item) use ($node) { // We return children's array because we don't have one root
-                    $level = (is_array($item)) ? @$item['level'] : $item->getLevel(); // @TODO Ugly HAX ['level']
+                    // @TODO Ugly HAX ['level']
+                    $level = (is_array($item)) ? @$item['level'] : $item->getLevel();
                     return ($level == $node->getLevel() + 1);
                 }
             );
@@ -185,11 +188,11 @@ class ContentRepository extends BaseRepository implements TreeRepository {
     /**
      * Get all children nodes to specific node.
      *
-     * @param TreeNode $node
-     * @param array    $criteria
-     * @param array    $orderBy
-     * @param null     $limit
-     * @param null     $offset
+     * @param TreeNode $node     Node to find children
+     * @param array    $criteria Array of conditions
+     * @param array    $orderBy  Array of columns
+     * @param int|null $limit    Limit results
+     * @param int|null $offset   Start from
      *
      * @return mixed
      */
@@ -214,11 +217,11 @@ class ContentRepository extends BaseRepository implements TreeRepository {
     /**
      * Get all siblings nodes to specific node
      *
-     * @param TreeNode $node
-     * @param array    $criteria
-     * @param array    $orderBy
-     * @param null     $limit
-     * @param null     $offset
+     * @param TreeNode $node     Node to find siblings
+     * @param array    $criteria Array of conditions
+     * @param array    $orderBy  Array of columns
+     * @param int|null $limit    Limit results
+     * @param int|null $offset   Start from
      *
      * @return mixed
      */
@@ -237,9 +240,9 @@ class ContentRepository extends BaseRepository implements TreeRepository {
     /**
      * Get active contents of all type in level 0
      *
-     * @param null  $limit
-     * @param null  $offset
-     * @param array $orderBy
+     * @param array    $orderBy Array of columns
+     * @param int|null $limit   Limit results
+     * @param int|null $offset  Start from
      *
      * @return array
      */
@@ -267,11 +270,26 @@ class ContentRepository extends BaseRepository implements TreeRepository {
     |--------------------------------------------------------------------------
     */
 
+    /**
+     * Create specific content entity
+     *
+     * @param Content $content Content entity to persist
+     *
+     * @return void
+     */
     public function create(Content $content)
     {
         $this->_em->persist($content);
     }
 
+    /**
+     * Update specific content entity
+     *
+     * @param Content $content Content entity to update
+     * @param array   $data    Array with content data
+     *
+     * @return void
+     */
     public function update(Content $content, array $data)
     {
         $translation = $content->getTranslations()->first();
@@ -279,6 +297,13 @@ class ContentRepository extends BaseRepository implements TreeRepository {
         $this->_em->persist($content);
     }
 
+    /**
+     * Delete specific content entity
+     *
+     * @param Content $content Content entity to delete
+     *
+     * @return void
+     */
     public function delete(Content $content)
     {
         $this->_em->remove($content);

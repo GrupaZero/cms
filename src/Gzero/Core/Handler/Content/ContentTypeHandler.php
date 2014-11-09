@@ -6,10 +6,12 @@ use Gzero\Entity\Lang;
 interface ContentTypeHandler {
 
     /**
-     * @param ContentEntity $content
-     * @param Lang          $lang
+     * Load data from database
      *
-     * @return mixed
+     * @param ContentEntity $content Content entity
+     * @param Lang          $lang    Current lang entity
+     *
+     * @return $this
      */
     public function load(ContentEntity $content, Lang $lang);
 

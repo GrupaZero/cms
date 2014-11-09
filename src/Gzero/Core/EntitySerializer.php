@@ -134,7 +134,7 @@ class EntitySerializer {
     /**
      * Serialize an entity or array of entities to an array
      *
-     * @param The entity|array $entity
+     * @param mixed|array $entity Entity to serialize to array
      *
      * @return array
      */
@@ -154,7 +154,7 @@ class EntitySerializer {
     /**
      * Convert an entity or array of entities to a JSON object
      *
-     * @param The entity|array $entity
+     * @param mixed|array $entity Entity to serialize to json
      *
      * @return string
      */
@@ -166,10 +166,11 @@ class EntitySerializer {
     /**
      * Convert an entity to XML representation
      *
-     * @param The entity $entity
+     * @param mixed $entity Entity object
      *
      * @throws Exception
      * This will suppress UnusedLocalVariable warnings in this method
+     * @return void
      *
      * @SuppressWarnings("unused")
      */
@@ -181,7 +182,7 @@ class EntitySerializer {
     /**
      * Set the maximum recursion depth
      *
-     * @param   int $maxRecursionDepth
+     * @param int $maxRecursionDepth Maximal depth
      *
      * @return  void
      */

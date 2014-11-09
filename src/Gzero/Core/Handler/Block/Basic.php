@@ -19,6 +19,7 @@ class Basic implements BlockTypeHandler {
 
     private $block;
 
+    // @codingStandardsIgnoreStart
     /**
      * {@inheritdoc}
      */
@@ -38,4 +39,5 @@ class Basic implements BlockTypeHandler {
             ['block' => $this->block, 'translations' => $this->block->getTranslations()->first()]
         )->render();
     }
+    // @codingStandardsIgnoreEnd
 }

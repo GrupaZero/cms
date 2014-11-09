@@ -25,7 +25,6 @@ class BaseUser implements UserInterface, RemindableInterface {
      */
     protected $id;
 
-
     /**
      * @Column(type="string", unique=TRUE)
      * @var string
@@ -57,6 +56,8 @@ class BaseUser implements UserInterface, RemindableInterface {
     protected $rememberToken = null;
 
     /**
+     * Get entity id
+     *
      * @return int
      */
     public function getId()
@@ -65,7 +66,11 @@ class BaseUser implements UserInterface, RemindableInterface {
     }
 
     /**
-     * @param string $email
+     * Set user email
+     *
+     * @param string $email Email address
+     *
+     * @return void
      */
     public function setEmail($email)
     {
@@ -73,6 +78,8 @@ class BaseUser implements UserInterface, RemindableInterface {
     }
 
     /**
+     * Get email address
+     *
      * @return string
      */
     public function getEmail()
@@ -81,7 +88,11 @@ class BaseUser implements UserInterface, RemindableInterface {
     }
 
     /**
-     * @param string $firstName
+     * Set user first name
+     *
+     * @param string $firstName User first name
+     *
+     * @return void
      */
     public function setFirstName($firstName)
     {
@@ -89,6 +100,8 @@ class BaseUser implements UserInterface, RemindableInterface {
     }
 
     /**
+     * Get user first name
+     *
      * @return string
      */
     public function getFirstName()
@@ -97,7 +110,11 @@ class BaseUser implements UserInterface, RemindableInterface {
     }
 
     /**
-     * @param string $lastName
+     * Set user last name
+     *
+     * @param string $lastName User last name
+     *
+     * @return void
      */
     public function setLastName($lastName)
     {
@@ -105,6 +122,8 @@ class BaseUser implements UserInterface, RemindableInterface {
     }
 
     /**
+     * Get user last name
+     *
      * @return string
      */
     public function getLastName()
@@ -113,16 +132,22 @@ class BaseUser implements UserInterface, RemindableInterface {
     }
 
     /**
-     * @param string $password
+     * Set user Password
+     *
+     * @param string $password User password
+     *
+     * @return void
      */
     public function setPassword($password)
     {
-//        $this->password = Hash::make($password);
+        // $this->password = Hash::make($password);
         $hasher         = new BcryptHasher();
         $this->password = $hasher->make($password);
     }
 
     /**
+     * Get user password in hashed form
+     *
      * @return string
      */
     public function getPassword()
@@ -131,7 +156,11 @@ class BaseUser implements UserInterface, RemindableInterface {
     }
 
     /**
-     * @param string $token
+     * Set user remember token
+     *
+     * @param string $token Token value
+     *
+     * @return void
      */
     public function setRememberToken($token)
     {
@@ -139,6 +168,8 @@ class BaseUser implements UserInterface, RemindableInterface {
     }
 
     /**
+     * Get remember token
+     *
      * @return string
      */
     public function getRememberToken()
@@ -190,7 +221,7 @@ class BaseUser implements UserInterface, RemindableInterface {
     /**
      * Set the token value for the "remember me" session.
      *
-     * @param  string $value
+     * @param string $value Token value
      *
      * @return void
      */

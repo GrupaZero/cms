@@ -31,15 +31,23 @@ class CMSSeeder extends Seeder {
      */
     protected $em;
 
+    /**
+     * CMSSeeder constructor
+     *
+     * @param \Doctrine\ORM\EntityManager $em Doctrine2 entity manager
+     */
     public function __construct(\Doctrine\ORM\EntityManager $em)
     {
         $this->em = $em;
     }
 
     /**
+     * This function run all seeds
+     *
      * @throws \Doctrine\ORM\ORMException
      * @throws \Doctrine\ORM\OptimisticLockException
      * @throws \Doctrine\ORM\TransactionRequiredException
+     * @return void
      * @SuppressWarnings("PHPMD")
      */
     public function run()
@@ -151,8 +159,10 @@ class CMSSeeder extends Seeder {
     }
 
     /**
-     * @param $entityName
-     * @param $typeName
+     * Helper function to type entities
+     *
+     * @param string $entityName Entity name
+     * @param string $typeName   Entity type name
      *
      * @return BlockType|null|object
      */

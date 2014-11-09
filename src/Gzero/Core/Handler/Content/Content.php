@@ -40,8 +40,10 @@ class Content implements ContentTypeHandler {
     protected $contentRepo;
 
     /**
-     * @param Application       $app
-     * @param ContentRepository $contentRepo
+     * Content constructor
+     *
+     * @param Application       $app         Laravel application
+     * @param ContentRepository $contentRepo content reposityory
      */
     public function __construct(Application $app, ContentRepository $contentRepo)
     {
@@ -50,7 +52,12 @@ class Content implements ContentTypeHandler {
     }
 
     /**
-     * {@inheritdoc}
+     * Load data from database
+     *
+     * @param ContentEntity $content Content entity
+     * @param Lang          $lang    Current lang entity
+     *
+     * @return $this
      */
     public function load(ContentEntity $content, Lang $lang)
     {
@@ -61,6 +68,11 @@ class Content implements ContentTypeHandler {
         return $this;
     }
 
+    /**
+     * Renders content
+     *
+     * @return View
+     */
     public function render()
     {
         return \View::make('content.content', ['content' => $this->content, 'parents' => null]);

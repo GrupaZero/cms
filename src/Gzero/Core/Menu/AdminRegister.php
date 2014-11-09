@@ -20,8 +20,10 @@ class AdminRegister extends MenuRegister {
     /**
      * Function adds register AngularJS module
      *
-     * @param string $name
-     * @param string $path
+     * @param string $name Module name
+     * @param string $path Module path to js file
+     *
+     * @return void
      */
     public function addModule($name, $path)
     {

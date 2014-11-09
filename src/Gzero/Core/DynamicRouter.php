@@ -31,8 +31,10 @@ class DynamicRouter {
     private $contentRepo;
 
     /**
-     * @param Application       $app
-     * @param ContentRepository $contentRepo
+     * DynamicRouter constructor
+     *
+     * @param Application       $app         Laravel application
+     * @param ContentRepository $contentRepo Content repository
      */
     public function __construct(Application $app, ContentRepository $contentRepo)
     {
@@ -43,8 +45,8 @@ class DynamicRouter {
     /**
      * Handles dynamic content rendering
      *
-     * @param String $url
-     * @param Lang   $lang
+     * @param String $url  Url address
+     * @param Lang   $lang Lang entity
      *
      * @return \View
      * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
@@ -54,7 +56,7 @@ class DynamicRouter {
         try {
             $content = $this->contentRepo->getByUrl($url, $lang);
             // Only if page is visible on public
-            if (!empty($content) &&  $content->isActive()) {
+            if (!empty($content) && $content->isActive()) {
                 $type = $this->resolveType($content->getType()->getName());
                 return $type->load($content, $lang)->render();
             } else {
@@ -66,7 +68,9 @@ class DynamicRouter {
     }
 
     /**
-     * @param String $typeName
+     * Dynamically resolve type of content
+     *
+     * @param String $typeName Type name
      *
      * @return ContentTypeHandler
      * @throws \ReflectionException

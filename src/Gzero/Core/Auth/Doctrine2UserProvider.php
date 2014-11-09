@@ -8,6 +8,11 @@ class Doctrine2UserProvider implements UserProviderInterface {
 
     private $userRepo;
 
+    /**
+     * Doctrine2UserProvider constructor
+     *
+     * @param UserProviderInterface $userRepo User repository
+     */
     public function __construct(UserProviderInterface $userRepo)
     {
         $this->userRepo = $userRepo;

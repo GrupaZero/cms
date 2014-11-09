@@ -29,13 +29,16 @@
         <exclude name="Squiz.Operators.ComparisonOperatorUsage"/>
         <exclude name="Squiz.Strings"/>
         <exclude name="Squiz.ControlStructures.ElseIfDeclaration"/>
+        <exclude name="Squiz.ControlStructures.InlineIfDeclaration"/>
         <!-- Issue with our arrays -->
         <exclude name="Generic.Formatting.MultipleStatementAlignment"/>
         <!-- Spaces before object operator -> -->
         <exclude name="Squiz.WhiteSpace.ObjectOperatorSpacing"/>
-        <!-- disabled because returning error on function($arg1, $arg2 = true)-->
+        <!-- Disabled because returning error on function($arg1, $arg2 = true)-->
         <exclude name="Squiz.Functions.FunctionDeclarationArgumentSpacing"/>
         <exclude name="Squiz.PHP.DisallowInlineIf"/>
+        <!-- Passing new as argument to function -->
+        <exclude name="Squiz.Objects.ObjectInstantiation"/>
     </rule>
     <rule ref="Generic.Files.LineLength">
         <properties>

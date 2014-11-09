@@ -1,6 +1,7 @@
 <?php namespace Gzero\Core;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Gzero\Entity\Block;
 use Gzero\Entity\Lang;
 use Gzero\Repository\BlockRepository;
 use Illuminate\Cache\Repository as Cache;
@@ -19,6 +20,9 @@ use Illuminate\Foundation\Application;
  * @copyright  Copyright (c) 2014, Adrian Skierniewski
  */
 class BlockHandler {
+
+    // @codingStandardsIgnoreStart
+    // TODO Refactor this block handler
 
     private $app;
     private $cache;
@@ -87,19 +91,30 @@ class BlockHandler {
         //}
     }
 
+    /**
+     * @param      $block
+     * @param Lang $lang
+     */
     public function build($block, Lang $lang)
     {
         $type        = $this->resolveType($block->getTypeName());
         $block->view = $type->load($block, $lang)->render();
     }
 
+    /**
+     * @param $typeName
+     *
+     * @return mixed
+     */
     protected function resolveType($typeName)
     {
         return $this->app->make('block_type:' . $typeName);
     }
 
     /**
-     * @param $block
+     * Check if block is visible
+     *
+     * @param Block $block Block entity
      *
      * @return bool
      * @SuppressWarnings("unused")
@@ -108,4 +123,6 @@ class BlockHandler {
     {
         return true;
     }
+
+    // @codingStandardsIgnoreEND
 }

@@ -18,14 +18,26 @@ use Gzero\Repository\LangRepository;
 class Block {
 
     protected $langRepo;
+
     protected $handler;
 
+    /**
+     * Block filter constructor
+     *
+     * @param BlockHandler   $block Block repository
+     * @param LangRepository $lang  Lang repository
+     */
     public function __construct(BlockHandler $block, LangRepository $lang)
     {
         $this->handler  = $block;
         $this->langRepo = $lang;
     }
 
+    /**
+     * Run filter
+     *
+     * @return void
+     */
     public function filter()
     {
         $lang = $this->langRepo->getCurrent();
