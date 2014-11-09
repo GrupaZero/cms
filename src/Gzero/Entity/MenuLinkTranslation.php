@@ -20,6 +20,8 @@ class MenuLinkTranslation {
 
     use TimestampTrait;
 
+    // @codingStandardsIgnoreStart
+
     /**
      * @Id @GeneratedValue @Column(type="integer")
      * @var integer
@@ -193,5 +195,7 @@ class MenuLinkTranslation {
     //------------------------------------------------------------------------------------------------
     // END:  Getters & Setters
     //------------------------------------------------------------------------------------------------
+
+    // @codingStandardsIgnoreEnd
 
 }

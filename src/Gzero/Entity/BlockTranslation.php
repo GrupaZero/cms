@@ -75,10 +75,12 @@ class BlockTranslation {
     protected $isActive = false;
 
     /**
-     * @param Block $block
-     * @param Lang  $lang
+     * BlockTranslation constructor
      *
-     * @param User  $user
+     * @param Block $block Block entity
+     * @param Lang  $lang  Lang entity
+     *
+     * @param User  $user  User entity
      */
     public function __construct(Block $block, Lang $lang, User $user = null)
     {
@@ -92,6 +94,8 @@ class BlockTranslation {
     //------------------------------------------------------------------------------------------------
 
     /**
+     * Get entity id
+     *
      * @return int
      */
     public function getId()
@@ -100,6 +104,8 @@ class BlockTranslation {
     }
 
     /**
+     * Get block entity
+     *
      * @return \Gzero\Entity\Block
      */
     public function getBlock()
@@ -108,6 +114,8 @@ class BlockTranslation {
     }
 
     /**
+     * Get lang entity
+     *
      * @return \Gzero\Entity\Lang
      */
     public function getLang()
@@ -116,6 +124,9 @@ class BlockTranslation {
     }
 
     /**
+     * Get lang code
+     * NOTE: Without lazy loading
+     *
      * @return string
      */
     public function getLangCode()
@@ -124,6 +135,8 @@ class BlockTranslation {
     }
 
     /**
+     * Get user entity
+     *
      * @return \Gzero\Entity\User
      */
     public function getUser()
@@ -132,7 +145,11 @@ class BlockTranslation {
     }
 
     /**
-     * @param string $sites
+     * Set sites property
+     *
+     * @param string $sites Sites string
+     *
+     * @return void
      */
     public function setSites($sites)
     {
@@ -140,6 +157,8 @@ class BlockTranslation {
     }
 
     /**
+     * Get sites property
+     *
      * @return string
      */
     public function getSites()
@@ -148,7 +167,11 @@ class BlockTranslation {
     }
 
     /**
-     * @param mixed $title
+     * Set title
+     *
+     * @param string $title Block title
+     *
+     * @return void
      */
     public function setTitle($title)
     {
@@ -156,7 +179,9 @@ class BlockTranslation {
     }
 
     /**
-     * @return mixed
+     * Get title
+     *
+     * @return string
      */
     public function getTitle()
     {
@@ -164,7 +189,11 @@ class BlockTranslation {
     }
 
     /**
-     * @param mixed $body
+     * Set content body
+     *
+     * @param string $body Block body
+     *
+     * @return void
      */
     public function setBody($body)
     {
@@ -172,6 +201,8 @@ class BlockTranslation {
     }
 
     /**
+     * Get Block body
+     *
      * @return mixed
      */
     public function getBody()
@@ -180,7 +211,11 @@ class BlockTranslation {
     }
 
     /**
-     * @param $active
+     * Set active flag
+     *
+     * @param boolean $active Active flag
+     *
+     * @return void
      */
     public function setActive($active)
     {
@@ -188,6 +223,8 @@ class BlockTranslation {
     }
 
     /**
+     * Check is block active
+     *
      * @return boolean
      */
     public function isActive()

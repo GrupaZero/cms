@@ -20,6 +20,8 @@ class Upload {
 
     use TimestampTrait;
 
+    // @codingStandardsIgnoreStart
+
     /**
      * @Id @GeneratedValue @Column(type="integer")
      * @var integer
@@ -162,5 +164,7 @@ class Upload {
     //-----------------------------------------------------------------------------------------------
     // END:  Getters & Setters
     //-----------------------------------------------------------------------------------------------
+
+    // @codingStandardsIgnoreEnd
 
 }

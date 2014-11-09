@@ -26,7 +26,7 @@ class UserRepository extends BaseRepository implements UserProviderInterface {
     /**
      * Get single block with active translations
      *
-     * @param int $id
+     * @param int $id User id
      *
      * @return Block
      */
@@ -34,6 +34,8 @@ class UserRepository extends BaseRepository implements UserProviderInterface {
     {
         return $this->find($id);
     }
+
+    // @codingStandardsIgnoreStart
 
     public function create(array $data)
     {

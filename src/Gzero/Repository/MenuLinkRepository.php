@@ -20,6 +20,8 @@ use Gzero\Entity\MenuLink;
  */
 class MenuLinkRepository extends BaseRepository implements TreeRepository {
 
+    // @codingStandardsIgnoreStart
+
     /**
      * Get single node with active translations and author
      *
@@ -176,4 +178,6 @@ class MenuLinkRepository extends BaseRepository implements TreeRepository {
     {
         $this->_em->flush();
     }
+
+    // @codingStandardsIgnoreEnd
 }

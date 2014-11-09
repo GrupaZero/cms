@@ -22,7 +22,9 @@ class UploadType {
     protected $name;
 
     /**
-     * @param string $name
+     * UploadType entity constructor
+     *
+     * @param string $name Type name
      */
     public function __construct($name)
     {
@@ -34,6 +36,8 @@ class UploadType {
     //------------------------------------------------------------------------------------------------
 
     /**
+     * Get type name
+     *
      * @return string
      */
     public function getName()

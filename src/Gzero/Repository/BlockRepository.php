@@ -22,7 +22,7 @@ class BlockRepository extends BaseRepository {
     /**
      * Get single block with active translations
      *
-     * @param int $id
+     * @param int $id Block id
      *
      * @return Block
      */
@@ -40,7 +40,7 @@ class BlockRepository extends BaseRepository {
     /**
      * Get block type by id
      *
-     * @param $id
+     * @param int $id Block type id
      *
      * @return BlockType
      */
@@ -52,7 +52,7 @@ class BlockRepository extends BaseRepository {
     /**
      * Get block translation by id
      *
-     * @param $id
+     * @param int $id Block translation id
      *
      * @return BlockTranslation
      */
@@ -112,7 +112,7 @@ class BlockRepository extends BaseRepository {
     /**
      * Get all block translations
      *
-     * @param Block $block
+     * @param Block $block Block entity
      *
      * @return array
      */
@@ -126,6 +126,8 @@ class BlockRepository extends BaseRepository {
             ->setParameter('id', $block->getId());
         return $qb->getQuery()->getResult();
     }
+
+    // @codingStandardsIgnoreStart
 
     public function create(Block $block)
     {
@@ -146,4 +148,6 @@ class BlockRepository extends BaseRepository {
     {
         $this->_em->flush();
     }
+
+    // @codingStandardsIgnoreEnd
 }

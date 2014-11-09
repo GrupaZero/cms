@@ -17,6 +17,8 @@ use Gzero\Doctrine2Extensions\Common\BaseRepository as CommonBaseRepository;
 class BaseRepository extends CommonBaseRepository {
 
     /**
+     * Create new query builder
+     *
      * @return \Doctrine\ORM\QueryBuilder
      */
     protected function newQB()
@@ -25,6 +27,8 @@ class BaseRepository extends CommonBaseRepository {
     }
 
     /**
+     * Get entity type class name
+     *
      * @return string
      */
     protected function getTypeClassName()
@@ -33,6 +37,8 @@ class BaseRepository extends CommonBaseRepository {
     }
 
     /**
+     * Get entity translation class name
+     *
      * @return string
      */
     protected function getTranslationClassName()

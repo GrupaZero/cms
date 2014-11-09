@@ -19,6 +19,8 @@ class UploadTranslation {
 
     use TimestampTrait;
 
+    // @codingStandardsIgnoreStart
+
     /**
      * @Id @GeneratedValue @Column(type="integer")
      * @var integer
@@ -130,5 +132,7 @@ class UploadTranslation {
     //-----------------------------------------------------------------------------------------------
     // END:  Getters & Setters
     //-----------------------------------------------------------------------------------------------
+
+    // @codingStandardsIgnoreEnd
 
 }

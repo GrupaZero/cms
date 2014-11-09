@@ -24,6 +24,8 @@ class LangRepository extends BaseRepository {
 
     /**
      * Init languages from database or cache
+     *
+     * @return void
      */
     public function init()
     {
@@ -60,7 +62,9 @@ class LangRepository extends BaseRepository {
     }
 
     /**
-     * @param $code
+     * Get lang by lang code
+     *
+     * @param string $code Lang code eg. "en"
      *
      * @return \Gzero\Entity\Lang
      */
@@ -80,6 +84,8 @@ class LangRepository extends BaseRepository {
     }
 
     /**
+     * Get all active langs
+     *
      * @return \Doctrine\Common\Collections\Collection
      */
     public function getAllActive()
@@ -94,6 +100,8 @@ class LangRepository extends BaseRepository {
     }
 
     /**
+     * Get all languages
+     *
      * @return ArrayCollection
      */
     public function getAll()
@@ -102,7 +110,9 @@ class LangRepository extends BaseRepository {
     }
 
     /**
-     * @param array $langs
+     * Build langs collection
+     *
+     * @param array $langs Array of langs
      *
      * @return ArrayCollection
      */

@@ -23,6 +23,8 @@ class MenuLink implements TreeNode {
     use TreeNodeTrait;
     use TimestampTrait;
 
+    // @codingStandardsIgnoreStart
+
     /**
      * @Id @GeneratedValue @Column(type="integer")
      * @var string
@@ -86,7 +88,11 @@ class MenuLink implements TreeNode {
     }
 
     /**
-     * @param $active
+     * Set active flag
+     *
+     * @param boolean $active Active flag
+     *
+     * @return void
      */
     public function setActive($active)
     {
@@ -94,6 +100,8 @@ class MenuLink implements TreeNode {
     }
 
     /**
+     * Check is block active
+     *
      * @return boolean
      */
     public function isActive()
@@ -160,4 +168,6 @@ class MenuLink implements TreeNode {
     //-----------------------------------------------------------------------------------------------
     // END:  Getters & Setters
     //-----------------------------------------------------------------------------------------------
+
+    // @codingStandardsIgnoreEnd
 }

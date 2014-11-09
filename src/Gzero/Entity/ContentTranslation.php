@@ -79,9 +79,11 @@ class ContentTranslation {
     protected $fillable = ['url', 'title', 'body', 'isActive'];
 
     /**
-     * @param Content $content
-     * @param Lang    $lang
-     * @param User    $user
+     * ContentTranslation
+     *
+     * @param Content $content Content entity
+     * @param Lang    $lang    Lang entity
+     * @param User    $user    User entity
      */
     public function __construct(Content $content, Lang $lang, User $user = null)
     {
@@ -95,6 +97,8 @@ class ContentTranslation {
     //------------------------------------------------------------------------------------------------
 
     /**
+     * Get entity Id
+     *
      * @return int
      */
     public function getId()
@@ -103,6 +107,8 @@ class ContentTranslation {
     }
 
     /**
+     * Get url address
+     *
      * @return string
      */
     public function getUrl()
@@ -111,7 +117,11 @@ class ContentTranslation {
     }
 
     /**
-     * @param string $url
+     * Set Url address
+     *
+     * @param string $url Url address
+     *
+     * @return void
      */
     public function setUrl($url)
     {
@@ -119,6 +129,9 @@ class ContentTranslation {
     }
 
     /**
+     * Get content entity
+     * NOTE: Without lazy loading
+     *
      * @return \Gzero\Entity\Content
      */
     public function getContent()
@@ -127,6 +140,8 @@ class ContentTranslation {
     }
 
     /**
+     * Get lang entity
+     *
      * @return \Gzero\Entity\Lang
      */
     public function getLang()
@@ -135,6 +150,8 @@ class ContentTranslation {
     }
 
     /**
+     * Get Lang code
+     *
      * @return string
      */
     public function getLangCode()
@@ -143,6 +160,8 @@ class ContentTranslation {
     }
 
     /**
+     * Get User entity
+     *
      * @return \Gzero\Entity\User
      */
     public function getUser()
@@ -151,7 +170,11 @@ class ContentTranslation {
     }
 
     /**
-     * @param mixed $title
+     * Set title
+     *
+     * @param string $title Content title
+     *
+     * @return void
      */
     public function setTitle($title)
     {
@@ -159,7 +182,9 @@ class ContentTranslation {
     }
 
     /**
-     * @return mixed
+     * Get title
+     *
+     * @return string
      */
     public function getTitle()
     {
@@ -167,7 +192,11 @@ class ContentTranslation {
     }
 
     /**
-     * @param mixed $body
+     * Set content body
+     *
+     * @param string $body Content body
+     *
+     * @return void
      */
     public function setBody($body)
     {
@@ -175,6 +204,8 @@ class ContentTranslation {
     }
 
     /**
+     * Get content body
+     *
      * @return mixed
      */
     public function getBody()
@@ -183,7 +214,11 @@ class ContentTranslation {
     }
 
     /**
-     * @param $active
+     * Set active flag
+     *
+     * @param boolean $active Active flag
+     *
+     * @return void
      */
     public function setActive($active)
     {
@@ -191,6 +226,8 @@ class ContentTranslation {
     }
 
     /**
+     * Check is block active
+     *
      * @return boolean
      */
     public function isActive()
@@ -198,16 +235,27 @@ class ContentTranslation {
         return $this->isActive;
     }
 
+    // @codingStandardsIgnoreStart
+
+    /**
+     * @return array
+     */
     public function getFillable()
     {
         return $this->fillable;
     }
 
+    /**
+     * @param array $fillable
+     */
     public function setFillable(array $fillable)
     {
         $this->fillable = $fillable;
     }
 
+    /**
+     * @return array
+     */
     public function getAttributes()
     {
         $reflect    = new ReflectionClass($this);
@@ -219,6 +267,10 @@ class ContentTranslation {
         return $attributes;
     }
 
+    /**
+     * @param $key
+     * @param $value
+     */
     public function setAttribute($key, $value)
     {
         if (in_array($key, $this->getAttributes(), true)) {
@@ -229,6 +281,11 @@ class ContentTranslation {
     // END:  Getters & Setters
     //------------------------------------------------------------------------------------------------
 
+    /**
+     * @param $key
+     *
+     * @return bool
+     */
     public function isFillable($key)
     {
         if (in_array($key, $this->fillable, true)) {
@@ -237,6 +294,9 @@ class ContentTranslation {
         return false;
     }
 
+    /**
+     * @param array $data
+     */
     public function fill(array $data)
     {
         foreach ($data as $key => $value) {
@@ -245,4 +305,6 @@ class ContentTranslation {
             }
         }
     }
+
+    // @codingStandardsIgnoreEnd
 }

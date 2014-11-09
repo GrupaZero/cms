@@ -26,7 +26,9 @@ class ContentType {
     //------------------------------------------------------------------------------------------------
 
     /**
-     * @param string $name
+     * ContentType constructor
+     *
+     * @param string $name Type name
      */
     public function __construct($name)
     {
@@ -34,6 +36,8 @@ class ContentType {
     }
 
     /**
+     * Get type name
+     *
      * @return string
      */
     public function getName()
