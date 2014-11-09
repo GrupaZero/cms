@@ -14,4 +14,4 @@
  */
 class RepositoryException extends \Exception {
 
-} 
+}
