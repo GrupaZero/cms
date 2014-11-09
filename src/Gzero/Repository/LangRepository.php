@@ -1,6 +1,8 @@
 <?php namespace Gzero\Repository;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\ORM\QueryBuilder;
+use Illuminate\Cache\Repository;
 use Illuminate\Support\Facades\App;
 
 /**
@@ -18,28 +20,37 @@ use Illuminate\Support\Facades\App;
 class LangRepository extends BaseRepository {
 
     /**
+     * All languages
+     *
      * @var ArrayCollection
      */
     private $langs;
 
     /**
+     * @var Repository
+     */
+    private $cache;
+
+    /**
      * Init languages from database or cache
+     *
+     * @param Repository $cache Cache
      *
      * @return void
      */
-    public function init()
+    public function init(Repository $cache)
     {
-        /** @var $cache \Illuminate\Cache\Repository */
-        $cache = App::make('cache');
-        if ($cache->get('langs')) {
-            $this->langs = $cache->get('langs');
+        $this->cache = $cache;
+        if ($this->cache->get('langs')) {
+            $this->langs = $this->cache->get('langs');
         } else {
             /* @var QueryBuilder $qb */
             $qb          = $this->_em->createQueryBuilder();
-            $langs       = $qb->select('l')
-                ->from($this->getClassName(), 'l')
-                ->getQuery()->getResult();
-            $this->langs = $this->prepareLangsArray($langs);
+            $this->langs = $this->prepareLangsArray(
+                $qb->select('l')
+                    ->from($this->getClassName(), 'l')
+                    ->getQuery()->getResult()
+            );
             $cache->forever('langs', $this->langs);
         }
     }
@@ -47,14 +58,12 @@ class LangRepository extends BaseRepository {
     /**
      * Refresh langs cache
      *
-     * @return bool
+     * @return boolean
      */
     public function refresh()
     {
-        /** @var $cache \Illuminate\Cache\Repository */
-        $cache = App::make('cache');
-        if ($cache->has('langs')) {
-            $cache->forget('langs');
+        if ($this->cache->has('langs')) {
+            $this->cache->forget('langs');
             return true;
         } else {
             return false;
@@ -66,11 +75,14 @@ class LangRepository extends BaseRepository {
      *
      * @param string $code Lang code eg. "en"
      *
+     * @throws RepositoryException
      * @return \Gzero\Entity\Lang
      */
     public function getByCode($code)
     {
+        $this->checkIfInitialized();
         return $this->langs->get($code);
+
     }
 
     /**
@@ -80,23 +92,8 @@ class LangRepository extends BaseRepository {
      */
     public function getCurrent()
     {
+        $this->checkIfInitialized();
         return $this->getByCode(App::getLocale());
-    }
-
-    /**
-     * Get all active langs
-     *
-     * @return \Doctrine\Common\Collections\Collection
-     */
-    public function getAllActive()
-    {
-        return $this->langs->filter(
-            function ($lang) {
-                if ($lang->isActive()) {
-                    return $lang;
-                }
-            }
-        );
     }
 
     /**
@@ -106,11 +103,27 @@ class LangRepository extends BaseRepository {
      */
     public function getAll()
     {
+        $this->checkIfInitialized();
         return $this->langs;
     }
 
     /**
-     * Build langs collection
+     * Get all enabled langs
+     *
+     * @return \Doctrine\Common\Collections\Collection
+     */
+    public function getAllEnabled()
+    {
+        $this->checkIfInitialized();
+        return $this->langs->filter(
+            function ($lang) {
+                return ($lang->isEnabled()) ? $lang : false;
+            }
+        );
+    }
+
+    /**
+     * Build langs collection where key is a lang code
      *
      * @param array $langs Array of langs
      *
@@ -123,7 +136,19 @@ class LangRepository extends BaseRepository {
             $returnArray[$lang->getCode()] = $lang;
         }
         return new ArrayCollection($returnArray);
+    }
 
+    /**
+     * This function checking if repository was initialized
+     *
+     * @throws RepositoryException
+     * @return void
+     */
+    private function checkIfInitialized()
+    {
+        if (!isset($this->langs)) {
+            throw new RepositoryException('You must init repository first');
+        }
     }
 
 }
