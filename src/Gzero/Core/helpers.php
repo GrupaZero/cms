@@ -14,7 +14,7 @@ if (!function_exists('setMultilangRouting')) {
                 if (Config::get('gzero.multilang.detected')) {
                     return ['domain' => Request::getHost()];
                 } else {
-                    return ['domain' => App::getLocale() . '.' . Request::getHost()];
+                    return ['domain' => App::getLocale() . '.' . Request::server('SERVER_NAME')];
                 }
             } else {
                 return ['prefix' => App::getLocale()];
