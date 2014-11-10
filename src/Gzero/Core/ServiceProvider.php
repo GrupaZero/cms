@@ -104,7 +104,7 @@ class ServiceProvider extends SP {
             'Gzero\Repository\LangRepository',
             function ($app) {
                 $repo = Doctrine::getRepository('Gzero\Entity\Lang');
-                $repo->init(); // Use cache
+                $repo->init(App::make('cache')); // Use cache
                 return $repo;
             }
         );

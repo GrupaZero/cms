@@ -1475,12 +1475,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpseclib/phpseclib.git",
-                "reference": "e540752e9a4b0c61e158be54be0e38be1b2e0aad"
+                "reference": "c6e88ca6e81bc5a2d7161658e16a95b7ef8d6ad1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/e540752e9a4b0c61e158be54be0e38be1b2e0aad",
-                "reference": "e540752e9a4b0c61e158be54be0e38be1b2e0aad",
+                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/c6e88ca6e81bc5a2d7161658e16a95b7ef8d6ad1",
+                "reference": "c6e88ca6e81bc5a2d7161658e16a95b7ef8d6ad1",
                 "shasum": ""
             },
             "require": {
@@ -1565,7 +1565,7 @@
                 "x.509",
                 "x509"
             ],
-            "time": "2014-11-07 12:08:53"
+            "time": "2014-11-10 03:08:59"
         },
         {
             "name": "predis/predis",
@@ -2412,12 +2412,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Routing.git",
-                "reference": "d50d2b02bc5d23dad174543e9ec06422816bc347"
+                "reference": "f3f5f31d5e227c51eed7ba8b1ed809a97ebaa341"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Routing/zipball/d50d2b02bc5d23dad174543e9ec06422816bc347",
-                "reference": "d50d2b02bc5d23dad174543e9ec06422816bc347",
+                "url": "https://api.github.com/repos/symfony/Routing/zipball/f3f5f31d5e227c51eed7ba8b1ed809a97ebaa341",
+                "reference": "f3f5f31d5e227c51eed7ba8b1ed809a97ebaa341",
                 "shasum": ""
             },
             "require": {
@@ -2470,7 +2470,7 @@
                 "uri",
                 "url"
             ],
-            "time": "2014-11-03 14:26:52"
+            "time": "2014-11-03 20:24:10"
         },
         {
             "name": "symfony/security-core",
@@ -2887,12 +2887,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/padraic/mockery.git",
-                "reference": "83fd9101183547a3a8cd68c155a5a6f63e7baefb"
+                "reference": "30eb319efcf2ebe6b4529be51f60df78340bdbb5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/padraic/mockery/zipball/83fd9101183547a3a8cd68c155a5a6f63e7baefb",
-                "reference": "83fd9101183547a3a8cd68c155a5a6f63e7baefb",
+                "url": "https://api.github.com/repos/padraic/mockery/zipball/30eb319efcf2ebe6b4529be51f60df78340bdbb5",
+                "reference": "30eb319efcf2ebe6b4529be51f60df78340bdbb5",
                 "shasum": ""
             },
             "require": {
@@ -2945,7 +2945,7 @@
                 "test double",
                 "testing"
             ],
-            "time": "2014-10-31 12:40:15"
+            "time": "2014-11-10 08:31:38"
         },
         {
             "name": "pdepend/pdepend",

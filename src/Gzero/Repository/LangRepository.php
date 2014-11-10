@@ -2,6 +2,7 @@
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\QueryBuilder;
+use Illuminate\Cache\CacheManager;
 use Illuminate\Cache\Repository;
 use Illuminate\Support\Facades\App;
 
@@ -38,7 +39,7 @@ class LangRepository extends BaseRepository {
      *
      * @return void
      */
-    public function init(Repository $cache)
+    public function init($cache)
     {
         $this->cache = $cache;
         if ($this->cache->get('langs')) {
