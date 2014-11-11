@@ -3,6 +3,7 @@
 use Illuminate\Auth\Reminders\RemindableInterface;
 use Illuminate\Auth\UserInterface;
 use Illuminate\Hashing\BcryptHasher;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -15,42 +16,42 @@ use Illuminate\Hashing\BcryptHasher;
  * @package    Gzero\Entity
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2014, Adrian Skierniewski
- * @MappedSuperclass
+ * @ORM\MappedSuperclass
  */
 class BaseUser implements UserInterface, RemindableInterface {
 
     /**
-     * @Id @GeneratedValue @Column(type="integer")
+     * @ORM\Id @ORM\GeneratedValue @ORM\Column(type="integer")
      * @var integer
      */
     protected $id;
 
     /**
-     * @Column(type="string", unique=TRUE)
+     * @ORM\Column(type="string", unique=TRUE)
      * @var string
      */
     protected $email;
 
     /**
-     * @Column(type="string")
+     * @ORM\Column(type="string")
      * @var string
      */
     protected $firstName;
 
     /**
-     * @Column(type="string")
+     * @ORM\Column(type="string")
      * @var string
      */
     protected $lastName;
 
     /**
-     * @Column(type="string")
+     * @ORM\Column(type="string")
      * @var string
      */
     protected $password;
 
     /**
-     * @Column(type="string", nullable=TRUE)
+     * @ORM\Column(type="string", nullable=TRUE)
      * @var string
      */
     protected $rememberToken = null;

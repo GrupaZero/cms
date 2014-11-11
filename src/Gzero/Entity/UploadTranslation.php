@@ -1,6 +1,7 @@
 <?php namespace Gzero\Entity;
 
 use Gzero\Doctrine2Extensions\Timestamp\TimestampTrait;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -13,7 +14,7 @@ use Gzero\Doctrine2Extensions\Timestamp\TimestampTrait;
  * @package    Gzero\Entity
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2014, Adrian Skierniewski
- * @Entity @HasLifecycleCallbacks
+ * @ORM\Entity @ORM\HasLifecycleCallbacks
  */
 class UploadTranslation {
 
@@ -22,33 +23,33 @@ class UploadTranslation {
     // @codingStandardsIgnoreStart
 
     /**
-     * @Id @GeneratedValue @Column(type="integer")
+     * @ORM\Id @ORM\GeneratedValue @ORM\Column(type="integer")
      * @var integer
      */
     protected $id;
 
     /**
-     * @ManyToOne(targetEntity="Upload", inversedBy="translations")
+     * @ORM\ManyToOne(targetEntity="Upload", inversedBy="translations")
      * @var Upload
      */
     protected $upload;
 
     /**
-     * @ManyToOne(targetEntity="Lang")
-     * @JoinColumn(name="lang", referencedColumnName="code")
+     * @ORM\ManyToOne(targetEntity="Lang")
+     * @ORM\JoinColumn(name="lang", referencedColumnName="code")
      * @var Lang
      **/
     protected $lang;
 
     /**
-     * @ManyToOne(targetEntity="User")
-     * @JoinColumn(name="user", referencedColumnName="id")
+     * @ORM\ManyToOne(targetEntity="User")
+     * @ORM\JoinColumn(name="user", referencedColumnName="id")
      * @var User
      **/
     protected $user;
 
     /**
-     * @Column(type="string")
+     * @ORM\Column(type="string")
      * @var string
      */
     protected $name;

@@ -1,6 +1,7 @@
 <?php namespace Gzero\Entity;
 
 use Gzero\Doctrine2Extensions\Timestamp\TimestampTrait;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -13,26 +14,26 @@ use Gzero\Doctrine2Extensions\Timestamp\TimestampTrait;
  * @package    Gzero\Entity
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2014, Adrian Skierniewski
- * @Entity @HasLifecycleCallbacks
+ * @ORM\Entity @ORM\HasLifecycleCallbacks
  */
 class PasswordReminder {
 
     use TimestampTrait;
 
     /**
-     * @Id @GeneratedValue @Column(type="integer")
+     * @ORM\Id @ORM\GeneratedValue @ORM\Column(type="integer")
      * @var integer
      */
     protected $id;
 
     /**
-     * @Column(type="string")
+     * @ORM\Column(type="string")
      * @var string
      */
     protected $email;
 
     /**
-     * @Column(type="string")
+     * @ORM\Column(type="string")
      * @var string
      */
     protected $token;

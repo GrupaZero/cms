@@ -2,6 +2,7 @@
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Gzero\Doctrine2Extensions\Timestamp\TimestampTrait;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -14,7 +15,7 @@ use Gzero\Doctrine2Extensions\Timestamp\TimestampTrait;
  * @package    Gzero\Entity
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2014, Adrian Skierniewski
- * @Entity @HasLifecycleCallbacks
+ * @ORM\Entity @ORM\HasLifecycleCallbacks
  */
 class Upload {
 
@@ -23,38 +24,38 @@ class Upload {
     // @codingStandardsIgnoreStart
 
     /**
-     * @Id @GeneratedValue @Column(type="integer")
+     * @ORM\Id @ORM\GeneratedValue @ORM\Column(type="integer")
      * @var integer
      */
     protected $id;
 
     /**
-     * @ManyToOne(targetEntity="UploadType")
-     * @JoinColumn(name="type", referencedColumnName="name")
+     * @ORM\ManyToOne(targetEntity="UploadType")
+     * @ORM\JoinColumn(name="type", referencedColumnName="name")
      * @var UploadType
      **/
     protected $type;
 
     /**
-     * @OneToMany(targetEntity="UploadTranslation", mappedBy="upload", cascade={"persist"})
+     * @ORM\OneToMany(targetEntity="UploadTranslation", mappedBy="upload", cascade={"persist"})
      * @var \Doctrine\Common\Collections\ArrayCollection
      */
     protected $translations;
 
     /**
-     * @Column(type="string")
+     * @ORM\Column(type="string")
      * @var string
      */
     protected $path;
 
     /**
-     * @Column(type="string")
+     * @ORM\Column(type="string")
      * @var string
      */
     protected $mime;
 
     /**
-     * @Column(type="string")
+     * @ORM\Column(type="string")
      * @var integer
      */
     protected $size;

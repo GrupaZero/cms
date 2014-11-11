@@ -1,5 +1,7 @@
 <?php namespace Gzero\Entity;
 
+use Doctrine\ORM\Mapping as ORM;
+
 /**
  * This file is part of the GZERO CMS package.
  *
@@ -11,30 +13,30 @@
  * @package    Gzero\Entity
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2014, Adrian Skierniewski
- * @Entity(repositoryClass="Gzero\Repository\LangRepository")
+ * @ORM\Entity(repositoryClass="Gzero\Repository\LangRepository")
  */
 class Lang {
 
     /**
-     * @Id @Column(type="string", length=2)
+     * @ORM\Id @ORM\Column(type="string", length=2)
      * @var string
      */
     private $code;
 
     /**
-     * @Column(type="string", length=5)
+     * @ORM\Column(type="string", length=5)
      * @var string
      */
     private $i18n;
 
     /**
-     * @Column(type="boolean")
+     * @ORM\Column(type="boolean")
      * @var boolean
      */
     private $isEnabled = false;
 
     /**
-     * @Column(type="boolean")
+     * @ORM\Column(type="boolean")
      * @var boolean
      */
     private $isDefault = false;

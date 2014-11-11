@@ -1,5 +1,7 @@
 <?php namespace Gzero\Entity;
 
+use Doctrine\ORM\Mapping as ORM;
+
 /**
  * This file is part of the GZERO CMS package.
  *
@@ -11,12 +13,12 @@
  * @package    Gzero\Entity
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2014, Adrian Skierniewski
- * @Entity
+ * @ORM\Entity
  */
 class UploadType {
 
     /**
-     * @Id @Column(type="string")
+     * @ORM\Id @ORM\Column(type="string")
      * @var string
      */
     protected $name;

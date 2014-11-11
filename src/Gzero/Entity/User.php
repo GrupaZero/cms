@@ -1,5 +1,7 @@
 <?php namespace Gzero\Entity;
 
+use Doctrine\ORM\Mapping as ORM;
+
 /**
  * This file is part of the GZERO CMS package.
  *
@@ -11,7 +13,7 @@
  * @package    Gzero\Entity
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2014, Adrian Skierniewski
- * @Entity(repositoryClass="Gzero\Repository\UserRepository")
+ * @ORM\Entity(repositoryClass="Gzero\Repository\UserRepository")
  */
 class User extends BaseUser {
 

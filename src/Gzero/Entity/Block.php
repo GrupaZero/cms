@@ -2,6 +2,7 @@
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Gzero\Doctrine2Extensions\Timestamp\TimestampTrait;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -14,39 +15,39 @@ use Gzero\Doctrine2Extensions\Timestamp\TimestampTrait;
  * @package    Gzero\Entity
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2014, Adrian Skierniewski
- * @Entity(repositoryClass="Gzero\Repository\BlockRepository") @HasLifecycleCallbacks
+ * @ORM\Entity(repositoryClass="Gzero\Repository\BlockRepository") @ORM\HasLifecycleCallbacks
  */
 class Block extends AbstractEntity {
 
     use TimestampTrait;
 
     /**
-     * @Id @GeneratedValue @Column(type="integer")
+     * @ORM\Id @ORM\GeneratedValue @ORM\Column(type="integer")
      * @var integer
      */
     protected $id;
 
     /**
-     * @ManyToOne(targetEntity="BlockType")
-     * @JoinColumn(name="type", referencedColumnName="name")
+     * @ORM\ManyToOne(targetEntity="BlockType")
+     * @ORM\JoinColumn(name="type", referencedColumnName="name")
      * @var BlockType
      **/
     protected $type;
 
     /**
-     * @Column(name="type")
+     * @ORM\Column(name="type")
      */
     protected $typeName;
 
     /**
-     * @ManyToOne(targetEntity="MenuLink")
-     * @JoinColumn(name="menu_id", referencedColumnName="id")
+     * @ORM\ManyToOne(targetEntity="MenuLink")
+     * @ORM\JoinColumn(name="menu_id", referencedColumnName="id")
      * @var MenuLink
      **/
     protected $menu;
 
     /**
-     * @OneToMany(targetEntity="BlockTranslation", mappedBy="block", cascade={"persist"})
+     * @ORM\OneToMany(targetEntity="BlockTranslation", mappedBy="block", cascade={"persist"})
      * @var \Doctrine\Common\Collections\ArrayCollection
      */
     protected $translations;
@@ -57,31 +58,31 @@ class Block extends AbstractEntity {
     protected $uploads;
 
     /**
-     * @Column(type="json_array", nullable=TRUE)
+     * @ORM\Column(type="json_array", nullable=TRUE)
      * @var Array
      */
     protected $regions = null;
 
     /**
-     * @Column(type="integer")
+     * @ORM\Column(type="integer")
      * @var boolean
      */
     protected $weight = 0;
 
     /**
-     * @Column(type="boolean")
+     * @ORM\Column(type="boolean")
      * @var boolean
      */
     protected $isCacheable = false;
 
     /**
-     * @Column(type="boolean")
+     * @ORM\Column(type="boolean")
      * @var boolean
      */
     protected $isActive = false;
 
     /**
-     * @Column(type="object", nullable=TRUE)
+     * @ORM\Column(type="object", nullable=TRUE)
      * @var \stdClass
      */
     protected $options;

@@ -4,6 +4,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Gzero\Doctrine2Extensions\Timestamp\TimestampTrait;
 use Gzero\Doctrine2Extensions\Tree\TreeNode;
 use Gzero\Doctrine2Extensions\Tree\TreeNodeTrait;
+use Doctrine\ORM\Mapping as ORM;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -16,7 +17,7 @@ use Gzero\Doctrine2Extensions\Tree\TreeNodeTrait;
  * @package    Gzero\Entity
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2014, Adrian Skierniewski
- * @Entity(repositoryClass="Gzero\Repository\ContentRepository") @HasLifecycleCallbacks
+ * @ORM\Entity(repositoryClass="Gzero\Repository\ContentRepository") @ORM\HasLifecycleCallbacks
  */
 class Content implements TreeNode {
 
@@ -24,44 +25,44 @@ class Content implements TreeNode {
     use TimestampTrait;
 
     /**
-     * @Id @GeneratedValue @Column(type="integer")
+     * @ORM\Id @ORM\GeneratedValue @ORM\Column(type="integer")
      * @var integer
      */
     protected $id;
 
     /**
-     * @ManyToOne(targetEntity="ContentType")
-     * @JoinColumn(name="type", referencedColumnName="name")
+     * @ORM\ManyToOne(targetEntity="ContentType")
+     * @ORM\JoinColumn(name="type", referencedColumnName="name")
      * @var ContentType
      */
     protected $type;
 
     /**
-     * @Column(name="type")
+     * @ORM\Column(name="type")
      */
     protected $typeName;
 
     /**
-     * @OneToMany(targetEntity="ContentTranslation", mappedBy="content", cascade={"persist", "remove"})
+     * @ORM\OneToMany(targetEntity="ContentTranslation", mappedBy="content", cascade={"persist", "remove"})
      * @var \Doctrine\Common\Collections\ArrayCollection
      */
     protected $translations;
 
     /**
-     * @ManyToOne(targetEntity="User")
-     * @JoinColumn(name="author", referencedColumnName="id")
+     * @ORM\ManyToOne(targetEntity="User")
+     * @ORM\JoinColumn(name="author", referencedColumnName="id")
      * @var User
      **/
     protected $author;
 
     /**
-     * @Column(type="boolean")
+     * @ORM\Column(type="boolean")
      * @var boolean
      */
     protected $isActive = false;
 
     /**
-     * @Column(type="integer")
+     * @ORM\Column(type="integer")
      * @var boolean
      */
     protected $weight = 0;
