@@ -21,7 +21,7 @@ class Doctrine2TestCase extends \PHPUnit_Framework_TestCase {
 
     protected $dbParams = [
         'driver' => 'pdo_sqlite',
-        'memory' => TRUE
+        'memory' => true
     ];
     /**
      * @var EntityManager
@@ -30,11 +30,11 @@ class Doctrine2TestCase extends \PHPUnit_Framework_TestCase {
 
     public function setUp()
     {
-        $paths     = array(__DIR__ . "/../src/Gzero/Entity");
-        $isDevMode = TRUE;
+        $paths     = [__DIR__ . "/../src/Gzero/Entity"];
+        $isDevMode = true;
 
 
-        $config = Setup::createAnnotationMetadataConfiguration($paths, $isDevMode);
+        $config = Setup::createAnnotationMetadataConfiguration($paths, $isDevMode, '', null, false);
         $evm    = new \Doctrine\Common\EventManager();
         $evm->addEventSubscriber(new TreeSubscriber());
         $this->em = EntityManager::create($this->dbParams, $config, $evm);
