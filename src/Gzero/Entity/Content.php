@@ -43,6 +43,12 @@ class Content implements TreeNode {
     protected $typeName;
 
     /**
+     * @ORM\OneToOne(targetEntity="Route", mappedBy="content", cascade={"persist"})
+     * @var Route
+     */
+    protected $route;
+
+    /**
      * @ORM\OneToMany(targetEntity="ContentTranslation", mappedBy="content", cascade={"persist", "remove"})
      * @var \Doctrine\Common\Collections\ArrayCollection
      */
@@ -75,6 +81,7 @@ class Content implements TreeNode {
     public function __construct(ContentType $type)
     {
         $this->type         = $type;
+        $this->route        = new Route($this);
         $this->children     = new ArrayCollection();
         $this->translations = new ArrayCollection();
     }
@@ -108,6 +115,16 @@ class Content implements TreeNode {
     public function getTypeName()
     {
         return $this->typeName;
+    }
+
+    /**
+     * Get content
+     *
+     * @return Route
+     */
+    public function getRoute()
+    {
+        return $this->route;
     }
 
     /**
