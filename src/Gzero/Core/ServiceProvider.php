@@ -1,6 +1,7 @@
 <?php namespace Gzero\Core;
 
 use Atrauzzi\LaravelDoctrine\Support\Facades\Doctrine;
+use Doctrine\Common\Annotations\AnnotationRegistry;
 use Gzero\Core\Auth\Doctrine2UserProvider;
 use Gzero\Core\Menu\AdminRegister;
 use Gzero\Core\Menu\Register;
@@ -207,6 +208,8 @@ class ServiceProvider extends SP {
                 return new EntitySerializer($app['doctrine']);
             }
         );
+        // Add all doctrine 2 annotation to auto load
+        AnnotationRegistry::registerLoader('class_exists');
     }
 
     /**
