@@ -17,13 +17,24 @@ use Gzero\Doctrine2Extensions\Common\BaseRepository as CommonBaseRepository;
 class BaseRepository extends CommonBaseRepository {
 
     /**
+     * Commit changes to Database
+     * NOTICE: This save all entities from current UnityOfWork!
+     *
+     * @return void
+     */
+    public function commit()
+    {
+        $this->getEntityManager()->flush();
+    }
+
+    /**
      * Create new query builder
      *
      * @return \Doctrine\ORM\QueryBuilder
      */
     protected function newQB()
     {
-        return $this->_em->createQueryBuilder();
+        return $this->getEntityManager()->createQueryBuilder();
     }
 
     /**

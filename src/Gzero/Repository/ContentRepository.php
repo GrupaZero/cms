@@ -50,7 +50,7 @@ class ContentRepository extends BaseRepository implements TreeRepository {
      */
     public function getTypeById($id)
     {
-        return $this->_em->find($this->getTypeClassName(), $id);
+        return $this->getEntityManager()->find($this->getTypeClassName(), $id);
     }
 
     /**
@@ -275,48 +275,31 @@ class ContentRepository extends BaseRepository implements TreeRepository {
      * Create specific content entity
      *
      * @param Content $content Content entity to persist
+     * @param bool    $sync    Auto commit
      *
      * @return void
      */
-    public function create(Content $content)
+    public function add(Content $content, $sync = false)
     {
-        $this->_em->persist($content);
-    }
-
-    /**
-     * Update specific content entity
-     *
-     * @param Content $content Content entity to update
-     * @param array   $data    Array with content data
-     *
-     * @return void
-     */
-    public function update(Content $content, array $data)
-    {
-        $translation = $content->getTranslations()->first();
-        $translation->fill($data);
-        $this->_em->persist($content);
+        $this->getEntityManager()->persist($content);
+        if ($sync) {
+            $this->commit();
+        }
     }
 
     /**
      * Delete specific content entity
      *
      * @param Content $content Content entity to delete
+     * @param bool    $sync    Auto commit
      *
      * @return void
      */
-    public function delete(Content $content)
+    public function remove(Content $content, $sync = false)
     {
-        $this->_em->remove($content);
-    }
-
-    /**
-     * Commit changes to database
-     *
-     * @return void
-     */
-    public function commit()
-    {
-        $this->_em->flush();
+        $this->getEntityManager()->remove($content);
+        if ($sync) {
+            $this->commit();
+        }
     }
 }
