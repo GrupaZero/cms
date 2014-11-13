@@ -14,10 +14,10 @@ if (!function_exists('setMultilangRouting')) {
                 if (Config::get('gzero.multilang.detected')) {
                     return ['domain' => Request::getHost()];
                 } else {
-                    return ['domain' => App::getLocale() . '.' . Request::server('SERVER_NAME')];
+                    return ['domain' => App::getLocale() . '.' . Config::get('gzero.domain')];
                 }
             } else {
-                return ['prefix' => App::getLocale()];
+                return ['domain' => Config::get('gzero.domain'), 'prefix' => App::getLocale()];
             }
         } else {
             return [];
