@@ -1,5 +1,6 @@
 <?php namespace Gzero\Repository;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Query;
 use Gzero\Doctrine2Extensions\Tree\TreeNode;
 use Gzero\Doctrine2Extensions\Tree\TreeRepository;
@@ -241,28 +242,42 @@ class ContentRepository extends BaseRepository implements TreeRepository {
     /**
      * Get active contents of all type in level 0
      *
+     * @param Lang     $lang    Lang entity
      * @param array    $orderBy Array of columns
      * @param int|null $limit   Limit results
      * @param int|null $offset  Start from
      *
      * @return array
      */
-    public function getRootContents(array $orderBy = [], $limit = null, $offset = null)
+    public function getRootContents(Lang $lang, array $orderBy = [], $limit = null, $offset = null)
     {
-        $qb = $this->newQB()
+        $query = $this->newQB()
             ->select('c,t,a')
             ->from($this->getClassName(), 'c')
-            ->leftJoin('c.translations', 't', 'WITH', 't.isActive = 1')
+            ->leftJoin('c.translations', 't', 'WITH', 't.isActive = 1 and t.langCode = :langCode')
             ->leftJoin('c.author', 'a')
             ->where('c.level = :level')
-            ->setParameter('level', 0)
-            ->setFirstResult($offset)
+            ->setParameters(
+                [
+                    'level'    => 0,
+                    'langCode' => $lang->getCode()
+                ]
+            );
+
+        $total = clone $query;
+        $query->setFirstResult($offset)
             ->setMaxResults($limit);
 
         foreach ($orderBy as $sort => $order) {
-            $qb->orderBy($sort, $order);
+            $query->orderBy($sort, $order);
         }
-        return $qb->getQuery()->getArrayResult();
+
+        return new Collection(
+            $query->getQuery()->getArrayResult(),
+            $total->select('COUNT(c)')
+                ->getQuery()
+                ->getSingleScalarResult()
+        );
     }
 
     /*
