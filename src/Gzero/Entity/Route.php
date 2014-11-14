@@ -31,7 +31,7 @@ class Route {
     protected $translations;
 
     /**
-     * @ORM\OneToOne(targetEntity="Content")
+     * @ORM\OneToOne(targetEntity="Content", inversedBy="route", fetch="EAGER")
      * @ORM\JoinColumn(name="contentId", referencedColumnName="id")
      * @var Content
      **/

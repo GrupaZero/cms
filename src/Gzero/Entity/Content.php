@@ -5,6 +5,7 @@ use Gzero\Doctrine2Extensions\Timestamp\TimestampTrait;
 use Gzero\Doctrine2Extensions\Tree\TreeNode;
 use Gzero\Doctrine2Extensions\Tree\TreeNodeTrait;
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as JMS;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -17,6 +18,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @package    Gzero\Entity
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2014, Adrian Skierniewski
+ * @JMS\ExclusionPolicy("all")
  * @ORM\Entity(repositoryClass="Gzero\Repository\ContentRepository") @ORM\HasLifecycleCallbacks
  */
 class Content implements TreeNode {
@@ -26,6 +28,7 @@ class Content implements TreeNode {
 
     /**
      * @ORM\Id @ORM\GeneratedValue @ORM\Column(type="integer")
+     * @JMS\Expose
      * @var integer
      */
     protected $id;
@@ -38,23 +41,27 @@ class Content implements TreeNode {
     protected $type;
 
     /**
+     * @JMS\Expose
      * @ORM\Column(name="type")
      */
     protected $typeName;
 
     /**
-     * @ORM\OneToOne(targetEntity="Route", mappedBy="content", cascade={"persist"})
+     * @JMS\Expose
+     * @ORM\OneToOne(targetEntity="Route", mappedBy="content", fetch="EAGER", cascade={"persist"})
      * @var Route
      */
     protected $route;
 
     /**
+     * @JMS\Expose
      * @ORM\OneToMany(targetEntity="ContentTranslation", mappedBy="content", cascade={"persist", "remove"})
      * @var \Doctrine\Common\Collections\ArrayCollection
      */
     protected $translations;
 
     /**
+     * @JMS\Expose
      * @ORM\ManyToOne(targetEntity="User")
      * @ORM\JoinColumn(name="author", referencedColumnName="id")
      * @var User
@@ -62,12 +69,14 @@ class Content implements TreeNode {
     protected $author;
 
     /**
+     * @JMS\Expose
      * @ORM\Column(type="boolean")
      * @var boolean
      */
     protected $isActive = false;
 
     /**
+     * @JMS\Expose
      * @ORM\Column(type="integer")
      * @var boolean
      */

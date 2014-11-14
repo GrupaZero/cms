@@ -4,6 +4,8 @@ use Gzero\Doctrine2Extensions\Timestamp\TimestampTrait;
 use ReflectionClass;
 use ReflectionProperty;
 use Doctrine\ORM\Mapping as ORM;
+use JMS\Serializer\Annotation as JMS;
+
 
 /**
  * This file is part of the GZERO CMS package.
@@ -16,6 +18,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @package    Gzero\Entity
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2014, Adrian Skierniewski
+ * @JMS\ExclusionPolicy("all")
  * @ORM\Entity @ORM\HasLifecycleCallbacks
  */
 class ContentTranslation {
@@ -24,12 +27,14 @@ class ContentTranslation {
 
     /**
      * @ORM\Id @ORM\GeneratedValue @ORM\Column(type="integer")
+     * @JMS\Expose
      * @var integer
      */
     protected $id;
 
     /**
      * @ORM\Column(type="string")
+     * @JMS\Expose
      * @var string
      */
     protected $url;
@@ -49,30 +54,35 @@ class ContentTranslation {
 
     /**
      * @ORM\Column(name="lang")
+     * @JMS\Expose
      */
     protected $langCode;
 
     /**
      * @ORM\ManyToOne(targetEntity="User")
      * @ORM\JoinColumn(name="user", referencedColumnName="id")
+     * @JMS\Expose
      * @var User
      **/
     protected $user;
 
     /**
      * @ORM\Column(type="string")
+     * @JMS\Expose
      * @var string
      */
     protected $title;
 
     /**
      * @ORM\Column(type="text", nullable=TRUE)
+     * @JMS\Expose
      * @var string
      */
     protected $body;
 
     /**
      * @ORM\Column(type="boolean")
+     * @JMS\Expose
      * @var boolean
      */
     protected $isActive = false;

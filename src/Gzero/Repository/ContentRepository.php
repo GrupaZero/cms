@@ -252,9 +252,11 @@ class ContentRepository extends BaseRepository implements TreeRepository {
     public function getRootContents(Lang $lang, array $orderBy = [], $limit = null, $offset = null)
     {
         $query = $this->newQB()
-            ->select('c,t,a')
+            ->select('c,ct,a,r,rt')
             ->from($this->getClassName(), 'c')
-            ->leftJoin('c.translations', 't', 'WITH', 't.isActive = 1 and t.langCode = :langCode')
+            ->innerJoin('c.route', 'r')
+            ->leftJoin('c.translations', 'ct', 'WITH', 'ct.isActive = 1 and ct.langCode = :langCode')
+            ->leftJoin('r.translations', 'rt', 'WITH', 'rt.langCode = :langCode')
             ->leftJoin('c.author', 'a')
             ->where('c.level = :level')
             ->setParameters(
@@ -273,7 +275,7 @@ class ContentRepository extends BaseRepository implements TreeRepository {
         }
 
         return new Collection(
-            $query->getQuery()->getArrayResult(),
+            $query->getQuery()->getResult(),
             $total->select('COUNT(c)')
                 ->getQuery()
                 ->getSingleScalarResult()
