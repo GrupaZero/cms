@@ -29,7 +29,7 @@ class Collection extends \Illuminate\Support\Collection {
      */
     public function __construct(array $items = [], $total = null)
     {
-        $this->total = $total;
+        $this->total = (integer) $total;
         $this->items = $items;
     }
 
