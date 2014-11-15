@@ -2,6 +2,8 @@
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Query;
+use Doctrine\ORM\QueryBuilder;
+use Doctrine\ORM\Tools\Pagination\Paginator;
 use Gzero\Doctrine2Extensions\Tree\TreeNode;
 use Gzero\Doctrine2Extensions\Tree\TreeRepository;
 use Gzero\Entity\Content;
@@ -242,23 +244,29 @@ class ContentRepository extends BaseRepository implements TreeRepository {
     /**
      * Get active contents of all type in level 0
      *
-     * @param Lang     $lang    Lang entity
-     * @param array    $orderBy Array of columns
-     * @param int|null $limit   Limit results
-     * @param int|null $offset  Start from
+     * @param Lang     $lang     Lang entity
+     * @param array    $criteria Filter criteria
+     * @param array    $orderBy  Array of columns
+     * @param int|null $page     Page number
+     * @param int|null $pageSize Limit results
      *
-     * @return array
+     * @return Collection
      */
-    public function getRootContents(Lang $lang, array $orderBy = [], $limit = null, $offset = null)
+    public function getRootContents(Lang $lang, array $criteria, array $orderBy = [], $page = null, $pageSize = null)
     {
-        $query = $this->newQB()
-            ->select('c,ct,a,r,rt')
+        $query = $this->newQB();
+        $query->select('c,ct,a,r,rt')
             ->from($this->getClassName(), 'c')
             ->innerJoin('c.route', 'r')
             ->leftJoin('c.translations', 'ct', 'WITH', 'ct.isActive = 1 and ct.langCode = :langCode')
             ->leftJoin('r.translations', 'rt', 'WITH', 'rt.langCode = :langCode')
             ->leftJoin('c.author', 'a')
-            ->where('c.level = :level')
+            ->where(
+                $query->expr()->andX(
+                    $query->expr()->eq('c.level', ':level'),
+                    $this->handleFilterCriteria('c', $criteria, $query)
+                )
+            )
             ->setParameters(
                 [
                     'level'    => 0,
@@ -266,19 +274,17 @@ class ContentRepository extends BaseRepository implements TreeRepository {
                 ]
             );
 
-        $total = clone $query;
-        $query->setFirstResult($offset)
-            ->setMaxResults($limit);
+        $this->handleOrderBy('c', $orderBy, $query);
 
-        foreach ($orderBy as $sort => $order) {
-            $query->orderBy($sort, $order);
-        }
+        $paginator = new Paginator($query);
+        $paginator
+            ->getQuery()
+            ->setFirstResult($pageSize * ($page - 1))// set the offset
+            ->setMaxResults($pageSize); // set the limit
 
         return new Collection(
-            $query->getQuery()->getResult(),
-            $total->select('COUNT(c)')
-                ->getQuery()
-                ->getSingleScalarResult()
+            $paginator->getQuery()->getResult(),
+            $paginator->count()
         );
     }
 
@@ -317,6 +323,48 @@ class ContentRepository extends BaseRepository implements TreeRepository {
         $this->getEntityManager()->remove($content);
         if ($sync) {
             $this->commit();
+        }
+    }
+
+    /**
+     * Add filter rules to query
+     *
+     * @param string       $entityAlias Entity alias to where clause
+     * @param array        $criteria    Array with filer criteria
+     * @param QueryBuilder $query       Query to add filter rules
+     *
+     * @return QueryBuilder
+     */
+    private function handleFilterCriteria($entityAlias, array $criteria, QueryBuilder $query)
+    {
+        $conditions = [];
+        if (isset($criteria['lang'])) { // Simple hax for now
+            unset($criteria['lang']);
+        }
+        foreach ($criteria as $condition => $value) {
+            $conditions[] = $query->expr()->eq($entityAlias . '.' . $condition, $value);
+        }
+
+        if (!empty($conditions)) {
+            return $query->expr()->orX(call_user_func_array([$query->expr(), 'orX'], $conditions));
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Add sorting rules to query
+     *
+     * @param string       $entityAlias Entity alias to orderBy clause
+     * @param array        $orderBy     Array with sort columns and directions
+     * @param QueryBuilder $query       Query to add sorting rules
+     *
+     * @return void
+     */
+    private function handleOrderBy($entityAlias, array $orderBy, QueryBuilder $query)
+    {
+        foreach ($orderBy as $sort => $order) {
+            $query->orderBy($entityAlias . '.' . $sort, $order);
         }
     }
 }
