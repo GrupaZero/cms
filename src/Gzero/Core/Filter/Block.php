@@ -40,12 +40,12 @@ class Block {
      */
     public function filter()
     {
-        $lang = $this->langRepo->getCurrent();
-        if (!empty($lang)) {
-            $regions = $this->handler->loadAllActive('/', $lang)->getRegions();
-        } else {
-            $regions = [];
-        }
-        \View::share('regions', $regions);
+        //$lang = $this->langRepo->getCurrent();
+        //if (!empty($lang)) {
+        //    $regions = $this->handler->loadAllActive('/', $lang)->getRegions();
+        //} else {
+        //    $regions = [];
+        //}
+        //\View::share('regions', $regions);
     }
 }
