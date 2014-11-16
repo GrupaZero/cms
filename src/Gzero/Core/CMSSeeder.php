@@ -34,7 +34,7 @@ class CMSSeeder extends Seeder {
         $faker       = Factory::create();
         $langs       = [];
         $langs['en'] = Lang::find('en');
-        if (!empty($langs['en'])) {
+        if (empty($langs['en'])) {
             $langs['en'] = new Lang(
                 [
                     'code'      => 'en',
@@ -47,7 +47,7 @@ class CMSSeeder extends Seeder {
         }
 
         $langs['pl'] = Lang::find('pl');
-        if (!empty($langs['pl'])) {
+        if (empty($langs['pl'])) {
             $langs['pl'] = new Lang(
                 [
                     'code'      => 'pl',
@@ -58,8 +58,9 @@ class CMSSeeder extends Seeder {
             $langs['pl']->save();
         }
 
-        for ($i = 0; $i < 10; $i++) {
-            $content = new Content(['isActive' => rand(0, 1)]);
+        for ($i = 0; $i < 20; $i++) {
+            $content         = new Content(['isActive' => (bool) rand(0, 1)]);
+            $content->weight = rand(0, 10);
             $content->save();
             foreach ($langs as $key => $value) {
                 $translation           = new ContentTranslation(['langCode' => $key]);

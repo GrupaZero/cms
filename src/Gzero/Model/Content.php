@@ -17,7 +17,9 @@ class Content extends Base {
     protected $table = 'Contents';
 
     protected $fillable = [
-        'path'
+        'path',
+        'weight',
+        'isActive'
     ];
 
     /**
