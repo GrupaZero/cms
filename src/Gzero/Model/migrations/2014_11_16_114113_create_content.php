@@ -25,6 +25,7 @@ class CreateContent extends Migration {
         Schema::create(
             'ContentTranslations',
             function (Blueprint $table) {
+                $table->increments('id');
                 $table->string('langCode', 2);
                 $table->integer('contentId')->unsigned();
                 $table->string('title');
