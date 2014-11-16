@@ -33,23 +33,16 @@ class LangRepository {
      */
     private $cache;
 
+
     /**
-     * Init languages from database or cache
+     * LangRepository constructor
      *
-     * @param Repository $cache Cache
-     *
-     * @return void
+     * @param CacheManager $cache Cache
      */
-    public function init($cache)
+    public function __construct(CacheManager $cache)
     {
         $this->cache = $cache;
-        if ($this->cache->get('langs')) {
-            $this->langs = $this->cache->get('langs');
-        } else {
-            /* @var QueryBuilder $qb */
-            $this->langs = Lang::all();
-            $cache->forever('langs', $this->langs);
-        }
+        $this->init();
     }
 
     /**
@@ -77,9 +70,11 @@ class LangRepository {
      */
     public function getByCode($code)
     {
-        $this->checkIfInitialized();
-        return $this->langs->get($code);
-
+        return $this->langs->filter(
+            function ($lang) use ($code) {
+                return $lang->code == $code;
+            }
+        )->first();
     }
 
     /**
@@ -89,7 +84,6 @@ class LangRepository {
      */
     public function getCurrent()
     {
-        $this->checkIfInitialized();
         return $this->getByCode(App::getLocale());
     }
 
@@ -100,7 +94,6 @@ class LangRepository {
      */
     public function getAll()
     {
-        $this->checkIfInitialized();
         return $this->langs;
     }
 
@@ -111,41 +104,26 @@ class LangRepository {
      */
     public function getAllEnabled()
     {
-        $this->checkIfInitialized();
         return $this->langs->filter(
             function ($lang) {
-                return ($lang->isEnabled()) ? $lang : false;
+                return ($lang->isEnabled) ? $lang : false;
             }
         );
     }
 
     /**
-     * Build langs collection where key is a lang code
+     * Init languages from database or cache
      *
-     * @param array $langs Array of langs
-     *
-     * @return ArrayCollection
-     */
-    private function prepareLangsArray(Array $langs)
-    {
-        $returnArray = [];
-        foreach ($langs as $lang) {
-            $returnArray[$lang->getCode()] = $lang;
-        }
-        return new ArrayCollection($returnArray);
-    }
-
-    /**
-     * This function checking if repository was initialized
-     *
-     * @throws RepositoryException
      * @return void
      */
-    private function checkIfInitialized()
+    protected function init()
     {
-        if (!isset($this->langs)) {
-            throw new RepositoryException('You must init repository first');
+        if ($this->cache->get('langs')) {
+            $this->langs = $this->cache->get('langs');
+        } else {
+            /* @var QueryBuilder $qb */
+            $this->langs = Lang::all();
+            $this->cache->forever('langs', $this->langs);
         }
     }
-
 }

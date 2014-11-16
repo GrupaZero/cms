@@ -6,6 +6,7 @@ use Gzero\Core\Auth\Doctrine2UserProvider;
 use Gzero\Core\Menu\AdminRegister;
 use Gzero\Core\Menu\Register;
 use Gzero\Doctrine2Extensions\Tree\TreeSubscriber;
+use Gzero\Repository\LangRepository;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\ServiceProvider as SP;
 use Symfony\Component\HttpFoundation\Request;
@@ -104,9 +105,7 @@ class ServiceProvider extends SP {
         $this->app->singleton(
             'Gzero\Repository\LangRepository',
             function ($app) {
-                $repo = Doctrine::getRepository('Gzero\Entity\Lang');
-                $repo->init(App::make('cache')); // Use cache
-                return $repo;
+                return new LangRepository(App::make('cache'));
             }
         );
 
