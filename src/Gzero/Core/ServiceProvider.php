@@ -124,13 +124,6 @@ class ServiceProvider extends SP {
         );
 
         $this->app->bind(
-            'Gzero\Repository\ContentRepository',
-            function ($app) {
-                return Doctrine::getRepository('Gzero\Entity\Content');
-            }
-        );
-
-        $this->app->bind(
             'Gzero\Repository\MenuLinkRepository',
             function ($app) {
                 return Doctrine::getRepository('Gzero\Entity\MenuLink');

@@ -6,10 +6,10 @@ use Doctrine\ORM\QueryBuilder;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use Gzero\Doctrine2Extensions\Tree\TreeNode;
 use Gzero\Doctrine2Extensions\Tree\TreeRepository;
-use Gzero\Entity\Content;
 use Gzero\Entity\ContentTranslation;
 use Gzero\Entity\ContentType;
 use Gzero\Entity\Lang;
+use Gzero\Model\Content;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -23,7 +23,22 @@ use Gzero\Entity\Lang;
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2014, Adrian Skierniewski
  */
-class ContentRepository extends BaseRepository implements TreeRepository {
+class ContentRepository {
+
+    /**
+     * @var Content
+     */
+    private $queryBuilder;
+
+    /**
+     * Content repository constructor
+     *
+     * @param Content $content Content model
+     */
+    public function __construct(Content $content)
+    {
+        $this->queryBuilder = $content;
+    }
 
     /**
      * Get single content with active translations and author.
@@ -252,7 +267,7 @@ class ContentRepository extends BaseRepository implements TreeRepository {
      *
      * @return Collection
      */
-    public function getRootContents(Lang $lang, array $criteria, array $orderBy = [], $page = null, $pageSize = null)
+    public function getRootContentsDoctrine(Lang $lang, array $criteria, array $orderBy = [], $page = null, $pageSize = null)
     {
         $query = $this->newQB();
         $query->select('c,ct,a,r,rt')
@@ -291,20 +306,20 @@ class ContentRepository extends BaseRepository implements TreeRepository {
     /**
      * Eloquent version
      *
-     * @param Lang     $lang     Lang entity
      * @param array    $criteria Filter criteria
      * @param array    $orderBy  Array of columns
      * @param int|null $page     Page number
      * @param int|null $pageSize Limit resultse
      *
-     * @return void
+     * @return Collection
      */
-    public function getRootContentsEloquent(Lang $lang, array $criteria, array $orderBy = [], $page = null, $pageSize = null)
+    public function getRootContents(array $criteria, array $orderBy = [], $page = null, $pageSize = null)
     {
-        $code    = $lang->getCode();
-        $results = \Gzero\Model\Content::leftJoin('ContentTranslations', 'Contents.id', '=', 'ContentTranslations.contentId')
+        $results = $this->queryBuilder->newQuery()
+            ->leftJoin('ContentTranslations', 'Contents.id', '=', 'ContentTranslations.contentId')
             ->get(['Contents.*']);
         $results->load('translations');
+        return $results;
     }
 
     /*
