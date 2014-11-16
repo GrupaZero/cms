@@ -1,15 +1,10 @@
 <?php namespace Gzero\Repository;
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ORM\Query;
-use Doctrine\ORM\QueryBuilder;
-use Doctrine\ORM\Tools\Pagination\Paginator;
-use Gzero\Doctrine2Extensions\Tree\TreeNode;
-use Gzero\Doctrine2Extensions\Tree\TreeRepository;
 use Gzero\Entity\ContentTranslation;
 use Gzero\Entity\ContentType;
 use Gzero\Entity\Lang;
 use Gzero\Model\Content;
+use Illuminate\Pagination\Paginator;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -313,20 +308,25 @@ class ContentRepository {
      *
      * @return Collection
      */
-    public function getRootContents(array $criteria, array $orderBy = [], $page = null, $pageSize = null)
+    public function getRootContents(array $criteria, array $orderBy = [], $page = 1, $pageSize = 10)
     {
-        $results = $this->queryBuilder->newQuery()
-            ->leftJoin('ContentTranslations', 'Contents.id', '=', 'ContentTranslations.contentId')
-            //->join(
-            //    'Routes',
-            //    function ($join) {
-            //        $join->on('Contents.id', '=', 'Routes.routableId')
-            //            ->where('Routes.routableType', '=', '\Gzero\Model\Content');
-            //    }
-            //)
+        $query = $this->queryBuilder->newQuery()
+            ->leftJoin(
+                'ContentTranslations',
+                function ($join) use ($criteria) {
+                    $join->on('Contents.id', '=', 'ContentTranslations.contentId')
+                        ->where('ContentTranslations.langCode', '=', $criteria['lang']);
+                }
+            );
+        $count = clone $query;
+        $this->handleOrderBy('Contents', $orderBy, $query);
+        $this->handleFilterCriteria('Contents', $criteria, $query);
+        $results = $query
+            ->offset($pageSize * ($page - 1))
+            ->limit($pageSize)
             ->get(['Contents.*']);
         $results->load('route.translations', 'translations');
-        return $results;
+        return \Paginator::make($results->all(), $count->select('Contents.id')->count(), $pageSize);
     }
 
     /*
@@ -370,39 +370,33 @@ class ContentRepository {
     /**
      * Add filter rules to query
      *
-     * @param string       $entityAlias Entity alias to where clause
-     * @param array        $criteria    Array with filer criteria
-     * @param QueryBuilder $query       Query to add filter rules
+     * @param string $entityAlias Entity alias to where clause
+     * @param array  $criteria    Array with filer criteria
+     * @param mixed  $query       Query to add filter rules
      *
-     * @return QueryBuilder
+     * @return void
      */
-    private function handleFilterCriteria($entityAlias, array $criteria, QueryBuilder $query)
+    private function handleFilterCriteria($entityAlias, array $criteria, $query)
     {
         $conditions = [];
         if (isset($criteria['lang'])) { // Simple hax for now
             unset($criteria['lang']);
         }
         foreach ($criteria as $condition => $value) {
-            $conditions[] = $query->expr()->eq($entityAlias . '.' . $condition, $value);
-        }
-
-        if (!empty($conditions)) {
-            return $query->expr()->orX(call_user_func_array([$query->expr(), 'orX'], $conditions));
-        } else {
-            return null;
+            $conditions[] = $query->where($entityAlias . '.' . $condition, '=', $value);
         }
     }
 
     /**
      * Add sorting rules to query
      *
-     * @param string       $entityAlias Entity alias to orderBy clause
-     * @param array        $orderBy     Array with sort columns and directions
-     * @param QueryBuilder $query       Query to add sorting rules
+     * @param string $entityAlias Entity alias to orderBy clause
+     * @param array  $orderBy     Array with sort columns and directions
+     * @param mixed  $query       Query to add sorting rules
      *
      * @return void
      */
-    private function handleOrderBy($entityAlias, array $orderBy, QueryBuilder $query)
+    private function handleOrderBy($entityAlias, array $orderBy, $query)
     {
         foreach ($orderBy as $sort => $order) {
             $query->orderBy($entityAlias . '.' . $sort, $order);
