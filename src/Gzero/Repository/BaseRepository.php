@@ -14,7 +14,7 @@ use Gzero\Doctrine2Extensions\Common\BaseRepository as CommonBaseRepository;
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2014, Adrian Skierniewski
  */
-class BaseRepository extends CommonBaseRepository {
+class BaseRepository {
 
     /**
      * Commit changes to Database
