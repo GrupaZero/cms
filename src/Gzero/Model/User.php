@@ -19,6 +19,7 @@ class User extends Base {
     protected $fillable = [
         'email',
         'firstName',
-        'lastName'
+        'lastName',
+        'password'
     ];
 }
