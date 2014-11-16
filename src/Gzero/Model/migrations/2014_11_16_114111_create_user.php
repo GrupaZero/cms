@@ -20,6 +20,7 @@ class CreateUser extends Migration {
                 $table->string('password');
                 $table->string('firstName')->nullable();
                 $table->string('lastName')->nullable();
+                $table->string('rememberToken');
                 $table->timestamp('createdAt');
                 $table->timestamp('updatedAt');
             }
