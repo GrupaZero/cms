@@ -1,11 +1,11 @@
 <?php namespace Gzero\Core;
 
-use Doctrine\Common\Collections\ArrayCollection;
 use Gzero\Entity\Block;
 use Gzero\Entity\Lang;
 use Gzero\Repository\BlockRepository;
 use Illuminate\Cache\Repository as Cache;
 use Illuminate\Foundation\Application;
+use Illuminate\Support\Collection;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -40,7 +40,7 @@ class BlockHandler {
     public function __construct(Cache $cache, Application $app, BlockRepository $blockRepo)
     {
         $this->app       = $app;
-        $this->regions   = new ArrayCollection();
+        $this->regions   = new Collection();
         $this->cache     = $cache;
         $this->blockRepo = $blockRepo;
     }
