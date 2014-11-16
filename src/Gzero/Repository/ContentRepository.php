@@ -283,9 +283,28 @@ class ContentRepository extends BaseRepository implements TreeRepository {
             ->setMaxResults($pageSize); // set the limit
 
         return new Collection(
-            $paginator->getQuery()->getResult(),
+            $paginator->getQuery()->getArrayResult(),
             $paginator->count()
         );
+    }
+
+    /**
+     * Eloquent version
+     *
+     * @param Lang     $lang     Lang entity
+     * @param array    $criteria Filter criteria
+     * @param array    $orderBy  Array of columns
+     * @param int|null $page     Page number
+     * @param int|null $pageSize Limit resultse
+     *
+     * @return void
+     */
+    public function getRootContentsEloquent(Lang $lang, array $criteria, array $orderBy = [], $page = null, $pageSize = null)
+    {
+        $code    = $lang->getCode();
+        $results = \Gzero\Model\Content::leftJoin('ContentTranslations', 'Contents.id', '=', 'ContentTranslations.contentId')
+            ->get(['Contents.*']);
+        $results->load('translations');
     }
 
     /*

@@ -30,7 +30,11 @@
         </properties>
     </rule>
     <rule ref="rulesets/naming.xml/LongVariable"/>
-    <rule ref="rulesets/naming.xml/ShortMethodName"/>
+    <rule ref="rulesets/naming.xml/ShortMethodName">
+        <properties>
+            <property name="minimum" value="1"/>
+        </properties>
+    </rule>
     <rule ref="rulesets/naming.xml/ConstructorWithNameAsEnclosingClass"/>
     <rule ref="rulesets/naming.xml/ConstantNamingConventions"/>
     <rule ref="rulesets/naming.xml/BooleanGetMethodName">
