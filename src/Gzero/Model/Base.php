@@ -1,6 +1,7 @@
 <?php namespace Gzero\Model;
 
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -29,4 +30,28 @@ abstract class Base extends Model {
      * @var string
      */
     const UPDATED_AT = 'updatedAt';
+
+    /**
+     * Default accessor do createdAt
+     *
+     * @param string $date Date string
+     *
+     * @return string
+     */
+    public function getCreatedAtAttribute($date)
+    {
+        return Carbon::createFromFormat('Y-m-d H:i:s', $date)->toIso8601String();
+    }
+
+    /**
+     * Default accessor do updatedAt
+     *
+     * @param string $date Date string
+     *
+     * @return string
+     */
+    public function getUpdatedAtAttribute($date)
+    {
+        return Carbon::createFromFormat('Y-m-d H:i:s', $date)->toIso8601String();
+    }
 }
