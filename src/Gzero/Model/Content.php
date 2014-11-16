@@ -23,10 +23,15 @@ class Content extends Base {
     /**
      * Translation one to many relation
      *
+     * @param bool $active Only active translations
+     *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function translations()
+    public function translations($active = true)
     {
+        if ($active) {
+            return $this->hasMany('\Gzero\Model\ContentTranslation', 'contentId')->where('isActive', '=', 1);
+        }
         return $this->hasMany('\Gzero\Model\ContentTranslation', 'contentId');
     }
 }

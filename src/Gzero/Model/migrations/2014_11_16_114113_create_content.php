@@ -17,6 +17,8 @@ class CreateContent extends Migration {
             function (Blueprint $table) {
                 $table->increments('id');
                 $table->string('path')->default('/');
+                $table->integer('weight');
+                $table->boolean('isActive');
                 $table->timestamp('createdAt');
                 $table->timestamp('updatedAt');
             }
@@ -31,6 +33,7 @@ class CreateContent extends Migration {
                 $table->string('title');
                 $table->text('body');
                 $table->string('url');
+                $table->boolean('isActive');
                 $table->timestamp('createdAt');
                 $table->timestamp('updatedAt');
                 $table->foreign('contentId')->references('id')->on('Contents')->onDelete('CASCADE');

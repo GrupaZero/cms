@@ -1,6 +1,6 @@
 <?php namespace Gzero\Core;
 
-use Gzero\Entity\BlockType;
+use Faker\Factory;
 use Gzero\Model\Content;
 use Gzero\Model\ContentTranslation;
 use Gzero\Model\Lang;
@@ -26,28 +26,49 @@ class CMSSeeder extends Seeder {
     /**
      * This function run all seeds
      *
-     * @throws \Doctrine\ORM\ORMException
-     * @throws \Doctrine\ORM\OptimisticLockException
-     * @throws \Doctrine\ORM\TransactionRequiredException
      * @return void
      * @SuppressWarnings("PHPMD")
      */
     public function run()
     {
-        $lang = Lang::find('en');
-        if (!$lang) {
-            $lang = new Lang(['code' => 'en', 'i18n' => 'en_US', 'isEnabled' => 1]);
-            $lang->save();
+        $faker       = Factory::create();
+        $langs       = [];
+        $langs['en'] = Lang::find('en');
+        if (!empty($langs['en'])) {
+            $langs['en'] = new Lang(
+                [
+                    'code'      => 'en',
+                    'i18n'      => 'en_US',
+                    'isEnabled' => 1,
+                    'isDefault' => true
+                ]
+            );
+            $langs['en']->save();
         }
 
-        $content = new Content(['path' => 'xyz']);
-        $content->save();
-        $translation        = new ContentTranslation(['langCode' => 'en']);
-        $translation->title = 'Simple title';
-        $translation->body  = 'Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo,
-            tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.
-             Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. ';
-        $content->translations()->save($translation);
+        $langs['pl'] = Lang::find('pl');
+        if (!empty($langs['pl'])) {
+            $langs['pl'] = new Lang(
+                [
+                    'code'      => 'pl',
+                    'i18n'      => 'pl_PL',
+                    'isEnabled' => 1
+                ]
+            );
+            $langs['pl']->save();
+        }
+
+        for ($i = 0; $i < 10; $i++) {
+            $content = new Content(['isActive' => rand(0, 1)]);
+            $content->save();
+            foreach ($langs as $key => $value) {
+                $translation           = new ContentTranslation(['langCode' => $key]);
+                $translation->title    = $faker->sentence(5);
+                $translation->body     = $faker->text(255);
+                $translation->isActive = true;
+                $content->translations()->save($translation);
+            }
+        }
 
         // Create user
         $user = User::find(1);
