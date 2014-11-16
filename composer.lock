@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "836110f0a2842b25cbfc98a08a60d2d1",
+    "hash": "559c3593d88caf0b59e0327a740ee5d4",
     "packages": [
         {
             "name": "barryvdh/laravel-twigbridge",
@@ -2192,26 +2192,28 @@
         },
         {
             "name": "fzaninotto/faker",
-            "version": "v1.3.0",
+            "version": "v1.4.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/fzaninotto/Faker.git",
-                "reference": "1d143fd8caf4d264602450bc01d7484af788706b"
+                "reference": "010c7efedd88bf31141a02719f51fb44c732d5a0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/fzaninotto/Faker/zipball/1d143fd8caf4d264602450bc01d7484af788706b",
-                "reference": "1d143fd8caf4d264602450bc01d7484af788706b",
+                "url": "https://api.github.com/repos/fzaninotto/Faker/zipball/010c7efedd88bf31141a02719f51fb44c732d5a0",
+                "reference": "010c7efedd88bf31141a02719f51fb44c732d5a0",
                 "shasum": ""
             },
             "require": {
                 "php": ">=5.3.3"
             },
+            "require-dev": {
+                "phpunit/phpunit": "~4.0",
+                "squizlabs/php_codesniffer": "~1.5"
+            },
             "type": "library",
             "extra": {
-                "branch-alias": {
-                    "dev-master": "1.3.0-dev"
-                }
+                "branch-alias": []
             },
             "autoload": {
                 "psr-0": {
@@ -2234,7 +2236,7 @@
                 "faker",
                 "fixtures"
             ],
-            "time": "2013-12-16 21:56:48"
+            "time": "2014-06-04 14:43:02"
         },
         {
             "name": "mockery/mockery",
