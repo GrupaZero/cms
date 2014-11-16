@@ -2,6 +2,7 @@
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\QueryBuilder;
+use Gzero\Model\Lang;
 use Illuminate\Cache\CacheManager;
 use Illuminate\Cache\Repository;
 use Illuminate\Support\Facades\App;
@@ -18,7 +19,7 @@ use Illuminate\Support\Facades\App;
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2014, Adrian Skierniewski
  */
-class LangRepository extends BaseRepository {
+class LangRepository {
 
     /**
      * All languages
@@ -46,12 +47,7 @@ class LangRepository extends BaseRepository {
             $this->langs = $this->cache->get('langs');
         } else {
             /* @var QueryBuilder $qb */
-            $qb          = $this->_em->createQueryBuilder();
-            $this->langs = $this->prepareLangsArray(
-                $qb->select('l')
-                    ->from($this->getClassName(), 'l')
-                    ->getQuery()->getResult()
-            );
+            $this->langs = Lang::all();
             $cache->forever('langs', $this->langs);
         }
     }

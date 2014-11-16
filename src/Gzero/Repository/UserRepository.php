@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\Hash;
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2014, Adrian Skierniewski
  */
-class UserRepository extends BaseRepository implements UserProviderInterface {
+class UserRepository implements UserProviderInterface {
 
     /**
      * Get single block with active translations
@@ -32,6 +32,7 @@ class UserRepository extends BaseRepository implements UserProviderInterface {
      */
     public function getById($id)
     {
+        return \User::find($id);
         return $this->find($id);
     }
 

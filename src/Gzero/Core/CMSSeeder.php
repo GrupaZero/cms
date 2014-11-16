@@ -4,7 +4,9 @@ use Gzero\Entity\BlockType;
 use Gzero\Model\Content;
 use Gzero\Model\ContentTranslation;
 use Gzero\Model\Lang;
+use Gzero\Model\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -46,5 +48,19 @@ class CMSSeeder extends Seeder {
             tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.
              Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui. ';
         $content->translations()->save($translation);
+
+        // Create user
+        $user = User::find(1);
+        if (!$user) {
+            User::create(
+                [
+                    'email'     => 'a@a.pl',
+                    'firstName' => 'John',
+                    'lastName'  => 'Doe',
+                    'password'  => Hash::make('test')
+
+                ]
+            );
+        }
     }
 }
