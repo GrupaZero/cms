@@ -37,7 +37,6 @@ class ServiceProvider extends SP {
         $this->bindRepositories();
         $this->bindTypes();
         $this->bindOtherStuff();
-        $this->extendAuth();
         $this->bindCommands();
     }
 
@@ -108,27 +107,6 @@ class ServiceProvider extends SP {
                 return new LangRepository(App::make('cache'));
             }
         );
-
-        $this->app->bind(
-            'Gzero\Repository\UserRepository',
-            function ($app) {
-                return Doctrine::getRepository('Gzero\Entity\User');
-            }
-        );
-
-        $this->app->bind(
-            'Gzero\Repository\BlockRepository',
-            function ($app) {
-                return Doctrine::getRepository('Gzero\Entity\Block');
-            }
-        );
-
-        $this->app->bind(
-            'Gzero\Repository\MenuLinkRepository',
-            function ($app) {
-                return Doctrine::getRepository('Gzero\Entity\MenuLink');
-            }
-        );
     }
 
     /**
@@ -154,12 +132,7 @@ class ServiceProvider extends SP {
      */
     public function bindCommands()
     {
-        $this->app->bind(
-            'command.PublishMigrations',
-            function () {
-                return new PublishMigrations();
-            }
-        );
+        //
     }
 
     /**
@@ -169,7 +142,7 @@ class ServiceProvider extends SP {
      */
     public function registerCommands()
     {
-        $this->commands('command.PublishMigrations');
+        //
     }
 
     /**
@@ -192,33 +165,16 @@ class ServiceProvider extends SP {
     protected function bindOtherStuff()
     {
         // Add TreeSubscriber
-        $this->app['doctrine']->getEventManager()->addEventSubscriber(new TreeSubscriber());
-        // Add EntitySerializer
-        $this->app->singleton(
-            'Gzero\Core\EntitySerializer',
-            function ($app) {
-                return new EntitySerializer($app['doctrine']);
-            }
-        );
+        //$this->app['doctrine']->getEventManager()->addEventSubscriber(new TreeSubscriber());
+        //Add EntitySerializer
+        //$this->app->singleton(
+        //    'Gzero\Core\EntitySerializer',
+        //    function ($app) {
+        //        return new EntitySerializer($app['doctrine']);
+        //    }
+        //);
         // Add all doctrine 2 annotation to auto load
-        AnnotationRegistry::registerLoader('class_exists');
-    }
-
-    /**
-     * Add doctrine2 driver to Laravel Auth
-     *
-     * @return void
-     */
-    protected function extendAuth()
-    {
-        // We must load deferred auth provider to add doctrine2 driver
-        $this->app->registerDeferredProvider('Illuminate\Auth\AuthServiceProvider', 'auth');
-        $this->app['auth']->extend(
-            'doctrine2',
-            function () {
-                return new Doctrine2UserProvider(Doctrine::getRepository('Gzero\Entity\User'));
-            }
-        );
+        //AnnotationRegistry::registerLoader('class_exists');
     }
 
     /**

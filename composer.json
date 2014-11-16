@@ -12,8 +12,7 @@
     "require": {
         "php": ">=5.4.0",
         "laravel/framework": "4.2.*",
-        "gzero/doctrine2-extensions": "@dev",
-        "atrauzzi/laravel-doctrine": "dev-master",
+        "gzero/eloquent-tree": "0.7",
         "robclancy/presenter": "1.2.0",
         "machuga/authority-l4": "2.1.0",
         "barryvdh/laravel-twigbridge": "dev-master",
