@@ -4,8 +4,6 @@ use Gzero\Doctrine2Extensions\Timestamp\TimestampTrait;
 use ReflectionClass;
 use ReflectionProperty;
 use Doctrine\ORM\Mapping as ORM;
-use JMS\Serializer\Annotation as JMS;
-
 
 /**
  * This file is part of the GZERO CMS package.

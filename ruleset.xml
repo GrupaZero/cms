@@ -2,6 +2,7 @@
 <ruleset name="gzero-ruleset">
     <description>GZERO CMS PHP Coding Standards
     </description>
+    <exclude-pattern>*/migrations/*</exclude-pattern>
     <rule ref="PSR1"/>
     <rule ref="PSR2">
         <!--but exclude their code ClassDeclaration-->
