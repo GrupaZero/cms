@@ -16,8 +16,6 @@ use Illuminate\Database\Eloquent\Model;
  */
 class ContentTranslation extends Base {
 
-    protected $table = 'ContentTranslations';
-
     protected $fillable = [
         'langCode',
     ];

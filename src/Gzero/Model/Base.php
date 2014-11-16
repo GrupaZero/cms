@@ -32,6 +32,20 @@ abstract class Base extends Model {
     const UPDATED_AT = 'updatedAt';
 
     /**
+     * Get the table associated with the model.
+     *
+     * @return string
+     */
+    public function getTable()
+    {
+        if (isset($this->table)) {
+            return $this->table;
+        }
+
+        return str_replace('\\', '', ucfirst(camel_case(str_plural(class_basename($this)))));
+    }
+
+    /**
      * Default accessor do createdAt
      *
      * @param string $date Date string

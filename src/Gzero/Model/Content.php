@@ -14,13 +14,21 @@
  */
 class Content extends Base {
 
-    protected $table = 'Contents';
-
     protected $fillable = [
         'path',
         'weight',
         'isActive'
     ];
+
+    /**
+     * Polymorphic relation with route
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
+    public function route()
+    {
+        return $this->morphOne('\Gzero\Model\Route', 'routable', 'routableType', 'routableId');
+    }
 
     /**
      * Translation one to many relation

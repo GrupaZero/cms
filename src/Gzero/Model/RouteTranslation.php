@@ -8,23 +8,27 @@ use Illuminate\Database\Eloquent\Model;
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  *
- * Class Lang
+ * Class RouteTranslation
  *
  * @package    Gzero\Model
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2014, Adrian Skierniewski
  */
-class Lang extends Base {
-
-    public $incrementing = false;
-
-    protected $primaryKey = 'code';
+class RouteTranslation extends Base {
 
     protected $fillable = [
-        'code',
-        'i18n',
-        'isActive',
-        'isDefault'
+        'langCode',
+        'url',
+        'isActive'
     ];
 
+    /**
+     * Lang reverse relation
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function lang()
+    {
+        return $this->belongsTo('\Gzero\Model\Lang');
+    }
 }

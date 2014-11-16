@@ -317,8 +317,15 @@ class ContentRepository {
     {
         $results = $this->queryBuilder->newQuery()
             ->leftJoin('ContentTranslations', 'Contents.id', '=', 'ContentTranslations.contentId')
+            //->join(
+            //    'Routes',
+            //    function ($join) {
+            //        $join->on('Contents.id', '=', 'Routes.routableId')
+            //            ->where('Routes.routableType', '=', '\Gzero\Model\Content');
+            //    }
+            //)
             ->get(['Contents.*']);
-        $results->load('translations');
+        $results->load('route.translations', 'translations');
         return $results;
     }
 

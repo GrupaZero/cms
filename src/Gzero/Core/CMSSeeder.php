@@ -4,6 +4,8 @@ use Faker\Factory;
 use Gzero\Model\Content;
 use Gzero\Model\ContentTranslation;
 use Gzero\Model\Lang;
+use Gzero\Model\Route;
+use Gzero\Model\RouteTranslation;
 use Gzero\Model\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
@@ -62,12 +64,22 @@ class CMSSeeder extends Seeder {
             $content         = new Content(['isActive' => (bool) rand(0, 1)]);
             $content->weight = rand(0, 10);
             $content->save();
+            $route = new Route(['isActive' => 1]);
+            $content->route()->save($route);
             foreach ($langs as $key => $value) {
                 $translation           = new ContentTranslation(['langCode' => $key]);
                 $translation->title    = $faker->sentence(5);
                 $translation->body     = $faker->text(255);
                 $translation->isActive = true;
                 $content->translations()->save($translation);
+                $routeTranslation = new RouteTranslation(
+                    [
+                        'langCode' => $key,
+                        'url'      => $faker->slug,
+                        'isActive' => true
+                    ]
+                );
+                $route->translations()->save($routeTranslation);
             }
         }
 

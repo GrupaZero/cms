@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateContent extends Migration {
+class CreateRoute extends Migration {
 
     /**
      * Run the migrations.
@@ -13,11 +13,11 @@ class CreateContent extends Migration {
     public function up()
     {
         Schema::create(
-            'Contents',
+            'Routes',
             function (Blueprint $table) {
                 $table->increments('id');
-                $table->string('path')->default('/');
-                $table->integer('weight');
+                $table->integer('routableId')->unsigned();
+                $table->string('routableType');
                 $table->boolean('isActive');
                 $table->timestamp('createdAt');
                 $table->timestamp('updatedAt');
@@ -25,18 +25,18 @@ class CreateContent extends Migration {
         );
 
         Schema::create(
-            'ContentTranslations',
+            'RouteTranslations',
             function (Blueprint $table) {
                 $table->increments('id');
                 $table->string('langCode', 2);
-                $table->integer('contentId')->unsigned();
-                $table->string('title');
-                $table->text('body');
+                $table->integer('routeId')->unsigned();
+                $table->string('url');
                 $table->boolean('isActive');
                 $table->timestamp('createdAt');
                 $table->timestamp('updatedAt');
-                $table->foreign('contentId')->references('id')->on('Contents')->onDelete('CASCADE');
+                $table->foreign('routeId')->references('id')->on('Routes')->onDelete('CASCADE');
                 $table->foreign('langCode')->references('code')->on('Langs')->onDelete('CASCADE');
+                $table->unique(['langCode', 'routeId']); // Only one translation in specific language
             }
         );
     }
@@ -48,8 +48,7 @@ class CreateContent extends Migration {
      */
     public function down()
     {
-        Schema::drop('ContentTranslations');
-        Schema::drop('Contents');
+        Schema::drop('Routes');
     }
 
 }
