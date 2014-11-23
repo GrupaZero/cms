@@ -304,12 +304,14 @@ class ContentRepository {
      * @param array    $criteria Filter criteria
      * @param array    $orderBy  Array of columns
      * @param int|null $page     Page number
-     * @param int|null $pageSize Limit resultse
+     * @param int|null $pageSize Limit results
      *
+     * @throws RepositoryException
      * @return Collection
      */
-    public function getRootContents(array $criteria, array $orderBy = [], $page = 1, $pageSize = 10)
+    public function getRootContents(array $criteria, array $orderBy = [], $page = 1, $pageSize = 20)
     {
+        $this->validateCriteria($criteria);
         $query = $this->queryBuilder->newQuery()
             ->leftJoin(
                 'ContentTranslations',
@@ -400,6 +402,21 @@ class ContentRepository {
     {
         foreach ($orderBy as $sort => $order) {
             $query->orderBy($entityAlias . '.' . $sort, $order);
+        }
+    }
+
+    /**
+     * Check if all required criteria are set
+     *
+     * @param array $criteria Array with criteria
+     *
+     * @return void
+     * @throws RepositoryException
+     */
+    private function validateCriteria(array $criteria)
+    {
+        if (!isset($criteria['lang'])) {
+            throw new RepositoryException('Repository Validation Error: \'lang\' criteria is required');
         }
     }
 }
