@@ -245,9 +245,9 @@ class ContentRepository extends BaseRepository {
                         ->where('ContentTranslations.langCode', '=', $criteria['lang']);
                 }
             );
+        $this->handleFilterCriteria('Contents', $criteria, $query);
         $count = clone $query;
         $this->handleOrderBy('Contents', $orderBy, $query);
-        $this->handleFilterCriteria('Contents', $criteria, $query);
         $results = $query
             ->offset($pageSize * ($page - 1))
             ->limit($pageSize)
@@ -301,9 +301,9 @@ class ContentRepository extends BaseRepository {
                         ->where('ContentTranslations.langCode', '=', $criteria['lang']);
                 }
             );
+        $this->handleFilterCriteria('Contents', $criteria, $query);
         $count = clone $query;
         $this->handleOrderBy('Contents', $orderBy, $query);
-        $this->handleFilterCriteria('Contents', $criteria, $query);
         $results = $query
             ->offset($pageSize * ($page - 1))
             ->limit($pageSize)
