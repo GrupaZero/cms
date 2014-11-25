@@ -16,11 +16,15 @@ class CreateContent extends Migration {
             'Contents',
             function (Blueprint $table) {
                 $table->increments('id');
-                $table->string('path')->default('/');
+                $table->string('path', 255)->nullable();
+                $table->integer('parentId')->unsigned()->nullable();
+                $table->integer('level')->default(0);
                 $table->integer('weight');
                 $table->boolean('isActive');
+                $table->index(['path', 'parentId', 'level']);
                 $table->timestamp('createdAt');
                 $table->timestamp('updatedAt');
+                $table->foreign('parentId')->references('id')->on('Contents')->onDelete('CASCADE');
             }
         );
 

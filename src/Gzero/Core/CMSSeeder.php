@@ -60,29 +60,32 @@ class CMSSeeder extends Seeder {
             $langs['pl']->save();
         }
 
+        $contents = [];
         for ($i = 0; $i < 20; $i++) {
-            $content         = new Content(['isActive' => (bool) rand(0, 1)]);
-            $content->weight = rand(0, 10);
-            $content->save();
+            $contents[$i]         = new Content(['isActive' => (bool) rand(0, 1)]);
+            $contents[$i]->weight = rand(0, 10);
+            $contents[$i]->save();
             $route = new Route(['isActive' => 1]);
-            $content->route()->save($route);
+            $contents[$i]->route()->save($route);
             foreach ($langs as $key => $value) {
                 $translation           = new ContentTranslation(['langCode' => $key]);
                 $translation->title    = $faker->sentence(5);
                 $translation->body     = $faker->text(255);
                 $translation->isActive = true;
-                $content->translations()->save($translation);
+                $contents[$i]->translations()->save($translation);
                 $routeTranslation = new RouteTranslation(
                     [
                         'langCode' => $key,
-                        'url'      => $faker->slug,
+                        'url'      => $faker->word,
                         'isActive' => true
                     ]
                 );
                 $route->translations()->save($routeTranslation);
             }
         }
-
+        $contents[17]->setChildOf($contents[0]);
+        $contents[18]->setChildOf($contents[0]);
+        $contents[19]->setChildOf($contents[1]);
         // Create user
         $user = User::find(1);
         if (!$user) {

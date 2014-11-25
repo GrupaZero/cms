@@ -1,6 +1,7 @@
 <?php namespace Gzero\Repository;
 
 use Gzero\Doctrine2Extensions\Common\BaseRepository as CommonBaseRepository;
+use Gzero\Entity\Base;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -16,6 +17,13 @@ use Gzero\Doctrine2Extensions\Common\BaseRepository as CommonBaseRepository;
  */
 class BaseRepository {
 
+    const ITEMS_PER_PAGE = 20;
+
+    /**
+     * @var Base
+     */
+    protected $queryBuilder;
+
     /**
      * Commit changes to Database
      * NOTICE: This save all entities from current UnityOfWork!
@@ -30,11 +38,11 @@ class BaseRepository {
     /**
      * Create new query builder
      *
-     * @return \Doctrine\ORM\QueryBuilder
+     * @return \Illuminate\Database\Eloquent\Builder
      */
     protected function newQB()
     {
-        return $this->getEntityManager()->createQueryBuilder();
+        return $this->queryBuilder->newQuery();
     }
 
     /**

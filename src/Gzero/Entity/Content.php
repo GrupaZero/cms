@@ -12,7 +12,7 @@
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2014, Adrian Skierniewski
  */
-class Content extends Base {
+class Content extends BaseTree {
 
     protected $fillable = [
         'path',

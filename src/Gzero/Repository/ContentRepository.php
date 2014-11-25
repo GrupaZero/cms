@@ -1,5 +1,6 @@
 <?php namespace Gzero\Repository;
 
+use Gzero\EloquentTree\Model\Tree;
 use Gzero\Entity\ContentTranslation;
 use Gzero\Entity\ContentType;
 use Gzero\Entity\Lang;
@@ -18,12 +19,12 @@ use Illuminate\Pagination\Paginator;
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2014, Adrian Skierniewski
  */
-class ContentRepository {
+class ContentRepository extends BaseRepository {
 
     /**
      * @var Content
      */
-    private $queryBuilder;
+    protected $queryBuilder;
 
     /**
      * Content repository constructor
@@ -36,22 +37,15 @@ class ContentRepository {
     }
 
     /**
-     * Get single content with active translations and author.
+     * Get single content
      *
-     * @param integer $id Test.
+     * @param integer $id Content id
      *
      * @return Content
      */
     public function getById($id)
     {
-        $qb = $this->newQB()
-            ->select('c,t,a')
-            ->from($this->getClassName(), 'c')
-            ->leftJoin('c.translations', 't', 'WITH', 't.isActive = 1')
-            ->leftJoin('c.author', 'a')
-            ->where('c.id = :id')
-            ->setParameter('id', $id);
-        return $qb->getQuery()->getOneOrNullResult();
+        return $this->newQB()->find($id);
     }
 
     /**
@@ -198,34 +192,68 @@ class ContentRepository {
         }
     }
 
-    /**
-     * Get all children nodes to specific node.
-     *
-     * @param TreeNode $node     Node to find children
-     * @param array    $criteria Array of conditions
-     * @param array    $orderBy  Array of columns
-     * @param int|null $limit    Limit results
-     * @param int|null $offset   Start from
-     *
-     * @return mixed
-     * @SuppressWarnings("unused") We'll refactor whole repository
-     */
-    public function getChildren(TreeNode $node, array $criteria = [], array $orderBy = [], $limit = null, $offset = null)
-    {
-        $qb = $this->newQB()
-            ->select('c,t,a')
-            ->from($this->getClassName(), 'c')
-            ->leftJoin('c.translations', 't', 'WITH', 't.isActive = 1')
-            ->leftJoin('c.author', 'a')
-            ->where('c.path = :path')
-            ->setParameter('path', $node->getChildrenPath())
-            ->setFirstResult($offset)
-            ->setMaxResults($limit);
+    ///**
+    // *
+    // *
+    // * @param TreeNode $node     Node to find children
+    // * @param array    $criteria Array of conditions
+    // * @param array    $orderBy  Array of columns
+    // * @param int|null $limit    Limit results
+    // * @param int|null $offset   Start from
+    // *
+    // * @return mixed
+    // * @SuppressWarnings("unused") We'll refactor whole repository
+    // */
+    //public function getChildren(TreeNode $node, array $criteria = [], array $orderBy = [], $limit = null, $offset = null)
+    //{
+    //    $qb = $this->newQB()
+    //        ->select('c,t,a')
+    //        ->from($this->getClassName(), 'c')
+    //        ->leftJoin('c.translations', 't', 'WITH', 't.isActive = 1')
+    //        ->leftJoin('c.author', 'a')
+    //        ->where('c.path = :path')
+    //        ->setParameter('path', $node->getChildrenPath())
+    //        ->setFirstResult($offset)
+    //        ->setMaxResults($limit);
+    //
+    //    foreach ($orderBy as $sort => $order) {
+    //        $qb->orderBy($sort, $order);
+    //    }
+    //    return $qb->getQuery()->getArrayResult();
+    //}
 
-        foreach ($orderBy as $sort => $order) {
-            $qb->orderBy($sort, $order);
-        }
-        return $qb->getQuery()->getArrayResult();
+    /**
+     * Get all children nodes to specific node
+     *
+     * @param Tree     $node     Tree node
+     * @param array    $criteria Filter criteria
+     * @param array    $orderBy  Array of columns
+     * @param int|null $page     Page number
+     * @param int|null $pageSize Limit results
+     *
+     * @throws RepositoryException
+     * @return Collection
+     */
+    public function getChildren(Tree $node, array $criteria, array $orderBy = [], $page = 1, $pageSize = self::ITEMS_PER_PAGE)
+    {
+        $this->validateCriteria($criteria);
+        $query = $node->findChildren()
+            ->leftJoin(
+                'ContentTranslations',
+                function ($join) use ($criteria) {
+                    $join->on('Contents.id', '=', 'ContentTranslations.contentId')
+                        ->where('ContentTranslations.langCode', '=', $criteria['lang']);
+                }
+            );
+        $count = clone $query;
+        $this->handleOrderBy('Contents', $orderBy, $query);
+        $this->handleFilterCriteria('Contents', $criteria, $query);
+        $results = $query
+            ->offset($pageSize * ($page - 1))
+            ->limit($pageSize)
+            ->get(['Contents.*']);
+        $results->load('route.translations', 'translations');
+        return \Paginator::make($results->all(), $count->select('Contents.id')->count(), $pageSize);
     }
 
     /**
@@ -252,54 +280,7 @@ class ContentRepository {
     }
 
     /**
-     * Get active contents of all type in level 0
-     *
-     * @param Lang     $lang     Lang entity
-     * @param array    $criteria Filter criteria
-     * @param array    $orderBy  Array of columns
-     * @param int|null $page     Page number
-     * @param int|null $pageSize Limit results
-     *
-     * @return Collection
-     */
-    public function getRootContentsDoctrine(Lang $lang, array $criteria, array $orderBy = [], $page = null, $pageSize = null)
-    {
-        $query = $this->newQB();
-        $query->select('c,ct,a,r,rt')
-            ->from($this->getClassName(), 'c')
-            ->innerJoin('c.route', 'r')
-            ->leftJoin('c.translations', 'ct', 'WITH', 'ct.isActive = 1 and ct.langCode = :langCode')
-            ->leftJoin('r.translations', 'rt', 'WITH', 'rt.langCode = :langCode')
-            ->leftJoin('c.author', 'a')
-            ->where(
-                $query->expr()->andX(
-                    $query->expr()->eq('c.level', ':level'),
-                    $this->handleFilterCriteria('c', $criteria, $query)
-                )
-            )
-            ->setParameters(
-                [
-                    'level'    => 0,
-                    'langCode' => $lang->getCode()
-                ]
-            );
-
-        $this->handleOrderBy('c', $orderBy, $query);
-
-        $paginator = new Paginator($query);
-        $paginator
-            ->getQuery()
-            ->setFirstResult($pageSize * ($page - 1))// set the offset
-            ->setMaxResults($pageSize); // set the limit
-
-        return new Collection(
-            $paginator->getQuery()->getArrayResult(),
-            $paginator->count()
-        );
-    }
-
-    /**
-     * Eloquent version
+     * Get all root contents
      *
      * @param array    $criteria Filter criteria
      * @param array    $orderBy  Array of columns
@@ -309,10 +290,10 @@ class ContentRepository {
      * @throws RepositoryException
      * @return Collection
      */
-    public function getRootContents(array $criteria, array $orderBy = [], $page = 1, $pageSize = 20)
+    public function getRootContents(array $criteria, array $orderBy = [], $page = 1, $pageSize = self::ITEMS_PER_PAGE)
     {
         $this->validateCriteria($criteria);
-        $query = $this->queryBuilder->newQuery()
+        $query = $this->newQB()
             ->leftJoin(
                 'ContentTranslations',
                 function ($join) use ($criteria) {
