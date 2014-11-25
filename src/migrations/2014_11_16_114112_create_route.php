@@ -48,6 +48,7 @@ class CreateRoute extends Migration {
      */
     public function down()
     {
+        Schema::drop('RouteTranslations');
         Schema::drop('Routes');
     }
 
