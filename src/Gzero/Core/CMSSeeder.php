@@ -76,7 +76,7 @@ class CMSSeeder extends Seeder {
                 $routeTranslation = new RouteTranslation(
                     [
                         'langCode' => $key,
-                        'url'      => $faker->word,
+                        'url'      => $faker->unique()->word,
                         'isActive' => true
                     ]
                 );
