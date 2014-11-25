@@ -3,7 +3,7 @@
 use Gzero\Entity\ContentTranslation;
 use Gzero\Entity\ContentType;
 use Gzero\Entity\Lang;
-use Gzero\Model\Content;
+use Gzero\Entity\Content;
 use Illuminate\Pagination\Paginator;
 
 /**

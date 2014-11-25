@@ -2,7 +2,7 @@
 
 use Gzero\Repository\ContentRepository;
 use Illuminate\Foundation\Application;
-use Gzero\Model\Lang;
+use Gzero\Entity\Lang;
 use Gzero\Core\Handler\Content\ContentTypeHandler;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 

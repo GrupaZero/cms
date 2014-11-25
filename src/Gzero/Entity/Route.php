@@ -1,8 +1,5 @@
 <?php namespace Gzero\Entity;
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ORM\Mapping as ORM;
-
 /**
  * This file is part of the GZERO CMS package.
  *
@@ -11,91 +8,33 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * Class Route
  *
- * @package    Gzero\Entity
+ * @package    Gzero\Model
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2014, Adrian Skierniewski
- * @ORM\Entity(repositoryClass="Gzero\Repository\RouteRepository")
  */
-class Route {
+class Route extends Base {
+
+    protected $fillable = [
+        'isActive'
+    ];
 
     /**
-     * @ORM\Id @ORM\GeneratedValue @ORM\Column(type="integer")
-     * @var string
-     */
-    public $id;
-
-    /**
-     * @ORM\OneToMany(targetEntity="RouteTranslation", mappedBy="route", cascade={"persist"})
-     * @var \Doctrine\Common\Collections\ArrayCollection
-     */
-    protected $translations;
-
-    /**
-     * @ORM\OneToOne(targetEntity="Content", inversedBy="route", fetch="EAGER")
-     * @ORM\JoinColumn(name="contentId", referencedColumnName="id")
-     * @var Content
-     **/
-    protected $content;
-
-    /**
-     * Route entity constructor
+     * Translation one to many relation
      *
-     * @param Content $content Content entity
+     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
      */
-    public function __construct(Content $content)
+    public function routable()
     {
-        $this->content      = $content;
-        $this->translations = new ArrayCollection();
-    }
-
-    //------------------------------------------------------------------------------------------------
-    // START: Getters & Setters
-    //------------------------------------------------------------------------------------------------
-
-    /**
-     * Get entity id
-     *
-     * @return string
-     */
-    public function getId()
-    {
-        return $this->id;
+        return $this->morphTo();
     }
 
     /**
-     * Get content
+     * Translation one to many relation
      *
-     * @return Content
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function getContent()
+    public function translations()
     {
-        return $this->content;
+        return $this->hasMany('\Gzero\Entity\RouteTranslation', 'routeId');
     }
-
-    /**
-     * Get link translations
-     *
-     * @return \Doctrine\Common\Collections\ArrayCollection
-     */
-    public function getTranslations()
-    {
-        return $this->translations;
-    }
-
-    /**
-     * Set content
-     *
-     * @param Content $content Content entity
-     *
-     * @return void
-     */
-    public function setContent(Content $content)
-    {
-        $this->content = $content;
-    }
-
-    //-----------------------------------------------------------------------------------------------
-    // END:  Getters & Setters
-    //-----------------------------------------------------------------------------------------------
-
 }

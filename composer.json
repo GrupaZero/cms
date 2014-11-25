@@ -33,7 +33,10 @@
     "autoload": {
         "psr-4": {
             "Gzero\\": "src/Gzero"
-        }
+        },
+        "classmap": [
+            "src/migrations"
+        ]
     },
     "minimum-stability": "dev"
 }

@@ -1,12 +1,12 @@
 <?php namespace Gzero\Core;
 
 use Faker\Factory;
-use Gzero\Model\Content;
-use Gzero\Model\ContentTranslation;
-use Gzero\Model\Lang;
-use Gzero\Model\Route;
-use Gzero\Model\RouteTranslation;
-use Gzero\Model\User;
+use Gzero\Entity\Content;
+use Gzero\Entity\ContentTranslation;
+use Gzero\Entity\Lang;
+use Gzero\Entity\Route;
+use Gzero\Entity\RouteTranslation;
+use Gzero\Entity\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 

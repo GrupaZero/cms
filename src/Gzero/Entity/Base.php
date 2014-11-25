@@ -1,4 +1,4 @@
-<?php namespace Gzero\Model;
+<?php namespace Gzero\Entity;
 
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;

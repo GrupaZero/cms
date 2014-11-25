@@ -1,7 +1,7 @@
 <?php namespace Gzero\Core;
 
 use Gzero\Entity\Block;
-use Gzero\Model\Lang;
+use Gzero\Entity\Lang;
 use Gzero\Repository\BlockRepository;
 use Illuminate\Cache\Repository as Cache;
 use Illuminate\Foundation\Application;
