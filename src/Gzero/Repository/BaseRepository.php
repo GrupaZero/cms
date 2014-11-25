@@ -17,6 +17,9 @@ use Gzero\Entity\Base;
  */
 class BaseRepository {
 
+    /**
+     * Default number of items per page
+     */
     const ITEMS_PER_PAGE = 20;
 
     /**
