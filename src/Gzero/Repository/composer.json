@@ -16,7 +16,7 @@
     },
     "autoload": {
         "psr-0": {
-            "Gzero\\Entity": ""
+            "Gzero\\Repository": ""
         }
     },
     "target-dir": "Gzero/Repository",
