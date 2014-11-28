@@ -2,6 +2,7 @@
 
 use Faker\Factory;
 use Gzero\Entity\Content;
+use Gzero\Entity\ContentType;
 use Gzero\Entity\ContentTranslation;
 use Gzero\Entity\Lang;
 use Gzero\Entity\Route;
@@ -26,6 +27,19 @@ use Illuminate\Support\Facades\Hash;
 class CMSSeeder extends Seeder {
 
     /**
+     * @var \Faker\Generator
+     */
+    protected $faker;
+
+    /**
+     * CMSSeeder constructor
+     */
+    public function __construct()
+    {
+        $this->faker = Factory::create();
+    }
+
+    /**
      * This function run all seeds
      *
      * @return void
@@ -33,7 +47,38 @@ class CMSSeeder extends Seeder {
      */
     public function run()
     {
-        $faker       = Factory::create();
+        $langs        = $this->seedLangs();
+        $contentTypes = $this->seedContentTypes();
+        $usersIds     = $this->seedUsers();
+        $contents     = [];
+        $categories   = [];
+        for ($i = 0; $i < 12; $i++) { // Categories
+            $categories[] = $this->seedContent($contentTypes['category'], null, $langs, $usersIds); // Content without category
+            $categories[] = $this->seedContent(
+                $contentTypes['category'],
+                $this->faker->randomElement($categories),
+                $langs,
+                $usersIds
+            );
+        }
+        for ($i = 0; $i < 20; $i++) { // Content in categories
+            $contents[] = $this->seedContent($contentTypes['content'], null, $langs, $usersIds); // Content without category
+            $contents[] = $this->seedContent(
+                $contentTypes['content'],
+                $this->faker->randomElement($categories),
+                $langs,
+                $usersIds
+            );
+        }
+    }
+
+    /**
+     * Seed langs
+     *
+     * @return array
+     */
+    private function seedLangs()
+    {
         $langs       = [];
         $langs['en'] = Lang::find('en');
         if (empty($langs['en'])) {
@@ -59,37 +104,83 @@ class CMSSeeder extends Seeder {
             );
             $langs['pl']->save();
         }
+        return $langs;
+    }
 
-        $contents = [];
-        for ($i = 0; $i < 20; $i++) {
-            $contents[$i]         = new Content(['isActive' => (bool) rand(0, 1)]);
-            $contents[$i]->weight = rand(0, 10);
-            $contents[$i]->save();
-            $route = new Route(['isActive' => 1]);
-            $contents[$i]->route()->save($route);
-            foreach ($langs as $key => $value) {
-                $translation           = new ContentTranslation(['langCode' => $key]);
-                $translation->title    = $faker->sentence(5);
-                $translation->body     = $faker->text(255);
-                $translation->isActive = true;
-                $contents[$i]->translations()->save($translation);
-                $routeTranslation = new RouteTranslation(
-                    [
-                        'langCode' => $key,
-                        'url'      => $faker->unique()->word,
-                        'isActive' => true
-                    ]
-                );
-                $route->translations()->save($routeTranslation);
+    /**
+     * Seed content types
+     *
+     * @return array
+     */
+    private function seedContentTypes()
+    {
+        $contentTypes = [];
+        foreach (['content', 'category'] as $type) {
+            $contentTypes[$type] = Lang::find($type);
+            if (empty($contentTypes[$type])) {
+                $contentTypes[$type] = new ContentType(['name' => $type, 'isActive' => true]);
+                $contentTypes[$type]->save();
             }
         }
-        $contents[17]->setChildOf($contents[0]);
-        $contents[18]->setChildOf($contents[0]);
-        $contents[19]->setChildOf($contents[1]);
+        return $contentTypes;
+    }
+
+    /**
+     * Seed single content
+     *
+     * @param ContentType  $type   Content type
+     * @param Content|Null $parent Parent element
+     * @param array        $langs  Array with langs
+     * @param array        $users  Array with users
+     *
+     * @return Content
+     */
+    private function seedContent(ContentType $type, $parent, $langs, $users)
+    {
+        $content         = new Content(
+            [
+                'type'     => $type->name,
+                'authorId' => $this->faker->randomElement($users),
+                'isActive' => (bool) rand(0, 1)
+            ]
+        );
+        $content->weight = rand(0, 10);
+        if ($parent) {
+            $content->setChildOf($parent);
+        } else {
+            $content->setAsRoot();
+        }
+        $route = new Route(['isActive' => 1]);
+        $content->route()->save($route);
+        foreach ($langs as $key => $value) {
+            $translation           = new ContentTranslation(['langCode' => $key]);
+            $translation->title    = $this->faker->sentence(5);
+            $translation->body     = $this->faker->text(255);
+            $translation->isActive = true;
+            $content->translations()->save($translation);
+            $routeTranslation = new RouteTranslation(
+                [
+                    'langCode' => $key,
+                    'url'      => $this->faker->unique()->word,
+                    'isActive' => true
+                ]
+            );
+            $route->translations()->save($routeTranslation);
+        }
+        return $content;
+    }
+
+    /**
+     * Seed users
+     *
+     * @return array
+     */
+    private function seedUsers()
+    {
         // Create user
         $user = User::find(1);
         if (!$user) {
-            User::create(
+            $user = User::create(
                 [
                     'email'     => 'a@a.pl',
                     'firstName' => 'John',
@@ -99,5 +190,6 @@ class CMSSeeder extends Seeder {
                 ]
             );
         }
+        return [null, $user->id];
     }
 }
