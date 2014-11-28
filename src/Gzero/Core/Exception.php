@@ -1,6 +1,4 @@
-<?php namespace Gzero\Repository;
-
-use Gzero\Core\Exception;
+<?php namespace Gzero\Core;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -8,12 +6,12 @@ use Gzero\Core\Exception;
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  *
- * Class RepositoryException
+ * Class Exception
  *
- * @package    Gzero\Repository
+ * @package    Gzero\Core
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2014, Adrian Skierniewski
  */
-class RepositoryException extends Exception {
+class Exception extends \Exception {
 
 }

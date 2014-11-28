@@ -397,7 +397,7 @@ class ContentRepository extends BaseRepository {
     private function validateCriteria(array $criteria)
     {
         if (!isset($criteria['lang'])) {
-            throw new RepositoryException('Repository Validation Error: \'lang\' criteria is required');
+            throw new RepositoryException('Repository Validation Error: \'lang\' criteria is required', 500);
         }
     }
 }
