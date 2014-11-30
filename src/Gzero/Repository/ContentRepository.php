@@ -280,7 +280,7 @@ class ContentRepository extends BaseRepository {
     }
 
     /**
-     * Get all root contents
+     * Get all contents with specific criteria
      *
      * @param array    $criteria Filter criteria
      * @param array    $orderBy  Array of columns
@@ -290,7 +290,7 @@ class ContentRepository extends BaseRepository {
      * @throws RepositoryException
      * @return Collection
      */
-    public function getRootContents(array $criteria, array $orderBy = [], $page = 1, $pageSize = self::ITEMS_PER_PAGE)
+    public function getContents(array $criteria, array $orderBy = [], $page = 1, $pageSize = self::ITEMS_PER_PAGE)
     {
         $this->validateCriteria($criteria);
         $query = $this->newQB()
