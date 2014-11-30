@@ -1,7 +1,7 @@
 <?php namespace Gzero\Validator;
 
 use Gzero\Core\Exception;
-use Illuminate\Validation\Validator;
+use Illuminate\Support\Facades\Validator;
 
 /**
  * This file is part of the GZERO CMS package.
