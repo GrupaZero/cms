@@ -45,7 +45,7 @@ class ValidationException extends Exception {
     /**
      * Add Validation errors
      *
-     * @param MessageBag $errors
+     * @param MessageBag $errors Container with validation errors
      *
      * @return void
      */
