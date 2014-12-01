@@ -309,6 +309,7 @@ class ContentRepository extends BaseRepository {
             ->limit($pageSize)
             ->get(['Contents.*']);
         $results->load('route.translations', 'translations');
+        \Paginator::setCurrentPage($page); // We need to set current page because laravel use input to set this property
         return \Paginator::make($results->all(), $count->select('Contents.id')->count(), $pageSize);
     }
 

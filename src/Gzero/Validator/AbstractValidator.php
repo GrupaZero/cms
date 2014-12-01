@@ -18,11 +18,11 @@ use Illuminate\Support\Facades\Validator;
 abstract class AbstractValidator {
 
     /**
-     * Attributes to validation.
+     * Data to validation
      *
      * @var array
      */
-    protected $attributes = [];
+    protected $data = [];
 
     /**
      * @var string
@@ -52,38 +52,27 @@ abstract class AbstractValidator {
     /**
      * AbstractValidator constructor
      *
-     * @param string $context    Validation context
-     * @param array  $attributes Data to validate
+     * @param array $data Data to validate
      */
-    public function __construct($context, $attributes)
+    public function __construct(Array $data = [])
     {
-        $this->context    = $context;
-        $this->attributes = $attributes;
-    }
-
-    /**
-     * Factory method
-     *
-     * @param string $context    Validation context
-     * @param array  $attributes Data to validate
-     *
-     * @return static
-     */
-    public static function make($context, $attributes)
-    {
-        return new static($context, $attributes);
+        $this->data = $data;
     }
 
     /**
      * Validate passed data
      *
-     * @return array
+     * @param string $context Validation context
+     *
+     * @throws Exception
      * @throws ValidationException
+     * @return array
      */
-    public function validate()
+    public function validate($context = 'default')
     {
+        $this->setContext($context);
         $rules = $this->buildRulesArray();
-        $this->setValidator(Validator::make($this->filterArray($rules, $this->attributes), $rules));
+        $this->setValidator(Validator::make($this->filterArray($rules, $this->data), $rules));
         if ($this->getValidator()->passes()) {
             return $this->getValidator()->getData();
         } else {
@@ -106,25 +95,16 @@ abstract class AbstractValidator {
     }
 
     /**
-     * Return laravel validator
+     * Set data to validate
      *
-     * @return Validator
+     * @param array $data Data to validate
+     *
+     * @return $this
      */
-    public function getValidator()
+    public function setData(array $data)
     {
-        return $this->validator;
-    }
-
-    /**
-     * Set laravel validator
-     *
-     * @param \Illuminate\Validation\Validator $validator Laravel validator
-     *
-     * @return void
-     */
-    public function setValidator($validator)
-    {
-        $this->validator = $validator;
+        $this->data = $data;
+        return $this;
     }
 
     /**
@@ -137,6 +117,40 @@ abstract class AbstractValidator {
     public function trim($value)
     {
         return trim($value);
+    }
+
+    /**
+     * Return laravel validator
+     *
+     * @return Validator
+     */
+    protected function getValidator()
+    {
+        return $this->validator;
+    }
+
+    /**
+     * Set laravel validator
+     *
+     * @param \Illuminate\Validation\Validator $validator Laravel validator
+     *
+     * @return void
+     */
+    protected function setValidator($validator)
+    {
+        $this->validator = $validator;
+    }
+
+    /**
+     * Set validation context
+     *
+     * @param string $context Validation context
+     *
+     * @return void
+     */
+    protected function setContext($context)
+    {
+        $this->context = $context;
     }
 
     /**
