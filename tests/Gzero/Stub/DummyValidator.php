@@ -6,6 +6,7 @@ use Gzero\Validator\AbstractValidator;
  * Class DummyValidator
  */
 class DummyValidator extends AbstractValidator {
+
     /**
      * @var array
      */
