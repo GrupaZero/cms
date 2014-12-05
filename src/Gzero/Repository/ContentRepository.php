@@ -376,7 +376,7 @@ class ContentRepository extends BaseRepository {
             $query->orderBy('createdAt', 'DESC');
         }
         foreach ($orderBy as $sort => $order) {
-            $query->orderBy($sort, $order);
+            $query->orderBy($this->resolveTableName('Contents', $order['relation'], $query) . $sort, $order['direction']);
         }
     }
 
