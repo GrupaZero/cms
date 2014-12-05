@@ -78,7 +78,7 @@ class ContentRepository extends BaseRepository {
      * @param string $url      Url address
      * @param string $langCode Lang code
      *
-     * @return array
+     * @return Content
      */
     public function getByUrl($url, $langCode)
     {

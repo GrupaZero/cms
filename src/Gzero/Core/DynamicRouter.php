@@ -28,18 +28,18 @@ class DynamicRouter {
     /**
      * @var ContentRepository
      */
-    private $contentRepo;
+    private $repository;
 
     /**
      * DynamicRouter constructor
      *
-     * @param Application       $app         Laravel application
-     * @param ContentRepository $contentRepo Content repository
+     * @param Application       $app        Laravel application
+     * @param ContentRepository $repository Content repository
      */
-    public function __construct(Application $app, ContentRepository $contentRepo)
+    public function __construct(Application $app, ContentRepository $repository)
     {
-        $this->app         = $app;
-        $this->contentRepo = $contentRepo;
+        $this->app        = $app;
+        $this->repository = $repository;
     }
 
     /**
@@ -54,10 +54,10 @@ class DynamicRouter {
     public function handleRequest($url, Lang $lang)
     {
         try {
-            $content = $this->contentRepo->getByUrl($url, $lang);
+            $content = $this->repository->getByUrl($url, $lang->code);
             // Only if page is visible on public
-            if (!empty($content) && $content->isActive()) {
-                $type = $this->resolveType($content->getType()->getName());
+            if (!empty($content) && $content->isActive) {
+                $type = $this->resolveType($content->type);
                 return $type->load($content, $lang)->render();
             } else {
                 throw new NotFoundHttpException();
