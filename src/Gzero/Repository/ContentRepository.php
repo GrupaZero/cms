@@ -5,7 +5,6 @@ use Gzero\Entity\ContentTranslation;
 use Gzero\Entity\ContentType;
 use Gzero\Entity\Lang;
 use Gzero\Entity\Content;
-use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
 
 /**
@@ -237,16 +236,15 @@ class ContentRepository extends BaseRepository {
      */
     public function getChildren(Tree $node, array $criteria, array $orderBy = [], $page = 1, $pageSize = self::ITEMS_PER_PAGE)
     {
-        $select = ['Contents.*'];
-        $query  = $node->findChildren();
-        $this->handleTranslationsJoin($criteria, $orderBy, $query, $select);
+        $query = $node->findChildren();
+        $this->handleTranslationsJoin($criteria, $orderBy, $query);
         $this->handleFilterCriteria($criteria, $query);
         $count = clone $query;
         $this->handleOrderBy($orderBy, $query);
         $results = $query
             ->offset($pageSize * ($page - 1))
             ->limit($pageSize)
-            ->get($select);
+            ->get(['Contents.*']);
         $this->listEagerLoad($results);
         \Paginator::setCurrentPage($page); // We need to set current page because laravel use input to set this property
         return \Paginator::make($results->all(), $count->select('Contents.id')->count(), $pageSize);
@@ -288,16 +286,15 @@ class ContentRepository extends BaseRepository {
      */
     public function getContents(array $criteria, array $orderBy = [], $page = 1, $pageSize = self::ITEMS_PER_PAGE)
     {
-        $select = ['Contents.*'];
-        $query  = $this->newQB();
-        $this->handleTranslationsJoin($criteria, $orderBy, $query, $select);
+        $query = $this->newQB();
+        $this->handleTranslationsJoin($criteria, $orderBy, $query);
         $this->handleFilterCriteria($criteria, $query);
         $count = clone $query;
         $this->handleOrderBy($orderBy, $query);
         $results = $query
             ->offset($pageSize * ($page - 1))
             ->limit($pageSize)
-            ->get($select);
+            ->get(['Contents.*']);
         $this->listEagerLoad($results);
         \Paginator::setCurrentPage($page); // We need to set current page because laravel use input to set this property
         return \Paginator::make($results->all(), $count->select('Contents.id')->count(), $pageSize);
@@ -356,7 +353,11 @@ class ContentRepository extends BaseRepository {
             unset($criteria['lang']);
         }
         foreach ($criteria as $condition => $value) {
-            $conditions[] = $query->where($condition, '=', $value);
+            $conditions[] = $query->where(
+                $this->resolveTableName('Contents', $value['relation'], $query) . $condition,
+                '=',
+                $value['value']
+            );
         }
     }
 
@@ -385,22 +386,20 @@ class ContentRepository extends BaseRepository {
      * @param array $criteria Array with filter criteria
      * @param array $orderBy  Array with orderBy
      * @param mixed $query    Eloquent query object
-     * @param array $select   Array with join criteria
      *
      * @throws RepositoryException
      * @return array
      */
-    private function handleTranslationsJoin(array $criteria, array $orderBy, $query, &$select)
+    private function handleTranslationsJoin(array $criteria, array $orderBy, $query)
     {
         if (!empty($criteria['lang'])) {
             $query->leftJoin(
                 'ContentTranslations',
                 function ($join) use ($criteria) {
                     $join->on('Contents.id', '=', 'ContentTranslations.contentId')
-                        ->where('ContentTranslations.langCode', '=', $criteria['lang']);
+                        ->where('ContentTranslations.langCode', '=', $criteria['lang']['value']);
                 }
             );
-            $select[] = 'ContentTranslations.title as title';
         } else {
             if (!empty($orderBy)) {
                 throw new RepositoryException('Repository Validation Error: \'lang\' criteria is required', 500);

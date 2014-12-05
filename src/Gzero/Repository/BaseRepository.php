@@ -1,5 +1,6 @@
 <?php namespace Gzero\Repository;
 
+use BadMethodCallException;
 use Gzero\Doctrine2Extensions\Common\BaseRepository as CommonBaseRepository;
 use Gzero\Entity\Base;
 
@@ -66,5 +67,32 @@ class BaseRepository {
     protected function getTranslationClassName()
     {
         return $this->getClassName() . 'Translation';
+    }
+
+    /**
+     * Resolve name of Table for provided relation string
+     *
+     * @param string $defaultTable   name of the default model relation
+     * @param string $relationString name of the model relation
+     * @param mixed  $query          Eloquent query object
+     *
+     * @throws RepositoryException
+     * @return string
+     */
+    protected function resolveTableName($defaultTable, $relationString, $query)
+    {
+        try {
+            if (!empty($relationString)) {
+                $lastRelation = $query;
+                foreach (explode('.', $relationString) as $relationName) {
+                    $lastRelation = $lastRelation->getRelation($relationName);
+                }
+                return $lastRelation->getModel()->getTable() . '.';
+            }
+            return $defaultTable . '.';
+        } catch (BadMethodCallException $e) {
+            throw new RepositoryException("Relation '" . $relationString . "' does not exist", 500);
+        }
+
     }
 }

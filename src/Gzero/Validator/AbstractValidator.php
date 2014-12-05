@@ -189,8 +189,6 @@ abstract class AbstractValidator {
                 } else {
                     $attributes[$filedName] = $rawAttributes[$filedName];
                 }
-            } elseif (preg_match('/^is/', $filedName)) {
-                $attributes[$filedName] = 0;
             }
         }
         return $attributes;
