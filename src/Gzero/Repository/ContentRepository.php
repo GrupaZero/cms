@@ -372,8 +372,8 @@ class ContentRepository extends BaseRepository {
     private function handleOrderBy(array $orderBy, $query)
     {
         if (empty($orderBy)) { // Default order
-            $query->orderBy('weight', 'ASC');
-            $query->orderBy('createdAt', 'DESC');
+            $query->orderBy('Contents.weight', 'ASC');
+            $query->orderBy('Contents.createdAt', 'DESC');
         }
         foreach ($orderBy as $sort => $order) {
             $query->orderBy($this->resolveTableName('Contents', $order['relation'], $query) . $sort, $order['direction']);
