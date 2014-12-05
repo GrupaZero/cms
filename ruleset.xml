@@ -28,6 +28,7 @@
         <exclude name="Squiz.Formatting"/>
         <exclude name="Squiz.PHP.CommentedOutCode"/>
         <exclude name="Squiz.Operators.ComparisonOperatorUsage"/>
+        <exclude name="Squiz.PHP.DisallowComparisonAssignment"/>
         <exclude name="Squiz.Strings"/>
         <exclude name="Squiz.ControlStructures.ElseIfDeclaration"/>
         <exclude name="Squiz.ControlStructures.InlineIfDeclaration"/>
