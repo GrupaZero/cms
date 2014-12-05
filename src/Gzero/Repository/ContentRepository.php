@@ -370,6 +370,10 @@ class ContentRepository extends BaseRepository {
      */
     private function handleOrderBy(array $orderBy, $query)
     {
+        if (empty($orderBy)) { // Default order
+            $query->orderBy('weight', 'ASC');
+            $query->orderBy('createdAt', 'DESC');
+        }
         foreach ($orderBy as $sort => $order) {
             $query->orderBy($sort, $order);
         }
@@ -388,7 +392,7 @@ class ContentRepository extends BaseRepository {
      */
     private function handleTranslationsJoin(array $criteria, array $orderBy, $query, &$select)
     {
-        if (!empty($criteria['lang']) || !empty($orderBy)) {
+        if (!empty($criteria['lang'])) {
             $query->leftJoin(
                 'ContentTranslations',
                 function ($join) use ($criteria) {
@@ -398,8 +402,11 @@ class ContentRepository extends BaseRepository {
             );
             $select[] = 'ContentTranslations.title as title';
         } else {
-            throw new RepositoryException('Repository Validation Error: \'lang\' criteria is required', 500);
+            if (!empty($orderBy)) {
+                throw new RepositoryException('Repository Validation Error: \'lang\' criteria is required', 500);
+            }
         }
+
     }
 
     /**
