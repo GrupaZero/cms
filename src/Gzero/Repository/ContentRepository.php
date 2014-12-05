@@ -236,23 +236,27 @@ class ContentRepository extends BaseRepository {
      */
     public function getChildren(Tree $node, array $criteria, array $orderBy = [], $page = 1, $pageSize = self::ITEMS_PER_PAGE)
     {
-        $this->validateCriteria($criteria);
-        $query = $node->findChildren()
-            ->leftJoin(
+        $select = ['Contents.*'];
+        $query  = $node->findChildren();
+        if (!empty($criteria['lang'])) {
+            $query->leftJoin(
                 'ContentTranslations',
                 function ($join) use ($criteria) {
                     $join->on('Contents.id', '=', 'ContentTranslations.contentId')
                         ->where('ContentTranslations.langCode', '=', $criteria['lang']);
                 }
             );
+            $select[] = 'ContentTranslations.title as title';
+        }
         $this->handleFilterCriteria('Contents', $criteria, $query);
         $count = clone $query;
         $this->handleOrderBy('Contents', $orderBy, $query);
         $results = $query
             ->offset($pageSize * ($page - 1))
             ->limit($pageSize)
-            ->get(['Contents.*']);
+            ->get($select);
         $results->load('route.translations', 'translations');
+        \Paginator::setCurrentPage($page); // We need to set current page because laravel use input to set this property
         return \Paginator::make($results->all(), $count->select('Contents.id')->count(), $pageSize);
     }
 
@@ -292,22 +296,25 @@ class ContentRepository extends BaseRepository {
      */
     public function getContents(array $criteria, array $orderBy = [], $page = 1, $pageSize = self::ITEMS_PER_PAGE)
     {
-        $this->validateCriteria($criteria);
-        $query = $this->newQB()
-            ->leftJoin(
+        $select = ['Contents.*'];
+        $query  = $this->newQB();
+        if (!empty($criteria['lang'])) {
+            $query->leftJoin(
                 'ContentTranslations',
                 function ($join) use ($criteria) {
                     $join->on('Contents.id', '=', 'ContentTranslations.contentId')
                         ->where('ContentTranslations.langCode', '=', $criteria['lang']);
                 }
             );
+            $select[] = 'ContentTranslations.title as title';
+        }
         $this->handleFilterCriteria('Contents', $criteria, $query);
         $count = clone $query;
         $this->handleOrderBy('Contents', $orderBy, $query);
         $results = $query
             ->offset($pageSize * ($page - 1))
             ->limit($pageSize)
-            ->get(['Contents.*']);
+            ->get($select);
         $results->load('route.translations', 'translations');
         \Paginator::setCurrentPage($page); // We need to set current page because laravel use input to set this property
         return \Paginator::make($results->all(), $count->select('Contents.id')->count(), $pageSize);
@@ -384,21 +391,6 @@ class ContentRepository extends BaseRepository {
     {
         foreach ($orderBy as $sort => $order) {
             $query->orderBy($entityAlias . '.' . $sort, $order);
-        }
-    }
-
-    /**
-     * Check if all required criteria are set
-     *
-     * @param array $criteria Array with criteria
-     *
-     * @return void
-     * @throws RepositoryException
-     */
-    private function validateCriteria(array $criteria)
-    {
-        if (!isset($criteria['lang'])) {
-            throw new RepositoryException('Repository Validation Error: \'lang\' criteria is required', 500);
         }
     }
 }
