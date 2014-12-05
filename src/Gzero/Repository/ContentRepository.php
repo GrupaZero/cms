@@ -6,6 +6,7 @@ use Gzero\Entity\ContentType;
 use Gzero\Entity\Lang;
 use Gzero\Entity\Content;
 use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Collection;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -238,7 +239,7 @@ class ContentRepository extends BaseRepository {
     {
         $select = ['Contents.*'];
         $query  = $node->findChildren();
-        $this->handleTranslationsJoin($criteria, $query, $select);
+        $this->handleTranslationsJoin($criteria, $orderBy, $query, $select);
         $this->handleFilterCriteria($criteria, $query);
         $count = clone $query;
         $this->handleOrderBy($orderBy, $query);
@@ -246,7 +247,7 @@ class ContentRepository extends BaseRepository {
             ->offset($pageSize * ($page - 1))
             ->limit($pageSize)
             ->get($select);
-        $results->load('route.translations', 'translations');
+        $this->listEagerLoad($results);
         \Paginator::setCurrentPage($page); // We need to set current page because laravel use input to set this property
         return \Paginator::make($results->all(), $count->select('Contents.id')->count(), $pageSize);
     }
@@ -289,7 +290,7 @@ class ContentRepository extends BaseRepository {
     {
         $select = ['Contents.*'];
         $query  = $this->newQB();
-        $this->handleTranslationsJoin($criteria, $query, $select);
+        $this->handleTranslationsJoin($criteria, $orderBy, $query, $select);
         $this->handleFilterCriteria($criteria, $query);
         $count = clone $query;
         $this->handleOrderBy($orderBy, $query);
@@ -297,7 +298,7 @@ class ContentRepository extends BaseRepository {
             ->offset($pageSize * ($page - 1))
             ->limit($pageSize)
             ->get($select);
-        $results->load('route.translations', 'translations');
+        $this->listEagerLoad($results);
         \Paginator::setCurrentPage($page); // We need to set current page because laravel use input to set this property
         return \Paginator::make($results->all(), $count->select('Contents.id')->count(), $pageSize);
     }
@@ -378,14 +379,16 @@ class ContentRepository extends BaseRepository {
      * Handle joining content translations table based on provided criteria
      *
      * @param array $criteria Array with filter criteria
+     * @param array $orderBy  Array with orderBy
      * @param mixed $query    Eloquent query object
      * @param array $select   Array with join criteria
      *
+     * @throws RepositoryException
      * @return array
      */
-    private function handleTranslationsJoin(array $criteria, $query, &$select)
+    private function handleTranslationsJoin(array $criteria, array $orderBy, $query, &$select)
     {
-        if (!empty($criteria['lang'])) {
+        if (!empty($criteria['lang']) || !empty($orderBy)) {
             $query->leftJoin(
                 'ContentTranslations',
                 function ($join) use ($criteria) {
@@ -394,6 +397,20 @@ class ContentRepository extends BaseRepository {
                 }
             );
             $select[] = 'ContentTranslations.title as title';
+        } else {
+            throw new RepositoryException('Repository Validation Error: \'lang\' criteria is required', 500);
         }
+    }
+
+    /**
+     * Eager load relations for eloquent collection
+     *
+     * @param Collection $results Eloquent collection
+     *
+     * @return void
+     */
+    private function listEagerLoad($results)
+    {
+        $results->load('route.translations', 'translations');
     }
 }
