@@ -238,19 +238,10 @@ class ContentRepository extends BaseRepository {
     {
         $select = ['Contents.*'];
         $query  = $node->findChildren();
-        if (!empty($criteria['lang'])) {
-            $query->leftJoin(
-                'ContentTranslations',
-                function ($join) use ($criteria) {
-                    $join->on('Contents.id', '=', 'ContentTranslations.contentId')
-                        ->where('ContentTranslations.langCode', '=', $criteria['lang']);
-                }
-            );
-            $select[] = 'ContentTranslations.title as title';
-        }
-        $this->handleFilterCriteria('Contents', $criteria, $query);
+        $this->handleTranslationsJoin($criteria, $query, $select);
+        $this->handleFilterCriteria($criteria, $query);
         $count = clone $query;
-        $this->handleOrderBy('Contents', $orderBy, $query);
+        $this->handleOrderBy($orderBy, $query);
         $results = $query
             ->offset($pageSize * ($page - 1))
             ->limit($pageSize)
@@ -298,19 +289,10 @@ class ContentRepository extends BaseRepository {
     {
         $select = ['Contents.*'];
         $query  = $this->newQB();
-        if (!empty($criteria['lang'])) {
-            $query->leftJoin(
-                'ContentTranslations',
-                function ($join) use ($criteria) {
-                    $join->on('Contents.id', '=', 'ContentTranslations.contentId')
-                        ->where('ContentTranslations.langCode', '=', $criteria['lang']);
-                }
-            );
-            $select[] = 'ContentTranslations.title as title';
-        }
-        $this->handleFilterCriteria('Contents', $criteria, $query);
+        $this->handleTranslationsJoin($criteria, $query, $select);
+        $this->handleFilterCriteria($criteria, $query);
         $count = clone $query;
-        $this->handleOrderBy('Contents', $orderBy, $query);
+        $this->handleOrderBy($orderBy, $query);
         $results = $query
             ->offset($pageSize * ($page - 1))
             ->limit($pageSize)
@@ -361,36 +343,57 @@ class ContentRepository extends BaseRepository {
     /**
      * Add filter rules to query
      *
-     * @param string $entityAlias Entity alias to where clause
-     * @param array  $criteria    Array with filer criteria
-     * @param mixed  $query       Query to add filter rules
+     * @param array $criteria Array with filer criteria
+     * @param mixed $query    Query to add filter rules
      *
      * @return void
      */
-    private function handleFilterCriteria($entityAlias, array $criteria, $query)
+    private function handleFilterCriteria(array $criteria, $query)
     {
         $conditions = [];
         if (isset($criteria['lang'])) { // Simple hax for now
             unset($criteria['lang']);
         }
         foreach ($criteria as $condition => $value) {
-            $conditions[] = $query->where($entityAlias . '.' . $condition, '=', $value);
+            $conditions[] = $query->where($condition, '=', $value);
         }
     }
 
     /**
      * Add sorting rules to query
      *
-     * @param string $entityAlias Entity alias to orderBy clause
-     * @param array  $orderBy     Array with sort columns and directions
-     * @param mixed  $query       Query to add sorting rules
+     * @param array $orderBy Array with sort columns and directions
+     * @param mixed $query   Query to add sorting rules
      *
      * @return void
      */
-    private function handleOrderBy($entityAlias, array $orderBy, $query)
+    private function handleOrderBy(array $orderBy, $query)
     {
         foreach ($orderBy as $sort => $order) {
-            $query->orderBy($entityAlias . '.' . $sort, $order);
+            $query->orderBy($sort, $order);
+        }
+    }
+
+    /**
+     * Handle joining content translations table based on provided criteria
+     *
+     * @param array $criteria Array with filter criteria
+     * @param mixed $query    Eloquent query object
+     * @param array $select   Array with join criteria
+     *
+     * @return array
+     */
+    private function handleTranslationsJoin(array $criteria, $query, &$select)
+    {
+        if (!empty($criteria['lang'])) {
+            $query->leftJoin(
+                'ContentTranslations',
+                function ($join) use ($criteria) {
+                    $join->on('Contents.id', '=', 'ContentTranslations.contentId')
+                        ->where('ContentTranslations.langCode', '=', $criteria['lang']);
+                }
+            );
+            $select[] = 'ContentTranslations.title as title';
         }
     }
 }
