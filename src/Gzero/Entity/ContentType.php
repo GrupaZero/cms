@@ -14,6 +14,8 @@
  */
 class ContentType extends Base {
 
+    protected $primaryKey = 'name';
+
     protected $fillable = [
         'name',
         'isActive'

@@ -23,6 +23,16 @@ class Content extends BaseTree {
     ];
 
     /**
+     * Content type relation
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\belongsTo
+     */
+    public function type()
+    {
+        return $this->belongsTo('\Gzero\Entity\ContentType', 'name', 'type');
+    }
+
+    /**
      * Polymorphic relation with route
      *
      * @return \Illuminate\Database\Eloquent\Relations\MorphMany

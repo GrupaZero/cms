@@ -24,7 +24,7 @@ class ContentRepository extends BaseRepository {
     /**
      * @var Content
      */
-    protected $queryBuilder;
+    protected $model;
 
     /**
      * Content repository constructor
@@ -33,7 +33,7 @@ class ContentRepository extends BaseRepository {
      */
     public function __construct(Content $content)
     {
-        $this->queryBuilder = $content;
+        $this->model = $content;
     }
 
     /**
@@ -51,13 +51,13 @@ class ContentRepository extends BaseRepository {
     /**
      * Get content type by id.
      *
-     * @param int $id Content id
+     * @param int $name Content id
      *
      * @return ContentType
      */
-    public function getTypeById($id)
+    public function getTypeByName($name)
     {
-        return $this->getEntityManager()->find($this->getTypeClassName(), $id);
+        return $this->newQB()->getRelation('type')->getQuery()->find($name);
     }
 
     /**
@@ -69,52 +69,35 @@ class ContentRepository extends BaseRepository {
      */
     public function getTranslationById($id)
     {
-        $qb = $this->newQB()
-            ->select('t')
-            ->from($this->getTranslationClassName(), 't')
-            ->where('t.id = :id')
-            ->orderBy('t.isActive')
-            ->setParameter('id', $id);
-        return $qb->getQuery()->getOneOrNullResult();
+        return $this->newQB()->getRelation('translations')->getQuery()->find($id);
     }
 
     /**
      * Get content entity by url address
      *
-     * @param string $url           Url address
-     * @param Lang   $lang          Lang entity
-     * @param bool   $isActiveCheck By default, we search only with active translation
+     * @param string $url      Url address
+     * @param string $langCode Lang code
      *
      * @return array
      */
-    public function getByUrl($url, Lang $lang, $isActiveCheck = true)
+    public function getByUrl($url, $langCode)
     {
-        $qb = $this->newQB();
-        // isActive condition
-        if ($isActiveCheck) {
-            $condition = $qb->expr()->andx(
-                $qb->expr()->eq('t.lang', ':lang'),
-                $qb->expr()->eq('t.isActive', '1')
-            );
-        } else {
-            $condition = 't.lang = :lang';
-        }
-
-        $qb->select('c')
-            ->from($this->getClassName(), 'c')
-            ->leftJoin(
-                'c.translations',
-                't',
-                'WITH',
-                $condition
+        return $this->newQB()
+            ->join(
+                'Routes',
+                function ($join) {
+                    $join->on('Contents.id', '=', 'Routes.routableId')
+                        ->where('Routes.RoutableType', '=', 'Gzero\Entity\Content');
+                }
             )
-            ->where('t.url = :url')
-            ->andWhere('c.isActive = 1')
-            ->orderBy('c.weight')
-            ->setParameter('lang', $lang->getCode())
-            ->setParameter('url', $url);
-        $result = $qb->getQuery()->getResult();
-        return (!empty($result)) ? $result[0] : $result;
+            ->join(
+                'RouteTranslations',
+                function ($join) use ($langCode) {
+                    $join->on('Routes.id', '=', 'RouteTranslations.routeId')
+                        ->where('RouteTranslations.langCode', '=', $langCode);
+                }
+            )->where('RouteTranslations.url', '=', $url)
+            ->first(['Contents.*']);
     }
 
     /*
@@ -123,74 +106,74 @@ class ContentRepository extends BaseRepository {
     |--------------------------------------------------------------------------
     */
 
-    /**
-     * Get all ancestors nodes to specific node
-     *
-     * @param TreeNode $node    Node to find ancestors
-     * @param int      $hydrate Doctrine2 hydrate mode. Default - Query::HYDRATE_ARRAY
-     *
-     * @return mixed
-     */
-    public function getAncestors(TreeNode $node, $hydrate = Query::HYDRATE_ARRAY)
-    {
-        // root does not have ancestors
-        if ($node->getPath() != '/') {
-            $ancestorsIds = $node->getAncestorsIds();
-            $qb           = $this->newQB()
-                ->select('n')
-                ->from($this->getClassName(), 'n')
-                ->where('n.id IN(:ids)')
-                ->setParameter('ids', $ancestorsIds)
-                ->orderBy('n.level');
+    ///**
+    // * Get all ancestors nodes to specific node
+    // *
+    // * @param TreeNode $node    Node to find ancestors
+    // * @param int      $hydrate Doctrine2 hydrate mode. Default - Query::HYDRATE_ARRAY
+    // *
+    // * @return mixed
+    // */
+    //public function getAncestors(TreeNode $node, $hydrate = Query::HYDRATE_ARRAY)
+    //{
+    //    // root does not have ancestors
+    //    if ($node->getPath() != '/') {
+    //        $ancestorsIds = $node->getAncestorsIds();
+    //        $qb           = $this->newQB()
+    //            ->select('n')
+    //            ->from($this->getClassName(), 'n')
+    //            ->where('n.id IN(:ids)')
+    //            ->setParameter('ids', $ancestorsIds)
+    //            ->orderBy('n.level');
+    //
+    //        $nodes = $qb->getQuery()->getResult($hydrate);
+    //        return $nodes;
+    //    }
+    //    return [];
+    //}
 
-            $nodes = $qb->getQuery()->getResult($hydrate);
-            return $nodes;
-        }
-        return [];
-    }
-
-    /**
-     * Get all descendants nodes to specific node
-     *
-     * @param TreeNode $node    Node to find descendants
-     * @param bool     $tree    If you want get in tree structure instead of list
-     * @param int      $hydrate Doctrine2 hydrate mode. Default - Query::HYDRATE_ARRAY
-     *
-     * @return mixed
-     */
-    public function getDescendants(TreeNode $node, $tree = false, $hydrate = Query::HYDRATE_ARRAY)
-    {
-        $qb = $this->newQB()
-            ->from($this->getClassName(), 'n')
-            ->where('n.path LIKE :path')
-            ->setParameter('path', $node->getChildrenPath() . '%')
-            ->orderBy('n.level');
-        if ($tree) {
-            $qb->select('n', 'c')
-                ->leftJoin(
-                    'n.children',
-                    'c',
-                    'WITH',
-                    'c.level > :nodeLevel'
-                )
-                ->setParameter('nodeLevel', $node->getLevel());
-        } else {
-            $qb->select('n');
-        }
-        $nodes = $qb->getQuery()->getResult($hydrate);
-        if ($tree) {
-            return array_filter(
-                $nodes,
-                function ($item) use ($node) { // We return children's array because we don't have one root
-                    // @TODO Ugly HAX ['level']
-                    $level = (is_array($item)) ? @$item['level'] : $item->getLevel();
-                    return ($level == $node->getLevel() + 1);
-                }
-            );
-        } else {
-            return $nodes;
-        }
-    }
+    ///**
+    // * Get all descendants nodes to specific node
+    // *
+    // * @param TreeNode $node    Node to find descendants
+    // * @param bool     $tree    If you want get in tree structure instead of list
+    // * @param int      $hydrate Doctrine2 hydrate mode. Default - Query::HYDRATE_ARRAY
+    // *
+    // * @return mixed
+    // */
+    //public function getDescendants(TreeNode $node, $tree = false, $hydrate = Query::HYDRATE_ARRAY)
+    //{
+    //    $qb = $this->newQB()
+    //        ->from($this->getClassName(), 'n')
+    //        ->where('n.path LIKE :path')
+    //        ->setParameter('path', $node->getChildrenPath() . '%')
+    //        ->orderBy('n.level');
+    //    if ($tree) {
+    //        $qb->select('n', 'c')
+    //            ->leftJoin(
+    //                'n.children',
+    //                'c',
+    //                'WITH',
+    //                'c.level > :nodeLevel'
+    //            )
+    //            ->setParameter('nodeLevel', $node->getLevel());
+    //    } else {
+    //        $qb->select('n');
+    //    }
+    //    $nodes = $qb->getQuery()->getResult($hydrate);
+    //    if ($tree) {
+    //        return array_filter(
+    //            $nodes,
+    //            function ($item) use ($node) { // We return children's array because we don't have one root
+    //                // @TODO Ugly HAX ['level']
+    //                $level = (is_array($item)) ? @$item['level'] : $item->getLevel();
+    //                return ($level == $node->getLevel() + 1);
+    //            }
+    //        );
+    //    } else {
+    //        return $nodes;
+    //    }
+    //}
 
     ///**
     // *
@@ -250,28 +233,28 @@ class ContentRepository extends BaseRepository {
         return \Paginator::make($results->all(), $count->select('Contents.id')->count(), $pageSize);
     }
 
-    /**
-     * Get all siblings nodes to specific node
-     *
-     * @param TreeNode $node     Node to find siblings
-     * @param array    $criteria Array of conditions
-     * @param array    $orderBy  Array of columns
-     * @param int|null $limit    Limit results
-     * @param int|null $offset   Start from
-     *
-     * @return mixed
-     */
-    public function getSiblings(TreeNode $node, array $criteria = [], array $orderBy = null, $limit = null, $offset = null)
-    {
-        $siblings = parent::findBy(array_merge($criteria, ['path' => $node->getPath()]), $orderBy, $limit, $offset);
-        // we skip $node
-        return array_filter(
-            $siblings,
-            function ($var) use ($node) {
-                return $var->getId() != $node->getId();
-            }
-        );
-    }
+    ///**
+    // * Get all siblings nodes to specific node
+    // *
+    // * @param TreeNode $node     Node to find siblings
+    // * @param array    $criteria Array of conditions
+    // * @param array    $orderBy  Array of columns
+    // * @param int|null $limit    Limit results
+    // * @param int|null $offset   Start from
+    // *
+    // * @return mixed
+    // */
+    //public function getSiblings(TreeNode $node, array $criteria = [], array $orderBy = null, $limit = null, $offset = null)
+    //{
+    //    $siblings = parent::findBy(array_merge($criteria, ['path' => $node->getPath()]), $orderBy, $limit, $offset);
+    //    // we skip $node
+    //    return array_filter(
+    //        $siblings,
+    //        function ($var) use ($node) {
+    //            return $var->getId() != $node->getId();
+    //        }
+    //    );
+    //}
 
     /**
      * Get all contents with specific criteria
@@ -306,37 +289,37 @@ class ContentRepository extends BaseRepository {
     |--------------------------------------------------------------------------
     */
 
-    /**
-     * Create specific content entity
-     *
-     * @param Content $content Content entity to persist
-     * @param bool    $sync    Auto commit
-     *
-     * @return void
-     */
-    public function add(Content $content, $sync = false)
-    {
-        $this->getEntityManager()->persist($content);
-        if ($sync) {
-            $this->commit();
-        }
-    }
+    ///**
+    // * Create specific content entity
+    // *
+    // * @param Content $content Content entity to persist
+    // * @param bool    $sync    Auto commit
+    // *
+    // * @return void
+    // */
+    //public function add(Content $content, $sync = false)
+    //{
+    //    $this->getEntityManager()->persist($content);
+    //    if ($sync) {
+    //        $this->commit();
+    //    }
+    //}
 
-    /**
-     * Delete specific content entity
-     *
-     * @param Content $content Content entity to delete
-     * @param bool    $sync    Auto commit
-     *
-     * @return void
-     */
-    public function remove(Content $content, $sync = false)
-    {
-        $this->getEntityManager()->remove($content);
-        if ($sync) {
-            $this->commit();
-        }
-    }
+    ///**
+    // * Delete specific content entity
+    // *
+    // * @param Content $content Content entity to delete
+    // * @param bool    $sync    Auto commit
+    // *
+    // * @return void
+    // */
+    //public function remove(Content $content, $sync = false)
+    //{
+    //    $this->getEntityManager()->remove($content);
+    //    if ($sync) {
+    //        $this->commit();
+    //    }
+    //}
 
     /**
      * Add filter rules to query

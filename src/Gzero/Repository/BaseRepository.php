@@ -26,18 +26,7 @@ class BaseRepository {
     /**
      * @var Base
      */
-    protected $queryBuilder;
-
-    /**
-     * Commit changes to Database
-     * NOTICE: This save all entities from current UnityOfWork!
-     *
-     * @return void
-     */
-    public function commit()
-    {
-        $this->getEntityManager()->flush();
-    }
+    protected $model;
 
     /**
      * Create new query builder
@@ -46,27 +35,7 @@ class BaseRepository {
      */
     protected function newQB()
     {
-        return $this->queryBuilder->newQuery();
-    }
-
-    /**
-     * Get entity type class name
-     *
-     * @return string
-     */
-    protected function getTypeClassName()
-    {
-        return $this->getClassName() . 'Type';
-    }
-
-    /**
-     * Get entity translation class name
-     *
-     * @return string
-     */
-    protected function getTranslationClassName()
-    {
-        return $this->getClassName() . 'Translation';
+        return $this->model->newQuery();
     }
 
     /**
