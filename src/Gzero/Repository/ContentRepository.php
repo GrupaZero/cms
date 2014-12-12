@@ -206,6 +206,31 @@ class ContentRepository extends BaseRepository {
     //}
 
     /**
+     * Get all descendants nodes to specific node
+     *
+     * @param Tree  $node     Tree node
+     * @param array $criteria Filter criteria
+     * @param array $orderBy  Array of columns
+     * @param bool  $tree     If you want get in tree structure instead of list
+     *
+     * @throws RepositoryException
+     * @return Collection
+     */
+    public function getDescendants(Tree $node, array $criteria, array $orderBy = [], $tree = false)
+    {
+        $query = $node->findDescendants();
+        $this->handleTranslationsJoin($criteria, $orderBy, $query);
+        $this->handleFilterCriteria($criteria, $query);
+        $this->handleOrderBy($orderBy, $query);
+        $results = $query->get(['Contents.*']);
+        $this->listEagerLoad($results);
+        if ($tree) {
+            return $node->buildTree($results);
+        }
+        return $results->all();
+    }
+
+    /**
      * Get all children nodes to specific node
      *
      * @param Tree     $node     Tree node
