@@ -227,7 +227,7 @@ class ContentRepository extends BaseRepository {
         if ($tree) {
             return $node->buildTree($results);
         }
-        return $results->all();
+        return $results;
     }
 
     /**
