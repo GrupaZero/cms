@@ -56,4 +56,15 @@ class Content extends BaseTree {
         }
         return $this->hasMany('\Gzero\Entity\ContentTranslation', 'contentId');
     }
+
+    /**
+     * Content author relation
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\belongsTo
+     */
+    public function author()
+    {
+        return $this->belongsTo('\Gzero\Entity\User', 'authorId', 'id');
+    }
+
 }
