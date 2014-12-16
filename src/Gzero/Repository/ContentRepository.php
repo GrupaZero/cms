@@ -247,6 +247,7 @@ class ContentRepository extends BaseRepository {
         $query = $node->findChildren();
         $this->handleTranslationsJoin($criteria, $orderBy, $query);
         $this->handleFilterCriteria($criteria, $query);
+        $this->handleAuthorJoin($query);
         $count = clone $query;
         $this->handleOrderBy($orderBy, $query);
         $results = $query
@@ -297,6 +298,7 @@ class ContentRepository extends BaseRepository {
         $query = $this->newQB();
         $this->handleTranslationsJoin($criteria, $orderBy, $query);
         $this->handleFilterCriteria($criteria, $query);
+        $this->handleAuthorJoin($query);
         $count = clone $query;
         $this->handleOrderBy($orderBy, $query);
         $results = $query
@@ -414,6 +416,23 @@ class ContentRepository extends BaseRepository {
             }
         }
 
+    }
+
+    /**
+     * Handle joining users table
+     *
+     * @param mixed $query Eloquent query object
+     *
+     * @return array
+     */
+    private function handleAuthorJoin($query)
+    {
+        $query->leftJoin(
+            'Users',
+            function ($join) {
+                $join->on('Contents.authorId', '=', 'Users.id');
+            }
+        );
     }
 
     /**
