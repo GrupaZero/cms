@@ -116,11 +116,7 @@ class CMSSeeder extends Seeder {
     {
         $contentTypes = [];
         foreach (['content', 'category'] as $type) {
-            $contentTypes[$type] = ContentType::find($type);
-            if (empty($contentTypes[$type])) {
-                $contentTypes[$type] = new ContentType(['name' => $type, 'isActive' => true]);
-                $contentTypes[$type]->save();
-            }
+            $contentTypes[$type] = ContentType::firstOrCreate(['name' => $type, 'isActive' => true]);
         }
         return $contentTypes;
     }

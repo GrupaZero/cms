@@ -14,6 +14,8 @@
  */
 class ContentType extends Base {
 
+    public $incrementing = false;
+
     protected $primaryKey = 'name';
 
     protected $fillable = [
