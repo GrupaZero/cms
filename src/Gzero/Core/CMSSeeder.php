@@ -86,7 +86,7 @@ class CMSSeeder extends Seeder {
                 [
                     'code'      => 'en',
                     'i18n'      => 'en_US',
-                    'isEnabled' => 1,
+                    'isEnabled' => true,
                     'isDefault' => true
                 ]
             );
@@ -99,7 +99,7 @@ class CMSSeeder extends Seeder {
                 [
                     'code'      => 'pl',
                     'i18n'      => 'pl_PL',
-                    'isEnabled' => 1
+                    'isEnabled' => true
                 ]
             );
             $langs['pl']->save();
@@ -116,7 +116,7 @@ class CMSSeeder extends Seeder {
     {
         $contentTypes = [];
         foreach (['content', 'category'] as $type) {
-            $contentTypes[$type] = Lang::find($type);
+            $contentTypes[$type] = ContentType::find($type);
             if (empty($contentTypes[$type])) {
                 $contentTypes[$type] = new ContentType(['name' => $type, 'isActive' => true]);
                 $contentTypes[$type]->save();

@@ -23,7 +23,7 @@ class Lang extends Base {
     protected $fillable = [
         'code',
         'i18n',
-        'isActive',
+        'isEnabled',
         'isDefault'
     ];
 
