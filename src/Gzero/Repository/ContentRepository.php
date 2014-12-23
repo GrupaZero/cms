@@ -334,7 +334,8 @@ class ContentRepository extends BaseRepository {
                 $content->fill($data);
                 $content->author()->associate($author);
                 $translation = new ContentTranslation();
-                $translation->fill($data);
+                $translation->fill($this->getNestedFields('translations', $data));
+                $translation->isActive = 1; // Because this is first translation
                 $content->save();
                 $content->translations()->save($translation);
                 return $content;
