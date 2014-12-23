@@ -5,7 +5,9 @@ use Gzero\Entity\ContentTranslation;
 use Gzero\Entity\ContentType;
 use Gzero\Entity\Lang;
 use Gzero\Entity\Content;
+use Gzero\Entity\User;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -316,21 +318,29 @@ class ContentRepository extends BaseRepository {
     |--------------------------------------------------------------------------
     */
 
-    ///**
-    // * Create specific content entity
-    // *
-    // * @param Content $content Content entity to persist
-    // * @param bool    $sync    Auto commit
-    // *
-    // * @return void
-    // */
-    //public function add(Content $content, $sync = false)
-    //{
-    //    $this->getEntityManager()->persist($content);
-    //    if ($sync) {
-    //        $this->commit();
-    //    }
-    //}
+    /**
+     * Create specific content entity
+     *
+     * @param array     $data   Content entity to persist
+     * @param User|null $author Author entity
+     *
+     * @return Content
+     */
+    public function create(Array $data, User $author = null)
+    {
+        return DB::transaction(
+            function () use ($data, $author) {
+                $content = new Content();
+                $content->fill($data);
+                $content->author()->associate($author);
+                $translation = new ContentTranslation();
+                $translation->fill($data);
+                $content->save();
+                $content->translations()->save($translation);
+                return $content;
+            }
+        );
+    }
 
     ///**
     // * Delete specific content entity
