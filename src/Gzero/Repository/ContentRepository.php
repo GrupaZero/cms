@@ -342,6 +342,27 @@ class ContentRepository extends BaseRepository {
         );
     }
 
+    /**
+     * Update specific content entity
+     *
+     * @param Content   $content  Content entity
+     * @param array     $data     new data to save
+     * @param User|null $modifier User entity
+     *
+     * @return Content
+     * @SuppressWarnings("unused")
+     */
+    public function update(Content $content, Array $data, User $modifier = null)
+    {
+        return DB::transaction(
+            function () use ($content, $data, $modifier) {
+                $content->fill($data);
+                $content->save();
+                return $content;
+            }
+        );
+    }
+
     ///**
     // * Delete specific content entity
     // *
