@@ -246,7 +246,7 @@ class ContentRepository extends BaseRepository {
      */
     public function getChildren(Tree $node, array $criteria, array $orderBy = [], $page = 1, $pageSize = self::ITEMS_PER_PAGE)
     {
-        $query = $node->findChildren();
+        $query = $node->children();
         $this->handleTranslationsJoin($criteria, $orderBy, $query);
         $this->handleFilterCriteria($criteria, $query);
         $this->handleAuthorJoin($query);
