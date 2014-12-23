@@ -2,6 +2,7 @@
 
 use Gzero\Core\Exception;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Factory;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -52,24 +53,26 @@ abstract class AbstractValidator {
     /**
      * AbstractValidator constructor
      *
-     * @param array $data Data to validate
+     * @param Factory $validator Validator factory
      */
-    public function __construct(Array $data = [])
+    public function __construct(Factory $validator)
     {
-        $this->data = $data;
+        $this->validator = $validator;
     }
 
     /**
      * Validate passed data
      *
+     * @param Array  $data    Data to validate
      * @param string $context Validation context
      *
      * @throws Exception
      * @throws ValidationException
      * @return array
      */
-    public function validate($context = 'default')
+    public function validate(Array $data, $context = 'default')
     {
+        $this->setData($data);
         $this->setContext($context);
         $rules = $this->buildRulesArray();
         $this->setValidator(Validator::make($this->filterArray($rules, $this->data), $rules));
