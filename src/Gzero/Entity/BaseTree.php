@@ -39,7 +39,7 @@ abstract class BaseTree extends Tree {
      *
      * @var Array
      */
-    protected static $_tree_cols = [
+    protected static $treeColumns = [
         'path'   => 'path',
         'parent' => 'parentId',
         'level'  => 'level'
