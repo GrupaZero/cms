@@ -37,60 +37,67 @@ class ValidatorTest extends TestCase {
     /**
      * @test
      */
-    public function isInstantiable()
+    public function is_instantiable()
     {
         $this->assertInstanceOf('\Gzero\validator\AbstractValidator', new DummyValidator($this->laravelValidator));
     }
 
     /**
+     * @test
      * @expectedException Gzero\Validator\ValidationException
      */
-    public function testValidationErrors()
+    public function it_throws_exceptions_with_errors()
     {
         try {
-            $validator = new DummyValidator($this->laravelValidator);
+            $this->input['type'] = 'product';
+            $validator           = new DummyValidator($this->laravelValidator);
             $validator->validate($this->input, 'list');
         } catch (Gzero\Validator\ValidationException $e) {
-            $this->assertEquals('validation.required', $e->getErrors()->first('lang'));
+            $this->assertEquals('validation.in', $e->getErrors()->first('type'));
             throw $e;
         }
     }
 
-    ///**
-    // * @expectedException Gzero\Validator\ValidationException
-    // */
-    //public function testBindRules()
-    //{
-    //    try {
-    //        $validator = new DummyValidator($this->laravelValidator);
-    //        $validator->bind('lang', ['required' => 'numeric'])->validate($this->input, 'update');
-    //    } catch (Gzero\Validator\ValidationException $e) {
-    //        $this->assertEquals('validation.numeric', $e->getErrors()->first('lang'));
-    //        throw $e;
-    //    }
-    //}
+    /**
+     * @test
+     * @expectedException Gzero\Validator\ValidationException
+     */
+    public function can_bind_rules()
+    {
+        try {
+            $validator = new DummyValidator($this->laravelValidator);
+            $validator->bind('lang', ['required' => 'numeric'])->validate($this->input, 'update');
+        } catch (Gzero\Validator\ValidationException $e) {
+            $this->assertEquals('validation.numeric', $e->getErrors()->first('lang'));
+            throw $e;
+        }
+    }
 
-    //public function testOnlyWithRulesAttributes()
-    //{
-    //
-    //    $fakeInput = [
-    //        'testAttribute1' => 'dummyValue1',
-    //        'testAttribute2' => 'dummyValue2'
-    //    ];
-    //
-    //    $input     = array_merge($this->input, $fakeInput);
-    //    $validator = new DummyValidator($this->laravelValidator);
-    //    $data      = $validator->validate($input, 'list');
-    //    $this->assertEquals($this->input, $data);
-    //}
-    //
-    //public function testFilters()
-    //{
-    //    $this->input['title'] = 'Lorem Ipsum        ';
-    //
-    //    $validator = new DummyValidator($this->laravelValidator);
-    //    $this->assertNotEquals($this->input, $validator->validate($this->input, 'list'));
-    //}
+    /**
+     * @test
+     */
+    public function only_fields_in_rules_are_returned()
+    {
+
+        $fakeInput = [
+            'testAttribute1' => 'dummyValue1',
+            'testAttribute2' => 'dummyValue2'
+        ];
+        $input     = array_merge($this->input, $fakeInput);
+        $validator = new DummyValidator($this->laravelValidator);
+        $data      = $validator->validate($input, 'list');
+        $this->assertEquals($this->input, $data);
+    }
+
+    /**
+     * @test
+     */
+    public function it_apply_filters()
+    {
+        $this->input['title'] = 'Lorem Ipsum        ';
+        $validator            = new DummyValidator($this->laravelValidator);
+        $this->assertNotEquals($this->input, $validator->validate($this->input, 'list'));
+    }
 
     /**
      * @return array
@@ -100,6 +107,7 @@ class ValidatorTest extends TestCase {
         return [
             'title'    => 'Lorem Ipsum',
             'type'     => 'content',
+            'lang'     => 'pl',
             'parentId' => 1,
             'level'    => 0
         ];
