@@ -374,21 +374,17 @@ class ContentRepository extends BaseRepository {
         );
     }
 
-    ///**
-    // * Delete specific content entity
-    // *
-    // * @param Content $content Content entity to delete
-    // * @param bool    $sync    Auto commit
-    // *
-    // * @return void
-    // */
-    //public function remove(Content $content, $sync = false)
-    //{
-    //    $this->getEntityManager()->remove($content);
-    //    if ($sync) {
-    //        $this->commit();
-    //    }
-    //}
+    /**
+     * Delete specific content entity
+     *
+     * @param Content $content Content entity to delete
+     *
+     * @return boolean
+     */
+    public function delete(Content $content)
+    {
+        return $content->delete();
+    }
 
     /**
      * Add filter rules to query
