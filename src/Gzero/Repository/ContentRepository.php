@@ -8,6 +8,7 @@ use Gzero\Entity\Content;
 use Gzero\Entity\User;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Symfony\Component\Config\Definition\Exception\Exception;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -358,7 +359,16 @@ class ContentRepository extends BaseRepository {
         return DB::transaction(
             function () use ($content, $data, $modifier) {
                 $content->fill($data);
-                $content->save();
+                if (!empty($data['parentId'])) {
+                    $parent = $this->getById($data['parentId']);
+                    if (!empty($parent)) {
+                        $content->setChildOf($parent);
+                    } else {
+                        $content->setAsRoot();
+                    }
+                } else {
+                    $content->save();
+                }
                 return $content;
             }
         );
