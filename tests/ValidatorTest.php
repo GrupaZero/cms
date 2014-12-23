@@ -51,7 +51,7 @@ class ValidatorTest extends TestCase {
         try {
             $this->input['type'] = 'product';
             $validator           = new DummyValidator($this->laravelValidator);
-            $validator->validate($this->input, 'list');
+            $validator->validate('list', $this->input);
         } catch (Gzero\Validator\ValidationException $e) {
             $this->assertEquals('validation.in', $e->getErrors()->first('type'));
             throw $e;
@@ -66,7 +66,7 @@ class ValidatorTest extends TestCase {
     {
         try {
             $validator = new DummyValidator($this->laravelValidator);
-            $validator->bind('lang', ['required' => 'numeric'])->validate($this->input, 'update');
+            $validator->bind('lang', ['required' => 'numeric'])->validate('update', $this->input);
         } catch (Gzero\Validator\ValidationException $e) {
             $this->assertEquals('validation.numeric', $e->getErrors()->first('lang'));
             throw $e;
@@ -85,7 +85,7 @@ class ValidatorTest extends TestCase {
         ];
         $input     = array_merge($this->input, $fakeInput);
         $validator = new DummyValidator($this->laravelValidator);
-        $data      = $validator->validate($input, 'list');
+        $data      = $validator->validate('list', $input);
         $this->assertEquals($this->input, $data);
     }
 
@@ -96,7 +96,7 @@ class ValidatorTest extends TestCase {
     {
         $this->input['title'] = 'Lorem Ipsum        ';
         $validator            = new DummyValidator($this->laravelValidator);
-        $this->assertNotEquals($this->input, $validator->validate($this->input, 'list'));
+        $this->assertNotEquals($this->input, $validator->validate('list', $this->input));
     }
 
     /**

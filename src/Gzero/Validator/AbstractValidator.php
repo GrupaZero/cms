@@ -63,16 +63,18 @@ abstract class AbstractValidator {
     /**
      * Validate passed data
      *
-     * @param Array  $data    Data to validate
      * @param string $context Validation context
+     * @param Array  $data    Data to validate
      *
      * @throws Exception
      * @throws ValidationException
      * @return array
      */
-    public function validate(Array $data, $context = 'default')
+    public function validate($context = 'default', Array $data = [])
     {
-        $this->setData($data);
+        if (!empty($data)) {
+            $this->setData($data);
+        }
         $this->setContext($context);
         $rules = $this->buildRulesArray();
         $this->setValidator(Validator::make($this->filterArray($rules, $this->data), $rules));
