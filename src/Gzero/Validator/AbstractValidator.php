@@ -75,6 +75,7 @@ abstract class AbstractValidator {
         if (!empty($data)) {
             $this->setData($data);
         }
+
         $this->setContext($context);
         $rules = $this->buildRulesArray();
         $this->setValidator(Validator::make($this->filterArray($rules, $this->data), $rules));
@@ -185,14 +186,15 @@ abstract class AbstractValidator {
     {
         $attributes = [];
         foreach (array_keys($rules) as $filedName) {
-            if (isset($rawAttributes[$filedName])) { // Only if field specified in incoming array
+            $value = array_get($rawAttributes, $filedName, 'not found in array'); // Default value !== null
+            if ($value !== 'not found in array') { // Only if field specified in incoming array
                 if (isset($this->filters[$filedName])) {
                     $filters = explode('|', $this->filters[$filedName]);
                     foreach ($filters as $filter) {
-                        $attributes[$filedName] = $this->$filter($rawAttributes[$filedName]);
+                        array_set($attributes, $filedName, $this->$filter($value));
                     }
                 } else {
-                    $attributes[$filedName] = $rawAttributes[$filedName];
+                    array_set($attributes, $filedName, $value);
                 }
             }
         }

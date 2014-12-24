@@ -12,13 +12,15 @@ class DummyValidator extends AbstractValidator {
      */
     protected $rules = [
         'list'   => [
-            'lang'     => 'required',
-            'page'     => 'numeric',
-            'perPage'  => 'numeric',
-            'type'     => 'in:content,category',
-            'parentId' => 'numeric',
-            'level'    => '',
-            'title'    => ''
+            'lang'              => 'required',
+            'page'              => 'numeric',
+            'perPage'           => 'numeric',
+            'type'              => 'in:content,category',
+            'parentId'          => 'numeric',
+            'level'             => '',
+            'title'             => '',
+            'translation.test1' => 'required',
+            'translation.test2' => 'numeric'
         ],
         'update' => [
             'lang' => '@required'
@@ -29,7 +31,8 @@ class DummyValidator extends AbstractValidator {
      * @var array
      */
     protected $filters = [
-        'title' => 'trim'
+        'title'             => 'trim',
+        'translation.test1' => 'trim',
     ];
 
 }

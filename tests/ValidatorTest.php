@@ -78,11 +78,17 @@ class ValidatorTest extends TestCase {
     {
         $fakeInput = [
             'testAttribute1' => 'dummyValue1',
-            'testAttribute2' => 'dummyValue2'
+            'testAttribute2' => 'dummyValue2',
+            'testAttribute3' => [
+                'test' => 'dummyValue3'
+            ],
         ];
         $input     = array_merge($this->input, $fakeInput);
         $data      = $this->validator->validate('list', $input);
-        $this->assertEquals($this->input, $data);
+        $this->assertContains('pl', $data);
+        $this->assertArrayHasKey('level', $data);
+        $this->assertEquals(0, $data['level']);
+        $this->assertContains(['test1' => 'Before trim', 'test2' => 2], $data); // Testing nested array & trim filter
     }
 
     /**
@@ -100,11 +106,15 @@ class ValidatorTest extends TestCase {
     protected function initData()
     {
         return [
-            'title'    => 'Lorem Ipsum',
-            'type'     => 'content',
-            'lang'     => 'pl',
-            'parentId' => 1,
-            'level'    => 0
+            'title'       => 'Lorem Ipsum',
+            'type'        => 'content',
+            'lang'        => 'pl',
+            'parentId'    => null,
+            'translation' => [
+                'test1' => 'Before trim       ',
+                'test2' => 2
+            ],
+            'level'       => 0
         ];
 
     }
