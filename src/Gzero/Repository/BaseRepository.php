@@ -1,8 +1,10 @@
 <?php namespace Gzero\Repository;
 
 use BadMethodCallException;
-use Gzero\Doctrine2Extensions\Common\BaseRepository as CommonBaseRepository;
 use Gzero\Entity\Base;
+use Illuminate\Database\Connection;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\App;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -29,13 +31,23 @@ class BaseRepository {
     protected $model;
 
     /**
-     * Create new query builder
+     * Create new ORM query builder
      *
-     * @return \Illuminate\Database\Eloquent\Builder
+     * @return Builder
      */
-    protected function newQB()
+    protected function newORMQuery()
     {
         return $this->model->newQuery();
+    }
+
+    /**
+     * Create new query builder
+     *
+     * @return Connection
+     */
+    protected function newQuery()
+    {
+        return App::make('db');
     }
 
     /**

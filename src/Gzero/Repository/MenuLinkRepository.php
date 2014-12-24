@@ -31,7 +31,7 @@ class MenuLinkRepository extends BaseRepository implements TreeRepository {
      */
     public function getById($id)
     {
-        $qb = $this->newQB()
+        $qb = $this->newORMQuery()
             ->select('m', 't')
             ->from($this->getClassName(), 'm')
             ->leftJoin('m.translations', 't', 'WITH', 't.isActive = 1')
@@ -59,7 +59,7 @@ class MenuLinkRepository extends BaseRepository implements TreeRepository {
         if ($node->getPath() != '/') { // root does not have ancestors
             $ancestorsIds = $node->getAncestorsIds(); //
 
-            $qb = $this->newQB()
+            $qb = $this->newORMQuery()
                 ->select('n')
                 ->from($this->getClassName(), 'n')
                 ->where('n.id IN(:ids)')
@@ -83,7 +83,7 @@ class MenuLinkRepository extends BaseRepository implements TreeRepository {
      */
     public function getDescendants(TreeNode $node, $tree = false, $hydrate = Query::HYDRATE_ARRAY)
     {
-        $qb = $this->newQB()
+        $qb = $this->newORMQuery()
             ->from($this->getClassName(), 'n')
             ->where('n.path LIKE :path')
             ->setParameter('path', $node->getChildrenPath() . '%')

@@ -28,7 +28,7 @@ class BlockRepository extends BaseRepository {
      */
     public function getById($id)
     {
-        $qb = $this->newQB()
+        $qb = $this->newORMQuery()
             ->select('b,t')
             ->from($this->getClassName(), 'b')
             ->leftJoin('b.translations', 't', 'WITH', 't.isActive = 1')
@@ -58,7 +58,7 @@ class BlockRepository extends BaseRepository {
      */
     public function getTranslationById($id)
     {
-        $qb = $this->newQB()
+        $qb = $this->newORMQuery()
             ->select('t')
             ->from($this->getTranslationClassName(), 't')
             ->where('t.id = :id')
@@ -76,7 +76,7 @@ class BlockRepository extends BaseRepository {
      */
     public function getAllActive(Lang $lang)
     {
-        $qb = $this->newQB();
+        $qb = $this->newORMQuery();
         $qb->select('b,t')
             ->from($this->getClassName(), 'b')
             // we need only blocks with active translations
@@ -103,7 +103,7 @@ class BlockRepository extends BaseRepository {
      */
     public function getAllTypes()
     {
-        $qb = $this->newQB()
+        $qb = $this->newORMQuery()
             ->select('t')
             ->from($this->getTypeClassName(), 't');
         return $qb->getQuery()->getResult();
@@ -118,7 +118,7 @@ class BlockRepository extends BaseRepository {
      */
     public function getAllTranslations(Block $block)
     {
-        $qb = $this->newQB()
+        $qb = $this->newORMQuery()
             ->select('t')
             ->from($this->getTranslationClassName(), 't')
             ->where('IDENTITY(t.block) = :id')

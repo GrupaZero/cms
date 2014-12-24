@@ -3,12 +3,10 @@
 use Gzero\EloquentTree\Model\Tree;
 use Gzero\Entity\ContentTranslation;
 use Gzero\Entity\ContentType;
-use Gzero\Entity\Lang;
 use Gzero\Entity\Content;
 use Gzero\Entity\User;
+use Illuminate\Events\Dispatcher;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
-use Symfony\Component\Config\Definition\Exception\Exception;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -30,13 +28,22 @@ class ContentRepository extends BaseRepository {
     protected $model;
 
     /**
+     * The events dispatcher
+     *
+     * @var Dispatcher
+     */
+    protected $events;
+
+    /**
      * Content repository constructor
      *
-     * @param Content $content Content model
+     * @param Content    $content Content model
+     * @param Dispatcher $events  Events dispatcher
      */
-    public function __construct(Content $content)
+    public function __construct(Content $content, Dispatcher $events)
     {
-        $this->model = $content;
+        $this->model  = $content;
+        $this->events = $events;
     }
 
     /**
@@ -48,7 +55,7 @@ class ContentRepository extends BaseRepository {
      */
     public function getById($id)
     {
-        return $this->newQB()->find($id);
+        return $this->newORMQuery()->find($id);
     }
 
     /**
@@ -60,7 +67,7 @@ class ContentRepository extends BaseRepository {
      */
     public function getTypeByName($name)
     {
-        return $this->newQB()->getRelation('type')->getQuery()->find($name);
+        return $this->newORMQuery()->getRelation('type')->getQuery()->find($name);
     }
 
     /**
@@ -72,7 +79,7 @@ class ContentRepository extends BaseRepository {
      */
     public function getTranslationById($id)
     {
-        return $this->newQB()->getRelation('translations')->getQuery()->find($id);
+        return $this->newORMQuery()->getRelation('translations')->getQuery()->find($id);
     }
 
     /**
@@ -85,7 +92,7 @@ class ContentRepository extends BaseRepository {
      */
     public function getByUrl($url, $langCode)
     {
-        return $this->newQB()
+        return $this->newORMQuery()
             ->join(
                 'Routes',
                 function ($join) {
@@ -298,7 +305,7 @@ class ContentRepository extends BaseRepository {
      */
     public function getContents(array $criteria, array $orderBy = [], $page = 1, $pageSize = self::ITEMS_PER_PAGE)
     {
-        $query = $this->newQB();
+        $query = $this->newORMQuery();
         $this->handleTranslationsJoin($criteria, $orderBy, $query);
         $this->handleFilterCriteria($criteria, $query);
         $this->handleAuthorJoin($query);
@@ -329,7 +336,7 @@ class ContentRepository extends BaseRepository {
      */
     public function create(Array $data, User $author = null)
     {
-        return DB::transaction(
+        $content = $this->newQuery()->transaction(
             function () use ($data, $author) {
                 $content = new Content();
                 $content->fill($data);
@@ -342,6 +349,8 @@ class ContentRepository extends BaseRepository {
                 return $content;
             }
         );
+        $this->events->fire('content.created', [$content]);
+        return $content;
     }
 
     /**
@@ -356,7 +365,7 @@ class ContentRepository extends BaseRepository {
      */
     public function update(Content $content, Array $data, User $modifier = null)
     {
-        return DB::transaction(
+        $content = $this->newQuery()->transaction(
             function () use ($content, $data, $modifier) {
                 $content->fill($data);
                 if (!empty($data['parentId'])) {
@@ -372,6 +381,8 @@ class ContentRepository extends BaseRepository {
                 return $content;
             }
         );
+        $this->events->fire('content.updated', [$content]);
+        return $content;
     }
 
     /**
