@@ -29,25 +29,6 @@ class BaseRepository {
     protected $model;
 
     /**
-     * This function search for nested fields used to pass values to nested entities and returns them as new array
-     *
-     * @param string $key  nested fields name, eg 'translations' for translations_fields
-     * @param array  $data data to iterates over
-     *
-     * @return array
-     */
-    public function getNestedFields($key, Array $data)
-    {
-        $result = [];
-        foreach ($data as $fieldKey => $fieldValue) {
-            if (preg_match("/^$key\\_/", $fieldKey)) {
-                $result[preg_replace("/^$key\\_/", '', $fieldKey)] = $fieldValue;
-            }
-        }
-        return $result;
-    }
-
-    /**
      * Create new query builder
      *
      * @return \Illuminate\Database\Eloquent\Builder
