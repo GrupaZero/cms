@@ -3,7 +3,7 @@
 use Gzero\EloquentTree\Model\Tree;
 use Gzero\Entity\ContentTranslation;
 use Gzero\Entity\ContentType;
-use Gzero\Entity\Content;
+use Gzero\Entity\Content as C;
 use Gzero\Entity\User;
 use Illuminate\Events\Dispatcher;
 use Illuminate\Support\Collection;
@@ -23,7 +23,7 @@ use Illuminate\Support\Collection;
 class ContentRepository extends BaseRepository {
 
     /**
-     * @var Content
+     * @var C
      */
     protected $model;
 
@@ -37,25 +37,13 @@ class ContentRepository extends BaseRepository {
     /**
      * Content repository constructor
      *
-     * @param Content    $content Content model
+     * @param C          $content Content model
      * @param Dispatcher $events  Events dispatcher
      */
-    public function __construct(Content $content, Dispatcher $events)
+    public function __construct(C $content, Dispatcher $events)
     {
         $this->model  = $content;
         $this->events = $events;
-    }
-
-    /**
-     * Get single content
-     *
-     * @param integer $id Content id
-     *
-     * @return Content
-     */
-    public function getById($id)
-    {
-        return $this->newORMQuery()->find($id);
     }
 
     /**
@@ -88,7 +76,7 @@ class ContentRepository extends BaseRepository {
      * @param string $url      Url address
      * @param string $langCode Lang code
      *
-     * @return Content
+     * @return C
      */
     public function getByUrl($url, $langCode)
     {
@@ -108,6 +96,38 @@ class ContentRepository extends BaseRepository {
                 }
             )->where('RouteTranslations.url', '=', $url)
             ->first(['Contents.*']);
+    }
+
+    /**
+     * Get all children nodes to specific node
+     *
+     * @param C        $content  Tree node
+     * @param array    $criteria Filter criteria
+     * @param array    $orderBy  Array of columns
+     * @param int|null $page     Page number
+     * @param int|null $pageSize Limit results
+     *
+     * @throws RepositoryException
+     * @return Collection
+     */
+    public function getTranslations(C $content, array $criteria, array $orderBy = [], $page = 1, $pageSize = self::ITEMS_PER_PAGE)
+    {
+        $query = $content->translations(false);
+        $this->handleFilterCriteria($criteria, $query);
+        $count = clone $query;
+        $this->handleOrderBy(
+            $orderBy,
+            $query,
+            function ($query) {
+                $query->orderBy('ContentTranslations.isActive', 'DESC');
+            }
+        );
+        $results = $query
+            ->offset($pageSize * ($page - 1))
+            ->limit($pageSize)
+            ->get(['ContentTranslations.*']);
+        \Paginator::setCurrentPage($page); // We need to set current page because laravel use input to set this property
+        return \Paginator::make($results->all(), $count->select('ContentTranslations.id')->count(), $pageSize);
     }
 
     /*
@@ -231,7 +251,11 @@ class ContentRepository extends BaseRepository {
         $query = $node->findDescendants();
         $this->handleTranslationsJoin($criteria, $orderBy, $query);
         $this->handleFilterCriteria($criteria, $query);
-        $this->handleOrderBy($orderBy, $query);
+        $this->handleOrderBy(
+            $orderBy,
+            $query,
+            $this->contentDefaultOrderBy()
+        );
         $results = $query->get(['Contents.*']);
         $this->listEagerLoad($results);
         if ($tree) {
@@ -259,7 +283,11 @@ class ContentRepository extends BaseRepository {
         $this->handleFilterCriteria($criteria, $query);
         $this->handleAuthorJoin($query);
         $count = clone $query;
-        $this->handleOrderBy($orderBy, $query);
+        $this->handleOrderBy(
+            $orderBy,
+            $query,
+            $this->contentDefaultOrderBy()
+        );
         $results = $query
             ->offset($pageSize * ($page - 1))
             ->limit($pageSize)
@@ -310,7 +338,11 @@ class ContentRepository extends BaseRepository {
         $this->handleFilterCriteria($criteria, $query);
         $this->handleAuthorJoin($query);
         $count = clone $query;
-        $this->handleOrderBy($orderBy, $query);
+        $this->handleOrderBy(
+            $orderBy,
+            $query,
+            $this->contentDefaultOrderBy()
+        );
         $results = $query
             ->offset($pageSize * ($page - 1))
             ->limit($pageSize)
@@ -332,13 +364,13 @@ class ContentRepository extends BaseRepository {
      * @param array     $data   Content entity to persist
      * @param User|null $author Author entity
      *
-     * @return Content
+     * @return C
      */
     public function create(Array $data, User $author = null)
     {
         $content = $this->newQuery()->transaction(
             function () use ($data, $author) {
-                $content = new Content();
+                $content = new C();
                 $content->fill($data);
                 $content->author()->associate($author);
                 $translation = new ContentTranslation();
@@ -356,14 +388,14 @@ class ContentRepository extends BaseRepository {
     /**
      * Update specific content entity
      *
-     * @param Content   $content  Content entity
+     * @param C         $content  Content entity
      * @param array     $data     new data to save
      * @param User|null $modifier User entity
      *
-     * @return Content
+     * @return C
      * @SuppressWarnings("unused")
      */
-    public function update(Content $content, Array $data, User $modifier = null)
+    public function update(C $content, Array $data, User $modifier = null)
     {
         $content = $this->newQuery()->transaction(
             function () use ($content, $data, $modifier) {
@@ -388,11 +420,11 @@ class ContentRepository extends BaseRepository {
     /**
      * Delete specific content entity
      *
-     * @param Content $content Content entity to delete
+     * @param C $content Content entity to delete
      *
      * @return boolean
      */
-    public function delete(Content $content)
+    public function delete(C $content)
     {
         return $content->delete();
     }
@@ -423,20 +455,34 @@ class ContentRepository extends BaseRepository {
     /**
      * Add sorting rules to query
      *
-     * @param array $orderBy Array with sort columns and directions
-     * @param mixed $query   Query to add sorting rules
+     * @param array    $orderBy      Array with sort columns and directions
+     * @param mixed    $query        Query to add sorting rules
+     * @param callable $defaultOrder Function with default order
      *
+     * @throws RepositoryException
      * @return void
      */
-    private function handleOrderBy(array $orderBy, $query)
+    private function handleOrderBy(array $orderBy, $query, $defaultOrder = null)
     {
-        if (empty($orderBy)) { // Default order
-            $query->orderBy('Contents.weight', 'ASC');
-            $query->orderBy('Contents.createdAt', 'DESC');
+        if (empty($orderBy) && is_callable($defaultOrder)) { // Default order
+            $defaultOrder($query);
         }
         foreach ($orderBy as $sort => $order) {
             $query->orderBy($this->resolveTableName('Contents', $order['relation'], $query) . $sort, $order['direction']);
         }
+    }
+
+    /**
+     * Default orderBy for content query
+     *
+     * @return callable
+     */
+    private function contentDefaultOrderBy()
+    {
+        return function ($query) {
+            $query->orderBy('Contents.weight', 'ASC');
+            $query->orderBy('Contents.createdAt', 'DESC');
+        };
     }
 
     /**

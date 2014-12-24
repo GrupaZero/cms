@@ -31,6 +31,18 @@ class BaseRepository {
     protected $model;
 
     /**
+     * Get single entity
+     *
+     * @param integer $id Entity id
+     *
+     * @return mixed
+     */
+    public function getById($id)
+    {
+        return $this->newORMQuery()->find($id);
+    }
+
+    /**
      * Create new ORM query builder
      *
      * @return Builder
