@@ -21,7 +21,8 @@
     "replace": {
         "gzero/core": "self.version",
         "gzero/entity": "self.version",
-        "gzero/repository": "self.version"
+        "gzero/repository": "self.version",
+        "gzero/validator": "self.version"
     },
     "require-dev": {
         "fzaninotto/faker": "1.4.0",
