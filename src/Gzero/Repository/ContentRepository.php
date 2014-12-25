@@ -430,49 +430,6 @@ class ContentRepository extends BaseRepository {
     }
 
     /**
-     * Add filter rules to query
-     *
-     * @param array $criteria Array with filer criteria
-     * @param mixed $query    Query to add filter rules
-     *
-     * @return void
-     */
-    private function handleFilterCriteria(array $criteria, $query)
-    {
-        $conditions = [];
-        if (isset($criteria['lang'])) { // Simple hax for now
-            unset($criteria['lang']);
-        }
-        foreach ($criteria as $condition => $value) {
-            $conditions[] = $query->where(
-                $this->resolveTableName('Contents', $value['relation'], $query) . $condition,
-                '=',
-                $value['value']
-            );
-        }
-    }
-
-    /**
-     * Add sorting rules to query
-     *
-     * @param array    $orderBy      Array with sort columns and directions
-     * @param mixed    $query        Query to add sorting rules
-     * @param callable $defaultOrder Function with default order
-     *
-     * @throws RepositoryException
-     * @return void
-     */
-    private function handleOrderBy(array $orderBy, $query, $defaultOrder = null)
-    {
-        if (empty($orderBy) && is_callable($defaultOrder)) { // Default order
-            $defaultOrder($query);
-        }
-        foreach ($orderBy as $sort => $order) {
-            $query->orderBy($this->resolveTableName('Contents', $order['relation'], $query) . $sort, $order['direction']);
-        }
-    }
-
-    /**
      * Default orderBy for content query
      *
      * @return callable
@@ -495,7 +452,7 @@ class ContentRepository extends BaseRepository {
      * @throws RepositoryException
      * @return array
      */
-    private function handleTranslationsJoin(array $criteria, array $orderBy, $query)
+    private function handleTranslationsJoin(array &$criteria, array $orderBy, $query)
     {
         if (!empty($criteria['lang'])) {
             $query->leftJoin(
@@ -505,6 +462,7 @@ class ContentRepository extends BaseRepository {
                         ->where('ContentTranslations.langCode', '=', $criteria['lang']['value']);
                 }
             );
+            unset($criteria['lang']);
         } else {
             if (!empty($orderBy)) {
                 throw new RepositoryException('Repository Validation Error: \'lang\' criteria is required', 500);

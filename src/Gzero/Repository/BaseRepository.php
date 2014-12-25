@@ -63,6 +63,50 @@ class BaseRepository {
     }
 
     /**
+     * Add filter rules to query
+     *
+     * @param array $criteria Array with filer criteria
+     * @param mixed $query    Query to add filter rules
+     *
+     * @throws RepositoryException
+     * @return void
+     */
+    protected function handleFilterCriteria(array $criteria, $query)
+    {
+        $conditions = [];
+        foreach ($criteria as $condition => $value) {
+            $conditions[] = $query->where(
+                $this->resolveTableName($this->model->getTable(), $value['relation'], $query) . $condition,
+                '=',
+                $value['value']
+            );
+        }
+    }
+
+    /**
+     * Add sorting rules to query
+     *
+     * @param array    $orderBy      Array with sort columns and directions
+     * @param mixed    $query        Query to add sorting rules
+     * @param callable $defaultOrder Function with default order
+     *
+     * @throws RepositoryException
+     * @return void
+     */
+    protected function handleOrderBy(array $orderBy, $query, $defaultOrder = null)
+    {
+        if (empty($orderBy) && is_callable($defaultOrder)) { // Default order
+            $defaultOrder($query);
+        }
+        foreach ($orderBy as $sort => $order) {
+            $query->orderBy(
+                $this->resolveTableName($this->model->getTable(), $order['relation'], $query) . $sort,
+                $order['direction']
+            );
+        }
+    }
+
+    /**
      * Resolve name of Table for provided relation string
      *
      * @param string $defaultTable   name of the default model relation
