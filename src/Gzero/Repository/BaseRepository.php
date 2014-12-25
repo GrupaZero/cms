@@ -130,8 +130,33 @@ class BaseRepository {
             }
             return $defaultTable . '.';
         } catch (BadMethodCallException $e) {
-            throw new RepositoryException("Relation '" . $relationString . "' does not exist", 500);
+            throw new RepositoryException("Relation '" . $relationString . "' doesn't exist", 500);
         }
 
+    }
+
+
+    /**
+     * Returns model table name
+     *
+     * @return string
+     */
+    protected function getTableName()
+    {
+        return $this->model->getTable();
+    }
+
+    /**
+     * Returns translations model table name
+     *
+     * @return string
+     * @throws RepositoryException
+     */
+    protected function getTranslationsTableName()
+    {
+        if (method_exists($this->model, 'translations')) {
+            return $this->model->translations()->getModel()->getTable();
+        }
+        throw new RepositoryException("Entity '" . get_class($this->model) . "' doesn't have translations relation", 500);
     }
 }

@@ -113,12 +113,13 @@ class ContentRepository extends BaseRepository {
     public function getTranslations(C $content, array $criteria, array $orderBy = [], $page = 1, $pageSize = self::ITEMS_PER_PAGE)
     {
         $query = $content->translations(false);
-        $this->handleFilterCriteria($criteria, $query);
+        $this->handleFilterCriteria($this->getTranslationsTableName(), $criteria, $query);
         $count = clone $query;
         $this->handleOrderBy(
+            $this->getTranslationsTableName(),
             $orderBy,
             $query,
-            function ($query) {
+            function ($query) { // default order by
                 $query->orderBy('ContentTranslations.isActive', 'DESC');
             }
         );
@@ -250,8 +251,9 @@ class ContentRepository extends BaseRepository {
     {
         $query = $node->findDescendants();
         $this->handleTranslationsJoin($criteria, $orderBy, $query);
-        $this->handleFilterCriteria($criteria, $query);
+        $this->handleFilterCriteria($this->getTableName(), $criteria, $query);
         $this->handleOrderBy(
+            $this->getTableName(),
             $orderBy,
             $query,
             $this->contentDefaultOrderBy()
@@ -280,10 +282,11 @@ class ContentRepository extends BaseRepository {
     {
         $query = $node->children();
         $this->handleTranslationsJoin($criteria, $orderBy, $query);
-        $this->handleFilterCriteria($criteria, $query);
+        $this->handleFilterCriteria($this->getTableName(), $criteria, $query);
         $this->handleAuthorJoin($query);
         $count = clone $query;
         $this->handleOrderBy(
+            $this->getTableName(),
             $orderBy,
             $query,
             $this->contentDefaultOrderBy()
@@ -335,10 +338,11 @@ class ContentRepository extends BaseRepository {
     {
         $query = $this->newORMQuery();
         $this->handleTranslationsJoin($criteria, $orderBy, $query);
-        $this->handleFilterCriteria($criteria, $query);
+        $this->handleFilterCriteria($this->getTableName(), $criteria, $query);
         $this->handleAuthorJoin($query);
         $count = clone $query;
         $this->handleOrderBy(
+            $this->getTableName(),
             $orderBy,
             $query,
             $this->contentDefaultOrderBy()
