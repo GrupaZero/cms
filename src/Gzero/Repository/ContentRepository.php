@@ -131,6 +131,43 @@ class ContentRepository extends BaseRepository {
         return \Paginator::make($results->all(), $count->select('ContentTranslations.id')->count(), $pageSize);
     }
 
+    /**
+     * Get translation of specified content by id.
+     *
+     * @param C   $content Content entity
+     * @param int $id      Content Translation id
+     *
+     * @return ContentTranslation
+     */
+    public function getContentTranslationById(C $content, $id)
+    {
+        return $content->translations(false)->where('id', '=', $id)->first();
+    }
+
+
+    /**
+     * Create translation for specified content entity
+     *
+     * @param C     $content Content entity
+     * @param array $data    new data to save
+     *
+     * @return ContentTranslation
+     */
+    public function createTranslation(C $content, Array $data)
+    {
+        $translation = $this->newQuery()->transaction(
+            function () use ($content, $data) {
+                $translation = new ContentTranslation();
+                $translation->fill($data);
+                $translation->isActive = 1; // Because this is first translation
+                $content->translations()->save($translation);
+                return $translation;
+            }
+        );
+        $this->events->fire('content.translation.created', [$content, $translation]);
+        return $translation;
+    }
+
     /*
     |--------------------------------------------------------------------------
     | START TreeRepository
