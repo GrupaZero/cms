@@ -164,8 +164,8 @@ class BaseRepository {
     /**
      * Function sets all translation of provided entity as inactive
      *
-     * @param $id       int entity id
-     * @param $langCode string lang code
+     * @param int    $id       entity id
+     * @param string $langCode lang code
      *
      * @throws RepositoryException
      * @return bool|int
