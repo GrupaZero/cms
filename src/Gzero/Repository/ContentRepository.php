@@ -157,9 +157,11 @@ class ContentRepository extends BaseRepository {
     {
         $translation = $this->newQuery()->transaction(
             function () use ($content, $data) {
+                // Set all translation of this content as inactive
+                $this->disableActiveTranslations($content->id, $data['langCode']);
                 $translation = new ContentTranslation();
                 $translation->fill($data);
-                $translation->isActive = 1; // Because this is first translation
+                $translation->isActive = 1; // Because only recent translation is active
                 $content->translations()->save($translation);
                 return $translation;
             }

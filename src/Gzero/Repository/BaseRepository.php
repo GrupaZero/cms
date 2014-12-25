@@ -149,13 +149,40 @@ class BaseRepository {
     /**
      * Returns translations model table name
      *
-     * @return string
      * @throws RepositoryException
+     * @return string
      */
     protected function getTranslationsTableName()
     {
         if (method_exists($this->model, 'translations')) {
             return $this->model->translations()->getModel()->getTable();
+        }
+        throw new RepositoryException("Entity '" . get_class($this->model) . "' doesn't have translations relation", 500);
+    }
+
+
+    /**
+     * Function sets all translation of provided entity as inactive
+     *
+     * @param $id       int entity id
+     * @param $langCode string lang code
+     *
+     * @throws RepositoryException
+     * @return bool|int
+     */
+    protected function disableActiveTranslations($id, $langCode)
+    {
+        if (method_exists($this->model, 'translations')) {
+            $relation   = $this->model->translations();
+            $foreignKey = explode('.', $relation->getForeignKey());
+            if (isset($foreignKey[1])) {
+                return $relation->getModel()
+                    ->where($foreignKey[1], $id)
+                    ->where('langCode', $langCode)
+                    ->update(['isActive' => 0]);
+            } else {
+                throw new RepositoryException("Unable to find foreign key of related translations", 500);
+            }
         }
         throw new RepositoryException("Entity '" . get_class($this->model) . "' doesn't have translations relation", 500);
     }
