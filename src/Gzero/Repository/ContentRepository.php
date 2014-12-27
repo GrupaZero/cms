@@ -586,10 +586,10 @@ class ContentRepository extends BaseRepository {
         $result = $this->newQuery()
             ->table('RouteTranslations')
             ->where('langCode', $langCode)
-            ->where('url', 'LIKE', $url . '%')
+            ->whereRaw("url REGEXP '^$url($|-[0-9]+$)'")
             ->get();
         if (!empty($result)) {
-            return $url = $url . '-' . (count($result)); // create unique url
+            return $url . '-' . (count($result)); // create unique url
         }
         return $url;
     }

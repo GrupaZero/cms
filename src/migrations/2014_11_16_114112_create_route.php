@@ -30,13 +30,14 @@ class CreateRoute extends Migration {
                 $table->increments('id');
                 $table->string('langCode', 2);
                 $table->integer('routeId')->unsigned();
-                $table->string('url');
+                $table->string('url')->index();
                 $table->boolean('isActive');
                 $table->timestamp('createdAt');
                 $table->timestamp('updatedAt');
                 $table->foreign('routeId')->references('id')->on('Routes')->onDelete('CASCADE');
                 $table->foreign('langCode')->references('code')->on('Langs')->onDelete('CASCADE');
                 $table->unique(['langCode', 'routeId']); // Only one translation in specific language
+                $table->unique(['langCode', 'url']); // Unique url in specific language
             }
         );
     }
