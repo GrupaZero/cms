@@ -573,9 +573,9 @@ class ContentRepository extends BaseRepository {
 
 
     /**
-     * Function returns an unique url address from given string in specified language
+     * Function returns an unique url address from given url in specific language
      *
-     * @param string $url      string url
+     * @param string $url      string url address to search for
      * @param string $langCode translation language
      *
      * @return string $url an unique url address
