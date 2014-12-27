@@ -4,9 +4,12 @@ use Gzero\EloquentTree\Model\Tree;
 use Gzero\Entity\ContentTranslation;
 use Gzero\Entity\ContentType;
 use Gzero\Entity\Content as C;
+use Gzero\Entity\Route;
+use Gzero\Entity\RouteTranslation;
 use Gzero\Entity\User;
 use Illuminate\Events\Dispatcher;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -387,14 +390,35 @@ class ContentRepository extends BaseRepository {
     {
         $content = $this->newQuery()->transaction(
             function () use ($data, $author) {
+                $translations = array_get($data, 'translations'); // Nested relation fields
+                // Content
                 $content = new C();
                 $content->fill($data);
                 $content->author()->associate($author);
-                $translation = new ContentTranslation();
-                $translation->fill(array_get($data, 'translations')); // Nested relation fields
+                // Route
+                $route = new Route(['isActive' => 1]);
+                $content->route()->save($route);
+                // Route translations
+                $routeTranslation           = new RouteTranslation();
+                $routeTranslation->langCode = $translations['langCode'];
+                if (!empty($data['parentId'])) {
+                    $parent = $this->getById($data['parentId']);
+                    if (!empty($parent)) {
+                        $content->setChildOf($parent);
+                    } else {
+                        $content->setAsRoot();
+                    }
+                } else {
+                    $content->save();
+                }
+                // Content translations
+                $translation  = new ContentTranslation();
+                $translation->fill($translations);
                 $translation->isActive = 1; // Because this is first translation
-                $content->save();
                 $content->translations()->save($translation);
+                $routeTranslation->url      = Str::slug($translations['title']);
+                $routeTranslation->isActive = 1;
+                $route->translations()->save($routeTranslation);
                 return $content;
             }
         );
