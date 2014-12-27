@@ -413,8 +413,10 @@ class ContentRepository extends BaseRepository {
                 // Route translations
                 $routeTranslation           = new RouteTranslation();
                 $routeTranslation->langCode = $translations['langCode'];
-                /** @TODO Check for duplicated url */
-                $routeTranslation->url      = $url . Str::slug($translations['title']);
+                $routeTranslation->url      = $this->buildUniqueUrl(
+                    $url . Str::slug($translations['title']),
+                    $translations['langCode']
+                );
                 $routeTranslation->isActive = 1;
                 // Content translations
                 $translation = new ContentTranslation();
@@ -567,5 +569,28 @@ class ContentRepository extends BaseRepository {
     private function listEagerLoad($results)
     {
         $results->load('route.translations', 'translations');
+    }
+
+
+    /**
+     * Function returns an unique url address from given string in specified language
+     *
+     * @param string $url      string url
+     * @param string $langCode translation language
+     *
+     * @return string $url an unique url address
+     */
+    private function buildUniqueUrl($url, $langCode)
+    {
+        // search for duplicated url
+        $result = $this->newQuery()
+            ->table('RouteTranslations')
+            ->where('langCode', $langCode)
+            ->where('url', 'LIKE', $url . '%')
+            ->get();
+        if (!empty($result)) {
+            return $url = $url . '-' . (count($result)); // create unique url
+        }
+        return $url;
     }
 }
