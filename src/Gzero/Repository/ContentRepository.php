@@ -500,6 +500,7 @@ class ContentRepository extends BaseRepository {
             function () use ($content) {
                 // First we need to delete route because it's polymorphic relation
                 $content->route()->delete();
+                /** @TODO We also need delete the routes of all descendants **/
                 return $content->delete();
             }
         );
