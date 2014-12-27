@@ -582,14 +582,11 @@ class ContentRepository extends BaseRepository {
     private function buildUniqueUrl($url, $langCode)
     {
         // search for duplicated url
-        $result = $this->newQuery()
+        $count = $this->newQuery()
             ->table('RouteTranslations')
             ->where('langCode', $langCode)
             ->whereRaw("url REGEXP '^$url($|-[0-9]+$)'")
-            ->get();
-        if (!empty($result)) {
-            return $url . '-' . (count($result)); // create unique url
-        }
-        return $url;
+            ->count();
+        return ($count) ? $url . '-' . $count : $url;
     }
 }
