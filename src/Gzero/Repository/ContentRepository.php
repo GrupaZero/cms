@@ -390,34 +390,37 @@ class ContentRepository extends BaseRepository {
     {
         $content = $this->newQuery()->transaction(
             function () use ($data, $author) {
+                $url          = '';
                 $translations = array_get($data, 'translations'); // Nested relation fields
                 // Content
                 $content = new C();
                 $content->fill($data);
                 $content->author()->associate($author);
+                if (!empty($data['parentId'])) {
+                    $parent = $this->getById($data['parentId']);
+                    if (!empty($parent)) {
+                        $content->setChildOf($parent);
+                        $url = $parent->getUrl($translations['langCode']) . '/';
+                    } else {
+                        throw new RepositoryException('Parent node id: ' . $data['parentId'] . ' doesn\'t exist');
+                    }
+                } else {
+                    $content->setAsRoot();
+                }
                 // Route
                 $route = new Route(['isActive' => 1]);
                 $content->route()->save($route);
                 // Route translations
                 $routeTranslation           = new RouteTranslation();
                 $routeTranslation->langCode = $translations['langCode'];
-                if (!empty($data['parentId'])) {
-                    $parent = $this->getById($data['parentId']);
-                    if (!empty($parent)) {
-                        $content->setChildOf($parent);
-                    } else {
-                        $content->setAsRoot();
-                    }
-                } else {
-                    $content->save();
-                }
+                /** @TODO Check for duplicated url */
+                $routeTranslation->url      = $url . Str::slug($translations['title']);
+                $routeTranslation->isActive = 1;
                 // Content translations
-                $translation  = new ContentTranslation();
+                $translation = new ContentTranslation();
                 $translation->fill($translations);
                 $translation->isActive = 1; // Because this is first translation
                 $content->translations()->save($translation);
-                $routeTranslation->url      = Str::slug($translations['title']);
-                $routeTranslation->isActive = 1;
                 $route->translations()->save($routeTranslation);
                 return $content;
             }

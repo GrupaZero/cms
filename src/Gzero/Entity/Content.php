@@ -1,5 +1,7 @@
 <?php namespace Gzero\Entity;
 
+use Gzero\Core\Exception;
+
 /**
  * This file is part of the GZERO CMS package.
  *
@@ -21,6 +23,29 @@ class Content extends BaseTree {
         'weight',
         'isActive'
     ];
+
+    /**
+     * Get Content url in specified language.
+     * WARNING: This function use LAZY LOADING to get this information
+     *
+     * @param string $langCode Lang code
+     *
+     * @return mixed
+     * @throws Exception
+     */
+    public function getUrl($langCode)
+    {
+        $routeTranslation = $this->route->translations->filter(
+            function ($translation) use ($langCode) {
+                return $translation->langCode == $langCode;
+            }
+        )->first();
+        if (!empty($routeTranslation->url)) {
+            return $routeTranslation->url;
+        } else {
+            throw new Exception("No route [$langCode] translation found for Content id: " . $this->getKey(), 500);
+        }
+    }
 
     /**
      * Content type relation
