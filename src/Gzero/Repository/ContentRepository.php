@@ -496,7 +496,13 @@ class ContentRepository extends BaseRepository {
      */
     public function delete(C $content)
     {
-        return $content->delete();
+        return $this->newQuery()->transaction(
+            function () use ($content) {
+                // First we need to delete route because it's polymorphic relation
+                $content->route()->delete();
+                return $content->delete();
+            }
+        );
     }
 
     /**
