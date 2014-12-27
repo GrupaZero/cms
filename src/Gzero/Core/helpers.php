@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Support\Str;
+
 if (!function_exists('setMultilangRouting')) {
 
     /**
@@ -22,5 +24,20 @@ if (!function_exists('setMultilangRouting')) {
         } else {
             return [];
         }
+    }
+}
+
+if (!function_exists('str_slug')) {
+    /**
+     * Generate a URL friendly "slug" from a given string.
+     *
+     * @param string $title     Title to slug
+     * @param string $separator Seperator
+     *
+     * @return string
+     */
+    function str_slug($title, $separator = '-')
+    {
+        return Str::slug($title, $separator);
     }
 }

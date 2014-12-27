@@ -9,7 +9,6 @@ use Gzero\Entity\RouteTranslation;
 use Gzero\Entity\User;
 use Illuminate\Events\Dispatcher;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Str;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -414,7 +413,7 @@ class ContentRepository extends BaseRepository {
                 $routeTranslation           = new RouteTranslation();
                 $routeTranslation->langCode = $translations['langCode'];
                 $routeTranslation->url      = $this->buildUniqueUrl(
-                    $url . Str::slug($translations['title']),
+                    $url . str_slug($translations['title']),
                     $translations['langCode']
                 );
                 $routeTranslation->isActive = 1;
