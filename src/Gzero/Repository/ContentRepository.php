@@ -498,9 +498,14 @@ class ContentRepository extends BaseRepository {
     {
         return $this->newQuery()->transaction(
             function () use ($content) {
-                // First we need to delete route because it's polymorphic relation
-                $content->route()->delete();
-                /** @TODO We also need delete the routes of all descendants **/
+                $routeRelation  = $content->route();
+                $descendantsIds = $content->findDescendants()->lists('id');
+                // First we need to delete all routes because it's polymorphic relation
+                $this->newQuery()
+                    ->table($routeRelation->getModel()->getTable())
+                    ->where($routeRelation->getPlainMorphType(), '=', get_class($content))
+                    ->whereIn($routeRelation->getPlainForeignKey(), $descendantsIds)
+                    ->delete();
                 return $content->delete();
             }
         );
