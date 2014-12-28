@@ -263,6 +263,20 @@ class ContentRepository extends BaseRepository {
     }
 
     /**
+     * Get all contents with specific criteria
+     *
+     * @param Tree  $root     Root node
+     * @param array $criteria Filter criteria
+     * @param array $orderBy  Array of columns
+     *
+     * @return Collection
+     */
+    public function getTree(Tree $root, array $criteria, array $orderBy = [])
+    {
+        return $root->buildTree($this->getDescendants($root, $criteria, $orderBy, null));
+    }
+
+    /**
      * Get translation of specified content by id.
      *
      * @param C   $content Content entity
