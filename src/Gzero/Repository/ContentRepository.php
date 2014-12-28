@@ -7,8 +7,8 @@ use Gzero\Entity\Content as C;
 use Gzero\Entity\Route;
 use Gzero\Entity\RouteTranslation;
 use Gzero\Entity\User;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Events\Dispatcher;
-use Illuminate\Support\Collection;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -110,7 +110,7 @@ class ContentRepository extends BaseRepository {
      * @param int|null $pageSize Limit results
      *
      * @throws RepositoryException
-     * @return Collection
+     * @return EloquentCollection
      */
     public function getTranslations(C $content, array $criteria, array $orderBy = [], $page = 1, $pageSize = self::ITEMS_PER_PAGE)
     {
@@ -192,7 +192,7 @@ class ContentRepository extends BaseRepository {
      * @param int|null $pageSize Limit results
      *
      * @throws RepositoryException
-     * @return Collection
+     * @return EloquentCollection
      */
     public function getDescendants(Tree $node, array $criteria, array $orderBy = [], $page = 1, $pageSize = self::ITEMS_PER_PAGE)
     {
@@ -219,7 +219,7 @@ class ContentRepository extends BaseRepository {
      * @param int|null $pageSize Limit results
      *
      * @throws RepositoryException
-     * @return Collection
+     * @return EloquentCollection
      */
     public function getChildren(Tree $node, array $criteria, array $orderBy = [], $page = 1, $pageSize = self::ITEMS_PER_PAGE)
     {
@@ -245,7 +245,7 @@ class ContentRepository extends BaseRepository {
      * @param int|null $pageSize Limit results
      *
      * @throws RepositoryException
-     * @return Collection
+     * @return EloquentCollection
      */
     public function getContents(array $criteria, array $orderBy = [], $page = 1, $pageSize = self::ITEMS_PER_PAGE)
     {
@@ -269,7 +269,7 @@ class ContentRepository extends BaseRepository {
      * @param array $criteria Filter criteria
      * @param array $orderBy  Array of columns
      *
-     * @return Collection
+     * @return EloquentCollection
      */
     public function getTree(Tree $root, array $criteria, array $orderBy = [])
     {
@@ -491,7 +491,7 @@ class ContentRepository extends BaseRepository {
     /**
      * Eager load relations for eloquent collection
      *
-     * @param Collection $results Eloquent collection
+     * @param EloquentCollection $results Eloquent collection
      *
      * @return void
      */
