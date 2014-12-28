@@ -32,8 +32,15 @@ class CreateContent extends Migration {
                 $table->integer('parentId')->unsigned()->nullable();
                 $table->integer('level')->default(0);
                 $table->integer('weight');
+                $table->integer('rating');
+                $table->integer('visits');
+                $table->boolean('isOnHome');
+                $table->boolean('isCommentAllowed');
+                $table->boolean('isPromoted');
+                $table->boolean('isSticky');
                 $table->boolean('isActive');
                 $table->index(['type', 'path', 'parentId', 'level']);
+                $table->timestamp('publishedAt');
                 $table->timestamp('createdAt');
                 $table->timestamp('updatedAt');
                 $table->foreign('authorId')->references('id')->on('Users')->onDelete('SET NULL');
