@@ -21,7 +21,14 @@ class Content extends BaseTree {
         'authorId',
         'path',
         'weight',
-        'isActive'
+        'rating',
+        'visits',
+        'isOnHome',
+        'isCommentAllowed',
+        'isPromoted',
+        'isSticky',
+        'isActive',
+        'publishedAt'
     ];
 
     /**
