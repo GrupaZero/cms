@@ -442,6 +442,23 @@ class ContentRepository extends BaseRepository {
     {
         $translation = $this->newQuery()->transaction(
             function () use ($content, $data) {
+                $url = '';
+                if (!empty($content->parentId)) {
+                    $parent = $this->getById($content->parentId);
+                    if (!empty($parent)) {
+                        $url = $parent->getUrl($data['langCode']) . '/';
+                    } else {
+                        throw new RepositoryException('Parent node id: ' . $content->parentId . ' doesn\'t exist');
+                    }
+                }
+                // Route translations
+                $routeTranslation           = new RouteTranslation();
+                $routeTranslation->langCode = $data['langCode'];
+                $routeTranslation->url      = $this->buildUniqueUrl(
+                    $url . str_slug($data['title']),
+                    $data['langCode']
+                );
+                $routeTranslation->isActive = 1;
                 // Set all translation of this content as inactive
                 $this->disableActiveTranslations($content->id, $data['langCode']);
                 $translation = new ContentTranslation();
