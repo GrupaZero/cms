@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\App;
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2014, Adrian Skierniewski
  */
-class BaseRepository {
+abstract class BaseRepository {
 
     /**
      * Default number of items per page
@@ -29,6 +29,16 @@ class BaseRepository {
      * @var Base
      */
     protected $model;
+
+    /**
+     * Eager load relations for eloquent collection.
+     * We use this function in handlePagination method!
+     *
+     * @param Collection $results Eloquent collection
+     *
+     * @return void
+     */
+    abstract protected function listEagerLoad($results);
 
     /**
      * Get single entity
@@ -109,6 +119,36 @@ class BaseRepository {
     }
 
     /**
+     * Add pagination part to query
+     *
+     * @param string   $defaultTable Default table name
+     * @param mixed    $query        Query object
+     * @param int|null $page         Page number (if null == disable pagination)
+     * @param int|null $pageSize     Limit results
+     *
+     * @return mixed
+     */
+    protected function handlePagination($defaultTable, $query, $page, $pageSize)
+    {
+        if (!empty($page)) { // If we want to paginate result
+            $count   = clone $query;
+            $results = $query
+                ->offset($pageSize * ($page - 1))
+                ->limit($pageSize)
+                ->get([$defaultTable . '.*']);
+            // We only eager load for entry entity
+            ($defaultTable === $this->getTableName()) ? $this->listEagerLoad($results) : null;
+            \Paginator::setCurrentPage($page); // We need to set current page because laravel use input to set this property
+            return \Paginator::make($results->all(), $count->select($defaultTable . '.id')->count(), $pageSize);
+        } else {
+            $results = $query->get([$defaultTable . '.*']);
+            // We only eager load for entry entity
+            ($defaultTable === $this->getTableName()) ? $this->listEagerLoad($results) : null;
+            return $results;
+        }
+    }
+
+    /**
      * Resolve name of Table for provided relation string
      *
      * @param string $defaultTable   name of the default model relation
@@ -159,7 +199,6 @@ class BaseRepository {
         }
         throw new RepositoryException("Entity '" . get_class($this->model) . "' doesn't have translations relation", 500);
     }
-
 
     /**
      * Function sets all translation of provided entity as inactive
