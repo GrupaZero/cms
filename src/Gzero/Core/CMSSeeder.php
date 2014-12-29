@@ -8,6 +8,7 @@ use Gzero\Entity\Lang;
 use Gzero\Entity\Route;
 use Gzero\Entity\RouteTranslation;
 use Gzero\Entity\User;
+use Gzero\Repository\ContentRepository;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 
@@ -33,10 +34,13 @@ class CMSSeeder extends Seeder {
 
     /**
      * CMSSeeder constructor
+     *
+     * @param ContentRepository $content Content repository
      */
-    public function __construct()
+    public function __construct(ContentRepository $content)
     {
-        $this->faker = Factory::create();
+        $this->faker      = Factory::create();
+        $this->repository = $content;
     }
 
     /**
@@ -133,35 +137,28 @@ class CMSSeeder extends Seeder {
      */
     private function seedContent(ContentType $type, $parent, $langs, $users)
     {
-        $content         = new Content(
-            [
-                'type'     => $type->name,
-                'authorId' => $this->faker->randomElement($users),
-                'isActive' => (bool) rand(0, 1)
-            ]
-        );
-        $content->weight = rand(0, 10);
-        if ($parent) {
-            $content->setChildOf($parent);
-        } else {
-            $content->setAsRoot();
+        $input = [
+            'type'     => $type->name,
+            'authorId' => $this->faker->randomElement($users),
+            'weight'   => rand(0, 10),
+            'isActive' => (bool) rand(0, 1)
+        ];
+        if (!empty($parent)) {
+            $input['parentId'] = $parent->id;
         }
-        $route = new Route(['isActive' => 1]);
-        $content->route()->save($route);
+        $translations = [];
         foreach ($langs as $key => $value) {
-            $translation           = new ContentTranslation(['langCode' => $key]);
-            $translation->title    = $this->faker->sentence(5);
-            $translation->body     = $this->faker->text(255);
-            $translation->isActive = true;
-            $content->translations()->save($translation);
-            $routeTranslation = new RouteTranslation(
-                [
-                    'langCode' => $key,
-                    'url'      => $this->faker->unique()->word,
-                    'isActive' => true
-                ]
-            );
-            $route->translations()->save($routeTranslation);
+            $input['translations'] = [
+                'langCode' => $key,
+                'title'    => $this->faker->sentence(5),
+                'body'     => $this->faker->text(rand(100, 255)),
+                'isActive' => (bool) rand(0, 1)
+            ];
+            $translations[$key]    = $input['translations'];
+        }
+        $content = $this->repository->create($input, User::find(1));
+        foreach ($translations as $value) {
+            $this->repository->createTranslation($content, $value);
         }
         return $content;
     }
