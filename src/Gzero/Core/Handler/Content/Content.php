@@ -38,6 +38,7 @@ class Content implements ContentTypeHandler {
      * @var
      */
     protected $translations;
+
     /**
      * @var
      */
