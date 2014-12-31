@@ -31,7 +31,7 @@ class Category extends Content {
     public function load(ContentEntity $content, Lang $lang)
     {
         parent::load($content, $lang);
-        //$this->children = $this->contentRepo->getChildren($this->content);
+        $this->children = $this->contentRepo->getChildren($content, []);
         //$this->contentRepo->loadThumb($this->children);
         return $this;
     }
@@ -46,8 +46,10 @@ class Category extends Content {
         return View::make(
             'content.category',
             [
-                'content'  => $this->content,
-                'children' => $this->children
+                'content'      => $this->content,
+                'translations' => $this->translations,
+                'author'       => $this->author,
+                'children'     => $this->children
             ]
         );
     }

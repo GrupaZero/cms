@@ -35,6 +35,16 @@ class Content implements ContentTypeHandler {
     protected $content;
 
     /**
+     * @var
+     */
+    protected $translations;
+
+    /**
+     * @var
+     */
+    protected $author;
+
+    /**
      * @var ContentRepository
      */
     protected $contentRepo;
@@ -64,7 +74,9 @@ class Content implements ContentTypeHandler {
         // $this->parents = $this->contentRepo->findAncestors($content); // Ancestors nodes
         // $this->contentRepo->loadThumb($this->parents); // Thumbs for all contents
         // $this->content = $this->parents->pop(); // Removing our node
-        $this->content = $content;
+        $this->content      = $content;
+        $this->translations = $content->translations()->where('langCode', '=', $lang->code)->first();
+        $this->author       = $content->author;
         return $this;
     }
 
@@ -75,6 +87,9 @@ class Content implements ContentTypeHandler {
      */
     public function render()
     {
-        return \View::make('content.content', ['content' => $this->content, 'parents' => null]);
+        return \View::make(
+            'content.content',
+            ['content' => $this->content, 'translations' => $this->translations, 'author' => $this->author, 'parents' => null]
+        );
     }
 }
