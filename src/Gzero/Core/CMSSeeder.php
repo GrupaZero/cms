@@ -65,7 +65,7 @@ class CMSSeeder extends Seeder {
                 $usersIds
             );
         }
-        for ($i = 0; $i < 20; $i++) { // Content in categories
+        for ($i = 0; $i < 10; $i++) { // Content in categories
             $contents[] = $this->seedContent($contentTypes['content'], null, $langs, $usersIds); // Content without category
             $contents[] = $this->seedContent(
                 $contentTypes['content'],
