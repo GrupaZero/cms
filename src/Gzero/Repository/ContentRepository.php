@@ -389,7 +389,6 @@ class ContentRepository extends BaseRepository {
     {
         $content = $this->newQuery()->transaction(
             function () use ($data, $author) {
-                $url          = '';
                 $translations = array_get($data, 'translations'); // Nested relation fields
                 // Content
                 $content = new C();
@@ -399,30 +398,14 @@ class ContentRepository extends BaseRepository {
                     $parent = $this->getById($data['parentId']);
                     if (!empty($parent)) {
                         $content->setChildOf($parent);
-                        $url = $parent->getUrl($translations['langCode']) . '/';
                     } else {
                         throw new RepositoryException('Parent node id: ' . $data['parentId'] . ' doesn\'t exist');
                     }
                 } else {
                     $content->setAsRoot();
                 }
-                // Route
-                $route = new Route(['isActive' => 1]);
-                $content->route()->save($route);
-                // Route translations
-                $routeTranslation           = new RouteTranslation();
-                $routeTranslation->langCode = $translations['langCode'];
-                $routeTranslation->url      = $this->buildUniqueUrl(
-                    $url . str_slug($translations['title']),
-                    $translations['langCode']
-                );
-                $routeTranslation->isActive = 1;
                 // Content translations
-                $translation = new ContentTranslation();
-                $translation->fill($translations);
-                $translation->isActive = 1; // Because this is first translation
-                $content->translations()->save($translation);
-                $route->translations()->save($routeTranslation);
+                $this->createTranslation($content, $translations);
                 return $content;
             }
         );
@@ -431,7 +414,7 @@ class ContentRepository extends BaseRepository {
     }
 
     /**
-     * Create translation for specified content entity
+     * Creates translation for specified content entity it also handles route creation
      *
      * @param C     $content Content entity
      * @param array $data    new data to save
@@ -451,8 +434,50 @@ class ContentRepository extends BaseRepository {
                 return $translation;
             }
         );
+        // Creating or updating route from translations
+        $this->createRoute($content, $data);
         $this->events->fire('content.translation.created', [$content, $translation]);
         return $translation;
+    }
+
+
+    /**
+     * Function handles creation of route from translations
+     *
+     * @param C     $content      Content entity
+     * @param array $translations translations data to save
+     *
+     * @return Route
+     */
+    public function createRoute(C $content, $translations)
+    {
+        $route = $this->newQuery()->transaction(
+            function () use ($content, $translations) {
+                $url = '';
+                // Search for parent, to get its url
+                if (!empty($content->parentId)) {
+                    $parent = $this->getById($content->parentId);
+                    if (!empty($parent)) {
+                        $url = $parent->getUrl($translations['langCode']) . '/';
+                    }
+                }
+                // Search for route, or instantiate a new instance
+                $route = Route::firstOrNew(['routableId' => $content->id, 'isActive' => 1]);
+                $content->route()->save($route);
+                //  Search for route translations, or instantiate a new instance
+                $routeTranslation      = RouteTranslation::firstOrNew(
+                    ['routeId' => $route->id, 'langCode' => $translations['langCode'], 'isActive' => 1]
+                );
+                $routeTranslation->url = $this->buildUniqueUrl(
+                    $url . str_slug($translations['title']),
+                    $translations['langCode']
+                );
+                $route->translations()->save($routeTranslation);
+                return $route;
+            }
+        );
+        $this->events->fire('route.created', [$route]);
+        return $route;
     }
 
     /**
