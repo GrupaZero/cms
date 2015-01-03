@@ -1,7 +1,5 @@
 <?php
 
-use Config;
-use DB;
 use Faker\Factory;
 use Gzero\Entity\ContentType;
 use Gzero\Entity\Lang;
