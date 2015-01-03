@@ -6,3 +6,4 @@ Thumbs.db
 .idea
 .vagrant
 .sass-cache
+tests/.env.testing.php

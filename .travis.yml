@@ -10,6 +10,7 @@ before_script:
   - composer self-update
   - composer require satooshi/php-coveralls:dev-master --dev --no-progress --prefer-source
   - composer install --prefer-source --no-interaction --dev
+  - mysql -e 'create database gzero-tests;'
 
 script:
   - ./vendor/bin/phpmd src/ text phpmd.xml
