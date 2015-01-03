@@ -37,17 +37,51 @@ class ContentRepositoryTest extends \TestCase {
     /**
      * @test
      */
-    public function is_works()
+    public function can_create_content()
     {
-        $this->repository->create(
+        $author  = User::find(1);
+        $content = $this->repository->create(
             [
                 'type'         => 'content',
                 'translations' => [
                     'langCode' => 'en',
-                    'title'    => 'lol'
+                    'title'    => 'Example title'
                 ]
             ],
-            new User()
+            $author
         );
+
+        $newContent       = $this->repository->getById($content->id);
+        $newContentRoute  = $newContent->route->translations;
+        $newContentAuthor = $newContent->author;
+        // content
+        $this->assertNotSame($content, $newContent);
+        $this->assertEquals($content->id, $newContent->id);
+        $this->assertEquals($content->type, $newContent->type);
+        // author
+        $this->assertEquals($author->id, $newContent->authorId);
+        $this->assertEquals($author->email, $newContentAuthor['email']);
+        // route
+        $this->assertEquals('en', $newContentRoute[0]['langCode']);
+        $this->assertEquals('example-title', $newContentRoute[0]['url']);
+    }
+
+    /**
+     * @test
+     */
+    public function can_create_content_without_author()
+    {
+        $content    = $this->repository->create(
+            [
+                'type'         => 'content',
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'Example title'
+                ]
+            ]
+        );
+        $newContent = $this->repository->getById($content->id);
+        $this->assertNotSame($content, $newContent);
+        $this->assertNull($newContent->author);
     }
 }

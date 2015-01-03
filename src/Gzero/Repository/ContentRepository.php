@@ -330,7 +330,9 @@ class ContentRepository extends BaseRepository {
                 // Content
                 $content = new C();
                 $content->fill($data);
-                $content->author()->associate($author);
+                if ($author) {
+                    $content->author()->associate($author);
+                }
                 if (!empty($data['parentId'])) {
                     $parent = $this->getById($data['parentId']);
                     if (!empty($parent)) {
