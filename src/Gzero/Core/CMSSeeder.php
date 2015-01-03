@@ -1,5 +1,6 @@
 <?php namespace Gzero\Core;
 
+use Config;
 use Faker\Factory;
 use Gzero\Entity\Content;
 use Gzero\Entity\ContentType;
@@ -10,6 +11,7 @@ use Gzero\Entity\RouteTranslation;
 use Gzero\Entity\User;
 use Gzero\Repository\ContentRepository;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
 /**
@@ -51,6 +53,7 @@ class CMSSeeder extends Seeder {
      */
     public function run()
     {
+        $this->truncate();
         $langs        = $this->seedLangs();
         $contentTypes = $this->seedContentTypes();
         $usersIds     = $this->seedUsers();
@@ -184,5 +187,23 @@ class CMSSeeder extends Seeder {
             );
         }
         return [null, $user->id];
+    }
+
+    /**
+     * Truncate database
+     *
+     * @return void
+     */
+    private function truncate()
+    {
+        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+        $tables             = DB::select('SHOW TABLES');
+        $tables_in_database = "Tables_in_" . Config::get('database.connections.mysql.database');
+        foreach ($tables as $table) {
+            if ($table->$tables_in_database !== 'migrations') {
+                DB::table($table->$tables_in_database)->truncate();
+            }
+        }
+        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
     }
 }

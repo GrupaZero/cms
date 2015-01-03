@@ -32,6 +32,9 @@ class TestCase extends Illuminate\Foundation\Testing\TestCase {
         $framework = __DIR__ . '/../vendor/laravel/framework/src';
 
         require $framework . '/Illuminate/Foundation/start.php';
+        require __DIR__ . '/../src/Gzero/Core/helpers.php';
+
+        $this->app['artisan']->call('migrate', ['--path' => '../src/migrations']); // Relative to tests/app/
 
         return $this->app;
     }

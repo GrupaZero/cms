@@ -1,7 +1,7 @@
-<?php
+<?php namespace unit;
 
-require_once(__DIR__ . '/TestCase.php');
-require_once(__DIR__ . '/Gzero/Stub/DummyValidator.php');
+require_once(__DIR__ . '/../TestCase.php');
+require_once(__DIR__ . '/../stub/DummyValidator.php');
 
 /**
  * This file is part of the GZERO CMS package.
@@ -14,7 +14,7 @@ require_once(__DIR__ . '/Gzero/Stub/DummyValidator.php');
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2014, Adrian Skierniewski
  */
-class ValidatorTest extends TestCase {
+class ValidatorTest extends \TestCase {
 
     /**
      * @var Array
@@ -30,7 +30,7 @@ class ValidatorTest extends TestCase {
     {
         parent::setUp();
         $this->input     = $this->initData();
-        $this->validator = new DummyValidator(\App::make('validator'));
+        $this->validator = new \DummyValidator(\App::make('validator'));
     }
 
     /**
