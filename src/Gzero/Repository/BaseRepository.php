@@ -73,6 +73,16 @@ abstract class BaseRepository {
     }
 
     /**
+     * Returns eloquent model
+     *
+     * @return Base
+     */
+    protected function getEloquentModel()
+    {
+        return $this->model;
+    }
+
+    /**
      * Add filter rules to query
      *
      * @param string $entityTableName Base entity name (for example: Contents, Blocks, BlockTranslations etc.)

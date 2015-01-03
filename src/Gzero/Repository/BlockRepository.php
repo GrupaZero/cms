@@ -150,4 +150,16 @@ class BlockRepository extends BaseRepository {
     }
 
     // @codingStandardsIgnoreEnd
+    /**
+     * Eager load relations for eloquent collection.
+     * We use this function in handlePagination method!
+     *
+     * @param Collection $results Eloquent collection
+     *
+     * @return void
+     */
+    protected function listEagerLoad($results)
+    {
+        // TODO: Implement listEagerLoad() method.
+    }
 }

@@ -277,6 +277,24 @@ class ContentRepository extends BaseRepository {
     }
 
     /**
+     * Get all root contents
+     *
+     * @param array $criteria Filter criteria
+     * @param array $orderBy  Array of columns
+     *
+     * @return mixed
+     * @throws RepositoryException
+     */
+    public function getRoots(array $criteria, array $orderBy = [])
+    {
+        $query = $this->getEloquentModel()->getRoots();
+        $this->handleTranslationsJoin($criteria, $orderBy, $query);
+        $this->handleFilterCriteria($this->getTableName(), $criteria, $query);
+        $this->handleAuthorJoin($query);
+        return $this->handlePagination($this->getTableName(), $query, null, null);
+    }
+
+    /**
      * Get translation of specified content by id.
      *
      * @param C   $content Content entity
@@ -497,7 +515,7 @@ class ContentRepository extends BaseRepository {
      */
     protected function listEagerLoad($results)
     {
-        $results->load('route.translations', 'translations');
+        $results->load('route.translations', 'translations', 'author');
     }
 
 
