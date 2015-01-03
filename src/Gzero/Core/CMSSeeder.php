@@ -194,6 +194,8 @@ class CMSSeeder extends Seeder {
 
     /**
      * Truncate database
+     *
+     * @return void
      */
     private function truncate()
     {
