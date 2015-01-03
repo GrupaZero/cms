@@ -537,6 +537,22 @@ class ContentRepository extends BaseRepository {
     }
 
     /**
+     * Delete specific content translation entity
+     *
+     * @param ContentTranslation $translation entity to delete
+     *
+     * @return boolean
+     */
+    public function deleteTranslation(ContentTranslation $translation)
+    {
+        return $this->newQuery()->transaction(
+            function () use ($translation) {
+                return $translation->delete();
+            }
+        );
+    }
+
+    /**
      * Default orderBy for content query
      *
      * @return callable
