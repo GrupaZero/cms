@@ -1,5 +1,7 @@
 <?php
 
+use Config;
+use DB;
 use Faker\Factory;
 use Gzero\Entity\ContentType;
 use Gzero\Entity\Lang;
@@ -117,11 +119,11 @@ class TestSeeder extends Seeder {
     private function truncate()
     {
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-        $tables             = \DB::select('SHOW TABLES');
-        $tables_in_database = "Tables_in_" . \Config::get('database.connections.mysql.database');
+        $tables             = DB::select('SHOW TABLES');
+        $tables_in_database = "Tables_in_" . Config::get('database.connections.mysql.database');
         foreach ($tables as $table) {
             if ($table[$tables_in_database] !== 'migrations') {
-                \DB::table($table[$tables_in_database])->truncate();
+                DB::table($table[$tables_in_database])->truncate();
             }
         }
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
