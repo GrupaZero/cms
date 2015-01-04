@@ -326,25 +326,28 @@ class ContentRepository extends BaseRepository {
         $content = $this->newQuery()->transaction(
             function () use ($data, $author) {
                 $translations = array_get($data, 'translations'); // Nested relation fields
-                // Content
-                $content = new C();
-                $content->fill($data);
-                if ($author) {
-                    $content->author()->associate($author);
-                }
-                if (!empty($data['parentId'])) {
-                    $parent = $this->getById($data['parentId']);
-                    if (!empty($parent)) {
-                        $content->setChildOf($parent);
-                    } else {
-                        throw new RepositoryException('Parent node id: ' . $data['parentId'] . ' doesn\'t exist');
+                if (!empty($translations) && array_key_exists('type', $data)) {
+                    // Content
+                    $content = new C();
+                    $content->fill($data);
+                    if ($author) {
+                        $content->author()->associate($author);
                     }
-                } else {
-                    $content->setAsRoot();
+                    if (!empty($data['parentId'])) {
+                        $parent = $this->getById($data['parentId']);
+                        if (!empty($parent)) {
+                            $content->setChildOf($parent);
+                        } else {
+                            throw new RepositoryException('Parent node id: ' . $data['parentId'] . ' doesn\'t exist');
+                        }
+                    } else {
+                        $content->setAsRoot();
+                    }
+                    // Content translations
+                    $this->createTranslation($content, $translations);
+                    return $content;
                 }
-                // Content translations
-                $this->createTranslation($content, $translations);
-                return $content;
+                throw new RepositoryException("Content type and translation is required", 500);
             }
         );
         $this->events->fire('content.created', [$content]);
@@ -358,24 +361,28 @@ class ContentRepository extends BaseRepository {
      * @param array $data    new data to save
      *
      * @return ContentTranslation
+     * @throws RepositoryException
      */
     public function createTranslation(C $content, Array $data)
     {
-        $translation = $this->newQuery()->transaction(
-            function () use ($content, $data) {
-                // Set all translation of this content as inactive
-                $this->disableActiveTranslations($content->id, $data['langCode']);
-                $translation = new ContentTranslation();
-                $translation->fill($data);
-                $translation->isActive = 1; // Because only recent translation is active
-                $content->translations()->save($translation);
-                return $translation;
-            }
-        );
-        // Creating or updating route from translations
-        $this->createRoute($content, $data);
-        $this->events->fire('content.translation.created', [$content, $translation]);
-        return $translation;
+        if (array_key_exists('langCode', $data) && array_key_exists('title', $data)) {
+            $translation = $this->newQuery()->transaction(
+                function () use ($content, $data) {
+                    // Set all translation of this content as inactive
+                    $this->disableActiveTranslations($content->id, $data['langCode']);
+                    $translation = new ContentTranslation();
+                    $translation->fill($data);
+                    $translation->isActive = 1; // Because only recent translation is active
+                    $content->translations()->save($translation);
+                    return $translation;
+                }
+            );
+            // Creating or updating route from translations
+            $this->createRoute($content, $data);
+            $this->events->fire('content.translation.created', [$content, $translation]);
+            return $translation;
+        }
+        throw new RepositoryException("Language code and title of translation is required", 500);
     }
 
 
@@ -386,36 +393,40 @@ class ContentRepository extends BaseRepository {
      * @param array $translations translations data to save
      *
      * @return Route
+     * @throws RepositoryException
      */
     public function createRoute(C $content, $translations)
     {
-        $route = $this->newQuery()->transaction(
-            function () use ($content, $translations) {
-                $url = '';
-                // Search for parent, to get its url
-                if (!empty($content->parentId)) {
-                    $parent = $this->getById($content->parentId);
-                    if (!empty($parent)) {
-                        $url = $parent->getUrl($translations['langCode']) . '/';
+        if (array_key_exists('langCode', $translations) && array_key_exists('title', $translations)) {
+            $route = $this->newQuery()->transaction(
+                function () use ($content, $translations) {
+                    $url = '';
+                    // Search for parent, to get its url
+                    if (!empty($content->parentId)) {
+                        $parent = $this->getById($content->parentId);
+                        if (!empty($parent)) {
+                            $url = $parent->getUrl($translations['langCode']) . '/';
+                        }
                     }
+                    // Search for route, or instantiate a new instance
+                    $route = Route::firstOrNew(['routableId' => $content->id, 'isActive' => 1]);
+                    $content->route()->save($route);
+                    //  Search for route translations, or instantiate a new instance
+                    $routeTranslation      = RouteTranslation::firstOrNew(
+                        ['routeId' => $route->id, 'langCode' => $translations['langCode'], 'isActive' => 1]
+                    );
+                    $routeTranslation->url = $this->buildUniqueUrl(
+                        $url . str_slug($translations['title']),
+                        $translations['langCode']
+                    );
+                    $route->translations()->save($routeTranslation);
+                    return $route;
                 }
-                // Search for route, or instantiate a new instance
-                $route = Route::firstOrNew(['routableId' => $content->id, 'isActive' => 1]);
-                $content->route()->save($route);
-                //  Search for route translations, or instantiate a new instance
-                $routeTranslation      = RouteTranslation::firstOrNew(
-                    ['routeId' => $route->id, 'langCode' => $translations['langCode'], 'isActive' => 1]
-                );
-                $routeTranslation->url = $this->buildUniqueUrl(
-                    $url . str_slug($translations['title']),
-                    $translations['langCode']
-                );
-                $route->translations()->save($routeTranslation);
-                return $route;
-            }
-        );
-        $this->events->fire('route.created', [$route]);
-        return $route;
+            );
+            $this->events->fire('route.created', [$route]);
+            return $route;
+        }
+        throw new RepositoryException("Language code and title of translation is required", 500);
     }
 
     /**

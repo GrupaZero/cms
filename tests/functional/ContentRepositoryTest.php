@@ -182,6 +182,30 @@ class ContentRepositoryTest extends \EloquentTestCase {
 
     }
 
+    /**
+     * @test
+     * @expectedException Gzero\Core\Exception
+     */
+    public function it_checks_existence_of_content_type()
+    {
+        $this->repository->create(
+            [
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'Example category title'
+                ]
+            ]
+        );
+    }
+
+    /**
+     * @test
+     * @expectedException Gzero\Core\Exception
+     */
+    public function it_checks_existence_of_content_translation()
+    {
+        $this->repository->create(['type' => 'category']);
+    }
 
     /**
      * @test
