@@ -235,6 +235,24 @@ class ContentRepositoryTest extends \EloquentTestCase {
         );
     }
 
+    /**
+     * @test
+     * @expectedException Gzero\Core\Exception
+     */
+    public function it_checks_existence_of_parent()
+    {
+        $this->repository->create(
+            [
+                'type'         => 'content',
+                'parentId'     => 1,
+                'translations' => [
+                    'langCode' => 'pl',
+                    'title'    => 'Example content title'
+                ]
+            ]
+        );
+    }
+
     /*
   |--------------------------------------------------------------------------
   | START Tree tests
