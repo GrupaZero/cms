@@ -84,4 +84,33 @@ class ContentRepositoryTest extends \TestCase {
         $this->assertNotSame($content, $newContent);
         $this->assertNull($newContent->author);
     }
+
+    /**
+     * @test
+     */
+    public function can_create_content_as_child()
+    {
+        $category    = $this->repository->create(
+            [
+                'type'         => 'category',
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'Example title'
+                ]
+            ]
+        );
+        $newCategory = $this->repository->getById($category->id);
+        $content     = $this->repository->create(
+            [
+                'type'         => 'content',
+                'parentId'     => $newCategory->id,
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'Example title'
+                ]
+            ]
+        );
+        $newContent  = $this->repository->getById($content->id);
+        $this->assertEquals($newCategory->id . '/' . $newContent->id . '/', $newContent->path);
+    }
 }

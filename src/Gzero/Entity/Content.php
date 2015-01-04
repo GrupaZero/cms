@@ -19,6 +19,7 @@ class Content extends BaseTree {
     protected $fillable = [
         'type',
         'authorId',
+        'parentId',
         'path',
         'weight',
         'rating',
