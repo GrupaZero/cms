@@ -1,7 +1,5 @@
 <?php
 
-require_once('TestCase.php');
-
 /**
  * This is simple laravel application test
  */
