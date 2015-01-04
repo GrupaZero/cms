@@ -1,5 +1,6 @@
 <?php namespace functional;
 
+use Faker\Factory;
 use Gzero\Entity\Content;
 use Gzero\Entity\User;
 use Gzero\Repository\ContentRepository;
@@ -41,8 +42,14 @@ class ContentRepositoryTest extends \EloquentTestCase {
         $author  = User::find(1);
         $content = $this->repository->create(
             [
-                'type'         => 'content',
-                'translations' => [
+                'type'             => 'content',
+                'isOnHome'         => true,
+                'isCommentAllowed' => true,
+                'isPromoted'       => true,
+                'isSticky'         => true,
+                'isActive'         => true,
+                'publishedAt'      => date('Y-m-d H:i:s'),
+                'translations'     => [
                     'langCode' => 'en',
                     'title'    => 'Example title'
                 ]
@@ -57,6 +64,12 @@ class ContentRepositoryTest extends \EloquentTestCase {
         $this->assertNotSame($content, $newContent);
         $this->assertEquals($content->id, $newContent->id);
         $this->assertEquals($content->type, $newContent->type);
+        $this->assertEquals($content->isOnHome, $newContent->isOnHome);
+        $this->assertEquals($content->isCommentAllowed, $newContent->isCommentAllowed);
+        $this->assertEquals($content->isPromoted, $newContent->isPromoted);
+        $this->assertEquals($content->isSticky, $newContent->isSticky);
+        $this->assertEquals($content->isActive, $newContent->isActive);
+        $this->assertEquals($content->publishedAt, $newContent->publishedAt);
         // author
         $this->assertEquals($author->id, $newContent->authorId);
         $this->assertEquals($author->email, $newContentAuthor['email']);
