@@ -7,6 +7,7 @@ use Gzero\Repository\ContentRepository;
 use Illuminate\Events\Dispatcher;
 
 require_once(__DIR__ . '/../stub/TestSeeder.php');
+require_once(__DIR__ . '/../stub/TestTreeSeeder.php');
 
 /**
  * This file is part of the GZERO CMS package.
@@ -100,44 +101,6 @@ class ContentRepositoryTest extends \EloquentTestCase {
     /**
      * @test
      */
-    public function can_create_content_as_child()
-    {
-        $category        = $this->repository->create(
-            [
-                'type'         => 'category',
-                'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Example category title'
-                ]
-            ]
-        );
-        $newCategory     = $this->repository->getById($category->id);
-        $content         = $this->repository->create(
-            [
-                'type'         => 'content',
-                'parentId'     => $newCategory->id,
-                'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Example content title'
-                ]
-            ]
-        );
-        $newContent      = $this->repository->getById($content->id);
-        $newContentRoute = $newContent->route->translations()->first();
-        // path
-        $this->assertEquals($newCategory->id . '/' . $newContent->id . '/', $newContent->path);
-        // parentId
-        $this->assertEquals($newCategory->id, $newContent->parentId);
-        // level
-        $this->assertEquals(1, $newContent->level);
-        // route
-        $this->assertEquals('en', $newContentRoute['langCode']);
-        $this->assertEquals('example-category-title/example-content-title', $newContentRoute['url']);
-    }
-
-    /**
-     * @test
-     */
     public function can_create_and_get_content_translation()
     {
         $content          = $this->repository->create(
@@ -194,7 +157,6 @@ class ContentRepositoryTest extends \EloquentTestCase {
         $this->assertNull($newContent->route()->first());
         // content translations deleted
         $this->assertNull($newContent->translations()->first());
-
     }
 
     /**
@@ -248,4 +210,63 @@ class ContentRepositoryTest extends \EloquentTestCase {
             ]
         );
     }
+
+    /*
+  |--------------------------------------------------------------------------
+  | START Tree tests
+  |--------------------------------------------------------------------------
+  */
+
+    /**
+     * @test
+     */
+    public function can_create_content_as_child()
+    {
+        // Tree seeds
+        $this->app['artisan']->call('db:seed', ['--class' => 'TestTreeSeeder']);
+
+        $category        = $this->repository->getById(1);
+        $categoryRoute   = $category->route->translations()->first();
+        $content         = $this->repository->create(
+            [
+                'type'         => 'content',
+                'parentId'     => $category->id,
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'Example content title'
+                ]
+            ]
+        );
+        $newContent      = $this->repository->getById($content->id);
+        $newContentRoute = $newContent->route->translations()->first();
+        // parentId
+        $this->assertEquals($category->id, $newContent->parentId);
+        // level
+        $this->assertEquals($category->level + 1, $newContent->level);
+        // path
+        $this->assertEquals($category->path . $newContent->id . '/', $newContent->path);
+        // route
+        $this->assertEquals('en', $newContentRoute['langCode']);
+        $this->assertEquals($categoryRoute->url . '/' . 'example-content-title', $newContentRoute['url']);
+    }
+
+    /**
+     * @test
+     */
+    public function can_delete_content_with_children()
+    {
+        // Tree seeds
+        $this->app['artisan']->call('db:seed', ['--class' => 'TestTreeSeeder']);
+
+        $content = $this->repository->getById(1);
+        $this->repository->delete($content);
+        // content children deleted
+        $this->assertEmpty($content->children()->get());
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | END Tree tests
+    |--------------------------------------------------------------------------
+    */
 }

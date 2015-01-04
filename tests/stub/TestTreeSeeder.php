@@ -4,13 +4,15 @@ use Faker\Factory;
 use Gzero\Entity\ContentType;
 use Gzero\Entity\Lang;
 use Gzero\Entity\User;
+use Gzero\Entity\Content;
+use Gzero\Repository\ContentRepository;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
 
 /**
  * Class DummyValidator
  */
-class TestSeeder extends Seeder {
+class TestTreeSeeder extends Seeder {
+
 
     /**
      * @var \Faker\Generator
@@ -19,10 +21,13 @@ class TestSeeder extends Seeder {
 
     /**
      * CMSSeeder constructor
+     *
+     * @param ContentRepository $content Content repository
      */
-    public function __construct()
+    public function __construct(ContentRepository $content)
     {
-        $this->faker = Factory::create();
+        $this->faker      = Factory::create();
+        $this->repository = $content;
     }
 
     /**
@@ -34,9 +39,23 @@ class TestSeeder extends Seeder {
     public function run()
     {
         $this->truncate();
-        $this->seedLangs();
-        $this->seedContentTypes();
         $this->seedUsers();
+        $this->seedLangs();
+        $contentTypes = $this->seedContentTypes();
+        $contents     = [];
+        $categories   = [];
+        for ($i = 0; $i < 1; $i++) { // Categories
+            $categories[] = $this->seedContent(
+                $contentTypes['category'],
+                $this->faker->randomElement($categories)
+            );
+        }
+        for ($i = 0; $i < 2; $i++) { // Content in categories
+            $contents[] = $this->seedContent(
+                $contentTypes['content'],
+                $this->faker->randomElement($categories)
+            );
+        }
     }
 
     /**
@@ -81,6 +100,33 @@ class TestSeeder extends Seeder {
     }
 
     /**
+     * Seed single content
+     *
+     * @param ContentType  $type   Content type
+     * @param Content|Null $parent Parent element
+     *
+     * @return Content
+     */
+    private function seedContent(ContentType $type, $parent)
+    {
+        $input = [
+            'type'         => $type->name,
+            'isActive'     => true,
+            'translations' => [
+                'langCode' => 'en',
+                'title'    => $this->faker->sentence(5),
+                'body'     => $this->faker->text(rand(100, 255)),
+                'isActive' => true
+            ]
+        ];
+        if (!empty($parent)) {
+            $input['parentId'] = $parent->id;
+        }
+        $content = $this->repository->create($input, User::find(1));
+        return $content;
+    }
+
+    /**
      * Seed users
      *
      * @return array
@@ -99,6 +145,7 @@ class TestSeeder extends Seeder {
         );
         return $user;
     }
+
 
     /**
      * Truncate database

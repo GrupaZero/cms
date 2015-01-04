@@ -4,10 +4,7 @@ use Config;
 use Faker\Factory;
 use Gzero\Entity\Content;
 use Gzero\Entity\ContentType;
-use Gzero\Entity\ContentTranslation;
 use Gzero\Entity\Lang;
-use Gzero\Entity\Route;
-use Gzero\Entity\RouteTranslation;
 use Gzero\Entity\User;
 use Gzero\Repository\ContentRepository;
 use Illuminate\Database\Seeder;
@@ -87,30 +84,22 @@ class CMSSeeder extends Seeder {
     private function seedLangs()
     {
         $langs       = [];
-        $langs['en'] = Lang::find('en');
-        if (empty($langs['en'])) {
-            $langs['en'] = new Lang(
-                [
-                    'code'      => 'en',
-                    'i18n'      => 'en_US',
-                    'isEnabled' => true,
-                    'isDefault' => true
-                ]
-            );
-            $langs['en']->save();
-        }
+        $langs['en'] = Lang::firstOrCreate(
+            [
+                'code'      => 'en',
+                'i18n'      => 'en_US',
+                'isEnabled' => true,
+                'isDefault' => true
+            ]
+        );
 
-        $langs['pl'] = Lang::find('pl');
-        if (empty($langs['pl'])) {
-            $langs['pl'] = new Lang(
-                [
-                    'code'      => 'pl',
-                    'i18n'      => 'pl_PL',
-                    'isEnabled' => true
-                ]
-            );
-            $langs['pl']->save();
-        }
+        $langs['pl'] = Lang::firstOrCreate(
+            [
+                'code'      => 'pl',
+                'i18n'      => 'pl_PL',
+                'isEnabled' => true
+            ]
+        );
         return $langs;
     }
 
@@ -142,7 +131,6 @@ class CMSSeeder extends Seeder {
     {
         $input = [
             'type'     => $type->name,
-            'authorId' => $this->faker->randomElement($users),
             'weight'   => rand(0, 10),
             'isActive' => (bool) rand(0, 1)
         ];
@@ -174,19 +162,16 @@ class CMSSeeder extends Seeder {
     private function seedUsers()
     {
         // Create user
-        $user = User::find(1);
-        if (!$user) {
-            $user = User::create(
-                [
-                    'email'     => 'a@a.pl',
-                    'firstName' => 'John',
-                    'lastName'  => 'Doe',
-                    'password'  => Hash::make('test')
+        $user = User::firstOrCreate(
+            [
+                'email'     => 'a@a.pl',
+                'firstName' => 'John',
+                'lastName'  => 'Doe',
+                'password'  => Hash::make('test')
 
-                ]
-            );
-        }
-        return [null, $user->id];
+            ]
+        );
+        return $user;
     }
 
     /**
