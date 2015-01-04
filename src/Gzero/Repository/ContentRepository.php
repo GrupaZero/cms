@@ -101,9 +101,9 @@ class ContentRepository extends BaseRepository {
     }
 
     /**
-     * Get all children nodes to specific node
+     * Get all translations to specific content
      *
-     * @param C        $content  Tree node
+     * @param C        $content  Content content
      * @param array    $criteria Filter criteria
      * @param array    $orderBy  Array of columns
      * @param int|null $page     Page number (if null == disabled pagination)

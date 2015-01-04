@@ -51,7 +51,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
         );
 
         $newContent       = $this->repository->getById($content->id);
-        $newContentRoute  = $newContent->route->translations;
+        $newContentRoute  = $newContent->route->translations()->first();
         $newContentAuthor = $newContent->author;
         // content
         $this->assertNotSame($content, $newContent);
@@ -61,8 +61,8 @@ class ContentRepositoryTest extends \EloquentTestCase {
         $this->assertEquals($author->id, $newContent->authorId);
         $this->assertEquals($author->email, $newContentAuthor['email']);
         // route
-        $this->assertEquals('en', $newContentRoute[0]['langCode']);
-        $this->assertEquals('example-title', $newContentRoute[0]['url']);
+        $this->assertEquals('en', $newContentRoute['langCode']);
+        $this->assertEquals('example-title', $newContentRoute['url']);
     }
 
     /**
@@ -110,7 +110,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
             ]
         );
         $newContent      = $this->repository->getById($content->id);
-        $newContentRoute = $newContent->route->translations;
+        $newContentRoute = $newContent->route->translations()->first();
         // path
         $this->assertEquals($newCategory->id . '/' . $newContent->id . '/', $newContent->path);
         // parentId
@@ -118,42 +118,14 @@ class ContentRepositoryTest extends \EloquentTestCase {
         // level
         $this->assertEquals(1, $newContent->level);
         // route
-        $this->assertEquals('en', $newContentRoute[0]['langCode']);
-        $this->assertEquals('example-category-title/example-content-title', $newContentRoute[0]['url']);
-    }
-
-    /**
-     * @test
-     * @expectedException Gzero\Core\Exception
-     */
-    public function it_checks_existence_of_parent_route_translation()
-    {
-        $category    = $this->repository->create(
-            [
-                'type'         => 'category',
-                'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Example category title'
-                ]
-            ]
-        );
-        $newCategory = $this->repository->getById($category->id);
-        $content     = $this->repository->create(
-            [
-                'type'         => 'content',
-                'parentId'     => $newCategory->id,
-                'translations' => [
-                    'langCode' => 'pl',
-                    'title'    => 'Example content title'
-                ]
-            ]
-        );
+        $this->assertEquals('en', $newContentRoute['langCode']);
+        $this->assertEquals('example-category-title/example-content-title', $newContentRoute['url']);
     }
 
     /**
      * @test
      */
-    public function can_create_content_translation()
+    public function can_create_and_get_content_translation()
     {
         $content          = $this->repository->create(
             [
@@ -184,5 +156,83 @@ class ContentRepositoryTest extends \EloquentTestCase {
         $this->assertEquals('New example title', $newTranslation->title);
         $this->assertEquals('New example body', $newTranslation->body);
         $this->assertEquals($newContent->id, $newTranslation->contentId);
+    }
+
+    /**
+     * @test
+     */
+    public function can_delete_content()
+    {
+        $content    = $this->repository->create(
+            [
+                'type'         => 'content',
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'Example title'
+                ]
+            ]
+        );
+        $newContent = $this->repository->getById($content->id);
+        $this->assertNotSame($content, $newContent);
+        $this->repository->delete($newContent);
+        // content deleted
+        $this->assertNull($this->repository->getById($newContent->id));
+        // route deleted
+        $this->assertNull($newContent->route()->first());
+        // content translations deleted
+        $this->assertNull($newContent->translations()->first());
+
+    }
+
+    /**
+     * @test
+     */
+    public function can_delete_content_translation()
+    {
+        $content    = $this->repository->create(
+            [
+                'type'         => 'content',
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'Example title',
+                    'body'     => 'Example body'
+                ]
+            ]
+        );
+        $newContent = $this->repository->getById($content->id);
+        $this->assertNotSame($content, $newContent);
+        $this->repository->deleteTranslation($newContent->translations()->first());
+        // content translations deleted
+        $this->assertNull($newContent->translations()->first());
+
+    }
+
+
+    /**
+     * @test
+     * @expectedException Gzero\Core\Exception
+     */
+    public function it_checks_existence_of_parent_route_translation()
+    {
+        $category    = $this->repository->create(
+            [
+                'type'         => 'category',
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'Example category title'
+                ]
+            ]
+        );
+        $newCategory = $this->repository->getById($category->id);
+        $this->repository->create(
+            [
+                'type'         => 'content',
+                'parentId'     => $newCategory->id,
+                'translations' => [
+                    'langCode' => 'pl',
+                    'title'    => 'Example content title'
+                ]
+            ]
+        );
     }
 }
