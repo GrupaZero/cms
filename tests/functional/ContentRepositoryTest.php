@@ -89,12 +89,51 @@ class ContentRepositoryTest extends \EloquentTestCase {
      */
     public function can_create_content_as_child()
     {
+        $category        = $this->repository->create(
+            [
+                'type'         => 'category',
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'Example category title'
+                ]
+            ]
+        );
+        $newCategory     = $this->repository->getById($category->id);
+        $content         = $this->repository->create(
+            [
+                'type'         => 'content',
+                'parentId'     => $newCategory->id,
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'Example content title'
+                ]
+            ]
+        );
+        $newContent      = $this->repository->getById($content->id);
+        $newContentRoute = $newContent->route->translations;
+        // path
+        $this->assertEquals($newCategory->id . '/' . $newContent->id . '/', $newContent->path);
+        // parentId
+        $this->assertEquals($newCategory->id, $newContent->parentId);
+        // level
+        $this->assertEquals(1, $newContent->level);
+        // route
+        $this->assertEquals('en', $newContentRoute[0]['langCode']);
+        $this->assertEquals('example-category-title/example-content-title', $newContentRoute[0]['url']);
+    }
+
+    /**
+     * @test
+     * @expectedException Gzero\Core\Exception
+     */
+    public function it_checks_existence_of_parent_route_translation()
+    {
         $category    = $this->repository->create(
             [
                 'type'         => 'category',
                 'translations' => [
                     'langCode' => 'en',
-                    'title'    => 'Example title'
+                    'title'    => 'Example category title'
                 ]
             ]
         );
@@ -104,12 +143,10 @@ class ContentRepositoryTest extends \EloquentTestCase {
                 'type'         => 'content',
                 'parentId'     => $newCategory->id,
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Example title'
+                    'langCode' => 'pl',
+                    'title'    => 'Example content title'
                 ]
             ]
         );
-        $newContent  = $this->repository->getById($content->id);
-        $this->assertEquals($newCategory->id . '/' . $newContent->id . '/', $newContent->path);
     }
 }
