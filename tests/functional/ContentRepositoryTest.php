@@ -5,7 +5,7 @@ use Gzero\Entity\User;
 use Gzero\Repository\ContentRepository;
 use Illuminate\Events\Dispatcher;
 
-require_once(__DIR__ . '/../TestCase.php');
+require_once(__DIR__ . '/../EloquentTestCase.php');
 require_once(__DIR__ . '/../stub/TestSeeder.php');
 
 /**
@@ -20,7 +20,7 @@ require_once(__DIR__ . '/../stub/TestSeeder.php');
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2015, Adrian Skierniewski
  */
-class ContentRepositoryTest extends \TestCase {
+class ContentRepositoryTest extends \EloquentTestCase {
 
     /**
      * @var ContentRepository
