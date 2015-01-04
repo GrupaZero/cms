@@ -149,4 +149,40 @@ class ContentRepositoryTest extends \EloquentTestCase {
             ]
         );
     }
+
+    /**
+     * @test
+     */
+    public function can_create_content_translation()
+    {
+        $content          = $this->repository->create(
+            [
+                'type'         => 'content',
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'Example title'
+                ]
+            ]
+        );
+        $newContent       = $this->repository->getById($content->id);
+        $translation      = $this->repository->createTranslation(
+            $newContent,
+            [
+                'langCode' => 'en',
+                'title'    => 'New example title',
+                'body'     => 'New example body'
+            ]
+        );
+        $firstTranslation = $this->repository->getContentTranslationById($newContent, 1);
+        $newTranslation   = $this->repository->getContentTranslationById($newContent, 2);
+        $this->assertNotSame($content, $newContent);
+        $this->assertNotSame($translation, $firstTranslation);
+        // previous translation is inactive
+        $this->assertFalse((bool) $firstTranslation->isActive);
+        // new translation
+        $this->assertEquals('en', $newTranslation->langCode);
+        $this->assertEquals('New example title', $newTranslation->title);
+        $this->assertEquals('New example body', $newTranslation->body);
+        $this->assertEquals($newContent->id, $newTranslation->contentId);
+    }
 }
