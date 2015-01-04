@@ -346,8 +346,9 @@ class ContentRepository extends BaseRepository {
                     // Content translations
                     $this->createTranslation($content, $translations);
                     return $content;
+                } else {
+                    throw new RepositoryException("Content type and translation is required", 500);
                 }
-                throw new RepositoryException("Content type and translation is required", 500);
             }
         );
         $this->events->fire('content.created', [$content]);
@@ -381,8 +382,9 @@ class ContentRepository extends BaseRepository {
             $this->createRoute($content, $data);
             $this->events->fire('content.translation.created', [$content, $translation]);
             return $translation;
+        } else {
+            throw new RepositoryException("Language code and title of translation is required", 500);
         }
-        throw new RepositoryException("Language code and title of translation is required", 500);
     }
 
 
@@ -425,8 +427,9 @@ class ContentRepository extends BaseRepository {
             );
             $this->events->fire('route.created', [$route]);
             return $route;
+        } else {
+            throw new RepositoryException("Language code and title of translation is required", 500);
         }
-        throw new RepositoryException("Language code and title of translation is required", 500);
     }
 
     /**
