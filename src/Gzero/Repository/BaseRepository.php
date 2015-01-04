@@ -228,7 +228,7 @@ abstract class BaseRepository {
                 return $relation->getModel()
                     ->where($foreignKey[1], $id)
                     ->where('langCode', $langCode)
-                    ->update(['isActive' => 0]);
+                    ->update(['isActive' => false]);
             } else {
                 throw new RepositoryException("Unable to find foreign key of related translations", 500);
             }

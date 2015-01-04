@@ -14,8 +14,9 @@
 
 require __DIR__ . '/vendor/autoload.php';
 
-// Doctrine2 Test Case
-require_once __DIR__ . '/tests/Doctrine2TestCase.php';
+//Test Cases
+require_once __DIR__ . '/tests/TestCase.php';
+require_once __DIR__ . '/tests/EloquentTestCase.php';
 
 /*
 |--------------------------------------------------------------------------
