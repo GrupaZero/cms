@@ -79,7 +79,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
         $newContent       = $this->repository->getById($content->id);
         $newContentRoute  = $newContent->route->translations()->first();
         $newContentAuthor = $newContent->author;
-        // content
+        // Content
         $this->assertNotSame($content, $newContent);
         $this->assertEquals($content->id, $newContent->id);
         $this->assertEquals($content->type, $newContent->type);
@@ -89,10 +89,10 @@ class ContentRepositoryTest extends \EloquentTestCase {
         $this->assertEquals($content->isSticky, $newContent->isSticky);
         $this->assertEquals($content->isActive, $newContent->isActive);
         $this->assertEquals($content->publishedAt, $newContent->publishedAt);
-        // author
+        // Author
         $this->assertEquals($author->id, $newContent->authorId);
         $this->assertEquals($author->email, $newContentAuthor['email']);
-        // route
+        // Route
         $this->assertEquals('en', $newContentRoute['langCode']);
         $this->assertEquals('example-title', $newContentRoute['url']);
     }
@@ -143,9 +143,9 @@ class ContentRepositoryTest extends \EloquentTestCase {
         $newTranslation   = $this->repository->getContentTranslationById($newContent, 2);
         $this->assertNotSame($content, $newContent);
         $this->assertNotSame($translation, $firstTranslation);
-        // previous translation is inactive
+        // Previous translation is inactive
         $this->assertFalse((bool) $firstTranslation->isActive);
-        // new translation
+        // New translation
         $this->assertEquals('en', $newTranslation->langCode);
         $this->assertEquals('New example title', $newTranslation->title);
         $this->assertEquals('New example body', $newTranslation->body);
@@ -320,7 +320,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
      */
     public function can_get_roots()
     {
-        // tree seeds
+        // Tree seeds
         $this->app['artisan']->call('db:seed', ['--class' => 'TestTreeSeeder']);
 
         $roots = $this->repository->getRoots(
@@ -339,7 +339,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
      */
     public function can_get_tree()
     {
-        // tree seeds
+        // Tree seeds
         $this->app['artisan']->call('db:seed', ['--class' => 'TestTreeSeeder']);
 
         $category = $this->repository->getById(1);
@@ -350,7 +350,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
             null
         );
 
-        // first level
+        // First level
         foreach ($tree['children'] as $node) {
             $this->assertEquals($category->id, $node->parentId);
             // nested level
@@ -367,7 +367,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
      */
     public function can_create_content_as_child()
     {
-        // tree seeds
+        // Tree seeds
         $this->app['artisan']->call('db:seed', ['--class' => 'TestTreeSeeder']);
 
         $category        = $this->repository->getById(1);
@@ -398,14 +398,51 @@ class ContentRepositoryTest extends \EloquentTestCase {
     /**
      * @test
      */
+    public function can_update_content_parent()
+    {
+        // Tree seeds
+        $this->app['artisan']->call('db:seed', ['--class' => 'TestTreeSeeder']);
+
+        $content        = $this->repository->getById(1); // first root
+        $oldContentPath = $content->path;
+        $this->repository->update(
+            $content,
+            [
+                'parentId' => 2, // second root
+            ]
+        );
+        $updatedContent = $this->repository->getById($content->id);
+        $newCategory    = $this->repository->getById($updatedContent->parentId);
+        $this->assertNotEmpty($newCategory);
+        $this->assertNotEquals($oldContentPath, $updatedContent->path);
+        $this->assertEquals($newCategory->id, $updatedContent->parentId);
+        $this->assertEquals($newCategory->path . $updatedContent->id . '/', $updatedContent->path);
+
+        // Descendants
+        $contents = $this->repository->getDescendants(
+            $updatedContent,
+            [],
+            [],
+            null
+        );
+
+        // Should contain updated path
+        foreach ($contents as $key => $content) {
+            $this->assertContains($updatedContent->path, $content->path);
+        }
+    }
+
+    /**
+     * @test
+     */
     public function can_delete_content_with_children()
     {
-        // tree seeds
+        // Tree seeds
         $this->app['artisan']->call('db:seed', ['--class' => 'TestTreeSeeder']);
 
         $content = $this->repository->getById(1);
         $this->repository->delete($content);
-        // content children deleted
+        // Content children deleted
         $this->assertEmpty($content->children()->get());
     }
 
@@ -426,7 +463,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
      */
     public function can_get_content_children_list()
     {
-        // tree seeds
+        // Tree seeds
         $this->app['artisan']->call('db:seed', ['--class' => 'TestTreeSeeder']);
         $category = $this->repository->getById(1);
 
@@ -448,10 +485,10 @@ class ContentRepositoryTest extends \EloquentTestCase {
      */
     public function can_get_content_translations_list()
     {
-        // tree seeds
+        // Tree seeds
         $this->app['artisan']->call('db:seed', ['--class' => 'TestTreeSeeder']);
         $category = $this->repository->getById(1);
-        // new translations
+        // New translations
         for ($i = 0; $i < 3; $i++) {
             $this->repository->createTranslation(
                 $category,
@@ -468,7 +505,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
             [],
             null
         );
-        // number of new translations plus one for first translation
+        // Number of new translations plus one for first translation
         $this->assertCount($i + 1, $contents);
         foreach ($contents as $content) {
             // parentId
@@ -481,7 +518,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
      */
     public function can_filter_contents_list()
     {
-        // tree seeds
+        // Tree seeds
         $this->app['artisan']->call('db:seed', ['--class' => 'TestTreeSeeder']);
 
         $contents = $this->repository->getContents(
@@ -564,7 +601,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
      */
     public function it_checks_existence_of_lang_code_on_translations_join()
     {
-        // tree seeds
+        // Tree seeds
         $this->app['artisan']->call('db:seed', ['--class' => 'TestTreeSeeder']);
 
         $this->repository->getContents(

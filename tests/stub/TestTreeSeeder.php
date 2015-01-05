@@ -51,11 +51,11 @@ class TestTreeSeeder extends Seeder {
                 null
             );
         }
-        // First level categories
+        // first root categories
         for ($i = 0; $i < 1; $i++) {
             $subCategories[] = $this->seedContent(
                 $contentTypes['category'],
-                $this->faker->randomElement($categories)
+                $categories[0]
             );
         }
         for ($i = 0; $i < 1; $i++) { // Content in categories
