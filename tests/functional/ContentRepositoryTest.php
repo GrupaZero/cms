@@ -1,6 +1,5 @@
 <?php namespace functional;
 
-use Faker\Factory;
 use Gzero\Entity\Content;
 use Gzero\Entity\User;
 use Gzero\Repository\ContentRepository;
