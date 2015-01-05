@@ -340,6 +340,8 @@ class ContentRepository extends BaseRepository {
             function () use ($data, $author) {
                 $translations = array_get($data, 'translations'); // Nested relation fields
                 if (!empty($translations) && array_key_exists('type', $data)) {
+                    // Check if type exist
+                    $this->validateType($data['type']);
                     // Content
                     $content = new C();
                     $content->fill($data);
@@ -608,5 +610,24 @@ class ContentRepository extends BaseRepository {
         return ($count) ? $url . '-' . $count : $url;
     }
 
+    /**
+     * Checks if provided type exists
+     *
+     * @param string $type type name
+     *
+     * @throws RepositoryException
+     * @return string
+     */
+    private function validateType($type)
+    {
+        // TODO get registered types
+        $types = ['content', 'category'];
+        if (in_array($type, $types)) {
+            return $type;
+        } else {
+            throw new RepositoryException("Content type '" . $type . "' doesn't exist", 500);
+        }
+
+    }
 
 }

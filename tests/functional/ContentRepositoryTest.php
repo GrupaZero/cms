@@ -40,7 +40,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
      */
     public function can_get_content_by_url()
     {
-        $content = $this->repository->create(
+        $content    = $this->repository->create(
             [
                 'type'         => 'content',
                 'translations' => [
@@ -156,6 +156,34 @@ class ContentRepositoryTest extends \EloquentTestCase {
     /**
      * @test
      */
+    public function can_update_content()
+    {
+        $content    = $this->repository->create(
+            [
+                'type'         => 'content',
+                'isOnHome'     => false,
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'Example title'
+                ]
+            ]
+        );
+        $newContent = $this->repository->getById($content->id);
+        $this->repository->update(
+            $newContent,
+            [
+                'isOnHome' => true,
+            ]
+        );
+        $updatedContent = $this->repository->getById($newContent->id);
+        $this->assertNotSame($content, $newContent);
+        $this->assertNotSame($newContent, $updatedContent);
+        $this->assertEquals(true, $updatedContent->isOnHome);
+    }
+
+    /**
+     * @test
+     */
     public function can_delete_content()
     {
         $content    = $this->repository->create(
@@ -209,6 +237,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
     {
         $this->repository->create(
             [
+                'type'         => 'fakeType',
                 'translations' => [
                     'langCode' => 'en',
                     'title'    => 'Example category title'
