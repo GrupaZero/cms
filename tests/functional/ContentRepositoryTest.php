@@ -264,7 +264,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
      */
     public function can_create_content_as_child()
     {
-        // Tree seeds
+        // tree seeds
         $this->app['artisan']->call('db:seed', ['--class' => 'TestTreeSeeder']);
 
         $category        = $this->repository->getById(1);
@@ -297,7 +297,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
      */
     public function can_delete_content_with_children()
     {
-        // Tree seeds
+        // tree seeds
         $this->app['artisan']->call('db:seed', ['--class' => 'TestTreeSeeder']);
 
         $content = $this->repository->getById(1);
@@ -323,7 +323,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
      */
     public function can_get_content_children_list()
     {
-        // Tree seeds
+        // tree seeds
         $this->app['artisan']->call('db:seed', ['--class' => 'TestTreeSeeder']);
         $category = $this->repository->getById(1);
 
@@ -343,9 +343,42 @@ class ContentRepositoryTest extends \EloquentTestCase {
     /**
      * @test
      */
+    public function can_get_content_translations_list()
+    {
+        // tree seeds
+        $this->app['artisan']->call('db:seed', ['--class' => 'TestTreeSeeder']);
+        $category = $this->repository->getById(1);
+        // new translations
+        for ($i = 0; $i < 3; $i++) {
+            $this->repository->createTranslation(
+                $category,
+                [
+                    'langCode' => 'pl',
+                    'title'    => 'New example title',
+                    'body'     => 'New example body'
+                ]
+            );
+        }
+        $contents = $this->repository->getTranslations(
+            $category,
+            [],
+            [],
+            null
+        );
+        // number of new translations plus one for first translation
+        $this->assertCount($i + 1, $contents);
+        foreach ($contents as $content) {
+            // parentId
+            $this->assertEquals($category->id, $content->contentId);
+        }
+    }
+
+    /**
+     * @test
+     */
     public function can_filter_contents_list()
     {
-        // Tree seeds
+        // tree seeds
         $this->app['artisan']->call('db:seed', ['--class' => 'TestTreeSeeder']);
 
         $contents = $this->repository->getContents(
@@ -428,7 +461,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
      */
     public function it_checks_existence_of_lang_code_on_translations_join()
     {
-        // Tree seeds
+        // tree seeds
         $this->app['artisan']->call('db:seed', ['--class' => 'TestTreeSeeder']);
 
         $this->repository->getContents(
