@@ -250,6 +250,15 @@ class ContentRepositoryTest extends \EloquentTestCase {
      * @test
      * @expectedException Gzero\Core\Exception
      */
+    public function it_checks_existence_of_content_url()
+    {
+        $this->repository->getByUrl('example-title', 'en');
+    }
+
+    /**
+     * @test
+     * @expectedException Gzero\Core\Exception
+     */
     public function it_checks_existence_of_content_translation()
     {
         $this->repository->create(['type' => 'category']);
