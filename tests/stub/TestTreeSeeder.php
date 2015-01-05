@@ -41,19 +41,33 @@ class TestTreeSeeder extends Seeder {
         $this->truncate();
         $this->seedUsers();
         $this->seedLangs();
-        $contentTypes = $this->seedContentTypes();
-        $contents     = [];
-        $categories   = [];
-        for ($i = 0; $i < 1; $i++) { // Categories
+        $contentTypes  = $this->seedContentTypes();
+        $categories    = [];
+        $subCategories = [];
+        // Root categories
+        for ($i = 0; $i < 2; $i++) {
             $categories[] = $this->seedContent(
+                $contentTypes['category'],
+                null
+            );
+        }
+        // First level categories
+        for ($i = 0; $i < 1; $i++) {
+            $subCategories[] = $this->seedContent(
                 $contentTypes['category'],
                 $this->faker->randomElement($categories)
             );
         }
-        for ($i = 0; $i < 2; $i++) { // Content in categories
-            $contents[] = $this->seedContent(
+        for ($i = 0; $i < 1; $i++) { // Content in categories
+            $this->seedContent(
                 $contentTypes['content'],
                 $this->faker->randomElement($categories)
+            );
+        }
+        for ($i = 0; $i < 1; $i++) { // Content in sub categories
+            $this->seedContent(
+                $contentTypes['content'],
+                $this->faker->randomElement($subCategories)
             );
         }
     }

@@ -318,6 +318,53 @@ class ContentRepositoryTest extends \EloquentTestCase {
     /**
      * @test
      */
+    public function can_get_roots()
+    {
+        // tree seeds
+        $this->app['artisan']->call('db:seed', ['--class' => 'TestTreeSeeder']);
+
+        $roots = $this->repository->getRoots(
+            [],
+            [],
+            null
+        );
+        foreach ($roots as $node) {
+            $this->assertNull($node->parentId);
+            $this->assertEquals(0, $node->level);
+        }
+    }
+
+    /**
+     * @test
+     */
+    public function can_get_tree()
+    {
+        // tree seeds
+        $this->app['artisan']->call('db:seed', ['--class' => 'TestTreeSeeder']);
+
+        $category = $this->repository->getById(1);
+        $tree     = $this->repository->getTree(
+            $category,
+            [],
+            [],
+            null
+        );
+
+        // first level
+        foreach ($tree['children'] as $node) {
+            $this->assertEquals($category->id, $node->parentId);
+            // nested level
+            if (array_key_exists('children', $node)) {
+                foreach ($node['children'] as $subnode) {
+                    $this->assertEquals($node->id, $subnode->parentId);
+                }
+            }
+        }
+    }
+
+    /**
+     * @test
+     */
     public function can_create_content_as_child()
     {
         // tree seeds
