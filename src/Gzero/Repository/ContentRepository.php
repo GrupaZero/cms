@@ -78,26 +78,39 @@ class ContentRepository extends BaseRepository {
      * @param string $url      Url address
      * @param string $langCode Lang code
      *
-     * @return C
+     * @return C $content Content content
+     * @throws RepositoryException
      */
     public function getByUrl($url, $langCode)
     {
-        return $this->newORMQuery()
-            ->join(
-                'Routes',
-                function ($join) {
-                    $join->on('Contents.id', '=', 'Routes.routableId')
-                        ->where('Routes.RoutableType', '=', 'Gzero\Entity\Content');
-                }
-            )
-            ->join(
-                'RouteTranslations',
-                function ($join) use ($langCode) {
-                    $join->on('Routes.id', '=', 'RouteTranslations.routeId')
-                        ->where('RouteTranslations.langCode', '=', $langCode);
-                }
-            )->where('RouteTranslations.url', '=', $url)
-            ->first(['Contents.*']);
+        if (!empty($url) && !empty($langCode)) {
+            $content = $this->newORMQuery()
+                ->join(
+                    'Routes',
+                    function ($join) {
+                        $join->on('Contents.id', '=', 'Routes.routableId')
+                            ->where('Routes.RoutableType', '=', 'Gzero\Entity\Content');
+                    }
+                )
+                ->join(
+                    'RouteTranslations',
+                    function ($join) use ($langCode) {
+                        $join->on('Routes.id', '=', 'RouteTranslations.routeId')
+                            ->where('RouteTranslations.langCode', '=', $langCode);
+                    }
+                )->where('RouteTranslations.url', '=', $url)
+                ->first(['Contents.*']);
+            if ($content) {
+                return $content;
+            } else {
+                throw new RepositoryException(
+                    "Content with url: '" . $url . "' in language '" . $langCode . "' doesn't exist",
+                    500
+                );
+            }
+        } else {
+            throw new RepositoryException("Url and Language code of translation is required", 500);
+        }
     }
 
     /**

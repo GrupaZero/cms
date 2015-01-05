@@ -38,6 +38,25 @@ class ContentRepositoryTest extends \EloquentTestCase {
     /**
      * @test
      */
+    public function can_get_content_by_url()
+    {
+        $content = $this->repository->create(
+            [
+                'type'         => 'content',
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'Example title'
+                ]
+            ]
+        );
+        $newContent = $this->repository->getByUrl('example-title', 'en');
+        $this->assertNotSame($content, $newContent);
+        $this->assertEquals($content->id, $newContent->id);
+    }
+
+    /**
+     * @test
+     */
     public function can_create_content()
     {
         $author  = User::find(1);
