@@ -254,10 +254,10 @@ class ContentRepositoryTest extends \EloquentTestCase {
     }
 
     /*
-  |--------------------------------------------------------------------------
-  | START Tree tests
-  |--------------------------------------------------------------------------
-  */
+    |--------------------------------------------------------------------------
+    | START Tree tests
+    |--------------------------------------------------------------------------
+    */
 
     /**
      * @test
@@ -309,6 +309,138 @@ class ContentRepositoryTest extends \EloquentTestCase {
     /*
     |--------------------------------------------------------------------------
     | END Tree tests
+    |--------------------------------------------------------------------------
+    */
+
+    /*
+    |--------------------------------------------------------------------------
+    | START List tests
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * @test
+     */
+    public function can_get_content_children_list()
+    {
+        // Tree seeds
+        $this->app['artisan']->call('db:seed', ['--class' => 'TestTreeSeeder']);
+        $category = $this->repository->getById(1);
+
+        $contents = $this->repository->getChildren(
+            $category,
+            [],
+            [],
+            null
+        );
+
+        // parentId
+        foreach ($contents as $content) {
+            $this->assertEquals($category->id, $content->parentId);
+        }
+    }
+
+    /**
+     * @test
+     */
+    public function can_filter_contents_list()
+    {
+        // Tree seeds
+        $this->app['artisan']->call('db:seed', ['--class' => 'TestTreeSeeder']);
+
+        $contents = $this->repository->getContents(
+            [
+                'type'     => ['value' => 'category', 'relation' => null],
+                'isActive' => ['value' => true, 'relation' => null]
+            ],
+            [],
+            null
+        );
+
+        foreach ($contents as $content) {
+            $this->assertEquals('category', $content->type);
+            $this->assertEquals(true, $content->isActive);
+        }
+    }
+
+    /**
+     * @test
+     */
+    public function can_sort_contents_list()
+    {
+        $this->repository->create(
+            [
+                'type'         => 'content',
+                'weight'       => 0,
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'A title'
+                ]
+            ]
+        );
+        $this->repository->create(
+            [
+                'type'         => 'content',
+                'weight'       => 1,
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'B title'
+                ]
+            ]
+        );
+
+        // Ascending
+        $contents = $this->repository->getContents(
+            [
+                'lang' => ['value' => 'en', 'relation' => null]
+            ],
+            [
+                'weight' => ['direction' => 'ASC', 'relation' => null],
+                'title'  => ['direction' => 'ASC', 'relation' => 'translations'],
+            ],
+            null
+        );
+        // weight
+        $this->assertEquals(0, $contents[0]['weight']);
+        // translations title
+        $this->assertEquals('A title', $contents[0]['translations'][0]['title']);
+
+        // Descending
+        $contents = $this->repository->getContents(
+            [
+                'lang' => ['value' => 'en', 'relation' => null]
+            ],
+            [
+                'weight' => ['direction' => 'DESC', 'relation' => null],
+                'title'  => ['direction' => 'DESC', 'relation' => 'translations'],
+            ],
+            null
+        );
+        // weight
+        $this->assertEquals(1, $contents[0]['weight']);
+        // translations title
+        $this->assertEquals('B title', $contents[0]['translations'][0]['title']);
+    }
+
+    /**
+     * @test
+     * @expectedException Gzero\Core\Exception
+     */
+    public function it_checks_existence_of_lang_code_on_translations_join()
+    {
+        // Tree seeds
+        $this->app['artisan']->call('db:seed', ['--class' => 'TestTreeSeeder']);
+
+        $this->repository->getContents(
+            [],
+            ['weight' => ['direction' => 'DESC', 'relation' => null]],
+            null
+        );
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | END List tests
     |--------------------------------------------------------------------------
     */
 }
