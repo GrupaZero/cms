@@ -276,7 +276,7 @@ class ContentRepository extends BaseRepository {
     }
 
     /**
-     * Get all contents with specific criteria
+     * Get all contents for specified root node with specific criteria as nested tree
      *
      * @param Tree  $root     Root node
      * @param array $criteria Filter criteria
