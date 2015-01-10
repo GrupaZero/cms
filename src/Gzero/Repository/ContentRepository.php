@@ -196,7 +196,7 @@ class ContentRepository extends BaseRepository {
     //}
 
     /**
-     * Get all descendants nodes to specific node
+     * Get all descendants nodes of specific node
      *
      * @param Tree     $node     Tree node
      * @param array    $criteria Filter criteria
