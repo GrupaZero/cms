@@ -41,7 +41,9 @@ class TestTreeSeeder extends Seeder {
         $this->truncate();
         $this->seedUsers();
         $this->seedLangs();
-        $contentTypes  = $this->seedContentTypes();
+        $contentTypes = $this->seedContentTypes();
+
+        // Seed content trees
         $categories    = [];
         $subCategories = [];
         // Root categories
