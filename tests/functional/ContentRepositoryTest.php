@@ -197,11 +197,11 @@ class ContentRepositoryTest extends \EloquentTestCase {
         $newContent = $this->repository->getById($content->id);
         $this->assertNotSame($content, $newContent);
         $this->repository->delete($newContent);
-        // content deleted
+        // content has been removed?
         $this->assertNull($this->repository->getById($newContent->id));
-        // route deleted
+        // route has been removed?
         $this->assertNull($newContent->route()->first());
-        // content translations deleted
+        // content translations has been removed?
         $this->assertNull($newContent->translations()->first());
     }
 
@@ -223,7 +223,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
         $newContent = $this->repository->getById($content->id);
         $this->assertNotSame($content, $newContent);
         $this->repository->deleteTranslation($newContent->translations()->first());
-        // content translations deleted
+        // content translations has been removed?
         $this->assertNull($newContent->translations()->first());
 
     }
@@ -442,7 +442,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
 
         $content = $this->repository->getById(1);
         $this->repository->delete($content);
-        // Content children deleted
+        // Content children has been removed?
         $this->assertEmpty($content->children()->get());
     }
 
