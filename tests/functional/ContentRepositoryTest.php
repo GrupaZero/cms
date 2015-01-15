@@ -143,9 +143,9 @@ class ContentRepositoryTest extends \EloquentTestCase {
         $newTranslation   = $this->repository->getContentTranslationById($newContent, 2);
         $this->assertNotSame($content, $newContent);
         $this->assertNotSame($translation, $firstTranslation);
-        // Previous translation is inactive
+        // Check if previous translation are inactive
         $this->assertFalse((bool) $firstTranslation->isActive);
-        // New translation
+        // Check if a new translation has been added
         $this->assertEquals('en', $newTranslation->langCode);
         $this->assertEquals('New example title', $newTranslation->title);
         $this->assertEquals('New example body', $newTranslation->body);
