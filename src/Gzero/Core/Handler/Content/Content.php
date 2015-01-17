@@ -71,12 +71,7 @@ class Content implements ContentTypeHandler {
      */
     public function load(ContentEntity $content, Lang $lang)
     {
-        // $this->parents = $this->contentRepo->findAncestors($content); // Ancestors nodes
-        // $this->contentRepo->loadThumb($this->parents); // Thumbs for all contents
-        // $this->content = $this->parents->pop(); // Removing our node
-        $this->content      = $content;
-        $this->translations = $content->translations()->where('langCode', '=', $lang->code)->first();
-        $this->author       = $content->author;
+        $this->content = $content->load('route.translations', 'translations', 'author');
         return $this;
     }
 
