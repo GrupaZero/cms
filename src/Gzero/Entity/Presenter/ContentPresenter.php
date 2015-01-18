@@ -31,4 +31,20 @@ class ContentPresenter extends Presenter {
             }
         )->first();
     }
+
+    /**
+     * This function get single route translation
+     *
+     * @param string $langCode LangCode
+     *
+     * @return string
+     */
+    public function routeTranslation($langCode)
+    {
+        return $this->route->translations->filter(
+            function ($translation) use ($langCode) {
+                return $translation->langCode === $langCode;
+            }
+        )->first();
+    }
 }
