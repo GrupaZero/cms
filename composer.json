@@ -15,7 +15,6 @@
         "gzero/eloquent-tree": "dev-master",
         "robclancy/presenter": "1.2.0",
         "machuga/authority-l4": "2.1.0",
-        "barryvdh/laravel-twigbridge": "dev-master",
         "bigecko/laravel-theme": "dev-master"
     },
     "replace": {
