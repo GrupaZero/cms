@@ -1,11 +1,7 @@
 <?php namespace Gzero\Core;
 
-use Atrauzzi\LaravelDoctrine\Support\Facades\Doctrine;
-use Doctrine\Common\Annotations\AnnotationRegistry;
-use Gzero\Core\Auth\Doctrine2UserProvider;
 use Gzero\Core\Menu\AdminRegister;
 use Gzero\Core\Menu\Register;
-use Gzero\Doctrine2Extensions\Tree\TreeSubscriber;
 use Gzero\Repository\LangRepository;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\ServiceProvider as SP;

@@ -1,6 +1,9 @@
 <?php namespace Gzero\Entity;
 
 use Gzero\Core\Exception;
+use Gzero\Entity\Presenter\ContentPresenter;
+use Robbo\Presenter\PresentableInterface;
+use Robbo\Presenter\Robbo;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -14,7 +17,7 @@ use Gzero\Core\Exception;
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2014, Adrian Skierniewski
  */
-class Content extends BaseTree {
+class Content extends BaseTree implements PresentableInterface {
 
     protected $fillable = [
         'type',
@@ -99,4 +102,13 @@ class Content extends BaseTree {
         return $this->belongsTo('\Gzero\Entity\User', 'authorId', 'id');
     }
 
+    /**
+     * Return a created presenter.
+     *
+     * @return Robbo\Presenter\Presenter
+     */
+    public function getPresenter()
+    {
+        return new ContentPresenter($this);
+    }
 }
