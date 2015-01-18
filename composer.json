@@ -13,7 +13,7 @@
         "php": ">=5.4.0",
         "laravel/framework": "4.2.11",
         "gzero/eloquent-tree": "dev-master",
-        "robclancy/presenter": "1.3.*",
+        "robclancy/presenter": "1.3.0",
         "machuga/authority-l4": "2.1.0",
         "bigecko/laravel-theme": "dev-master"
     },
