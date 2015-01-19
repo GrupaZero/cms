@@ -2,6 +2,7 @@
 
 use Config;
 use Faker\Factory;
+use Faker\Generator;
 use Gzero\Entity\Content;
 use Gzero\Entity\ContentType;
 use Gzero\Entity\Lang;
@@ -54,26 +55,7 @@ class CMSSeeder extends Seeder {
         $langs        = $this->seedLangs();
         $contentTypes = $this->seedContentTypes();
         $usersIds     = $this->seedUsers();
-        $contents     = [];
-        $categories   = [];
-        for ($i = 0; $i < 12; $i++) { // Categories
-            $categories[] = $this->seedContent($contentTypes['category'], null, $langs, $usersIds); // Content without category
-            $categories[] = $this->seedContent(
-                $contentTypes['category'],
-                $this->faker->randomElement($categories),
-                $langs,
-                $usersIds
-            );
-        }
-        for ($i = 0; $i < 10; $i++) { // Content in categories
-            $contents[] = $this->seedContent($contentTypes['content'], null, $langs, $usersIds); // Content without category
-            $contents[] = $this->seedContent(
-                $contentTypes['content'],
-                $this->faker->randomElement($categories),
-                $langs,
-                $usersIds
-            );
-        }
+        $this->seedContent($contentTypes, $langs, $usersIds);
     }
 
     /**
@@ -118,6 +100,67 @@ class CMSSeeder extends Seeder {
     }
 
     /**
+     * Seed content
+     *
+     * @param array $contentTypes Content type
+     * @param array $langs        Array with langs
+     * @param array $usersIds     Array with users
+     *
+     * @throws Exception
+     * @return Content
+     */
+    private function seedContent($contentTypes, $langs, $usersIds)
+    {
+        $input = [
+            [
+                'type'              => 'category',
+                'weight'            => rand(0, 10),
+                'isActive'          => 1,
+                'translations'      => [
+                    'langCode' => 'en',
+                    'title'    => 'News',
+                    'isActive' => 1
+                ],
+                'polishTranslation' => [
+                    'langCode' => 'pl',
+                    'title'    => 'Aktualności',
+                    'isActive' => 1
+                ]
+            ],
+            [
+                'type'              => 'category',
+                'weight'            => rand(0, 10),
+                'isActive'          => 1,
+                'translations'      => $this->prepareContentTranslation($langs['en'], 'Offer', 1),
+                'polishTranslation' => $this->prepareContentTranslation($langs['pl'], 'Oferta', 1)
+            ],
+            [
+                'type'              => 'content',
+                'weight'            => rand(0, 10),
+                'isActive'          => 1,
+                'translations'      => $this->prepareContentTranslation($langs['en'], 'About us', 1),
+                'polishTranslation' => $this->prepareContentTranslation($langs['pl'], 'O nas', 1)
+            ]
+        ];
+        // seed categories
+        foreach ($input as $content) {
+            $newContent = $this->repository->create($content, $usersIds);
+            $this->repository->createTranslation($newContent, $content['polishTranslation']);
+            if ($newContent->type == 'category') {
+                for ($i = 0; $i < 10; $i++) {
+                    // category children
+                    $this->seedRandomContent(
+                        $contentTypes['content'],
+                        $newContent,
+                        $langs,
+                        $usersIds
+                    );
+                }
+            }
+        }
+    }
+
+    /**
      * Seed single content
      *
      * @param ContentType  $type   Content type
@@ -127,30 +170,25 @@ class CMSSeeder extends Seeder {
      *
      * @return Content
      */
-    private function seedContent(ContentType $type, $parent, $langs, $users)
+    private function seedRandomContent(ContentType $type, $parent, $langs, $users)
     {
         $input = [
-            'type'     => $type->name,
-            'weight'   => rand(0, 10),
-            'isActive' => (bool) rand(0, 1)
+            'type'             => $type->name,
+            'weight'           => rand(0, 10),
+            'rating'           => (bool) rand(0, 10),
+            'visits'           => (bool) rand(0, 150),
+            'isOnHome'         => (bool) rand(0, 1),
+            'isActive'         => (bool) rand(0, 1),
+            'isCommentAllowed' => (bool) rand(0, 1),
+            'isPromoted'       => (bool) rand(0, 1),
+            'translations'     => $this->prepareContentTranslation($langs['en'])
+
         ];
         if (!empty($parent)) {
             $input['parentId'] = $parent->id;
         }
-        $translations = [];
-        foreach ($langs as $key => $value) {
-            $input['translations'] = [
-                'langCode' => $key,
-                'title'    => $this->faker->sentence(5),
-                'body'     => $this->faker->text(rand(100, 255)),
-                'isActive' => (bool) rand(0, 1)
-            ];
-            $translations[$key]    = $input['translations'];
-        }
-        $content = $this->repository->create($input, User::find(1));
-        foreach ($translations as $value) {
-            $this->repository->createTranslation($content, $value);
-        }
+        $content = $this->repository->create($input, $users);
+        $this->repository->createTranslation($content, $this->prepareContentTranslation($langs['pl']));
         return $content;
     }
 
@@ -190,5 +228,74 @@ class CMSSeeder extends Seeder {
             }
         }
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+    }
+
+    /**
+     * Function generates translation for specified language
+     *
+     * @param Lang $lang     language of translation
+     * @param null $title    optional title value
+     * @param null $isActive optional isActive value
+     *
+     * @return array
+     * @throws Exception
+     */
+    private function prepareContentTranslation(Lang $lang, $title = null, $isActive = null)
+    {
+        if ($lang) {
+            $faker = Factory::create($lang->i18n);
+            return [
+                'langCode' => $lang->code,
+                'title'    => ($title) ? $title : $faker->realText(38, 1),
+                'teaser'   => '<p>' . $faker->realText(300) . '</p>',
+                'body'     => $this->generateBodyHTML($faker),
+                'isActive' => (bool) ($title) ? $isActive : rand(0, 1)
+            ];
+        }
+        throw new Exception("Translation language is required!");
+    }
+
+    /**
+     * Function generates translation body HTML
+     *
+     * @param Generator $faker Faker factory
+     *
+     * @return string generated HTML
+     */
+    private function generateBodyHTML(Generator $faker)
+    {
+        $html                   = [];
+        $imageCategories        = [
+            'abstract',
+            'animals',
+            'business',
+            'cats',
+            'city',
+            'food',
+            'nightlife',
+            'fashion',
+            'people',
+            'nature',
+            'sports',
+            'technics',
+            'transport'
+        ];
+        $paragraphImageNumber   = rand(0, 5);
+        $paragraphHeadingNumber = rand(0, 5);
+        $imageUrl               = $faker->imageUrl(1140, 480, $imageCategories[array_rand($imageCategories)]);
+
+        // random dumber of paragraphs
+        for ($i = 0; $i < rand(5, 10); $i++) {
+            $html[] = '<p>' . $faker->realText(rand(300, 1500)) . '</p>';
+            // insert heading
+            if ($i == $paragraphHeadingNumber) {
+                $html[] = '<h3>' . $faker->realText(100) . '</h3>';
+            }
+            // insert image
+            if ($i == $paragraphImageNumber) {
+                $html[] = '<p><img src="' . $imageUrl . '" class="img-responsive"/></p>';
+            }
+        }
+        return implode('', $html);
     }
 }

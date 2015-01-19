@@ -17,6 +17,7 @@ class ContentTranslation extends Base {
     protected $fillable = [
         'langCode',
         'title',
+        'teaser',
         'body',
         'isActive'
     ];
