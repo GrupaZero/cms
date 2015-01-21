@@ -100,12 +100,12 @@ class CMSSeeder extends Seeder {
     }
 
     /**
-     * @param array $contentTypes
-     * @param array $langs    Array with langs
-     * @param array $usersIds Array with users
+     * @param array $contentTypes Content type
+     * @param array $langs        Array with langs
+     * @param array $usersIds     Array with users
      *
      * @throws Exception
-     * @throws \Gzero\Repository\RepositoryException
+     * @return Content
      */
     private function seedContent($contentTypes, $langs, $usersIds)
     {
@@ -250,7 +250,7 @@ class CMSSeeder extends Seeder {
     /**
      * Function generates translation body HTML
      *
-     * @param Generator $faker
+     * @param Generator $faker Faker factory
      *
      * @return string generated HTML
      */
