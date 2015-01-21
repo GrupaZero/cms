@@ -56,6 +56,7 @@ class CreateContent extends Migration {
                 $table->string('langCode', 2);
                 $table->integer('contentId')->unsigned();
                 $table->string('title');
+                $table->text('teaser');
                 $table->text('body');
                 $table->boolean('isActive');
                 $table->timestamp('createdAt');

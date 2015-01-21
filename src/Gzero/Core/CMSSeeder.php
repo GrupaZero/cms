@@ -239,6 +239,7 @@ class CMSSeeder extends Seeder {
             return [
                 'langCode' => $lang->code,
                 'title'    => ($title) ? $title : $faker->realText(38, 1),
+                'teaser'   => '<p>' . $faker->realText(300) . '</p>',
                 'body'     => $this->generateBodyHTML($faker),
                 'isActive' => (bool) ($title) ? $isActive : rand(0, 1)
             ];
@@ -273,7 +274,7 @@ class CMSSeeder extends Seeder {
         ];
         $paragraphImageNumber   = rand(0, 5);
         $paragraphHeadingNumber = rand(0, 5);
-        $imageUrl               = $faker->imageUrl(1108, 480, $imageCategories[array_rand($imageCategories)]);
+        $imageUrl               = $faker->imageUrl(1140, 480, $imageCategories[array_rand($imageCategories)]);
 
         // random dumber of paragraphs
         for ($i = 0; $i < rand(5, 10); $i++) {
