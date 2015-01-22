@@ -100,6 +100,8 @@ class CMSSeeder extends Seeder {
     }
 
     /**
+     * Seed content
+     *
      * @param array $contentTypes Content type
      * @param array $langs        Array with langs
      * @param array $usersIds     Array with users
@@ -171,10 +173,16 @@ class CMSSeeder extends Seeder {
     private function seedRandomContent(ContentType $type, $parent, $langs, $users)
     {
         $input = [
-            'type'         => $type->name,
-            'weight'       => rand(0, 10),
-            'isActive'     => (bool) rand(0, 1),
-            'translations' => $this->prepareContentTranslation($langs['en'])
+            'type'             => $type->name,
+            'weight'           => rand(0, 10),
+            'rating'           => (bool) rand(0, 10),
+            'visits'           => (bool) rand(0, 150),
+            'isOnHome'         => (bool) rand(0, 1),
+            'isActive'         => (bool) rand(0, 1),
+            'isCommentAllowed' => (bool) rand(0, 1),
+            'isPromoted'       => (bool) rand(0, 1),
+            'translations'     => $this->prepareContentTranslation($langs['en'])
+
         ];
         if (!empty($parent)) {
             $input['parentId'] = $parent->id;
