@@ -178,11 +178,11 @@ class CMSSeeder extends Seeder {
             'rating'           => (bool) rand(0, 10),
             'visits'           => (bool) rand(0, 150),
             'isOnHome'         => (bool) rand(0, 1),
-            'isActive'         => (bool) rand(0, 1),
             'isCommentAllowed' => (bool) rand(0, 1),
             'isPromoted'       => (bool) rand(0, 1),
+            'isSticky'         => (bool) rand(0, 1),
+            'isActive'         => (bool) rand(0, 1),
             'translations'     => $this->prepareContentTranslation($langs['en'])
-
         ];
         if (!empty($parent)) {
             $input['parentId'] = $parent->id;
