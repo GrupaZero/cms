@@ -31,7 +31,12 @@ class Category extends Content {
     public function load(ContentEntity $content, Lang $lang)
     {
         parent::load($content, $lang);
-        $this->children = $this->contentRepo->getChildren($content, []);
+        $this->children = $this->contentRepo->getChildren(
+            $content,
+            [
+                'isActive' => ['value' => true, 'relation' => null]
+            ]
+        );
         //$this->contentRepo->loadThumb($this->children);
         return $this;
     }
