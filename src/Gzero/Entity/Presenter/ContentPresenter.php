@@ -1,5 +1,6 @@
 <?php namespace Gzero\Entity\Presenter;
 
+use Carbon\Carbon;
 use Robbo\Presenter\Presenter;
 
 /**
@@ -46,5 +47,16 @@ class ContentPresenter extends Presenter {
                 return $translation->langCode === $langCode;
             }
         )->first();
+    }
+
+    /**
+     * This function returns formatted publish date
+     *
+     * @return string
+     */
+    public function publishDate()
+    {
+        $dt = new Carbon();
+        return $dt->parse($this->publishedAt)->diffForHumans();
     }
 }
