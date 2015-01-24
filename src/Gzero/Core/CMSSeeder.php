@@ -116,6 +116,7 @@ class CMSSeeder extends Seeder {
                 'type'              => 'category',
                 'weight'            => rand(0, 10),
                 'isActive'          => 1,
+                'publishedAt'       => date('Y-m-d H:i:s'),
                 'translations'      => [
                     'langCode' => 'en',
                     'title'    => 'News',
@@ -131,6 +132,7 @@ class CMSSeeder extends Seeder {
                 'type'              => 'category',
                 'weight'            => rand(0, 10),
                 'isActive'          => 1,
+                'publishedAt'       => date('Y-m-d H:i:s'),
                 'translations'      => $this->prepareContentTranslation($langs['en'], 'Offer', 1),
                 'polishTranslation' => $this->prepareContentTranslation($langs['pl'], 'Oferta', 1)
             ],
@@ -138,6 +140,7 @@ class CMSSeeder extends Seeder {
                 'type'              => 'content',
                 'weight'            => rand(0, 10),
                 'isActive'          => 1,
+                'publishedAt'       => date('Y-m-d H:i:s'),
                 'translations'      => $this->prepareContentTranslation($langs['en'], 'About us', 1),
                 'polishTranslation' => $this->prepareContentTranslation($langs['pl'], 'O nas', 1)
             ]
@@ -182,6 +185,7 @@ class CMSSeeder extends Seeder {
             'isPromoted'       => (bool) rand(0, 1),
             'isSticky'         => (bool) rand(0, 1),
             'isActive'         => (bool) rand(0, 1),
+            'publishedAt'      => date('Y-m-d H:i:s'),
             'translations'     => $this->prepareContentTranslation($langs['en'])
         ];
         if (!empty($parent)) {
