@@ -57,6 +57,6 @@ class ContentPresenter extends Presenter {
     public function publishDate()
     {
         $dt = new Carbon();
-        return $dt->parse($this->publishedAt)->diffForHumans();
+        return $dt->parse($this->publishedAt)->format('d-m-Y - H:s');
     }
 }
