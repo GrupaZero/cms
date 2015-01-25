@@ -59,4 +59,32 @@ class ContentPresenter extends Presenter {
         $dt = new Carbon();
         return $dt->parse($this->publishedAt)->format('d-m-Y - H:s');
     }
+
+    /**
+     * This function returns author first and last name
+     *
+     * @return string
+     */
+    public function authorName()
+    {
+        return $this->author->firstName . ' ' . $this->author->lastName;
+    }
+
+    /**
+     * This function returns the star rating
+     *
+     * @return string html containing star icons
+     */
+    public function ratingStars()
+    {
+        $html = [];
+        for ($i = 0; $i < 5; $i++) {
+            if ($i < $this->rating && $this->rating > 0) {
+                $html[] = '<i class="glyphicon glyphicon-star"></i> ';
+            } else {
+                $html[] = '<i class="glyphicon glyphicon-star-empty"></i> ';
+            }
+        }
+        return implode('', $html);
+    }
 }
