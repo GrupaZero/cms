@@ -230,7 +230,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
 
     /**
      * @test
-     * @expectedException Gzero\Core\Exception
+     * @expectedException \Gzero\Core\Exception
      */
     public function it_checks_existence_of_content_type()
     {
@@ -247,7 +247,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
 
     /**
      * @test
-     * @expectedException Gzero\Core\Exception
+     * @expectedException \Gzero\Core\Exception
      */
     public function it_checks_existence_of_content_url()
     {
@@ -256,7 +256,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
 
     /**
      * @test
-     * @expectedException Gzero\Core\Exception
+     * @expectedException \Gzero\Core\Exception
      */
     public function it_checks_existence_of_content_translation()
     {
@@ -265,7 +265,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
 
     /**
      * @test
-     * @expectedException Gzero\Core\Exception
+     * @expectedException \Gzero\Core\Exception
      */
     public function it_checks_existence_of_parent_route_translation()
     {
@@ -293,7 +293,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
 
     /**
      * @test
-     * @expectedException Gzero\Core\Exception
+     * @expectedException \Gzero\Core\Exception
      */
     public function it_checks_existence_of_parent()
     {
