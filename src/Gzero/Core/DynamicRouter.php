@@ -4,6 +4,7 @@ use Gzero\Repository\ContentRepository;
 use Illuminate\Foundation\Application;
 use Gzero\Entity\Lang;
 use Gzero\Core\Handler\Content\ContentTypeHandler;
+use Illuminate\Support\Facades\View;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 /**
@@ -48,7 +49,7 @@ class DynamicRouter {
      * @param String $url  Url address
      * @param Lang   $lang Lang entity
      *
-     * @return \View
+     * @return View
      * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
      */
     public function handleRequest($url, Lang $lang)

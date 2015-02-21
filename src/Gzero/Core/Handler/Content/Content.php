@@ -4,6 +4,7 @@ use Gzero\Entity\Lang;
 use Gzero\Entity\Content as ContentEntity;
 use Gzero\Repository\ContentRepository;
 use Illuminate\Foundation\Application;
+use Illuminate\Support\Facades\View;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -71,7 +72,9 @@ class Content implements ContentTypeHandler {
      */
     public function load(ContentEntity $content, Lang $lang)
     {
-        $this->content = $content->load('route.translations', 'translations', 'author');
+        if ($lang) { // Right now we don't need lang
+            $this->content = $content->load('route.translations', 'translations', 'author');
+        }
         return $this;
     }
 
@@ -82,9 +85,14 @@ class Content implements ContentTypeHandler {
      */
     public function render()
     {
-        return \View::make(
+        return View::make(
             'content.content',
-            ['content' => $this->content, 'translations' => $this->translations, 'author' => $this->author, 'parents' => null]
+            [
+                'content'      => $this->content,
+                'translations' => $this->translations,
+                'author'       => $this->author,
+                'parents'      => null
+            ]
         );
     }
 }

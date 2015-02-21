@@ -2,7 +2,7 @@
 
 use Gzero\Entity\Content as ContentEntity;
 use Gzero\Entity\Lang;
-use View;
+use Illuminate\Support\Facades\View;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -37,12 +37,11 @@ class Category extends Content {
                 'isActive' => ['value' => true, 'relation' => null]
             ]
         );
-        //$this->contentRepo->loadThumb($this->children);
         return $this;
     }
 
     /**
-     * Renders content
+     * Renders category
      *
      * @return View
      */
