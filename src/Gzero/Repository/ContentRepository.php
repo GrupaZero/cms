@@ -99,6 +99,7 @@ class ContentRepository extends BaseRepository {
                             ->where('RouteTranslations.langCode', '=', $langCode);
                     }
                 )->where('RouteTranslations.url', '=', $url)
+                ->where('Routes.isActive', '=', 1)// We only need content with active route
                 ->first(['Contents.*']);
             if ($content) {
                 return $content;
