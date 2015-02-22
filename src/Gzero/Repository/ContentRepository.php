@@ -567,11 +567,10 @@ class ContentRepository extends BaseRepository {
             );
             unset($criteria['lang']);
         } else {
-            if (!empty($orderBy)) {
+            if ($this->orderByTranslation($orderBy)) {
                 throw new RepositoryException('Repository Validation Error: \'lang\' criteria is required', 500);
             }
         }
-
     }
 
     /**
@@ -641,6 +640,27 @@ class ContentRepository extends BaseRepository {
             throw new RepositoryException("Content type '" . $type . "' doesn't exist", 500);
         }
 
+    }
+
+    /**
+     * Checks if we want to sort by non core field
+     *
+     * @param Array $orderBy OrderBy array
+     *
+     * @return bool
+     * @throws RepositoryException
+     */
+    private function orderByTranslation($orderBy)
+    {
+        foreach ($orderBy as $order) {
+            if (!array_key_exists('relation', $order)) {
+                throw new RepositoryException('OrderBy should always have relation property');
+            }
+            if ($order['relation'] !== null) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }
