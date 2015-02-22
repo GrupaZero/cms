@@ -7,6 +7,7 @@ use Gzero\Entity\Content as C;
 use Gzero\Entity\Route;
 use Gzero\Entity\RouteTranslation;
 use Gzero\Entity\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Events\Dispatcher;
 
@@ -263,7 +264,7 @@ class ContentRepository extends BaseRepository {
      */
     public function getContents(array $criteria, array $orderBy = [], $page = 1, $pageSize = self::ITEMS_PER_PAGE)
     {
-        $query = $this->newORMQuery();
+        $query = $this->newORMTreeQuery();
         $this->handleTranslationsJoin($criteria, $orderBy, $query);
         $this->handleFilterCriteria($this->getTableName(), $criteria, $query);
         $this->handleAuthorJoin($query);
@@ -530,6 +531,16 @@ class ContentRepository extends BaseRepository {
                 return $translation->delete();
             }
         );
+    }
+
+    /**
+     * Create new ORM tree query builder
+     *
+     * @return Builder
+     */
+    protected function newORMTreeQuery()
+    {
+        return parent::newORMQuery()->orderBy($this->model->getTreeColumn('level'), 'ASC');
     }
 
     /**
