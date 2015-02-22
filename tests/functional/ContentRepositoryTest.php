@@ -597,7 +597,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
 
     /**
      * @test
-     * @expectedException Gzero\Core\Exception
+     * @expectedException \Gzero\Core\Exception
      */
     public function it_checks_existence_of_lang_code_on_translations_join()
     {
@@ -606,9 +606,25 @@ class ContentRepositoryTest extends \EloquentTestCase {
 
         $this->repository->getContents(
             [],
+            ['title' => ['direction' => 'DESC', 'relation' => 'translations']],
+            null
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function it_doesnt_check_existence_of_lang_code_for_core_order_by_params()
+    {
+        // Tree seeds
+        $this->app['artisan']->call('db:seed', ['--class' => 'TestTreeSeeder']);
+
+        $nodes = $this->repository->getContents(
+            [],
             ['weight' => ['direction' => 'DESC', 'relation' => null]],
             null
         );
+        $this->assertNotEmpty($nodes);
     }
 
     /*
