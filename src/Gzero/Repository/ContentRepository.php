@@ -291,6 +291,18 @@ class ContentRepository extends BaseRepository {
     }
 
     /**
+     * Build tree from specified nodes
+     *
+     * @param Collection $nodes Tree nodes
+     *
+     * @return EloquentCollection
+     */
+    public function buildTree($nodes)
+    {
+        return $this->model->buildTree($nodes);
+    }
+
+    /**
      * Get all root contents
      *
      * @param array $criteria Filter criteria
