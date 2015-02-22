@@ -283,24 +283,26 @@ class ContentRepository extends BaseRepository {
      * @param Tree  $root     Root node
      * @param array $criteria Filter criteria
      * @param array $orderBy  Array of columns
+     * @param bool  $strict   If we want to make sure that there are no orphan nodes
      *
      * @return EloquentCollection
      */
-    public function getTree(Tree $root, array $criteria, array $orderBy = [])
+    public function getTree(Tree $root, array $criteria, array $orderBy = [], $strict = true)
     {
-        return $root->buildTree($this->getDescendants($root, $criteria, $orderBy, null));
+        return $root->buildTree($this->getDescendants($root, $criteria, $orderBy, null), $strict);
     }
 
     /**
      * Build tree from specified nodes
      *
-     * @param Collection $nodes Tree nodes
+     * @param Collection $nodes  Tree nodes
+     * @param bool       $strict If we want to make sure that there are no orphan nodes
      *
      * @return EloquentCollection
      */
-    public function buildTree($nodes)
+    public function buildTree($nodes, $strict = true)
     {
-        return $this->model->buildTree($nodes);
+        return $this->model->buildTree($nodes, $strict);
     }
 
     /**
