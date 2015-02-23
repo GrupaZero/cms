@@ -367,6 +367,8 @@ class ContentRepository extends BaseRepository {
                     if (!empty($data['parentId'])) {
                         $parent = $this->getById($data['parentId']);
                         if (!empty($parent)) {
+                            // Check if parent is one of allowed type
+                            $this->validateParentType($parent->type);
                             $content->setChildOf($parent);
                         } else {
                             throw new RepositoryException('Parent node id: ' . $data['parentId'] . ' doesn\'t exist');
@@ -651,6 +653,26 @@ class ContentRepository extends BaseRepository {
             return $type;
         } else {
             throw new RepositoryException("Content type '" . $type . "' doesn't exist", 500);
+        }
+
+    }
+
+    /**
+     * Checks if parent is one of allowed type
+     *
+     * @param string $type type name
+     *
+     * @throws RepositoryException
+     * @return string
+     */
+    private function validateParentType($type)
+    {
+        // TODO get registered types
+        $types = ['category'];
+        if (in_array($type, $types)) {
+            return $type;
+        } else {
+            throw new RepositoryException("Content type '" . $type . "' is not allowed for the parent type", 500);
         }
 
     }

@@ -309,6 +309,34 @@ class ContentRepositoryTest extends \EloquentTestCase {
         );
     }
 
+    /**
+     * @test
+     * @expectedException \Gzero\Core\Exception
+     */
+    public function it_checks_if_parent_is_proper_type()
+    {
+        $content    = $this->repository->create(
+            [
+                'type'         => 'content',
+                'translations' => [
+                    'langCode' => 'pl',
+                    'title'    => 'Example category title'
+                ]
+            ]
+        );
+        $newCategory = $this->repository->getById($content->id);
+        $this->repository->create(
+            [
+                'type'         => 'content',
+                'parentId'     => $newCategory->id,
+                'translations' => [
+                    'langCode' => 'pl',
+                    'title'    => 'Example content title'
+                ]
+            ]
+        );
+    }
+
     /*
     |--------------------------------------------------------------------------
     | START Tree tests
