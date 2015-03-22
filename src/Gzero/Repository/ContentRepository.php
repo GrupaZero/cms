@@ -367,8 +367,19 @@ class ContentRepository extends BaseRepository {
                     }
                     if (!empty($data['parentId'])) {
                         // Get and validate parent
-                        $parent = $this->getParent($data['parentId']);
-                        $content->setChildOf($parent);
+                        $parent = $this->getById($data['parentId']);
+                        // Check if parent exists
+                        if (!empty($parent)) {
+                            // and if is one of allowed type
+                            $this->validateType(
+                                $parent->type,
+                                ['category'],
+                                "Content type '" . $parent->type . "' is not allowed for the parent type"
+                            );
+                            $content->setChildOf($parent);
+                        } else {
+                            throw new RepositoryException('Parent node id: ' . $data['parentId'] . ' doesn\'t exist');
+                        }
                     } else {
                         $content->setAsRoot();
                     }
@@ -664,16 +675,16 @@ class ContentRepository extends BaseRepository {
     private function getParent($parentId)
     {
         // TODO get registered types
-        $types  = ['category'];
-        $parent = $this->getById($parentId);
-        // Check if parent exists
-        if (!empty($parent)) {
-            // and if is one of allowed type
-            $this->validateType($parent->type, $types, "Content type '" . $parent->type . "' is not allowed for the parent type");
-            return $parent;
-        } else {
-            throw new RepositoryException('Parent node id: ' . $parentId . ' doesn\'t exist');
-        }
+        //$types  = ['category'];
+        //$parent = $this->getById($parentId);
+        //// Check if parent exists
+        //if (!empty($parent)) {
+        //    // and if is one of allowed type
+        //    $this->validateType($parent->type, $types, "Content type '" . $parent->type . "' is not allowed for the parent type");
+        //    return $parent;
+        //} else {
+        //    throw new RepositoryException('Parent node id: ' . $parentId . ' doesn\'t exist');
+        //}
     }
 
     /**
