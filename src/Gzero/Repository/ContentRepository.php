@@ -666,16 +666,14 @@ class ContentRepository extends BaseRepository {
         $types  = ['category'];
         $parent = $this->getById($parentId);
         // Check if parent exists
-        if (!empty($parent)) {
-            // and if is one of allowed type
-            if (in_array($parent->type, $types)) {
-                return $parent;
-            } else {
-                throw new RepositoryException("Content type '" . $parent->type . "' is not allowed for the parent type", 500);
-            }
-        } else {
+        if (empty($parent)) {
             throw new RepositoryException('Parent node id: ' . $parentId . ' doesn\'t exist');
         }
+        // Check if is one of allowed type
+        if (!in_array($parent->type, $types)) {
+            throw new RepositoryException("Content type '" . $parent->type . "' is not allowed for the parent type", 500);
+        }
+        return $parent;
     }
 
     /**
