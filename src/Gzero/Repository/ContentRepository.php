@@ -366,9 +366,8 @@ class ContentRepository extends BaseRepository {
                     }
                     if (!empty($data['parentId'])) {
                         $parent = $this->getById($data['parentId']);
-                        if (!empty($parent)) {
-                            // Check if parent is one of allowed type
-                            $this->validateParentType($parent->type);
+                        // Check if parent is one of allowed type
+                        if (!empty($parent) && $this->validateParentType($parent->type)) {
                             $content->setChildOf($parent);
                         } else {
                             throw new RepositoryException('Parent node id: ' . $data['parentId'] . ' doesn\'t exist');
