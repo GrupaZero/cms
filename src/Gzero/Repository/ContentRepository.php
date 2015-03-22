@@ -357,7 +357,7 @@ class ContentRepository extends BaseRepository {
                 $translations = array_get($data, 'translations'); // Nested relation fields
                 if (!empty($translations) && array_key_exists('type', $data)) {
                     // Check if type exist
-                    $this->validateType($data['type']);
+                    $this->validateType($data['type'], ['content', 'category']);
                     // Content
                     $content = new C();
                     $content->fill($data);
@@ -640,10 +640,10 @@ class ContentRepository extends BaseRepository {
      * @throws RepositoryException
      * @return string
      */
-    private function validateType($type)
+    private function validateType($type, $types)
     {
         // TODO get registered types
-        $types = ['content', 'category'];
+        //$types = ['content', 'category'];
         if (in_array($type, $types)) {
             return $type;
         } else {
@@ -666,14 +666,19 @@ class ContentRepository extends BaseRepository {
         $types  = ['category'];
         $parent = $this->getById($parentId);
         // Check if parent exists
-        if (empty($parent)) {
+        if (!empty($parent)) {
+            // and if is one of allowed type
+            $this->validateType($parent->type, $types);
+            return $parent;
+
+            //if (in_array($parent->type, $types)) {
+            //    return $parent;
+            //} else {
+            //    throw new RepositoryException("Content type '" . $parent->type . "' is not allowed for the parent type", 500);
+            //}
+        } else {
             throw new RepositoryException('Parent node id: ' . $parentId . ' doesn\'t exist');
         }
-        // Check if is one of allowed type
-        if (!in_array($parent->type, $types)) {
-            throw new RepositoryException("Content type '" . $parent->type . "' is not allowed for the parent type", 500);
-        }
-        return $parent;
     }
 
     /**
