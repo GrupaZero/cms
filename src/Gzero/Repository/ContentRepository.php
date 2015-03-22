@@ -367,9 +367,14 @@ class ContentRepository extends BaseRepository {
                     }
                     if (!empty($data['parentId'])) {
                         $parent = $this->getById($data['parentId']);
-                        // Check if parent is one of allowed type
                         if (!empty($parent)) {
-                            $this->validateType($parent->type, ['category']);
+                            // Check if parent is one of allowed type
+                            // TODO get registered types
+                            $this->validateType(
+                                $parent->type,
+                                ['category'],
+                                "Content type '" . $parent->type . "' is not allowed for the parent type"
+                            );
                             $content->setChildOf($parent);
                         } else {
                             throw new RepositoryException('Parent node id: ' . $data['parentId'] . ' doesn\'t exist');
@@ -657,29 +662,6 @@ class ContentRepository extends BaseRepository {
         }
 
     }
-
-    /**
-     * Functions gets parent content, verify its existence and if is one of the allowed types
-     *
-     * @param int $parentId id of the parent content
-     *
-     * @return mixed
-     * @throws RepositoryException
-     */
-    //private function getParent($parentId)
-    //{
-    //    // TODO get registered types
-    //    $types  = ['category'];
-    //    $parent = $this->getById($parentId);
-    //    // Check if parent exists
-    //    if (!empty($parent)) {
-    //        // and if is one of allowed type
-    //        $this->validateType($parent->type, $types, "Content type '" . $parent->type . "' is not allowed for the parent type");
-    //        return $parent;
-    //    } else {
-    //        throw new RepositoryException('Parent node id: ' . $parentId . ' doesn\'t exist');
-    //    }
-    //}
 
     /**
      * Checks if we want to sort by non core field
