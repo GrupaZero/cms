@@ -366,16 +366,10 @@ class ContentRepository extends BaseRepository {
                         $content->author()->associate($author);
                     }
                     if (!empty($data['parentId'])) {
-                        // Get and validate parent
                         $parent = $this->getById($data['parentId']);
-                        // Check if parent exists
+                        // Check if parent is one of allowed type
                         if (!empty($parent)) {
-                            // and if is one of allowed type
-                            $this->validateType(
-                                $parent->type,
-                                ['category'],
-                                "Content type '" . $parent->type . "' is not allowed for the parent type"
-                            );
+                            $this->validateType($parent->type, ['category']);
                             $content->setChildOf($parent);
                         } else {
                             throw new RepositoryException('Parent node id: ' . $data['parentId'] . ' doesn\'t exist');
@@ -672,20 +666,20 @@ class ContentRepository extends BaseRepository {
      * @return mixed
      * @throws RepositoryException
      */
-    private function getParent($parentId)
-    {
-        // TODO get registered types
-        //$types  = ['category'];
-        //$parent = $this->getById($parentId);
-        //// Check if parent exists
-        //if (!empty($parent)) {
-        //    // and if is one of allowed type
-        //    $this->validateType($parent->type, $types, "Content type '" . $parent->type . "' is not allowed for the parent type");
-        //    return $parent;
-        //} else {
-        //    throw new RepositoryException('Parent node id: ' . $parentId . ' doesn\'t exist');
-        //}
-    }
+    //private function getParent($parentId)
+    //{
+    //    // TODO get registered types
+    //    $types  = ['category'];
+    //    $parent = $this->getById($parentId);
+    //    // Check if parent exists
+    //    if (!empty($parent)) {
+    //        // and if is one of allowed type
+    //        $this->validateType($parent->type, $types, "Content type '" . $parent->type . "' is not allowed for the parent type");
+    //        return $parent;
+    //    } else {
+    //        throw new RepositoryException('Parent node id: ' . $parentId . ' doesn\'t exist');
+    //    }
+    //}
 
     /**
      * Checks if we want to sort by non core field
