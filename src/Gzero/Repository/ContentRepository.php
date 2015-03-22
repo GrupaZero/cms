@@ -357,6 +357,7 @@ class ContentRepository extends BaseRepository {
                 $translations = array_get($data, 'translations'); // Nested relation fields
                 if (!empty($translations) && array_key_exists('type', $data)) {
                     // Check if type exist
+                    // TODO get registered types
                     $this->validateType($data['type'], ['content', 'category']);
                     // Content
                     $content = new C();
@@ -635,19 +636,19 @@ class ContentRepository extends BaseRepository {
     /**
      * Checks if provided type exists
      *
-     * @param string $type type name
+     * @param string $type    type name
+     * @param array  $types   types to check
+     * @param string $message exception message
      *
-     * @throws RepositoryException
      * @return string
+     * @throws RepositoryException
      */
-    private function validateType($type, $types)
+    private function validateType($type, $types, $message = "Content type doesn't exist")
     {
-        // TODO get registered types
-        //$types = ['content', 'category'];
         if (in_array($type, $types)) {
             return $type;
         } else {
-            throw new RepositoryException("Content type '" . $type . "' doesn't exist", 500);
+            throw new RepositoryException($message, 500);
         }
 
     }
@@ -668,14 +669,8 @@ class ContentRepository extends BaseRepository {
         // Check if parent exists
         if (!empty($parent)) {
             // and if is one of allowed type
-            $this->validateType($parent->type, $types);
+            $this->validateType($parent->type, $types, "Content type '" . $parent->type . "' is not allowed for the parent type");
             return $parent;
-
-            //if (in_array($parent->type, $types)) {
-            //    return $parent;
-            //} else {
-            //    throw new RepositoryException("Content type '" . $parent->type . "' is not allowed for the parent type", 500);
-            //}
         } else {
             throw new RepositoryException('Parent node id: ' . $parentId . ' doesn\'t exist');
         }
