@@ -365,13 +365,9 @@ class ContentRepository extends BaseRepository {
                         $content->author()->associate($author);
                     }
                     if (!empty($data['parentId'])) {
-                        $parent = $this->getById($data['parentId']);
-                        // Check if parent is one of allowed type
-                        if (!empty($parent) && $this->validateParentType($parent->type)) {
-                            $content->setChildOf($parent);
-                        } else {
-                            throw new RepositoryException('Parent node id: ' . $data['parentId'] . ' doesn\'t exist');
-                        }
+                        // Get and validate parent
+                        $parent = $this->getParent($data['parentId']);
+                        $content->setChildOf($parent);
                     } else {
                         $content->setAsRoot();
                     }
@@ -657,23 +653,29 @@ class ContentRepository extends BaseRepository {
     }
 
     /**
-     * Checks if parent is one of allowed type
+     * Functions gets parent content, verify its existence and if is one of the allowed types
      *
-     * @param string $type type name
+     * @param int $parentId id of the parent content
      *
+     * @return mixed
      * @throws RepositoryException
-     * @return string
      */
-    private function validateParentType($type)
+    private function getParent($parentId)
     {
         // TODO get registered types
-        $types = ['category'];
-        if (in_array($type, $types)) {
-            return $type;
+        $types  = ['category'];
+        $parent = $this->getById($parentId);
+        // Check if parent exists
+        if (!empty($parent)) {
+            // and if is one of allowed type
+            if (in_array($parent->type, $types)) {
+                return $parent;
+            } else {
+                throw new RepositoryException("Content type '" . $parent->type . "' is not allowed for the parent type", 500);
+            }
         } else {
-            throw new RepositoryException("Content type '" . $type . "' is not allowed for the parent type", 500);
+            throw new RepositoryException('Parent node id: ' . $parentId . ' doesn\'t exist');
         }
-
     }
 
     /**
