@@ -1,12 +1,10 @@
 <?php namespace Gzero\Repository;
 
-use Doctrine\DBAL\Query\QueryBuilder;
-use Doctrine\ORM\Mapping;
-use Gzero\Entity\BaseUser;
-use Gzero\Entity\Block;
 use Gzero\Entity\User;
 use Illuminate\Auth\UserInterface;
 use Illuminate\Auth\UserProviderInterface;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Events\Dispatcher;
 use Illuminate\Support\Facades\Hash;
 
 /**
@@ -21,49 +19,66 @@ use Illuminate\Support\Facades\Hash;
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2014, Adrian Skierniewski
  */
-class UserRepository implements UserProviderInterface {
+class UserRepository extends BaseRepository implements UserProviderInterface {
 
     /**
-     * Get single block with active translations
-     *
-     * @param int $id User id
-     *
-     * @return Block
+     * @var User
      */
-    public function getById($id)
+    protected $model;
+
+    /**
+     * The events dispatcher
+     *
+     * @var Dispatcher
+     */
+    protected $events;
+
+    /**
+     * Content repository constructor
+     *
+     * @param User       $user   Content model
+     * @param Dispatcher $events Events dispatcher
+     */
+    public function __construct(User $user, Dispatcher $events)
     {
-        return \User::find($id);
-        return $this->find($id);
+        $this->model = $user;
+        $this->events = $events;
     }
 
     // @codingStandardsIgnoreStart
 
-    public function create(array $data)
+    /**
+     * Create specific content entity
+     *
+     * @param array $data Content entity to persist
+     *
+     * @return User
+     */
+    public function create(Array $data)
     {
-        $user = new User();
-        $user->setEmail($data['email']);
-        $user->setFirstName($data['firstName']);
-        $user->setLastName($data['lastName']);
-        $user->setPassword($data['password']);
-        $this->_em->persist($user);
+        $user = $this->newQuery()->transaction(
+            function () use ($data) {
+                $user = new User();
+                $user->fill($data);
+                $user->save();
+                return $user;
+            }
+        );
+        $this->events->fire('user.created', [$user]);
+        return $user;
     }
 
-    public function update(BaseUser $user, array $data)
+    /**
+     * Eager load relations for eloquent collection
+     *
+     * @param Collection $results Eloquent collection
+     *
+     * @return void
+     */
+    protected function listEagerLoad($results)
     {
-        $user->setFirstName($data['firstName']);
-        $user->setLastName($data['lastName']);
-        $user->setPassword($data['password']);
-        $this->_em->persist($user);
-    }
-
-    public function delete(BaseUser $user)
-    {
-        $this->_em->remove($user);
-    }
-
-    public function commit()
-    {
-        $this->_em->flush();
+        //$results->load('relation');
+        $results->count(); // Place holder
     }
 
     /*
