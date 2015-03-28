@@ -1,6 +1,6 @@
 <?php namespace Gzero\Repository;
 
-use Gzero\Entity\User;
+use User;
 use Illuminate\Auth\UserInterface;
 use Illuminate\Auth\UserProviderInterface;
 use Illuminate\Database\Eloquent\Collection;
