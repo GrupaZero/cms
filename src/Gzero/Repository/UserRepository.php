@@ -121,7 +121,7 @@ class UserRepository extends BaseRepository implements UserProviderInterface {
     /**
      * Retrieve a user by given email
      *
-     * @param  mixed $email
+     * @param  string $email
      *
      * @return User
      */
