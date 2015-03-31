@@ -41,7 +41,7 @@ class UserRepository extends BaseRepository implements UserProviderInterface {
      */
     public function __construct(User $user, Dispatcher $events)
     {
-        $this->model = $user;
+        $this->model  = $user;
         $this->events = $events;
     }
 
@@ -116,6 +116,21 @@ class UserRepository extends BaseRepository implements UserProviderInterface {
             ->where('u.rememberToken = :token')
             ->setParameter('token', $token);
         return $qb->getQuery()->getOneOrNullResult();
+    }
+
+    /**
+     * Retrieve a user by given email
+     *
+     * @param  mixed $email
+     *
+     * @return User
+     */
+    public function retrieveByEmail($email)
+    {
+        $qb = $this->newQuery()
+            ->table($this->getTableName())
+            ->where('email', '=', $email);
+        return $qb->first();
     }
 
     /**
