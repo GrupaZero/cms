@@ -13,6 +13,7 @@
  * @copyright  Copyright (c) 2015, Adrian Skierniewski
  */
 class BaseUserValidator extends AbstractValidator {
+
     /**
      * @var array
      */
