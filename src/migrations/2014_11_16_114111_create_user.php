@@ -25,6 +25,15 @@ class CreateUser extends Migration {
                 $table->timestamp('updatedAt');
             }
         );
+
+        Schema::create(
+            'PasswordReminders',
+            function (Blueprint $table) {
+                $table->string('email')->index();
+                $table->string('token')->index();
+                $table->timestamp('created_at');
+            }
+        );
     }
 
     /**
@@ -34,6 +43,7 @@ class CreateUser extends Migration {
      */
     public function down()
     {
+        Schema::drop('PasswordReminders');
         Schema::drop('Users');
     }
 

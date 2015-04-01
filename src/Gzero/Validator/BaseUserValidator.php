@@ -24,9 +24,18 @@ class BaseUserValidator extends AbstractValidator {
         ],
         'register' => [
             'email'     => 'required|email',
-            'password'  => 'required|min:5',
+            'password'  => 'required|min:6',
             'firstName' => 'required',
             'lastName'  => 'required'
+        ],
+        'remind'   => [
+            'email' => 'required|email',
+        ],
+        'reset'    => [
+            'email'                 => 'required|email',
+            'password'              => 'required|min:6',
+            'password_confirmation' => 'required|min:6|same:password',
+            'token'                 => '',
         ]
     ];
 
