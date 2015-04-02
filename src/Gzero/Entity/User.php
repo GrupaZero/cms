@@ -20,6 +20,7 @@ class User extends Base {
         'email',
         'firstName',
         'lastName',
-        'password'
+        'password',
+        'hasSocialIntegrations' /**@TODO proper method for adding new fillable fields from package with migrations*/
     ];
 }
