@@ -48,9 +48,9 @@ class UserRepository extends BaseRepository implements UserProviderInterface {
     // @codingStandardsIgnoreStart
 
     /**
-     * Create specific content entity
+     * Create specific user entity
      *
-     * @param array $data Content entity to persist
+     * @param array $data User entity to persist
      *
      * @return User
      */
@@ -65,6 +65,30 @@ class UserRepository extends BaseRepository implements UserProviderInterface {
             }
         );
         $this->events->fire('user.created', [$user]);
+        return $user;
+    }
+
+    /**
+     * Update specific user entity
+     *
+     * @param User $user user entity
+     *
+     * @return User
+     */
+    public function update(User $user)
+    {
+        $user = $this->newQuery()->transaction(
+            function () use ($user) {
+                $password = \Input::get('password');
+                if ($password) {
+                    $user->password = Hash::make($password);
+                }
+                $user->fill(\Input::except('password'));
+                $user->save();
+                return $user;
+            }
+        );
+        $this->events->fire('user.updated', [$user]);
         return $user;
     }
 
