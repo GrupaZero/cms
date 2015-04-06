@@ -71,19 +71,20 @@ class UserRepository extends BaseRepository implements UserProviderInterface {
     /**
      * Update specific user entity
      *
-     * @param User $user user entity
+     * @param User  $user user entity
+     * @param array $data data to save
      *
      * @return User
+     * @throws \Exception
      */
-    public function update(User $user)
+    public function update(User $user, Array $data)
     {
         $user = $this->newQuery()->transaction(
-            function () use ($user) {
-                $password = \Input::get('password');
-                if ($password) {
-                    $user->password = Hash::make($password);
+            function () use ($user, $data) {
+                if (array_key_exists('password', $data)) {
+                    $data['password'] = Hash::make($data['password']);
                 }
-                $user->fill(\Input::except('password'));
+                $user->fill($data);
                 $user->save();
                 return $user;
             }
