@@ -633,25 +633,6 @@ class ContentRepository extends BaseRepository {
 
 
     /**
-     * Function returns an unique url address from given url in specific language
-     *
-     * @param string $url      string url address to search for
-     * @param string $langCode translation language
-     *
-     * @return string $url an unique url address
-     */
-    private function buildUniqueUrl($url, $langCode)
-    {
-        // search for duplicated url
-        $count = $this->newQuery()
-            ->table('RouteTranslations')
-            ->where('langCode', $langCode)
-            ->whereRaw("url REGEXP '^$url($|-[0-9]+$)'")
-            ->count();
-        return ($count) ? $url . '-' . $count : $url;
-    }
-
-    /**
      * Checks if provided type exists
      *
      * @param string $type    type name

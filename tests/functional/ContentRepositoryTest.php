@@ -315,7 +315,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
      */
     public function it_checks_if_parent_is_proper_type()
     {
-        $content    = $this->repository->create(
+        $content     = $this->repository->create(
             [
                 'type'         => 'content',
                 'translations' => [
