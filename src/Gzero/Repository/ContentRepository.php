@@ -1,5 +1,6 @@
 <?php namespace Gzero\Repository;
 
+use Gzero\Core\Exception;
 use Gzero\EloquentTree\Model\Tree;
 use Gzero\Entity\ContentTranslation;
 use Gzero\Entity\ContentType;
@@ -406,21 +407,25 @@ class ContentRepository extends BaseRepository {
     public function createTranslation(C $content, Array $data)
     {
         if (array_key_exists('langCode', $data) && array_key_exists('title', $data)) {
-            $translation = $this->newQuery()->transaction(
-                function () use ($content, $data) {
-                    // Set all translation of this content as inactive
-                    $this->disableActiveTranslations($content->id, $data['langCode']);
-                    $translation = new ContentTranslation();
-                    $translation->fill($data);
-                    $translation->isActive = 1; // Because only recent translation is active
-                    $content->translations()->save($translation);
-                    return $translation;
-                }
-            );
-            // Creating or updating route from translations
-            $this->createRoute($content, $data);
-            $this->events->fire('content.translation.created', [$content, $translation]);
-            return $translation;
+            try {
+                // Creating or updating route from translations
+                $this->createRoute($content, $data);
+                $translation = $this->newQuery()->transaction(
+                    function () use ($content, $data) {
+                        // Set all translation of this content as inactive
+                        $this->disableActiveTranslations($content->id, $data['langCode']);
+                        $translation = new ContentTranslation();
+                        $translation->fill($data);
+                        $translation->isActive = 1; // Because only recent translation is active
+                        $content->translations()->save($translation);
+                        return $translation;
+                    }
+                );
+                $this->events->fire('content.translation.created', [$content, $translation]);
+                return $translation;
+            } catch (Exception $e) {
+                throw new RepositoryException($e->getMessage(), 500);
+            }
         } else {
             throw new RepositoryException("Language code and title of translation is required", 500);
         }
