@@ -451,7 +451,13 @@ class ContentRepository extends BaseRepository {
                     if (!empty($content->parentId)) {
                         $parent = $this->getById($content->parentId);
                         if (!empty($parent)) {
-                            $url = $parent->getUrl($translations['langCode']) . '/';
+                            try {
+                                $url = $parent->getUrl($translations['langCode']) . '/';
+                            } catch (Exception $e) {
+                                throw new RepositoryException(
+                                    "Parent has not been translated in to this language, translate it first!", 500
+                                );
+                            }
                         }
                     }
                     // Search for route, or instantiate a new instance
