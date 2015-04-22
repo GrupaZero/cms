@@ -424,7 +424,7 @@ class ContentRepository extends BaseRepository {
                 $this->events->fire('content.translation.created', [$content, $translation]);
                 return $translation;
             } catch (Exception $e) {
-                throw new RepositoryException($e->getMessage(), 500);
+                throw new RepositoryException($e->getMessage(), $e->getCode());
             }
         } else {
             throw new RepositoryException("Language code and title of translation is required", 500);
