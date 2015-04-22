@@ -455,7 +455,7 @@ class ContentRepository extends BaseRepository {
                                 $url = $parent->getUrl($translations['langCode']) . '/';
                             } catch (Exception $e) {
                                 throw new RepositoryException(
-                                    "Parent has not been translated in to this language, translate it first!", 500
+                                    "Parent has not been translated in this language, translate it first!", 500
                                 );
                             }
                         }
