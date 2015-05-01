@@ -141,7 +141,7 @@ abstract class BaseRepository {
     protected function handlePagination($defaultTable, $query, $page, $pageSize)
     {
         if (!empty($page)) { // If we want to paginate result
-            $count   = clone $query;
+            $count   = clone $query->getQuery(); // clone the underlying query builder instance, needed for objects with relations
             $results = $query
                 ->offset($pageSize * ($page - 1))
                 ->limit($pageSize)
