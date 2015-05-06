@@ -207,6 +207,43 @@ class UserRepository extends BaseRepository implements UserProviderInterface {
         $this->commit();
     }
 
+    /**
+     * Get all users with specific criteria
+     *
+     * @param array    $criteria Filter criteria
+     * @param array    $orderBy  Array of columns
+     * @param int|null $page     Page number (if null == disabled pagination)
+     * @param int|null $pageSize Limit results
+     *
+     * @throws RepositoryException
+     * @return EloquentCollection
+     */
+    public function retrieveUsers(array $criteria, array $orderBy = [], $page = 1, $pageSize = self::ITEMS_PER_PAGE)
+    {
+        $query = $this->newORMQuery();
+        $this->handleFilterCriteria($this->getTableName(), $criteria, $query);
+        $this->handleOrderBy(
+            $this->getTableName(),
+            $orderBy,
+            $query,
+            $this->userDefaultOrderBy()
+        );
+        return $this->handlePagination($this->getTableName(), $query, $page, $pageSize);
+    }
+
+    /**
+     * Default order for user query
+     *
+     * @return callable
+     */
+    protected function userDefaultOrderBy()
+    {
+        return function ($query) {
+            $query->orderBy('created_at','DESC');
+        };
+    }
+
+
     /*
     |--------------------------------------------------------------------------
     | END UserProviderInterface
