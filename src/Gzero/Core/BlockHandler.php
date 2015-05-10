@@ -30,7 +30,7 @@ class BlockHandler {
     private $regions;
 
     /**
-     * @return \Doctrine\Common\Collections\ArrayCollection
+     * @return Collection
      */
     public function getRegions()
     {
@@ -64,13 +64,13 @@ class BlockHandler {
                 }
                 foreach ($block->getRegions() as $region) {
                     if (empty($regions[$region])) {
-                        $regions[$region] = new ArrayCollection();
+                        $regions[$region] = new Collection();
                     }
                     $regions[$region]->add($block);
                 }
             }
         }
-        $this->regions = new ArrayCollection($regions);
+        $this->regions = new Collection($regions);
         return $this;
     }
 

@@ -2,6 +2,7 @@
 
 use Gzero\Entity\Content as ContentEntity;
 use Gzero\Entity\Lang;
+use Illuminate\Support\Facades\View;
 
 interface ContentTypeHandler {
 
@@ -18,7 +19,7 @@ interface ContentTypeHandler {
     /**
      * Returns complete View for specific type
      *
-     * @return \View
+     * @return View
      */
     public function render();
 }

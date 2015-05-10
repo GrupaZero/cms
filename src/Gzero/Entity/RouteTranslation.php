@@ -14,6 +14,9 @@
  */
 class RouteTranslation extends Base {
 
+    /**
+     * @var array
+     */
     protected $fillable = [
         'langCode',
         'url',

@@ -1,7 +1,5 @@
 <?php namespace Gzero\Entity;
 
-use Illuminate\Database\Eloquent\Model;
-
 /**
  * This file is part of the GZERO CMS package.
  *
@@ -16,10 +14,19 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Lang extends Base {
 
+    /**
+     * @var bool
+     */
     public $incrementing = false;
 
+    /**
+     * @var string
+     */
     protected $primaryKey = 'code';
 
+    /**
+     * @var array
+     */
     protected $fillable = [
         'code',
         'i18n',

@@ -6,29 +6,17 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  *
- * Class ContentType
+ * Class Block
  *
  * @package    Gzero\Model
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2014, Adrian Skierniewski
  */
-class ContentType extends Base {
-
-    /**
-     * @var bool
-     */
-    public $incrementing = false;
-
-    /**
-     * @var string
-     */
-    protected $primaryKey = 'name';
+class Block extends Base {
 
     /**
      * @var array
      */
-    protected $fillable = [
-        'name',
-        'isActive'
-    ];
+    protected $fillable = [];
+
 }

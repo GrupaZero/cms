@@ -4,6 +4,7 @@ use BadMethodCallException;
 use Gzero\Entity\Base;
 use Illuminate\Database\Connection;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\App;
 
 /**

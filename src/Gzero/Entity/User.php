@@ -14,8 +14,9 @@
  */
 class User extends Base {
 
-    protected $table = 'Users';
-
+    /**
+     * @var array
+     */
     protected $fillable = [
         'email',
         'firstName',

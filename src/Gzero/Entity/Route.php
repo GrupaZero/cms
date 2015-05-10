@@ -14,6 +14,9 @@
  */
 class Route extends Base {
 
+    /**
+     * @var array
+     */
     protected $fillable = [
         'isActive'
     ];
