@@ -1,10 +1,9 @@
 <?php namespace Gzero\Repository;
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\ORM\QueryBuilder;
 use Gzero\Entity\Lang;
 use Illuminate\Cache\CacheManager;
 use Illuminate\Cache\Repository;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\App;
 
 /**
@@ -24,7 +23,7 @@ class LangRepository {
     /**
      * All languages
      *
-     * @var ArrayCollection
+     * @var Collection
      */
     private $langs;
 
@@ -32,7 +31,6 @@ class LangRepository {
      * @var Repository
      */
     private $cache;
-
 
     /**
      * LangRepository constructor
@@ -90,7 +88,7 @@ class LangRepository {
     /**
      * Get all languages
      *
-     * @return ArrayCollection
+     * @return Collection
      */
     public function getAll()
     {
@@ -100,7 +98,7 @@ class LangRepository {
     /**
      * Get all enabled langs
      *
-     * @return \Doctrine\Common\Collections\Collection
+     * @return Collection
      */
     public function getAllEnabled()
     {
