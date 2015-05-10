@@ -1,9 +1,8 @@
 <?php namespace Gzero\Repository;
 
-use Gzero\Entity\Block;
-use Gzero\Entity\BlockTranslation;
-use Gzero\Entity\BlockType;
-use Gzero\Entity\Lang;
+use Gzero\Entity\Content;
+use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Illuminate\Events\Dispatcher;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -20,141 +19,37 @@ use Gzero\Entity\Lang;
 class BlockRepository extends BaseRepository {
 
     /**
-     * Get single block with active translations
-     *
-     * @param int $id Block id
-     *
-     * @return Block
+     * @var Content
      */
-    public function getById($id)
-    {
-        $qb = $this->newORMQuery()
-            ->select('b,t')
-            ->from($this->getClassName(), 'b')
-            ->leftJoin('b.translations', 't', 'WITH', 't.isActive = 1')
-            ->where('b.id = :id')
-            ->setParameter('id', $id);
-        return $qb->getQuery()->getSingleResult();
-    }
+    protected $model;
 
     /**
-     * Get block type by id
+     * The events dispatcher
      *
-     * @param int $id Block type id
-     *
-     * @return BlockType
+     * @var Dispatcher
      */
-    public function getTypeById($id)
-    {
-        return $this->_em->find($this->getTypeClassName(), $id);
-    }
+    protected $events;
 
     /**
-     * Get block translation by id
+     * Content repository constructor
      *
-     * @param int $id Block translation id
-     *
-     * @return BlockTranslation
+     * @param Content    $content Content model
+     * @param Dispatcher $events  Events dispatcher
      */
-    public function getTranslationById($id)
+    public function __construct(Content $content, Dispatcher $events)
     {
-        $qb = $this->newORMQuery()
-            ->select('t')
-            ->from($this->getTranslationClassName(), 't')
-            ->where('t.id = :id')
-            ->orderBy('t.isActive')
-            ->setParameter('id', $id);
-        return $qb->getQuery()->getSingleResult();
-    }
-
-    /**
-     * Gets all active blocks with translation in specified lang
-     *
-     * @param Lang $lang Lang model
-     *
-     * @return mixed
-     */
-    public function getAllActive(Lang $lang)
-    {
-        $qb = $this->newORMQuery();
-        $qb->select('b,t')
-            ->from($this->getClassName(), 'b')
-            // we need only blocks with active translations
-            ->innerJoin(
-                'b.translations',
-                't',
-                'WITH',
-                $qb->expr()->andx(
-                    $qb->expr()->eq('t.lang', ':lang'),
-                    $qb->expr()->eq('t.isActive', '1')
-                )
-            )
-            ->where('b.isActive = 1')
-            ->where('b.regions IS NOT NULL')
-            ->orderBy('b.weight')
-            ->setParameter('lang', $lang->getCode());
-        return $qb->getQuery()->getResult();
-    }
-
-    /**
-     * Get all block types
-     *
-     * @return array
-     */
-    public function getAllTypes()
-    {
-        $qb = $this->newORMQuery()
-            ->select('t')
-            ->from($this->getTypeClassName(), 't');
-        return $qb->getQuery()->getResult();
-    }
-
-    /**
-     * Get all block translations
-     *
-     * @param Block $block Block entity
-     *
-     * @return array
-     */
-    public function getAllTranslations(Block $block)
-    {
-        $qb = $this->newORMQuery()
-            ->select('t')
-            ->from($this->getTranslationClassName(), 't')
-            ->where('IDENTITY(t.block) = :id')
-            ->orderBy('t.isActive')
-            ->setParameter('id', $block->getId());
-        return $qb->getQuery()->getResult();
+        $this->model  = $content;
+        $this->events = $events;
     }
 
     // @codingStandardsIgnoreStart
 
-    public function create(Block $block)
-    {
-        $this->_em->persist($block);
-    }
-
-    public function update(Block $block)
-    {
-        $this->_em->persist($block);
-    }
-
-    public function delete(Block $block)
-    {
-        $this->_em->remove($block);
-    }
-
-    public function commit()
-    {
-        $this->_em->flush();
-    }
-
-    // @codingStandardsIgnoreEnd
     /**
      * Eager load relations for eloquent collection.
      * We use this function in handlePagination method!
+     * @SuppressWarnings("unused")
      *
-     * @param Collection $results Eloquent collection
+     * @param EloquentCollection $results Eloquent collection
      *
      * @return void
      */
@@ -162,4 +57,6 @@ class BlockRepository extends BaseRepository {
     {
         // TODO: Implement listEagerLoad() method.
     }
+
+    // @codingStandardsIgnoreEnd
 }

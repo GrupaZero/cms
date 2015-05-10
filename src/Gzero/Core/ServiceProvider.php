@@ -1,6 +1,5 @@
 <?php namespace Gzero\Core;
 
-use Gzero\Core\Menu\AdminRegister;
 use Gzero\Core\Menu\Register;
 use Gzero\Repository\LangRepository;
 use Illuminate\Support\Facades\App;
@@ -82,20 +81,6 @@ class ServiceProvider extends SP {
             }
         );
 
-        $this->app->singleton(
-            'admin.menu',
-            function ($app) {
-                return new Register();
-            }
-        );
-
-        $this->app->singleton(
-            'option.menu',
-            function ($app) {
-                return new AdminRegister();
-            }
-        );
-
         // We need only one LangRepository
         $this->app->singleton(
             'Gzero\Repository\LangRepository',
@@ -160,17 +145,7 @@ class ServiceProvider extends SP {
      */
     protected function bindOtherStuff()
     {
-        // Add TreeSubscriber
-        //$this->app['doctrine']->getEventManager()->addEventSubscriber(new TreeSubscriber());
-        //Add EntitySerializer
-        //$this->app->singleton(
-        //    'Gzero\Core\EntitySerializer',
-        //    function ($app) {
-        //        return new EntitySerializer($app['doctrine']);
-        //    }
-        //);
-        // Add all doctrine 2 annotation to auto load
-        //AnnotationRegistry::registerLoader('class_exists');
+        //
     }
 
     /**

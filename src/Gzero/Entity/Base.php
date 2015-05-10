@@ -9,7 +9,7 @@ use Carbon\Carbon;
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  *
- * Class Content
+ * Class Base
  *
  * @package    Gzero\Model
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>

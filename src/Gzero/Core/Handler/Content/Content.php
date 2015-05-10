@@ -54,7 +54,7 @@ class Content implements ContentTypeHandler {
      * Content constructor
      *
      * @param Application       $app         Laravel application
-     * @param ContentRepository $contentRepo content reposityory
+     * @param ContentRepository $contentRepo content repository
      */
     public function __construct(Application $app, ContentRepository $contentRepo)
     {

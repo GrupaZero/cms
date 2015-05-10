@@ -52,17 +52,17 @@ class Menu implements BlockTypeHandler {
      */
     public function render()
     {
-        $translation = $this->block->getTranslations()->first();
-        $menu        = $this->block->getMenu();
-        $menuTree    = $this->menuRepo->getDescendants($menu, true);
-        return \View::make(
-            'blocks.menu',
-            [
-                'block'        => $this->block,
-                'translations' => $translation,
-                'menu'         => $menuTree
-            ]
-        )->render();
+        //$translation = $this->block->getTranslations()->first();
+        //$menu        = $this->block->getMenu();
+        //$menuTree    = $this->menuRepo->getDescendants($menu, true);
+        //return \View::make(
+        //    'blocks.menu',
+        //    [
+        //        'block'        => $this->block,
+        //        'translations' => $translation,
+        //        'menu'         => $menuTree
+        //    ]
+        //)->render();
     }
 
     // @codingStandardsIgnoreEnd

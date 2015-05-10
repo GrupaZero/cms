@@ -14,6 +14,9 @@
  */
 class ContentTranslation extends Base {
 
+    /**
+     * @var array
+     */
     protected $fillable = [
         'langCode',
         'title',

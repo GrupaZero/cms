@@ -4,7 +4,7 @@ use Gzero\Core\Exception;
 use Gzero\EloquentTree\Model\Tree;
 use Gzero\Entity\ContentTranslation;
 use Gzero\Entity\ContentType;
-use Gzero\Entity\Content as C;
+use Gzero\Entity\Content;
 use Gzero\Entity\Route;
 use Gzero\Entity\RouteTranslation;
 use Gzero\Entity\User;
@@ -27,7 +27,7 @@ use Illuminate\Events\Dispatcher;
 class ContentRepository extends BaseRepository {
 
     /**
-     * @var C
+     * @var Content
      */
     protected $model;
 
@@ -41,10 +41,10 @@ class ContentRepository extends BaseRepository {
     /**
      * Content repository constructor
      *
-     * @param C          $content Content model
+     * @param Content    $content Content model
      * @param Dispatcher $events  Events dispatcher
      */
-    public function __construct(C $content, Dispatcher $events)
+    public function __construct(Content $content, Dispatcher $events)
     {
         $this->model  = $content;
         $this->events = $events;
@@ -80,7 +80,7 @@ class ContentRepository extends BaseRepository {
      * @param string $url      Url address
      * @param string $langCode Lang code
      *
-     * @return C $content Content content
+     * @return Content $content Content content
      * @throws RepositoryException
      */
     public function getByUrl($url, $langCode)
@@ -119,7 +119,7 @@ class ContentRepository extends BaseRepository {
     /**
      * Get all translations to specific content
      *
-     * @param C        $content  Content content
+     * @param Content  $content  Content content
      * @param array    $criteria Filter criteria
      * @param array    $orderBy  Array of columns
      * @param int|null $page     Page number (if null == disabled pagination)
@@ -128,8 +128,13 @@ class ContentRepository extends BaseRepository {
      * @throws RepositoryException
      * @return EloquentCollection
      */
-    public function getTranslations(C $content, array $criteria, array $orderBy = [], $page = 1, $pageSize = self::ITEMS_PER_PAGE)
-    {
+    public function getTranslations(
+        Content $content,
+        array $criteria,
+        array $orderBy = [],
+        $page = 1,
+        $pageSize = self::ITEMS_PER_PAGE
+    ) {
         $query = $content->translations(false);
         $this->handleFilterCriteria($this->getTranslationsTableName(), $criteria, $query);
         $this->handleOrderBy(
@@ -327,12 +332,12 @@ class ContentRepository extends BaseRepository {
     /**
      * Get translation of specified content by id.
      *
-     * @param C   $content Content entity
-     * @param int $id      Content Translation id
+     * @param Content $content Content entity
+     * @param int     $id      Content Translation id
      *
      * @return ContentTranslation
      */
-    public function getContentTranslationById(C $content, $id)
+    public function getContentTranslationById(Content $content, $id)
     {
         return $content->translations(false)->where('id', '=', $id)->first();
     }
@@ -349,7 +354,7 @@ class ContentRepository extends BaseRepository {
      * @param array     $data   Content entity to persist
      * @param User|null $author Author entity
      *
-     * @return C
+     * @return Content
      */
     public function create(Array $data, User $author = null)
     {
@@ -358,10 +363,9 @@ class ContentRepository extends BaseRepository {
                 $translations = array_get($data, 'translations'); // Nested relation fields
                 if (!empty($translations) && array_key_exists('type', $data)) {
                     // Check if type exist
-                    // TODO get registered types
+                    /** @TODO get registered types */
                     $this->validateType($data['type'], ['content', 'category']);
-                    // Content
-                    $content = new C();
+                    $content = new Content();
                     $content->fill($data);
                     if ($author) {
                         $content->author()->associate($author);
@@ -370,7 +374,7 @@ class ContentRepository extends BaseRepository {
                         $parent = $this->getById($data['parentId']);
                         if (!empty($parent)) {
                             // Check if parent is one of allowed type
-                            // TODO get registered types
+                            /** @TODO get registered types */
                             $this->validateType(
                                 $parent->type,
                                 ['category'],
@@ -398,13 +402,13 @@ class ContentRepository extends BaseRepository {
     /**
      * Creates translation for specified content entity it also handles route creation
      *
-     * @param C     $content Content entity
-     * @param array $data    new data to save
+     * @param Content $content Content entity
+     * @param array   $data    new data to save
      *
      * @return ContentTranslation
      * @throws RepositoryException
      */
-    public function createTranslation(C $content, Array $data)
+    public function createTranslation(Content $content, Array $data)
     {
         if (array_key_exists('langCode', $data) && array_key_exists('title', $data)) {
             // Creating or updating route from translations
@@ -431,13 +435,13 @@ class ContentRepository extends BaseRepository {
     /**
      * Function handles creation of route from translations
      *
-     * @param C     $content      Content entity
-     * @param array $translations translations data to save
+     * @param Content $content      Content entity
+     * @param array   $translations translations data to save
      *
      * @return Route
      * @throws RepositoryException
      */
-    public function createRoute(C $content, $translations)
+    public function createRoute(Content $content, $translations)
     {
         if (array_key_exists('langCode', $translations) && array_key_exists('title', $translations)) {
             $route = $this->newQuery()->transaction(
@@ -482,14 +486,14 @@ class ContentRepository extends BaseRepository {
     /**
      * Update specific content entity
      *
-     * @param C         $content  Content entity
+     * @param Content   $content  Content entity
      * @param array     $data     new data to save
      * @param User|null $modifier User entity
      *
-     * @return C
+     * @return Content
      * @SuppressWarnings("unused")
      */
-    public function update(C $content, Array $data, User $modifier = null)
+    public function update(Content $content, Array $data, User $modifier = null)
     {
         $content = $this->newQuery()->transaction(
             function () use ($content, $data, $modifier) {
@@ -514,11 +518,11 @@ class ContentRepository extends BaseRepository {
     /**
      * Delete specific content entity
      *
-     * @param C $content Content entity to delete
+     * @param Content $content Content entity to delete
      *
      * @return boolean
      */
-    public function delete(C $content)
+    public function delete(Content $content)
     {
         return $this->newQuery()->transaction(
             function () use ($content) {

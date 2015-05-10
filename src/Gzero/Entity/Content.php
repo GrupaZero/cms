@@ -19,6 +19,9 @@ use Robbo\Presenter\Robbo;
  */
 class Content extends BaseTree implements PresentableInterface {
 
+    /**
+     * @var array
+     */
     protected $fillable = [
         'type',
         'authorId',
@@ -105,7 +108,7 @@ class Content extends BaseTree implements PresentableInterface {
     /**
      * Return a created presenter.
      *
-     * @return Robbo\Presenter\Presenter
+     * @return \Robbo\Presenter\Presenter
      */
     public function getPresenter()
     {
