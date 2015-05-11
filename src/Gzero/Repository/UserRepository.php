@@ -1,6 +1,6 @@
 <?php namespace Gzero\Repository;
 
-use User;
+use Gzero\Entity\User;
 use Illuminate\Auth\UserInterface;
 use Illuminate\Auth\UserProviderInterface;
 use Illuminate\Database\Eloquent\Collection;
@@ -208,6 +208,24 @@ class UserRepository extends BaseRepository implements UserProviderInterface {
     }
 
     /**
+     * Delete specific user entity
+     *
+     * @param User $user User entity to delete
+     *
+     * @return boolean
+     */
+    public function delete(User $user)
+    {
+        /*return $this->newQuery()->transaction(
+            function () use ($user) {
+                return $user->delete();
+            }
+        );*/
+
+        return $user->delete();
+    }
+
+    /**
      * Get all users with specific criteria
      *
      * @param array    $criteria Filter criteria
@@ -218,7 +236,7 @@ class UserRepository extends BaseRepository implements UserProviderInterface {
      * @throws RepositoryException
      * @return EloquentCollection
      */
-    public function retrieveUsers(array $criteria, array $orderBy = [], $page = 1, $pageSize = self::ITEMS_PER_PAGE)
+    public function getUsers(array $criteria, array $orderBy = [], $page = 1, $pageSize = self::ITEMS_PER_PAGE)
     {
         $query = $this->newORMQuery();
         $this->handleFilterCriteria($this->getTableName(), $criteria, $query);
@@ -239,7 +257,7 @@ class UserRepository extends BaseRepository implements UserProviderInterface {
     protected function userDefaultOrderBy()
     {
         return function ($query) {
-            $query->orderBy('created_at','DESC');
+            $query->orderBy('id', 'DESC');
         };
     }
 
