@@ -109,10 +109,10 @@ class TestSeeder extends Seeder {
             $str  = md5($x);
             $user = User::firstOrCreate(
                 [
-                    'email'     => str_replace(range(0, 9), '', substr($str, 0, 8)) . $x . '@' . substr($str, 4, 8) . '.com',
-                    'firstName' => str_replace(range(0, 9), '', substr($str, 0, 10)),
-                    'lastName'  => str_replace(range(0, 9), '', substr($str, 5, 10)),
-                    'password'  => substr($str, 3, 8)
+                    'email'     => $this->faker->email,
+                    'firstName' => $this->faker->firstName,
+                    'lastName'  => $this->faker->lastName,
+                    'password'  => Hash::make($this->faker->word)
                 ]
             );
         }
