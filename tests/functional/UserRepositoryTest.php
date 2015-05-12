@@ -127,6 +127,8 @@ class UserRepositoryTest extends \EloquentTestCase {
 
         $this->assertEquals($result[0]->email, 'a@a.pl');
 
+        $last = $result->toArray();
+        $last = array_pop($last);
         // DESC
         $result = $this->repository->getUsers(
             [],
@@ -136,7 +138,7 @@ class UserRepositoryTest extends \EloquentTestCase {
             null
         );
 
-        $this->assertEquals($result[0]->email, 'c@phpunit.com');
+        $this->assertEquals($result[0]->email, $last['email']);
     }
 
 

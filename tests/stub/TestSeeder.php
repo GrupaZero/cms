@@ -28,7 +28,7 @@ class TestSeeder extends Seeder {
      */
     public function __construct(UserRepository $user)
     {
-        $this->faker = Factory::create();
+        $this->faker    = Factory::create();
         $this->userRepo = $user;
     }
 
@@ -105,23 +105,19 @@ class TestSeeder extends Seeder {
             ]
         );
 
-        $user = $this->userRepo->create(
-            [
-                'email'     => 'b@phpunit.com',
-                'password'  => 'abc',
-                'firstName' => 'Adam',
-                'lastName'  => 'Kowalski',
-            ]
-        );
+        for ($x = 0; $x < 100; $x++) {
+            $str  = md5($x);
+            $user = User::firstOrCreate(
+                [
+                    'email'     => str_replace(range(0, 9), '', substr($str, 0, 8)) . $x . '@' . substr($str, 4, 8) . '.com',
+                    'firstName' => str_replace(range(0, 9), '', substr($str, 0, 10)),
+                    'lastName'  => str_replace(range(0, 9), '', substr($str, 5, 10)),
+                    'password'  => substr($str, 3, 8)
+                ]
+            );
+        }
 
-        $user = $this->userRepo->create(
-            [
-                'email'     => 'c@phpunit.com',
-                'password'  => 'abc',
-                'firstName' => 'Bartosz',
-                'lastName'  => 'Kowalski',
-            ]
-        );
+
         return $user;
     }
 
