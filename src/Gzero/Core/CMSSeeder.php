@@ -221,6 +221,19 @@ class CMSSeeder extends Seeder {
 
             ]
         );
+        
+        for ($x = 0; $x < 100; $x++) {
+            $str  = md5($x);
+            $user = User::firstOrCreate(
+                [
+                    'email'     => $this->faker->email,
+                    'firstName' => $this->faker->firstName,
+                    'lastName'  => $this->faker->lastName,
+                    'password'  => Hash::make($this->faker->word)
+                ]
+            );
+        }
+
         return $user;
     }
 

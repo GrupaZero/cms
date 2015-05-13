@@ -6,6 +6,7 @@ use Gzero\Entity\Lang;
 use Gzero\Entity\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Gzero\Repository\UserRepository;
 
 /**
  * Class DummyValidator
@@ -18,11 +19,17 @@ class TestSeeder extends Seeder {
     protected $faker;
 
     /**
+     * @var UserRepository
+     */
+    protected $userRepo;
+
+    /**
      * CMSSeeder constructor
      */
-    public function __construct()
+    public function __construct(UserRepository $user)
     {
-        $this->faker = Factory::create();
+        $this->faker    = Factory::create();
+        $this->userRepo = $user;
     }
 
     /**
@@ -87,7 +94,7 @@ class TestSeeder extends Seeder {
      */
     private function seedUsers()
     {
-        // Create user
+        // Create users
         $user = User::firstOrCreate(
             [
                 'email'     => 'a@a.pl',
@@ -97,6 +104,20 @@ class TestSeeder extends Seeder {
 
             ]
         );
+
+        for ($x = 0; $x < 100; $x++) {
+            $str  = md5($x);
+            $user = User::firstOrCreate(
+                [
+                    'email'     => $this->faker->email,
+                    'firstName' => $this->faker->firstName,
+                    'lastName'  => $this->faker->lastName,
+                    'password'  => Hash::make($this->faker->word)
+                ]
+            );
+        }
+
+
         return $user;
     }
 

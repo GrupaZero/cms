@@ -1,6 +1,6 @@
 <?php namespace Gzero\Repository;
 
-use User;
+use Gzero\Entity\User;
 use Illuminate\Auth\UserInterface;
 use Illuminate\Auth\UserProviderInterface;
 use Illuminate\Database\Eloquent\Collection;
@@ -206,6 +206,61 @@ class UserRepository extends BaseRepository implements UserProviderInterface {
         $this->_em->persist($user);
         $this->commit();
     }
+
+    /**
+     * Delete specific user entity
+     *
+     * @param User $user User entity to delete
+     *
+     * @return boolean
+     */
+    public function delete(User $user)
+    {
+        /*return $this->newQuery()->transaction(
+            function () use ($user) {
+                return $user->delete();
+            }
+        );*/
+
+        return $user->delete();
+    }
+
+    /**
+     * Get all users with specific criteria
+     *
+     * @param array    $criteria Filter criteria
+     * @param array    $orderBy  Array of columns
+     * @param int|null $page     Page number (if null == disabled pagination)
+     * @param int|null $pageSize Limit results
+     *
+     * @throws RepositoryException
+     * @return EloquentCollection
+     */
+    public function getUsers(array $criteria, array $orderBy = [], $page = 1, $pageSize = self::ITEMS_PER_PAGE)
+    {
+        $query = $this->newORMQuery();
+        $this->handleFilterCriteria($this->getTableName(), $criteria, $query);
+        $this->handleOrderBy(
+            $this->getTableName(),
+            $orderBy,
+            $query,
+            $this->userDefaultOrderBy()
+        );
+        return $this->handlePagination($this->getTableName(), $query, $page, $pageSize);
+    }
+
+    /**
+     * Default order for user query
+     *
+     * @return callable
+     */
+    protected function userDefaultOrderBy()
+    {
+        return function ($query) {
+            $query->orderBy('id', 'DESC');
+        };
+    }
+
 
     /*
     |--------------------------------------------------------------------------
