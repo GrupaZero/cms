@@ -1,5 +1,7 @@
 <?php namespace Gzero\Entity;
 
+use Illuminate\Database\Eloquent\SoftDeletingTrait;
+
 /**
  * This file is part of the GZERO CMS package.
  *
@@ -13,6 +15,8 @@
  * @copyright  Copyright (c) 2014, Adrian Skierniewski
  */
 class ContentTranslation extends Base {
+
+    use SoftDeletingTrait;
 
     /**
      * @var array

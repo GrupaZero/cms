@@ -19,7 +19,7 @@ class CreateContent extends Migration {
                 $table->boolean('isActive');
                 $table->timestamp('createdAt');
                 $table->timestamp('updatedAt');
-                $this->softDeletes();
+                $table->softDeletes();
             }
         );
 
@@ -47,7 +47,7 @@ class CreateContent extends Migration {
                 $table->foreign('authorId')->references('id')->on('Users')->onDelete('SET NULL');
                 $table->foreign('parentId')->references('id')->on('Contents')->onDelete('CASCADE');
                 $table->foreign('type')->references('name')->on('ContentTypes')->onDelete('CASCADE');
-                $this->softDeletes();
+                $table->softDeletes();
             }
         );
 
@@ -65,7 +65,7 @@ class CreateContent extends Migration {
                 $table->timestamp('updatedAt');
                 $table->foreign('contentId')->references('id')->on('Contents')->onDelete('CASCADE');
                 $table->foreign('langCode')->references('code')->on('Langs')->onDelete('CASCADE');
-                $this->softDeletes();
+                $table->softDeletes();
             }
         );
     }
