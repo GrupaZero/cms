@@ -435,9 +435,9 @@ class ContentRepository extends BaseRepository {
     /**
      * Function handles creation of route from translations
      *
-     * @param Content $content Content entity
-     * @param string $langCode Lang code
-     * @param string $urlString string used to build unique url
+     * @param Content $content   Content entity
+     * @param string  $langCode  Lang code
+     * @param string  $urlString string used to build unique url
      *
      * @return Route
      * @throws RepositoryException
