@@ -24,6 +24,7 @@
                 <directory suffix=".php">./tests</directory>
                 <directory suffix=".php">./src/migrations</directory>
                 <file>./src/Gzero/Core/filters.php</file>
+                <file>./src/Gzero/Core/CMSSeeder.php</file>
             </exclude>
         </whitelist>
     </filter>

@@ -301,8 +301,8 @@ class ContentRepository extends BaseRepository {
     /**
      * Build tree from specified nodes
      *
-     * @param Collection $nodes  Tree nodes
-     * @param bool       $strict If we want to make sure that there are no orphan nodes
+     * @param EloquentCollection $nodes  Tree nodes
+     * @param bool               $strict If we want to make sure that there are no orphan nodes
      *
      * @return EloquentCollection
      */
@@ -554,7 +554,7 @@ class ContentRepository extends BaseRepository {
                     ->where($routeRelation->getPlainMorphType(), '=', get_class($content))
                     ->whereIn($routeRelation->getPlainForeignKey(), $descendantsIds)
                     ->delete();
-                return $content->forceDelete();
+                return $content->delete();
             }
         );
     }

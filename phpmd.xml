@@ -17,7 +17,11 @@
             <property name="minimum" value="6"/>
         </properties>
     </rule>
-    <rule ref="rulesets/codesize.xml/ExcessiveClassComplexity"/>
+    <rule ref="rulesets/codesize.xml/ExcessiveClassComplexity">
+        <properties>
+            <property name="maximum" value="60"/>
+        </properties>
+    </rule>
     <rule ref="rulesets/controversial.xml"/>
     <rule ref="rulesets/design.xml/ExitExpression"/>
     <rule ref="rulesets/design.xml/EvalExpression"/>
@@ -25,7 +29,7 @@
     <rule ref="rulesets/design.xml/DepthOfInheritance"/>
     <rule ref="rulesets/design.xml/CouplingBetweenObjects">
         <properties>
-            <property name="minimum" value="18"/>
+            <property name="minimum" value="20"/>
         </properties>
     </rule>
     <rule ref="rulesets/naming.xml/ShortVariable">
