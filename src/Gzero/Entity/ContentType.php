@@ -16,8 +16,6 @@ use Illuminate\Database\Eloquent\SoftDeletingTrait;
  */
 class ContentType extends Base {
 
-    use SoftDeletingTrait;
-
     /**
      * @var bool
      */

@@ -516,13 +516,33 @@ class ContentRepository extends BaseRepository {
     }
 
     /**
-     * Delete specific content entity
+     * Delete specific content entity using softDelete
      *
      * @param Content $content Content entity to delete
      *
      * @return boolean
      */
     public function delete(Content $content)
+    {
+        return $this->newQuery()->transaction(
+            function () use ($content) {
+                // When we're using softDelete, we need to manually softDeleted descendants rows
+                foreach ($content->findDescendants()->get() as $node) {
+                    $node->delete();
+                }
+                return $content->delete();
+            }
+        );
+    }
+
+    /**
+     * Delete specific content entity using forceDelete
+     *
+     * @param Content $content Content entity to delete
+     *
+     * @return boolean
+     */
+    public function forceDelete(Content $content)
     {
         return $this->newQuery()->transaction(
             function () use ($content) {
@@ -534,7 +554,7 @@ class ContentRepository extends BaseRepository {
                     ->where($routeRelation->getPlainMorphType(), '=', get_class($content))
                     ->whereIn($routeRelation->getPlainForeignKey(), $descendantsIds)
                     ->delete();
-                return $content->delete();
+                return $content->forceDelete();
             }
         );
     }
