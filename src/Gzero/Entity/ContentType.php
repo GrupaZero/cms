@@ -1,7 +1,5 @@
 <?php namespace Gzero\Entity;
 
-use Illuminate\Database\Eloquent\SoftDeletingTrait;
-
 /**
  * This file is part of the GZERO CMS package.
  *
