@@ -484,6 +484,60 @@ class ContentRepositoryTest extends \EloquentTestCase {
     /**
      * @test
      */
+    public function can_create_route()
+    {
+        // Tree seeds
+        $this->app['artisan']->call('db:seed', ['--class' => 'TestTreeSeeder']);
+
+        // single content
+        $singleContent = $this->repository->getById(2);
+
+        // crate single route
+        $this->repository->createRoute($singleContent, 'en', 'Single content url');
+        $updatedContent      = $this->repository->getById($singleContent->id);
+        $updatedContentRoute = $updatedContent->route->translations()->first();
+
+        // check single route
+        $this->assertEquals('en', $updatedContentRoute['langCode']);
+        $this->assertEquals('single-content-url', $updatedContentRoute['url']);
+
+        // nested content
+        $category      = $this->repository->getById(1);
+        $categoryRoute = $category->route->translations()->first();
+        $nestedContent = $this->repository->create(
+            [
+                'type'         => 'content',
+                'parentId'     => $category->id,
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'Example content title'
+                ]
+            ]
+        );
+
+        // crate nested route
+        $newContent = $this->repository->getById($nestedContent->id);
+        $this->repository->createRoute($newContent, 'en', 'Nested content url');
+        $updatedContent      = $this->repository->getById($nestedContent->id);
+        $updatedContentRoute = $updatedContent->route->translations()->first();
+
+        // check nested route
+        $this->assertEquals('en', $updatedContentRoute['langCode']);
+        $this->assertEquals($categoryRoute->url . '/' . 'nested-content-url', $updatedContentRoute['url']);
+
+        // crate unique route
+        $this->repository->createRoute($newContent, 'en', 'Nested content url');
+        $updatedContent      = $this->repository->getById($nestedContent->id);
+        $updatedContentRoute = $updatedContent->route->translations()->first();
+
+        // check unique route
+        $this->assertEquals('en', $updatedContentRoute['langCode']);
+        $this->assertEquals($categoryRoute->url . '/' . 'nested-content-url-1', $updatedContentRoute['url']);
+    }
+
+    /**
+     * @test
+     */
     public function can_delete_content_with_children()
     {
         // Tree seeds
