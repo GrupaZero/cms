@@ -6,6 +6,11 @@
 class TestCase extends Illuminate\Foundation\Testing\TestCase {
 
     /**
+     * @var bool
+     */
+    static $initialSetup = false;
+
+    /**
      * Creates the application.
      *
      * @return \Symfony\Component\HttpKernel\HttpKernelInterface
@@ -34,7 +39,14 @@ class TestCase extends Illuminate\Foundation\Testing\TestCase {
         require $framework . '/Illuminate/Foundation/start.php';
         require __DIR__ . '/../src/Gzero/Core/helpers.php';
 
-        $this->app['artisan']->call('migrate', ['--path' => '../src/migrations']); // Relative to tests/app/
+        if (!self::$initialSetup) {
+            try {
+                $this->app['artisan']->call('migrate:reset');
+            } catch (Exception $e) {
+            }
+            $this->app['artisan']->call('migrate', ['--path' => '../src/migrations']); // Relative to tests/app/
+            self::$initialSetup = true;
+        }
 
         return $this->app;
     }

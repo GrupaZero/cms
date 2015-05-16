@@ -32,6 +32,14 @@ abstract class Base extends Model {
     const UPDATED_AT = 'updatedAt';
 
     /**
+     * The name of the "deleted at" column.
+     *
+     * @var string
+     */
+    const DELETED_AT = 'deletedAt';
+
+
+    /**
      * Get the table associated with the model.
      *
      * @return string

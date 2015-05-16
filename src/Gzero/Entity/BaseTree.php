@@ -31,6 +31,13 @@ abstract class BaseTree extends Tree {
      */
     const UPDATED_AT = 'updatedAt';
 
+    /**
+     * The name of the "deleted at" column.
+     *
+     * @var string
+     */
+    const DELETED_AT = 'deletedAt';
+
     // @codingStandardsIgnoreStart
 
     /**

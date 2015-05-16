@@ -94,8 +94,10 @@ class TestSeeder extends Seeder {
      */
     private function seedUsers()
     {
+        $users = [];
+
         // Create users
-        $user = User::firstOrCreate(
+        $users[] = User::firstOrCreate(
             [
                 'email'     => 'a@a.pl',
                 'firstName' => 'John',
@@ -105,20 +107,17 @@ class TestSeeder extends Seeder {
             ]
         );
 
-        for ($x = 0; $x < 100; $x++) {
-            $str  = md5($x);
-            $user = User::firstOrCreate(
-                [
-                    'email'     => $this->faker->email,
-                    'firstName' => $this->faker->firstName,
-                    'lastName'  => $this->faker->lastName,
-                    'password'  => Hash::make($this->faker->word)
-                ]
-            );
-        }
+        $users[] = User::firstOrCreate(
+            [
+                'email'     => 'b@b.pl',
+                'firstName' => 'John',
+                'lastName'  => 'Doe',
+                'password'  => Hash::make('test123')
 
+            ]
+        );
 
-        return $user;
+        return $users;
     }
 
     /**

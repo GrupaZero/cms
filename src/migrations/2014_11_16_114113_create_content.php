@@ -46,6 +46,7 @@ class CreateContent extends Migration {
                 $table->foreign('authorId')->references('id')->on('Users')->onDelete('SET NULL');
                 $table->foreign('parentId')->references('id')->on('Contents')->onDelete('CASCADE');
                 $table->foreign('type')->references('name')->on('ContentTypes')->onDelete('CASCADE');
+                $table->timestamp('deletedAt')->nullable();
             }
         );
 

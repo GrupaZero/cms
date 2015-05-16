@@ -199,10 +199,31 @@ class ContentRepositoryTest extends \EloquentTestCase {
         $this->repository->delete($newContent);
         // content has been removed?
         $this->assertNull($this->repository->getById($newContent->id));
-        // route has been removed?
-        $this->assertNull($newContent->route()->first());
+    }
+
+    /**
+     * @test
+     */
+    public function can_force_delete_content()
+    {
+        $content = $this->repository->create(
+            [
+                'type'         => 'content',
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'Example title'
+                ]
+            ]
+        );
+
+        $newContent         = $this->repository->getById($content->id);
+        $contentTranslation = $newContent->translations()->first();
+        $this->assertNotSame($content, $newContent);
+        $this->repository->forceDelete($newContent);
+        // content has been removed?
+        $this->assertNull($this->repository->getById($newContent->id));
         // content translations has been removed?
-        $this->assertNull($newContent->translations()->first());
+        $this->assertNull($this->repository->getTranslationById($contentTranslation->id));
     }
 
     /**
@@ -470,6 +491,20 @@ class ContentRepositoryTest extends \EloquentTestCase {
 
         $content = $this->repository->getById(1);
         $this->repository->delete($content);
+        // Content children has been removed?
+        $this->assertEmpty($content->children()->get());
+    }
+
+    /**
+     * @test
+     */
+    public function can_force_delete_content_with_children()
+    {
+        // Tree seeds
+        $this->app['artisan']->call('db:seed', ['--class' => 'TestTreeSeeder']);
+
+        $content = $this->repository->getById(1);
+        $this->repository->forceDelete($content);
         // Content children has been removed?
         $this->assertEmpty($content->children()->get());
     }
