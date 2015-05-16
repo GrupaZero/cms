@@ -554,7 +554,7 @@ class ContentRepository extends BaseRepository {
                     ->where($routeRelation->getPlainMorphType(), '=', get_class($content))
                     ->whereIn($routeRelation->getPlainForeignKey(), $descendantsIds)
                     ->delete();
-                return $content->delete();
+                return $content->forceDelete();
             }
         );
     }
