@@ -412,7 +412,7 @@ class ContentRepository extends BaseRepository {
     {
         if (array_key_exists('langCode', $data) && array_key_exists('title', $data)) {
             // Creating or updating route from translations
-            $this->createRoute($content, $data);
+            $this->createRoute($content, $data['langCode'], $data['title']);
             $translation = $this->newQuery()->transaction(
                 function () use ($content, $data) {
                     // Set all translation of this content as inactive
@@ -435,24 +435,25 @@ class ContentRepository extends BaseRepository {
     /**
      * Function handles creation of route from translations
      *
-     * @param Content $content      Content entity
-     * @param array   $translations translations data to save
+     * @param Content $content   Content entity
+     * @param string  $langCode  Lang code
+     * @param string  $urlString string used to build unique url
      *
      * @return Route
      * @throws RepositoryException
      */
-    public function createRoute(Content $content, $translations)
+    public function createRoute(Content $content, $langCode, $urlString)
     {
-        if (array_key_exists('langCode', $translations) && array_key_exists('title', $translations)) {
+        if (!empty($langCode) && !empty($urlString)) {
             $route = $this->newQuery()->transaction(
-                function () use ($content, $translations) {
+                function () use ($content, $langCode, $urlString) {
                     $url = '';
                     // Search for parent, to get its url
                     if (!empty($content->parentId)) {
                         $parent = $this->getById($content->parentId);
                         if (!empty($parent)) {
                             try {
-                                $url = $parent->getUrl($translations['langCode']) . '/';
+                                $url = $parent->getUrl($langCode) . '/';
                             } catch (Exception $e) {
                                 throw new RepositoryException(
                                     "Parent has not been translated in this language, translate it first!",
@@ -466,11 +467,11 @@ class ContentRepository extends BaseRepository {
                     $content->route()->save($route);
                     //  Search for route translations, or instantiate a new instance
                     $routeTranslation      = RouteTranslation::firstOrNew(
-                        ['routeId' => $route->id, 'langCode' => $translations['langCode'], 'isActive' => 1]
+                        ['routeId' => $route->id, 'langCode' => $langCode, 'isActive' => 1]
                     );
                     $routeTranslation->url = $this->buildUniqueUrl(
-                        $url . str_slug($translations['title']),
-                        $translations['langCode']
+                        $url . str_slug($urlString),
+                        $langCode
                     );
                     $route->translations()->save($routeTranslation);
                     return $route;
