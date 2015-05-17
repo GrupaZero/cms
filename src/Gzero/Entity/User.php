@@ -1,5 +1,8 @@
 <?php namespace Gzero\Entity;
 
+use Illuminate\Auth\UserInterface;
+use Illuminate\Auth\Reminders\RemindableInterface;
+
 /**
  * This file is part of the GZERO CMS package.
  *
@@ -12,8 +15,9 @@
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2014, Adrian Skierniewski
  */
-class User extends Base {
+class User extends Base implements UserInterface, RemindableInterface {
 
+    /**@TODO proper method for adding new fillable fields from package with migrations */
     /**
      * @var array
      */
@@ -22,6 +26,76 @@ class User extends Base {
         'firstName',
         'lastName',
         'password',
-        'hasSocialIntegrations' /**@TODO proper method for adding new fillable fields from package with migrations*/
+        'hasSocialIntegrations'
+
     ];
+
+    /**
+     * The attributes excluded from the model's JSON form.
+     *
+     * @var array
+     */
+    protected $hidden = ['password'];
+
+    /**
+     * Get the unique identifier for the user.
+     *
+     * @return mixed
+     */
+    public function getAuthIdentifier()
+    {
+        return $this->getKey();
+    }
+
+    /**
+     * Get the password for the user.
+     *
+     * @return string
+     */
+    public function getAuthPassword()
+    {
+        return $this->password;
+    }
+
+    /**
+     * Get the token value for the "remember me" session.
+     *
+     * @return string
+     */
+    public function getRememberToken()
+    {
+        return $this->rememberToken;
+    }
+
+    /**
+     * Set the token value for the "remember me" session.
+     *
+     * @param string $value token
+     *
+     * @return void
+     */
+    public function setRememberToken($value)
+    {
+        $this->rememberToken = $value;
+    }
+
+    /**
+     * Get the column name for the "remember me" token.
+     *
+     * @return string
+     */
+    public function getRememberTokenName()
+    {
+        return 'rememberToken';
+    }
+
+    /**
+     * Get the e-mail address where password reminders are sent.
+     *
+     * @return string
+     */
+    public function getReminderEmail()
+    {
+        return $this->email;
+    }
 }
