@@ -251,6 +251,41 @@ class ContentRepositoryTest extends \EloquentTestCase {
 
     /**
      * @test
+     */
+    public function can_create_content_with_same_title_as_one_of_soft_deleted_contentes(){
+        $content1 = $this->repository->create([
+            'type'         => 'content',
+            'translations' => [
+                'langCode' => 'en',
+                'title'    => 'Example title',
+                'body'     => 'Example body'
+            ]
+        ]);
+
+        $content1_id = $content1->id;
+
+        $this->repository->delete($content1);
+
+        $content2 = $this->repository->create([
+            'type'         => 'content',
+            'translations' => [
+                'langCode' => 'en',
+                'title'    => 'Example title',
+                'body'     => 'Example body'
+            ]
+        ]);
+
+        $content2_id = $content2->id;
+
+        $content1 = $this->repository->getDeletedById($content1_id);
+        $content1->restore();
+
+        $this->assertEquals($content1->title, $content2->title);
+        $this->assertNotEquals($content1->getUrl('en'), $content2->getUrl('en'));
+    }
+
+    /**
+     * @test
      * @expectedException \Gzero\Core\Exception
      */
     public function it_checks_existence_of_content_type()
