@@ -274,9 +274,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
                 'body'     => 'Example body'
             ]
         ]);
-
-        $content2_id = $content2->id;
-
+        
         $content1 = $this->repository->getDeletedById($content1_id);
         $content1->restore();
 
