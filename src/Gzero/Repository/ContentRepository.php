@@ -284,6 +284,33 @@ class ContentRepository extends BaseRepository {
     }
 
     /**
+     * Get all soft deleted contents with specific criteria
+     *
+     * @param array    $criteria Filter criteria
+     * @param array    $orderBy  Array of columns
+     * @param int|null $page     Page number (if null == disabled pagination)
+     * @param int|null $pageSize Limit results
+     *
+     * @throws RepositoryException
+     * @return EloquentCollection
+     */
+    public function getDeletedContents(array $criteria, array $orderBy = [], $page = 1, $pageSize = self::ITEMS_PER_PAGE)
+    {
+        $query = $this->newORMTreeQuery()->onlyTrashed();
+        $this->handleTranslationsJoin($criteria, $orderBy, $query);
+        $this->handleFilterCriteria($this->getTableName(), $criteria, $query);
+        $this->handleAuthorJoin($query);
+        $this->handleOrderBy(
+            $this->getTableName(),
+            $orderBy,
+            $query,
+            $this->contentDefaultOrderBy()
+        );
+        return $this->handlePagination($this->getTableName(), $query, $page, $pageSize);
+    }
+
+
+    /**
      * Get all contents for specified root node with specific criteria as nested tree
      *
      * @param Tree  $root     Root node
