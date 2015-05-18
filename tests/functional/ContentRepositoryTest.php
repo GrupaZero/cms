@@ -262,7 +262,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
             ]
         ]);
 
-        $content1_id = $content1->id;
+        $contentId1 = $content1->id;
 
         $this->repository->delete($content1);
 
@@ -275,7 +275,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
             ]
         ]);
 
-        $content1 = $this->repository->getDeletedById($content1_id);
+        $content1 = $this->repository->getDeletedById($contentId1);
         $content1->restore();
 
         $this->assertEquals($content1->title, $content2->title);
