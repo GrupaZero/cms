@@ -252,7 +252,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
     /**
      * @test
      */
-    public function can_create_content_with_same_title_as_one_of_soft_deleted_contentes(){
+    public function can_create_content_with_same_title_as_one_of_soft_deleted_contents(){
         $content1 = $this->repository->create([
             'type'         => 'content',
             'translations' => [
@@ -274,7 +274,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
                 'body'     => 'Example body'
             ]
         ]);
-        
+
         $content1 = $this->repository->getDeletedById($content1_id);
         $content1->restore();
 
