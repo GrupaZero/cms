@@ -538,6 +538,37 @@ class ContentRepositoryTest extends \EloquentTestCase {
     /**
      * @test
      */
+    public function can_get_list_of_deleted_contents()
+    {
+        $content = $this->repository->create(
+            [
+                'type'         => 'content',
+                'weight'       => 0,
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'A title'
+                ]
+            ]
+        );
+
+        $contentsBefore = count($this->repository->getContents([], [], null, null));
+
+        $deletedBefore = count($this->repository->getDeletedContents([], [], null, null));
+
+        $this->repository->delete($content);
+
+        $contentsAfter = count($this->repository->getContents([], [], null, null));
+
+        $deletedAfter = count($this->repository->getDeletedContents([], [], null, null));
+
+        $this->assertEquals($contentsBefore-1, $contentsAfter);
+
+        $this->assertEquals($deletedBefore+1, $deletedAfter);
+    }
+
+    /**
+     * @test
+     */
     public function can_delete_content_with_children()
     {
         // Tree seeds
