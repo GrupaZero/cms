@@ -309,7 +309,6 @@ class ContentRepository extends BaseRepository {
         return $this->handlePagination($this->getTableName(), $query, $page, $pageSize);
     }
 
-
     /**
      * Get all contents for specified root node with specific criteria as nested tree
      *
