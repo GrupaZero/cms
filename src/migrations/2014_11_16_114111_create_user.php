@@ -21,6 +21,7 @@ class CreateUser extends Migration {
                 $table->string('firstName')->nullable();
                 $table->string('lastName')->nullable();
                 $table->string('rememberToken');
+                $table->boolean('isAdmin')->default(0);
                 $table->timestamp('createdAt');
                 $table->timestamp('updatedAt');
             }
