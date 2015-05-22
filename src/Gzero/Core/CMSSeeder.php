@@ -214,7 +214,7 @@ class CMSSeeder extends Seeder {
         // Create user
         $user = User::firstOrCreate(
             [
-                'email'     => 'johndoe@gzero.com',
+                'email'     => 'admin@gzero.pl',
                 'firstName' => 'John',
                 'lastName'  => 'Doe',
                 'password'  => Hash::make('test')
