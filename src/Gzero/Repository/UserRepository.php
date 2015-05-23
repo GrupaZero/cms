@@ -54,7 +54,7 @@ class UserRepository extends BaseRepository implements AuthenticatableContract, 
      *
      * @return User
      */
-    public function retrieveByEmail($email)
+    public function getByEmail($email)
     {
         $qb = $this->newQuery()
             ->table($this->getTableName())
