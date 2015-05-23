@@ -48,6 +48,21 @@ class UserRepository extends BaseRepository implements AuthenticatableContract, 
     // @codingStandardsIgnoreStart
 
     /**
+     * Retrieve a user by given email
+     *
+     * @param  string $email
+     *
+     * @return User
+     */
+    public function retrieveByEmail($email)
+    {
+        $qb = $this->newQuery()
+            ->table($this->getTableName())
+            ->where('email', '=', $email);
+        return $qb->first();
+    }
+
+    /**
      * Create specific user entity
      *
      * @param array $data User entity to persist
@@ -165,6 +180,7 @@ class UserRepository extends BaseRepository implements AuthenticatableContract, 
     | START AuthenticatableContract AND CanResetPasswordContract
     |--------------------------------------------------------------------------
     */
+
     /**
      * Get the unique identifier for the user.
      *
