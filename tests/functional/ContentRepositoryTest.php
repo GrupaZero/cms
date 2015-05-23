@@ -31,7 +31,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
     {
         parent::setUp();
         $this->repository = new ContentRepository(new Content(), new Dispatcher());
-        $this->app['artisan']->call('db:seed', ['--class' => 'TestSeeder']); // Relative to tests/app/
+        $this->seed('TestSeeder'); // Relative to tests/app/
     }
 
     /**
@@ -252,28 +252,33 @@ class ContentRepositoryTest extends \EloquentTestCase {
     /**
      * @test
      */
-    public function can_create_content_with_same_title_as_one_of_soft_deleted_contents(){
-        $content1 = $this->repository->create([
-            'type'         => 'content',
-            'translations' => [
-                'langCode' => 'en',
-                'title'    => 'Example title',
-                'body'     => 'Example body'
+    public function can_create_content_with_same_title_as_one_of_soft_deleted_contents()
+    {
+        $content1 = $this->repository->create(
+            [
+                'type'         => 'content',
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'Example title',
+                    'body'     => 'Example body'
+                ]
             ]
-        ]);
+        );
 
         $contentId1 = $content1->id;
 
         $this->repository->delete($content1);
 
-        $content2 = $this->repository->create([
-            'type'         => 'content',
-            'translations' => [
-                'langCode' => 'en',
-                'title'    => 'Example title',
-                'body'     => 'Example body'
+        $content2 = $this->repository->create(
+            [
+                'type'         => 'content',
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'Example title',
+                    'body'     => 'Example body'
+                ]
             ]
-        ]);
+        );
 
         $content1 = $this->repository->getDeletedById($contentId1);
         $content1->restore();
@@ -403,7 +408,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
     public function can_get_roots()
     {
         // Tree seeds
-        $this->app['artisan']->call('db:seed', ['--class' => 'TestTreeSeeder']);
+        $this->seed('TestTreeSeeder');
 
         $roots = $this->repository->getRoots(
             [],
@@ -422,7 +427,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
     public function can_get_tree()
     {
         // Tree seeds
-        $this->app['artisan']->call('db:seed', ['--class' => 'TestTreeSeeder']);
+        $this->seed('TestTreeSeeder');
 
         $category = $this->repository->getById(1);
         $tree     = $this->repository->getTree(
@@ -450,7 +455,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
     public function can_create_content_as_child()
     {
         // Tree seeds
-        $this->app['artisan']->call('db:seed', ['--class' => 'TestTreeSeeder']);
+        $this->seed('TestTreeSeeder');
 
         $category        = $this->repository->getById(1);
         $categoryRoute   = $category->route->translations()->first();
@@ -483,7 +488,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
     public function can_update_content_parent()
     {
         // Tree seeds
-        $this->app['artisan']->call('db:seed', ['--class' => 'TestTreeSeeder']);
+        $this->seed('TestTreeSeeder');
 
         $content        = $this->repository->getById(1); // first root
         $oldContentPath = $content->path;
@@ -520,7 +525,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
     public function can_create_route()
     {
         // Tree seeds
-        $this->app['artisan']->call('db:seed', ['--class' => 'TestTreeSeeder']);
+        $this->seed('TestTreeSeeder');
 
         // single content
         $singleContent = $this->repository->getById(2);
@@ -594,9 +599,9 @@ class ContentRepositoryTest extends \EloquentTestCase {
 
         $deletedAfter = count($this->repository->getDeletedContents([], [], null, null));
 
-        $this->assertEquals($contentsBefore-1, $contentsAfter);
+        $this->assertEquals($contentsBefore - 1, $contentsAfter);
 
-        $this->assertEquals($deletedBefore+1, $deletedAfter);
+        $this->assertEquals($deletedBefore + 1, $deletedAfter);
     }
 
     /**
@@ -605,7 +610,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
     public function can_delete_content_with_children()
     {
         // Tree seeds
-        $this->app['artisan']->call('db:seed', ['--class' => 'TestTreeSeeder']);
+        $this->seed('TestTreeSeeder');
 
         $content = $this->repository->getById(1);
         $this->repository->delete($content);
@@ -619,7 +624,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
     public function can_force_delete_content_with_children()
     {
         // Tree seeds
-        $this->app['artisan']->call('db:seed', ['--class' => 'TestTreeSeeder']);
+        $this->seed('TestTreeSeeder');
 
         $content = $this->repository->getById(1);
         $this->repository->forceDelete($content);
@@ -645,7 +650,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
     public function can_get_content_children_list()
     {
         // Tree seeds
-        $this->app['artisan']->call('db:seed', ['--class' => 'TestTreeSeeder']);
+        $this->seed('TestTreeSeeder');
         $category = $this->repository->getById(1);
 
         $contents = $this->repository->getChildren(
@@ -667,7 +672,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
     public function can_get_content_translations_list()
     {
         // Tree seeds
-        $this->app['artisan']->call('db:seed', ['--class' => 'TestTreeSeeder']);
+        $this->seed('TestTreeSeeder');
         $category = $this->repository->getById(1);
         // New translations
         for ($i = 0; $i < 3; $i++) {
@@ -700,7 +705,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
     public function can_filter_contents_list()
     {
         // Tree seeds
-        $this->app['artisan']->call('db:seed', ['--class' => 'TestTreeSeeder']);
+        $this->seed('TestTreeSeeder');
 
         $contents = $this->repository->getContents(
             [
@@ -783,7 +788,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
     public function it_checks_existence_of_lang_code_on_translations_join()
     {
         // Tree seeds
-        $this->app['artisan']->call('db:seed', ['--class' => 'TestTreeSeeder']);
+        $this->seed('TestTreeSeeder');
 
         $this->repository->getContents(
             [],
@@ -798,7 +803,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
     public function it_doesnt_check_existence_of_lang_code_for_core_order_by_params()
     {
         // Tree seeds
-        $this->app['artisan']->call('db:seed', ['--class' => 'TestTreeSeeder']);
+        $this->seed('TestTreeSeeder');
 
         $nodes = $this->repository->getContents(
             [],

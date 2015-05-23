@@ -1,4 +1,4 @@
-<?php
+<?php require 'app/Console/Kernel.php';
 
 /**
  * This is simple laravel application test
@@ -17,34 +17,29 @@ class TestCase extends Illuminate\Foundation\Testing\TestCase {
      */
     public function createApplication()
     {
-        $unitTesting = true;
 
-        $testEnvironment = 'testing';
-
-        $env       = 'testing';
-        $this->app = $app = new Illuminate\Foundation\Application;
-
-
-        $app->bindInstallPaths(
-            [
-                'app'     => __DIR__ . '/app',
-                'public'  => __DIR__ . '/public',
-                'base'    => __DIR__ . '/',
-                'storage' => __DIR__ . '/app/storage',
-
-            ]
+        $this->app = new Illuminate\Foundation\Application(
+            realpath(__DIR__ . '/app')
         );
-        $framework = __DIR__ . '/../vendor/laravel/framework/src';
 
-        require $framework . '/Illuminate/Foundation/start.php';
-        require __DIR__ . '/../src/Gzero/Core/helpers.php';
+        $this->app->singleton(
+            'Illuminate\Contracts\Console\Kernel',
+            'App\Console\Kernel'
+        );
+
+        $this->app->singleton(
+            'Illuminate\Contracts\Debug\ExceptionHandler',
+            'Illuminate\Foundation\Exceptions\Handler'
+        );
+
+        $this->app->make('Illuminate\Contracts\Console\Kernel')->bootstrap();
 
         if (!self::$initialSetup) {
             try {
-                $this->app['artisan']->call('migrate:reset');
+                $this->artisan('migrate:reset');
             } catch (Exception $e) {
             }
-            $this->app['artisan']->call('migrate', ['--path' => '../src/migrations']); // Relative to tests/app/
+            $this->artisan('migrate', ['--path' => '/../../src/migrations']);  // Relative to tests/app/
             self::$initialSetup = true;
         }
 
