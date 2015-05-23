@@ -1,11 +1,11 @@
 <?php namespace Gzero\Repository;
 
 use Gzero\Entity\User;
-use Illuminate\Auth\UserInterface;
-use Illuminate\Auth\UserProviderInterface;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Events\Dispatcher;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
+use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Hash;
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2014, Adrian Skierniewski
  */
-class UserRepository extends BaseRepository implements UserProviderInterface {
+class UserRepository extends BaseRepository implements AuthenticatableContract, CanResetPasswordContract {
 
     /**
      * @var User
@@ -106,107 +106,6 @@ class UserRepository extends BaseRepository implements UserProviderInterface {
         $results->count(); // Place holder
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | START UserProviderInterface
-    |--------------------------------------------------------------------------
-    */
-
-    /**
-     * Retrieve a user by their unique identifier.
-     *
-     * @param  mixed $identifier
-     *
-     * @return \Illuminate\Auth\UserInterface|null
-     */
-    public function retrieveById($identifier)
-    {
-        return $this->getById($identifier);
-    }
-
-    /**
-     * Retrieve a user by by their unique identifier and "remember me" token.
-     *
-     * @param  mixed  $identifier
-     * @param  string $token
-     *
-     * @return \Illuminate\Auth\UserInterface|null
-     * @SuppressWarnings("unused")
-     */
-    public function retrieveByToken($identifier, $token)
-    {
-        $qb = $this->newQB()
-            ->select('u')
-            ->from($this->getClassName(), 'u')
-            ->where('u.rememberToken = :token')
-            ->setParameter('token', $token);
-        return $qb->getQuery()->getOneOrNullResult();
-    }
-
-    /**
-     * Retrieve a user by given email
-     *
-     * @param  string $email
-     *
-     * @return User
-     */
-    public function retrieveByEmail($email)
-    {
-        $qb = $this->newQuery()
-            ->table($this->getTableName())
-            ->where('email', '=', $email);
-        return $qb->first();
-    }
-
-    /**
-     * Retrieve a user by the given credentials.
-     *
-     * @param  array $credentials
-     *
-     * @return \Illuminate\Auth\UserInterface|null
-     */
-    public function retrieveByCredentials(array $credentials)
-    {
-        $qb = $this->newQB()
-            ->select('u')
-            ->from($this->getClassName(), 'u');
-        foreach ($credentials as $key => $value) {
-            if (!str_contains($key, 'password')) {
-                $qb->where("u.$key=:value")->setParameter('value', $value);
-            };
-        }
-        return $qb->getQuery()->getOneOrNullResult();
-    }
-
-    /**
-     * Validate a user against the given credentials.
-     *
-     * @param  \Illuminate\Auth\UserInterface $user
-     * @param  array                          $credentials
-     *
-     * @return bool
-     */
-    public function validateCredentials(UserInterface $user, array $credentials)
-    {
-        $plain = $credentials['password'];
-        return Hash::check($plain, $user->getAuthPassword());
-    }
-
-    /**
-     * Update the "remember me" token for the given user in storage.
-     *
-     * @param  \Illuminate\Auth\UserInterface $user
-     * @param  string                         $token
-     *
-     * @return void
-     */
-    public function updateRememberToken(UserInterface $user, $token)
-    {
-        $user->setRememberToken($token);
-        $this->_em->persist($user);
-        $this->commit();
-    }
-
     /**
      * Delete specific user entity
      *
@@ -234,7 +133,7 @@ class UserRepository extends BaseRepository implements UserProviderInterface {
      * @param int|null $pageSize Limit results
      *
      * @throws RepositoryException
-     * @return EloquentCollection
+     * @return Collection
      */
     public function getUsers(array $criteria, array $orderBy = [], $page = 1, $pageSize = self::ITEMS_PER_PAGE)
     {
@@ -261,10 +160,76 @@ class UserRepository extends BaseRepository implements UserProviderInterface {
         };
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | START AuthenticatableContract AND CanResetPasswordContract
+    |--------------------------------------------------------------------------
+    */
+    /**
+     * Get the unique identifier for the user.
+     *
+     * @return mixed
+     */
+    public function getAuthIdentifier()
+    {
+        return $this->model->getKey();
+    }
+
+    /**
+     * Get the password for the user.
+     *
+     * @return string
+     */
+    public function getAuthPassword()
+    {
+        return $this->model->password;
+    }
+
+    /**
+     * Get the token value for the "remember me" session.
+     *
+     * @return string
+     */
+    public function getRememberToken()
+    {
+        return $this->model->{$this->getRememberTokenName()};
+    }
+
+    /**
+     * Set the token value for the "remember me" session.
+     *
+     * @param  string $value
+     *
+     * @return void
+     */
+    public function setRememberToken($value)
+    {
+        $this->model->{$this->getRememberTokenName()} = $value;
+    }
+
+    /**
+     * Get the column name for the "remember me" token.
+     *
+     * @return string
+     */
+    public function getRememberTokenName()
+    {
+        return 'rememberToken';
+    }
+
+    /**
+     * Get the e-mail address where password reset links are sent.
+     *
+     * @return string
+     */
+    public function getEmailForPasswordReset()
+    {
+        return $this->email;
+    }
 
     /*
     |--------------------------------------------------------------------------
-    | END UserProviderInterface
+    | END AuthenticatableContract AND CanResetPasswordContract
     |--------------------------------------------------------------------------
     */
 }

@@ -9,7 +9,7 @@
     ],
     "require": {
         "php": ">=5.4.0",
-        "gzero/entity": "dev-master",
+        "gzero/entity": "dev-laravel5",
         "illuminate/events": "5.0.*",
         "illuminate/database": "5.0.*"
     },
