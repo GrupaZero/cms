@@ -48,6 +48,7 @@ class ServiceProvider extends SP {
 
     /**
      * Try to detect language from uri
+     * We need to do that as soon as possible, because we need to know what language need to be set for ML routes
      *
      * @return void
      */
