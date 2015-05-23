@@ -1,7 +1,9 @@
 <?php namespace Gzero\Entity;
 
-use Illuminate\Auth\UserInterface;
-use Illuminate\Auth\Reminders\RemindableInterface;
+use Illuminate\Auth\Authenticatable;
+use Illuminate\Auth\Passwords\CanResetPassword;
+use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
+use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -15,7 +17,9 @@ use Illuminate\Auth\Reminders\RemindableInterface;
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2014, Adrian Skierniewski
  */
-class User extends Base implements UserInterface, RemindableInterface {
+class User extends Base implements AuthenticatableContract, CanResetPasswordContract {
+
+    use Authenticatable, CanResetPassword;
 
     /**@TODO proper method for adding new fillable fields from package with migrations */
     /**
