@@ -30,7 +30,7 @@ class UserRepositoryTest extends \EloquentTestCase {
     {
         parent::setUp();
         $this->repository = new UserRepository(new User(), new Dispatcher());
-        $this->app['artisan']->call('db:seed', ['--class' => 'TestSeeder']); // Relative to tests/app/
+        $this->seed('TestSeeder'); // Relative to tests/app/
     }
 
     /**

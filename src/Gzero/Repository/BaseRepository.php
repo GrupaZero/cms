@@ -2,6 +2,7 @@
 
 use BadMethodCallException;
 use Gzero\Entity\Base;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Connection;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -161,8 +162,7 @@ abstract class BaseRepository {
                 ->get([$defaultTable . '.*']);
             // We only eager load for entry entity
             ($defaultTable === $this->getTableName()) ? $this->listEagerLoad($results) : null;
-            \Paginator::setCurrentPage($page); // We need to set current page because laravel use input to set this property
-            return \Paginator::make($results->all(), $count->select($defaultTable . '.id')->count(), $pageSize);
+            return new LengthAwarePaginator($results->all(), $count->select($defaultTable . '.id')->count(), $pageSize, $page);
         } else {
             $results = $query->get([$defaultTable . '.*']);
             // We only eager load for entry entity

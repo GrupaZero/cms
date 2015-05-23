@@ -4,7 +4,7 @@ use Gzero\Core\Exception;
 use Gzero\Entity\Presenter\ContentPresenter;
 use Robbo\Presenter\PresentableInterface;
 use Robbo\Presenter\Robbo;
-use Illuminate\Database\Eloquent\SoftDeletingTrait;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -20,7 +20,7 @@ use Illuminate\Database\Eloquent\SoftDeletingTrait;
  */
 class Content extends BaseTree implements PresentableInterface {
 
-    use SoftDeletingTrait;
+    use SoftDeletes;
 
     /**
      * @var array

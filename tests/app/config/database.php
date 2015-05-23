@@ -5,14 +5,16 @@ return [
     'connections' => [
         'mysql' => [
             'driver'    => 'mysql',
-            'host'      => (getenv('DB_HOST')) ?: '127.0.0.1',
-            'database'  => (getenv('DB_NAME')) ?: 'gzero-tests',
-            'username'  => (getenv('DB_USER')) ?: 'root',
-            'password'  => (getenv('DB_PASS')) ?: '',
+            'host'      => env('DB_HOST', 'localhost'),
+            'database'  => env('DB_DATABASE', 'gzero-tests'),
+            'username'  => env('DB_USERNAME', 'root'),
+            'password'  => env('DB_PASSWORD', ''),
             'charset'   => 'utf8',
             'collation' => 'utf8_unicode_ci',
             'prefix'    => '',
+            'strict'    => false,
         ]
     ],
     'migrations'  => 'migrations',
 ];
+
