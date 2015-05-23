@@ -4,7 +4,7 @@
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "bba11e136ccc54185b0b46041e9e36eb",
+    "hash": "b06c929f787c803defa8f4ce329eaf56",
     "packages": [
         {
             "name": "classpreloader/classpreloader",
@@ -12,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/ClassPreloader/ClassPreloader.git",
-                "reference": "1f92ba13688e7871498540108f0aaabc02c1afa3"
+                "reference": "c4e3a8d61be502bd04e7cdcdc2c80d7916e15fab"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ClassPreloader/ClassPreloader/zipball/1f92ba13688e7871498540108f0aaabc02c1afa3",
-                "reference": "1f92ba13688e7871498540108f0aaabc02c1afa3",
+                "url": "https://api.github.com/repos/ClassPreloader/ClassPreloader/zipball/c4e3a8d61be502bd04e7cdcdc2c80d7916e15fab",
+                "reference": "c4e3a8d61be502bd04e7cdcdc2c80d7916e15fab",
                 "shasum": ""
             },
             "require": {
@@ -50,12 +50,12 @@
             ],
             "authors": [
                 {
-                    "name": "Graham Campbell",
-                    "email": "graham@mineuk.com"
-                },
-                {
                     "name": "Michael Dowling",
                     "email": "mtdowling@gmail.com"
+                },
+                {
+                    "name": "Graham Campbell",
+                    "email": "graham@cachethq.io"
                 }
             ],
             "description": "Helps class loading performance by generating a single PHP file containing all of the autoloaded files for a specific use case",
@@ -64,7 +64,7 @@
                 "class",
                 "preload"
             ],
-            "time": "2015-05-17 22:35:15"
+            "time": "2015-05-23 13:43:47"
         },
         {
             "name": "danielstjules/stringy",
@@ -458,16 +458,16 @@
         },
         {
             "name": "laravel/framework",
-            "version": "5.0.x-dev",
+            "version": "v5.0.16",
             "source": {
                 "type": "git",
                 "url": "https://github.com/laravel/framework.git",
-                "reference": "5fa1e3e699abebd28383383c8b6bbc2f2609196c"
+                "reference": "861a1e78c84dca82fe4bd85d00349c52304eea77"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/laravel/framework/zipball/5fa1e3e699abebd28383383c8b6bbc2f2609196c",
-                "reference": "5fa1e3e699abebd28383383c8b6bbc2f2609196c",
+                "url": "https://api.github.com/repos/laravel/framework/zipball/861a1e78c84dca82fe4bd85d00349c52304eea77",
+                "reference": "861a1e78c84dca82fe4bd85d00349c52304eea77",
                 "shasum": ""
             },
             "require": {
@@ -537,7 +537,7 @@
                 "predis/predis": "~1.0"
             },
             "suggest": {
-                "aws/aws-sdk-php": "Required to use the SQS queue driver and SES mail driver (~2.4).",
+                "aws/aws-sdk-php": "Required to use the SQS queue driver (~2.4).",
                 "doctrine/dbal": "Required to rename columns and drop SQLite columns (~2.4).",
                 "guzzlehttp/guzzle": "Required to use the Mailgun and Mandrill mail drivers (~5.0).",
                 "iron-io/iron_mq": "Required to use the iron queue driver (~1.5).",
@@ -580,7 +580,7 @@
                 "framework",
                 "laravel"
             ],
-            "time": "2015-05-22 20:40:49"
+            "time": "2015-03-13 13:27:55"
         },
         {
             "name": "league/flysystem",
