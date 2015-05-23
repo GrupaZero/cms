@@ -47,7 +47,7 @@ class LanguageDetector {
     {
         if (!preg_match('/^api/', $request->getHost()) && !in_array($request->segment(1), ['admin', '_debugbar'], true)) {
             if ($this->config->get('gzero.multilang.enabled') && !$this->config->get('gzero.multilang.detected')) {
-                return new RedirectResponse(url('/'));
+                return new RedirectResponse(route('home'));
             }
         }
         return $next($request);
