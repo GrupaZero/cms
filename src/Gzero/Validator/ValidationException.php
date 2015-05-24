@@ -30,6 +30,7 @@ class ValidationException extends Exception {
     public function __construct(MessageBag $errors = null)
     {
         $this->errors = $errors;
+        $this->buildMessage();
     }
 
     /**
@@ -52,5 +53,16 @@ class ValidationException extends Exception {
     public function addErrors(MessageBag $errors)
     {
         $this->errors->merge($errors);
+        $this->buildMessage();
+    }
+
+    /**
+     * Build simple message
+     *
+     * @return void
+     */
+    protected function buildMessage()
+    {
+        $this->message = $this->errors->toJson();
     }
 }
