@@ -5,7 +5,6 @@ use Gzero\Entity\Lang;
 use Illuminate\Support\Facades\View;
 use DaveJamesMiller\Breadcrumbs\Facade as Breadcrumbs;
 
-
 /**
  * This file is part of the GZERO CMS package.
  *
@@ -66,7 +65,9 @@ class Category extends Content {
     /**
      * Register breadcrumbs
      *
-     * @param $lang Lang
+     * @param Lang $lang Current lang entity
+     *
+     * @return void
      */
     protected function buildBradcrumbsFromUrl($lang)
     {

@@ -107,7 +107,9 @@ class Content implements ContentTypeHandler {
     /**
      * Register breadcrumbs
      *
-     * @param $lang Lang
+     * @param Lang $lang Current lang entity
+     *
+     * @return void
      */
     protected function buildBradcrumbsFromUrl($lang)
     {
