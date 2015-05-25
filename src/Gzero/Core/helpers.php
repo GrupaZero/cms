@@ -1,7 +1,5 @@
 <?php
 
-use Illuminate\Support\Str;
-
 if (!function_exists('setMultilangRouting')) {
 
     /**
@@ -27,17 +25,17 @@ if (!function_exists('setMultilangRouting')) {
     }
 }
 
-if (!function_exists('str_slug')) {
+if (!function_exists('group')) {
     /**
-     * Generate a URL friendly "slug" from a given string.
+     * Create a route group with shared attributes.
      *
-     * @param string $title     Title to slug
-     * @param string $separator Seperator
+     * @param array    $attributes Attributes
+     * @param \Closure $callback   Callback function
      *
-     * @return string
+     * @return void
      */
-    function str_slug($title, $separator = '-')
+    function group($attributes, $callback)
     {
-        return Str::slug($title, $separator);
+        app('router')->group($attributes, $callback);
     }
 }
