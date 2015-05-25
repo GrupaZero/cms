@@ -147,34 +147,6 @@ class ServiceProvider extends AbstractServiceProvider {
     }
 
     /**
-     * Register additional providers to system
-     *
-     * @return void
-     */
-    protected function registerAdditionalProviders()
-    {
-        foreach ($this->providers as $provider) {
-            $this->app->register($provider);
-        }
-    }
-
-    /**
-     * Register additional providers aliases
-     *
-     * @return void
-     */
-    protected function registerProvidersAliases()
-    {
-        $loader = AliasLoader::getInstance();
-        foreach ($this->aliases as $alias => $provider) {
-            $loader->alias(
-                $alias,
-                $provider
-            );
-        }
-    }
-
-    /**
      * Bind other services
      *
      * @return void
