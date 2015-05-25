@@ -37,6 +37,9 @@ class Category extends Content {
                 'isActive' => ['value' => true, 'relation' => null]
             ]
         );
+
+        $this->buildBradcrumbsFromUrl($lang);
+
         return $this;
     }
 
@@ -55,6 +58,27 @@ class Category extends Content {
                 'author'       => $this->author,
                 'children'     => $this->children
             ]
+        );
+    }
+
+    /**
+     * Register breadcrumbs
+     *
+     * @param $lang Lang
+     */
+    protected function buildBradcrumbsFromUrl($lang)
+    {
+        $url = '/' . $lang->code . '/';
+        Breadcrumbs::register(
+            'category',
+            function ($breadcrumbs) use ($lang, $url) {
+                $breadcrumbs->push('Start', $url);
+                foreach (explode('/', $this->content->getUrl($lang->code)) as $urlPart) {
+                    $url .= $urlPart;
+                    $name = ucwords(str_replace('-', ' ', $urlPart));
+                    $breadcrumbs->push($name, $url);
+                }
+            }
         );
     }
 }

@@ -52,6 +52,11 @@ class Content implements ContentTypeHandler {
     protected $contentRepo;
 
     /**
+     * @var
+     */
+    protected $breadcrumbs;
+
+    /**
      * Content constructor
      *
      * @param Application       $app         Laravel application
@@ -61,7 +66,6 @@ class Content implements ContentTypeHandler {
     {
         $this->app         = $app;
         $this->contentRepo = $contentRepo;
-        $this->registerBreadcrumbs();
     }
 
     /**
@@ -77,6 +81,8 @@ class Content implements ContentTypeHandler {
         if ($lang) { // Right now we don't need lang
             $this->content = $content->load('route.translations', 'translations', 'author');
         }
+        $this->buildBradcrumbsFromUrl($lang);
+
         return $this;
     }
 
@@ -98,16 +104,24 @@ class Content implements ContentTypeHandler {
         );
     }
 
-    public function registerBreadcrumbs(){
-        Breadcrumbs::register('home', function($breadcrumbs)
-        {
-            $breadcrumbs->push(trans('HOME'), '/');
-        });
-
-        Breadcrumbs::register('content', function($breadcrumbs, $content)
-        {
-            $breadcrumbs->parent('home');
-            $breadcrumbs->push($content->title, '#');
-        });
+    /**
+     * Register breadcrumbs
+     *
+     * @param $lang Lang
+     */
+    protected function buildBradcrumbsFromUrl($lang)
+    {
+        $url = '/' . $lang->code . '/';
+        Breadcrumbs::register(
+            'content',
+            function ($breadcrumbs) use ($lang, $url) {
+                $breadcrumbs->push('Start', $url);
+                foreach (explode('/', $this->content->getUrl($lang->code)) as $urlPart) {
+                    $url .= $urlPart;
+                    $name = ucwords(str_replace('-', ' ', $urlPart));
+                    $breadcrumbs->push($name, $url);
+                }
+            }
+        );
     }
 }
