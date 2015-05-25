@@ -2,9 +2,8 @@
 
 use Gzero\Core\Menu\Register;
 use Gzero\Repository\LangRepository;
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\ServiceProvider as SP;
 use Symfony\Component\HttpFoundation\Request;
+use Illuminate\Foundation\AliasLoader;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -18,7 +17,26 @@ use Symfony\Component\HttpFoundation\Request;
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2014, Adrian Skierniewski
  */
-class ServiceProvider extends SP {
+class ServiceProvider extends AbstractServiceProvider {
+
+    /**
+     * List of additional providers
+     *
+     * @var array
+     */
+    protected $providers = [
+        'Robbo\Presenter\PresenterServiceProvider',
+        'DaveJamesMiller\Breadcrumbs\ServiceProvider'
+    ];
+
+    /**
+     * List of service providers aliases
+     *
+     * @var array
+     */
+    protected $aliases = [
+        'Breadcrumbs' => 'DaveJamesMiller\Breadcrumbs\Facade'
+    ];
 
     /**
      * Register the service provider.
@@ -27,6 +45,7 @@ class ServiceProvider extends SP {
      */
     public function register()
     {
+        parent::register();
         $this->registerHelpers();
         $this->registerFilters();
         $this->bindRepositories();
@@ -62,7 +81,7 @@ class ServiceProvider extends SP {
             }
             $languages = ['pl', 'en'];
             if (in_array($locale, $languages, true)) {
-                App::setLocale($locale);
+                app()->setLocale($locale);
                 $this->app['config']['gzero.multilang.detected'] = true;
             }
         }
@@ -86,7 +105,7 @@ class ServiceProvider extends SP {
         $this->app->singleton(
             'Gzero\Repository\LangRepository',
             function ($app) {
-                return new LangRepository(App::make('cache'));
+                return new LangRepository(app()->make('cache'));
             }
         );
     }
@@ -125,18 +144,6 @@ class ServiceProvider extends SP {
     public function registerCommands()
     {
         //
-    }
-
-    /**
-     * Register additional providers to system
-     *
-     * @return void
-     */
-    protected function registerAdditionalProviders()
-    {
-        foreach ($this->providers as $provider) {
-            App::register($provider);
-        }
     }
 
     /**

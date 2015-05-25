@@ -51,6 +51,11 @@ class Content implements ContentTypeHandler {
     protected $contentRepo;
 
     /**
+     * @var DaveJamesMiller\Breadcrumbs\Manager
+     */
+    protected $breadcrumbs;
+
+    /**
      * Content constructor
      *
      * @param Application       $app         Laravel application
@@ -60,6 +65,7 @@ class Content implements ContentTypeHandler {
     {
         $this->app         = $app;
         $this->contentRepo = $contentRepo;
+        $this->breadcrumbs = $this->app->make('breadcrumbs');
     }
 
     /**
@@ -75,6 +81,8 @@ class Content implements ContentTypeHandler {
         if ($lang) { // Right now we don't need lang
             $this->content = $content->load('route.translations', 'translations', 'author');
         }
+        $this->buildBradcrumbsFromUrl($lang);
+
         return $this;
     }
 
@@ -93,6 +101,29 @@ class Content implements ContentTypeHandler {
                 'author'       => $this->author,
                 'parents'      => null
             ]
+        );
+    }
+
+    /**
+     * Register breadcrumbs
+     *
+     * @param Lang $lang Current lang entity
+     *
+     * @return void
+     */
+    protected function buildBradcrumbsFromUrl($lang)
+    {
+        $url = '/' . $lang->code . '/';
+        $this->breadcrumbs->register(
+            'content',
+            function ($breadcrumbs) use ($lang, $url) {
+                $breadcrumbs->push('Start', $url);
+                foreach (explode('/', $this->content->getUrl($lang->code)) as $urlPart) {
+                    $url .= $urlPart;
+                    $name = ucwords(str_replace('-', ' ', $urlPart));
+                    $breadcrumbs->push($name, $url);
+                }
+            }
         );
     }
 }
