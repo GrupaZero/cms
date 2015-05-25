@@ -3,7 +3,6 @@
 use Gzero\Entity\Content as ContentEntity;
 use Gzero\Entity\Lang;
 use Illuminate\Support\Facades\View;
-use DaveJamesMiller\Breadcrumbs\Facade as Breadcrumbs;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -70,7 +69,7 @@ class Category extends Content {
     protected function buildBradcrumbsFromUrl($lang)
     {
         $url = '/' . $lang->code . '/';
-        Breadcrumbs::register(
+        $this->breadcrumbs->register(
             'category',
             function ($breadcrumbs) use ($lang, $url) {
                 $breadcrumbs->push('Start', $url);
