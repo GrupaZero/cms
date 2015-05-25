@@ -3,6 +3,8 @@
 use Gzero\Entity\Content as ContentEntity;
 use Gzero\Entity\Lang;
 use Illuminate\Support\Facades\View;
+use DaveJamesMiller\Breadcrumbs\Facade as Breadcrumbs;
+
 
 /**
  * This file is part of the GZERO CMS package.
