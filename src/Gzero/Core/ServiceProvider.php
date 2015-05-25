@@ -2,8 +2,6 @@
 
 use Gzero\Core\Menu\Register;
 use Gzero\Repository\LangRepository;
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\ServiceProvider as SP;
 use Symfony\Component\HttpFoundation\Request;
 use Illuminate\Foundation\AliasLoader;
 
@@ -19,7 +17,7 @@ use Illuminate\Foundation\AliasLoader;
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2014, Adrian Skierniewski
  */
-class ServiceProvider extends SP {
+class ServiceProvider extends AbstractServiceProvider {
 
     /**
      * List of additional providers
@@ -27,6 +25,7 @@ class ServiceProvider extends SP {
      * @var array
      */
     protected $providers = [
+        'Robbo\Presenter\PresenterServiceProvider',
         'DaveJamesMiller\Breadcrumbs\ServiceProvider'
     ];
 
@@ -46,8 +45,7 @@ class ServiceProvider extends SP {
      */
     public function register()
     {
-        $this->registerAdditionalProviders();
-        $this->registerProvidersAliases();
+        parent::register();
         $this->registerHelpers();
         $this->registerFilters();
         $this->bindRepositories();
