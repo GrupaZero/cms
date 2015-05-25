@@ -5,6 +5,7 @@ use Gzero\Entity\Content as ContentEntity;
 use Gzero\Repository\ContentRepository;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\View;
+use DaveJamesMiller\Breadcrumbs\Facade as Breadcrumbs;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -60,6 +61,7 @@ class Content implements ContentTypeHandler {
     {
         $this->app         = $app;
         $this->contentRepo = $contentRepo;
+        $this->registerBreadcrumbs();
     }
 
     /**
@@ -94,5 +96,18 @@ class Content implements ContentTypeHandler {
                 'parents'      => null
             ]
         );
+    }
+
+    public function registerBreadcrumbs(){
+        Breadcrumbs::register('home', function($breadcrumbs)
+        {
+            $breadcrumbs->push(trans('HOME'), '/');
+        });
+
+        Breadcrumbs::register('content', function($breadcrumbs, $content)
+        {
+            $breadcrumbs->parent('home');
+            $breadcrumbs->push($content->title, '#');
+        });
     }
 }
