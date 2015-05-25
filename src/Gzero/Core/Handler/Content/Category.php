@@ -38,9 +38,7 @@ class Category extends Content {
                 'isActive' => ['value' => true, 'relation' => null]
             ]
         );
-
-        $this->buildBradcrumbsFromUrl($lang);
-
+        
         return $this;
     }
 
