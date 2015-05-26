@@ -19,8 +19,8 @@ class Auth {
     /**
      * Redirect user to login page if not authenticated
      *
-     * @param \Illuminate\Http\Request $request
-     * @param \Closure                 $next
+     * @param \Illuminate\Http\Request $request Request object
+     * @param \Closure                 $next    Next middleware
      *
      * @return mixed
      */
