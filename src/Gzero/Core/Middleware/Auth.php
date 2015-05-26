@@ -17,7 +17,7 @@ use Closure;
 class Auth {
 
     /**
-     * Return 404 if user is not authenticated or got no admin rights
+     * Redirect user to login page if not authenticated
      *
      * @param  \Illuminate\Http\Request $request
      * @param  \Closure                 $next
