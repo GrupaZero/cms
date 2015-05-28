@@ -157,7 +157,7 @@ class ContentRepository extends BaseRepository {
     /**
      * Get all node ancestors
      *
-     * @param Tree $node
+     * @param Tree $node Tree node
      *
      * @return array|EloquentCollection|static[]
      */
