@@ -155,7 +155,7 @@ class ContentRepository extends BaseRepository {
     */
 
     /**
-     * Get all node ancestors
+     * Get all ancestors nodes to specific node
      *
      * @param Tree  $node     Tree node
      * @param array $criteria Array of conditions
