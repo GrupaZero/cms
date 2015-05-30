@@ -34,9 +34,28 @@ class Category extends Content {
         $this->children = $this->contentRepo->getChildren(
             $content,
             [
-                'isActive' => ['value' => true, 'relation' => null]
-            ]
-        );
+                'isActive' => [
+                    'value'    => true,
+                    'relation' => null
+                ],
+            ],
+            [
+                'isPromoted' => [
+                    'relation'  => null,
+                    'direction' => 'DESC',
+                ],
+                'isSticky'   => [
+                    'relation'  => null,
+                    'direction' => 'DESC'
+                ],
+                'weight'   => [
+                    'relation'  => null,
+                    'direction' => 'ASC'
+                ]
+            ],
+            $this->request->get('page', 1),
+            config('gzero.defaultPageSize')
+        )->setPath($this->request->url());
 
         return $this;
     }
