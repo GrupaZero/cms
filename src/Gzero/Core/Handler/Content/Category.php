@@ -54,7 +54,7 @@ class Category extends Content {
                 ]
             ],
             $this->request->get('page', 1),
-            config('gzero.defaultPageSize')
+            config('gzero.defaultPageSize', 20)
         )->setPath($this->request->url());
 
         return $this;
