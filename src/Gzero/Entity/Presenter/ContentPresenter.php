@@ -26,11 +26,15 @@ class ContentPresenter extends Presenter {
      */
     public function translation($langCode)
     {
-        return $this->translations->filter(
-            function ($translation) use ($langCode) {
-                return $translation->langCode === $langCode;
-            }
-        )->first();
+        $translation = '';
+        if (!empty($this->translations) && !empty($langCode)) {
+            $translation = $this->translations->filter(
+                function ($translation) use ($langCode) {
+                    return $translation->langCode === $langCode;
+                }
+            )->first();
+        }
+        return $translation;
     }
 
     /**
@@ -42,11 +46,15 @@ class ContentPresenter extends Presenter {
      */
     public function routeTranslation($langCode)
     {
-        return $this->route->translations->filter(
-            function ($translation) use ($langCode) {
-                return $translation->langCode === $langCode;
-            }
-        )->first();
+        $routeTranslation = '';
+        if (!empty($this->route) && !empty($langCode)) {
+            $routeTranslation = $this->route->translations->filter(
+                function ($translation) use ($langCode) {
+                    return $translation->langCode === $langCode;
+                }
+            )->first();
+        }
+        return $routeTranslation;
     }
 
     /**
@@ -56,8 +64,12 @@ class ContentPresenter extends Presenter {
      */
     public function publishDate()
     {
-        $dt = new Carbon();
-        return $dt->parse($this->publishedAt)->format('d-m-Y - H:s');
+        if (!empty($this->publishedAt)) {
+            $dt = new Carbon();
+            return $dt->parse($this->publishedAt)->format('d-m-Y - H:s');
+        } else {
+            return trans('common.unknown');
+        }
     }
 
     /**
@@ -67,7 +79,11 @@ class ContentPresenter extends Presenter {
      */
     public function authorName()
     {
-        return $this->author->firstName . ' ' . $this->author->lastName;
+        if (!empty($this->author)) {
+            return $this->author->firstName . ' ' . $this->author->lastName;
+        } else {
+            return trans('common.anonymous');
+        }
     }
 
     /**
@@ -77,14 +93,18 @@ class ContentPresenter extends Presenter {
      */
     public function ratingStars()
     {
-        $html = [];
-        for ($i = 0; $i < 5; $i++) {
-            if ($i < $this->rating && $this->rating > 0) {
-                $html[] = '<i class="glyphicon glyphicon-star"></i> ';
-            } else {
-                $html[] = '<i class="glyphicon glyphicon-star-empty"></i> ';
+        if (!empty($this->rating)) {
+            $html = [];
+            for ($i = 0; $i < 5; $i++) {
+                if ($i < $this->rating && $this->rating > 0) {
+                    $html[] = '<i class="glyphicon glyphicon-star"></i> ';
+                } else {
+                    $html[] = '<i class="glyphicon glyphicon-star-empty"></i> ';
+                }
             }
+            return implode('', $html);
+        } else {
+            return trans('common.noRatings');
         }
-        return implode('', $html);
     }
 }
