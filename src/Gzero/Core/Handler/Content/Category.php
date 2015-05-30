@@ -37,7 +37,7 @@ class Category extends Content {
                 'isActive' => ['value' => true, 'relation' => null]
             ]
         );
-        
+
         return $this;
     }
 
@@ -74,7 +74,7 @@ class Category extends Content {
             function ($breadcrumbs) use ($lang, $url) {
                 $breadcrumbs->push('Start', $url);
                 foreach (explode('/', $this->content->getUrl($lang->code)) as $urlPart) {
-                    $url .= $urlPart;
+                    $url .= $urlPart . '/';
                     $name = ucwords(str_replace('-', ' ', $urlPart));
                     $breadcrumbs->push($name, $url);
                 }
