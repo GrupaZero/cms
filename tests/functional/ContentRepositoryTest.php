@@ -851,7 +851,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
             ]
         );
 
-        $parents = $this->repository->getAncestors($category3, new Content());
+        $parents = $this->repository->getAncestors($category3, []);
 
         $this->assertEquals($parents[0]->id, $category1->id);
         $this->assertEquals($parents[1]->id, $category2->id);

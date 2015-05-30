@@ -157,17 +157,19 @@ class ContentRepository extends BaseRepository {
     /**
      * Get all node ancestors
      *
-     * @param Tree $node Tree node
+     * @param Tree  $node Tree node
+     * @param array $criteria Array of conditions
+     * @param array $orderBy Array of columns
      *
-     * @return array|EloquentCollection|static[]
+     * @return EloquentCollection|static[]
+     * @throws RepositoryException
      */
-    public function getAncestors(Tree $node)
+    public function getAncestors(Tree $node, array $criteria = [], array $orderBy = [])
     {
-        // root does not have ancestors
-        if ($node->path != '/') {
-            return $node->findAncestors()->get();
-        }
-        return [];
+        $query = $node->findAncestors();
+        $this->handleTranslationsJoin($criteria, $orderBy, $query);
+        $this->handleFilterCriteria($this->getTableName(), $criteria, $query);
+        return $query->get();
     }
 
     ///**
