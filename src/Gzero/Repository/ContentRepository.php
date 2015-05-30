@@ -157,9 +157,9 @@ class ContentRepository extends BaseRepository {
     /**
      * Get all node ancestors
      *
-     * @param Tree  $node Tree node
+     * @param Tree  $node     Tree node
      * @param array $criteria Array of conditions
-     * @param array $orderBy Array of columns
+     * @param array $orderBy  Array of columns
      *
      * @return EloquentCollection|static[]
      * @throws RepositoryException
