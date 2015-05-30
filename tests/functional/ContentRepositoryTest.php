@@ -813,6 +813,51 @@ class ContentRepositoryTest extends \EloquentTestCase {
         $this->assertNotEmpty($nodes);
     }
 
+    /**
+     * @test
+     */
+    public function can_get_ancestor()
+    {
+
+        $category1 = $this->repository->create(
+            [
+                'type'         => 'category',
+                'translations' => [
+                    'langCode' => 'pl',
+                    'title'    => 'Example content title'
+                ]
+            ]
+        );
+
+        $category2 = $this->repository->create(
+            [
+                'type'             => 'category',
+                'parentId'         => $category1->id,
+                    'translations' => [
+                        'langCode' => 'pl',
+                        'title'    => 'Example content title'
+                    ]
+            ]
+        );
+
+        $category3 = $this->repository->create(
+            [
+                'type'             => 'category',
+                'parentId'         => $category2->id,
+                'translations' => [
+                    'langCode' => 'pl',
+                    'title'    => 'Example content title'
+                ]
+            ]
+        );
+
+        $parents = $this->repository->getAncestors($category3, []);
+
+        $this->assertEquals($parents[0]->id, $category1->id);
+        $this->assertEquals($parents[1]->id, $category2->id);
+
+    }
+
     /*
     |--------------------------------------------------------------------------
     | END List tests

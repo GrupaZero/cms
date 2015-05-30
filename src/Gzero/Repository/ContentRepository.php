@@ -154,31 +154,23 @@ class ContentRepository extends BaseRepository {
     |--------------------------------------------------------------------------
     */
 
-    ///**
-    // * Get all ancestors nodes to specific node
-    // *
-    // * @param TreeNode $node    Node to find ancestors
-    // * @param int      $hydrate Doctrine2 hydrate mode. Default - Query::HYDRATE_ARRAY
-    // *
-    // * @return mixed
-    // */
-    //public function getAncestors(TreeNode $node, $hydrate = Query::HYDRATE_ARRAY)
-    //{
-    //    // root does not have ancestors
-    //    if ($node->getPath() != '/') {
-    //        $ancestorsIds = $node->getAncestorsIds();
-    //        $qb           = $this->newQB()
-    //            ->select('n')
-    //            ->from($this->getClassName(), 'n')
-    //            ->where('n.id IN(:ids)')
-    //            ->setParameter('ids', $ancestorsIds)
-    //            ->orderBy('n.level');
-    //
-    //        $nodes = $qb->getQuery()->getResult($hydrate);
-    //        return $nodes;
-    //    }
-    //    return [];
-    //}
+    /**
+     * Get all ancestors nodes to specific node
+     *
+     * @param Tree  $node     Tree node
+     * @param array $criteria Array of conditions
+     * @param array $orderBy  Array of columns
+     *
+     * @return EloquentCollection|static[]
+     * @throws RepositoryException
+     */
+    public function getAncestors(Tree $node, array $criteria = [], array $orderBy = [])
+    {
+        $query = $node->findAncestors();
+        $this->handleTranslationsJoin($criteria, $orderBy, $query);
+        $this->handleFilterCriteria($this->getTableName(), $criteria, $query);
+        return $query->get();
+    }
 
     ///**
     // * Get all siblings nodes to specific node
@@ -308,7 +300,7 @@ class ContentRepository extends BaseRepository {
         );
         return $this->handlePagination($this->getTableName(), $query, $page, $pageSize);
     }
-    
+
     /**
      * Get all contents for specified root node with specific criteria as nested tree
      *
