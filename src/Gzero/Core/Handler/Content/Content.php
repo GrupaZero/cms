@@ -5,6 +5,7 @@ use Gzero\Entity\Content as ContentEntity;
 use Gzero\Repository\ContentRepository;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\View;
+use Illuminate\Http\Request;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -56,16 +57,23 @@ class Content implements ContentTypeHandler {
     protected $breadcrumbs;
 
     /**
+     * @var Request
+     */
+    protected $request;
+
+    /**
      * Content constructor
      *
      * @param Application       $app         Laravel application
      * @param ContentRepository $contentRepo content repository
+     * @param Request           $request     Request object
      */
-    public function __construct(Application $app, ContentRepository $contentRepo)
+    public function __construct(Application $app, ContentRepository $contentRepo, Request $request)
     {
         $this->app         = $app;
         $this->contentRepo = $contentRepo;
         $this->breadcrumbs = $this->app->make('breadcrumbs');
+        $this->request     = $request;
     }
 
     /**
