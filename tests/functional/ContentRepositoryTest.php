@@ -134,9 +134,11 @@ class ContentRepositoryTest extends \EloquentTestCase {
         $translation      = $this->repository->createTranslation(
             $newContent,
             [
-                'langCode' => 'en',
-                'title'    => 'New example title',
-                'body'     => 'New example body'
+                'langCode'       => 'en',
+                'title'          => 'New example title',
+                'body'           => 'New example body',
+                'seoTitle'       => 'New example seoTitle',
+                'seoDescription' => 'New example seoDescription'
             ]
         );
         $firstTranslation = $this->repository->getContentTranslationById($newContent, 1);
@@ -149,6 +151,8 @@ class ContentRepositoryTest extends \EloquentTestCase {
         $this->assertEquals('en', $newTranslation->langCode);
         $this->assertEquals('New example title', $newTranslation->title);
         $this->assertEquals('New example body', $newTranslation->body);
+        $this->assertEquals('New example seoTitle', $newTranslation->seoTitle);
+        $this->assertEquals('New example seoDescription', $newTranslation->seoDescription);
         $this->assertEquals($newContent->id, $newTranslation->contentId);
     }
 
@@ -831,19 +835,19 @@ class ContentRepositoryTest extends \EloquentTestCase {
 
         $category2 = $this->repository->create(
             [
-                'type'             => 'category',
-                'parentId'         => $category1->id,
-                    'translations' => [
-                        'langCode' => 'pl',
-                        'title'    => 'Example content title'
-                    ]
+                'type'         => 'category',
+                'parentId'     => $category1->id,
+                'translations' => [
+                    'langCode' => 'pl',
+                    'title'    => 'Example content title'
+                ]
             ]
         );
 
         $category3 = $this->repository->create(
             [
-                'type'             => 'category',
-                'parentId'         => $category2->id,
+                'type'         => 'category',
+                'parentId'     => $category2->id,
                 'translations' => [
                     'langCode' => 'pl',
                     'title'    => 'Example content title'

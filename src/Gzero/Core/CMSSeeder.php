@@ -225,7 +225,7 @@ class CMSSeeder extends Seeder {
         $user->isAdmin = 1;
 
         $user->save();
-        
+
         for ($x = 0; $x < 50; $x++) {
             $str  = md5($x);
             $user = User::firstOrCreate(
@@ -274,11 +274,13 @@ class CMSSeeder extends Seeder {
         if ($lang) {
             $faker = Factory::create($lang->i18n);
             return [
-                'langCode' => $lang->code,
-                'title'    => ($title) ? $title : $faker->realText(38, 1),
-                'teaser'   => '<p>' . $faker->realText(300) . '</p>',
-                'body'     => $this->generateBodyHTML($faker),
-                'isActive' => (bool) ($title) ? $isActive : rand(0, 1)
+                'langCode'       => $lang->code,
+                'title'          => ($title) ? $title : $faker->realText(38, 1),
+                'teaser'         => '<p>' . $faker->realText(300) . '</p>',
+                'body'           => $this->generateBodyHTML($faker),
+                'seoTitle'       => $faker->realText(60, 1),
+                'seoDescription' => $faker->realText(160, 1),
+                'isActive'       => (bool) ($title) ? $isActive : rand(0, 1)
             ];
         }
         throw new Exception("Translation language is required!");

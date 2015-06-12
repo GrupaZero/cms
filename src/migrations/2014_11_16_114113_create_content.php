@@ -59,6 +59,8 @@ class CreateContent extends Migration {
                 $table->string('title');
                 $table->text('teaser');
                 $table->text('body');
+                $table->string('seoTitle');
+                $table->string('seoDescription');
                 $table->boolean('isActive');
                 $table->timestamp('createdAt');
                 $table->timestamp('updatedAt');
