@@ -9,7 +9,7 @@
     ],
     "require": {
         "php": ">=5.4.0",
-        "illuminate/database": "5.0.*"
+        "illuminate/database": "5.1.*"
     },
     "autoload": {
         "psr-0": {
@@ -17,5 +17,5 @@
         }
     },
     "target-dir": "Gzero/Entity",
-    "minimum-stability": "dev"
+    "minimum-stability": "stable"
 }
