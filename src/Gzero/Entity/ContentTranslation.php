@@ -22,6 +22,8 @@ class ContentTranslation extends Base {
         'title',
         'teaser',
         'body',
+        'seoTitle',
+        'seoDescription',
         'isActive'
     ];
 
