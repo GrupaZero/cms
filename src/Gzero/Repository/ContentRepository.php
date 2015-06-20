@@ -135,11 +135,12 @@ class ContentRepository extends BaseRepository {
         $page = 1,
         $pageSize = self::ITEMS_PER_PAGE
     ) {
-        $query = $content->translations(false);
-        $this->handleFilterCriteria($this->getTranslationsTableName(), $criteria, $query);
+        $query  = $content->translations(false);
+        $parsed = $this->parseArgs($criteria, $orderBy);
+        $this->handleFilterCriteria($this->getTranslationsTableName(), $parsed['filter'], $query);
         $this->handleOrderBy(
             $this->getTranslationsTableName(),
-            $orderBy,
+            $parsed['orderBy'],
             $query,
             function ($query) { // default order by
                 $query->orderBy('ContentTranslations.isActive', 'DESC');
@@ -166,9 +167,10 @@ class ContentRepository extends BaseRepository {
      */
     public function getAncestors(Tree $node, array $criteria = [], array $orderBy = [])
     {
-        $query = $node->findAncestors();
-        $this->handleTranslationsJoin($criteria, $orderBy, $query);
-        $this->handleFilterCriteria($this->getTableName(), $criteria, $query);
+        $query  = $node->findAncestors();
+        $parsed = $this->parseArgs($criteria, $orderBy);
+        $this->handleTranslationsJoin($parsed['filter'], $parsed['orderBy'], $query);
+        $this->handleFilterCriteria($this->getTableName(), $parsed['filter'], $query);
         return $query->get();
     }
 
@@ -209,13 +211,14 @@ class ContentRepository extends BaseRepository {
      */
     public function getDescendants(Tree $node, array $criteria, array $orderBy = [], $page = 1, $pageSize = self::ITEMS_PER_PAGE)
     {
-        $query = $node->findDescendants();
-        $this->handleTranslationsJoin($criteria, $orderBy, $query);
-        $this->handleFilterCriteria($this->getTableName(), $criteria, $query);
+        $query  = $node->findDescendants();
+        $parsed = $this->parseArgs($criteria, $orderBy);
+        $this->handleTranslationsJoin($parsed['filter'], $parsed['orderBy'], $query);
+        $this->handleFilterCriteria($this->getTableName(), $parsed['filter'], $query);
         $this->handleAuthorJoin($query);
         $this->handleOrderBy(
             $this->getTableName(),
-            $orderBy,
+            $parsed['orderBy'],
             $query,
             $this->contentDefaultOrderBy()
         );
@@ -236,13 +239,14 @@ class ContentRepository extends BaseRepository {
      */
     public function getChildren(Tree $node, array $criteria, array $orderBy = [], $page = 1, $pageSize = self::ITEMS_PER_PAGE)
     {
-        $query = $node->children();
-        $this->handleTranslationsJoin($criteria, $orderBy, $query);
-        $this->handleFilterCriteria($this->getTableName(), $criteria, $query);
+        $query  = $node->children();
+        $parsed = $this->parseArgs($criteria, $orderBy);
+        $this->handleTranslationsJoin($parsed['filter'], $parsed['orderBy'], $query);
+        $this->handleFilterCriteria($this->getTableName(), $parsed['filter'], $query);
         $this->handleAuthorJoin($query);
         $this->handleOrderBy(
             $this->getTableName(),
-            $orderBy,
+            $parsed['orderBy'],
             $query,
             $this->contentDefaultOrderBy()
         );
@@ -262,13 +266,14 @@ class ContentRepository extends BaseRepository {
      */
     public function getContents(array $criteria, array $orderBy = [], $page = 1, $pageSize = self::ITEMS_PER_PAGE)
     {
-        $query = $this->newORMTreeQuery();
-        $this->handleTranslationsJoin($criteria, $orderBy, $query);
-        $this->handleFilterCriteria($this->getTableName(), $criteria, $query);
+        $query  = $this->newORMTreeQuery();
+        $parsed = $this->parseArgs($criteria, $orderBy);
+        $this->handleTranslationsJoin($parsed['filter'], $parsed['orderBy'], $query);
+        $this->handleFilterCriteria($this->getTableName(), $parsed['filter'], $query);
         $this->handleAuthorJoin($query);
         $this->handleOrderBy(
             $this->getTableName(),
-            $orderBy,
+            $parsed['orderBy'],
             $query,
             $this->contentDefaultOrderBy()
         );
@@ -288,13 +293,14 @@ class ContentRepository extends BaseRepository {
      */
     public function getDeletedContents(array $criteria, array $orderBy = [], $page = 1, $pageSize = self::ITEMS_PER_PAGE)
     {
-        $query = $this->newORMTreeQuery()->onlyTrashed();
-        $this->handleTranslationsJoin($criteria, $orderBy, $query);
-        $this->handleFilterCriteria($this->getTableName(), $criteria, $query);
+        $query  = $this->newORMTreeQuery()->onlyTrashed();
+        $parsed = $this->parseArgs($criteria, $orderBy);
+        $this->handleTranslationsJoin($parsed['filter'], $parsed['orderBy'], $query);
+        $this->handleFilterCriteria($this->getTableName(), $parsed['filter'], $query);
         $this->handleAuthorJoin($query);
         $this->handleOrderBy(
             $this->getTableName(),
-            $orderBy,
+            $parsed['orderBy'],
             $query,
             $this->contentDefaultOrderBy()
         );
@@ -340,9 +346,10 @@ class ContentRepository extends BaseRepository {
      */
     public function getRoots(array $criteria, array $orderBy = [])
     {
-        $query = $this->getEloquentModel()->getRoots();
-        $this->handleTranslationsJoin($criteria, $orderBy, $query);
-        $this->handleFilterCriteria($this->getTableName(), $criteria, $query);
+        $query  = $this->getEloquentModel()->getRoots();
+        $parsed = $this->parseArgs($criteria, $orderBy);
+        $this->handleTranslationsJoin($parsed['filter'], $parsed['orderBy'], $query);
+        $this->handleFilterCriteria($this->getTableName(), $parsed['filter'], $query);
         $this->handleAuthorJoin($query);
         return $this->handlePagination($this->getTableName(), $query, null, null);
     }
@@ -620,26 +627,26 @@ class ContentRepository extends BaseRepository {
     /**
      * Handle joining content translations table based on provided criteria
      *
-     * @param array $criteria Array with filter criteria
-     * @param array $orderBy  Array with orderBy
-     * @param mixed $query    Eloquent query object
+     * @param array $parsedCriteria Array with filter criteria
+     * @param array $parsedOrderBy  Array with orderBy
+     * @param mixed $query          Eloquent query object
      *
      * @throws RepositoryException
      * @return array
      */
-    private function handleTranslationsJoin(array &$criteria, array $orderBy, $query)
+    private function handleTranslationsJoin(array &$parsedCriteria, array $parsedOrderBy, $query)
     {
-        if (!empty($criteria['lang'])) {
+        if (!empty($parsedCriteria['lang'])) {
             $query->leftJoin(
                 'ContentTranslations',
-                function ($join) use ($criteria) {
+                function ($join) use ($parsedCriteria) {
                     $join->on('Contents.id', '=', 'ContentTranslations.contentId')
-                        ->where('ContentTranslations.langCode', '=', $criteria['lang']['value']);
+                        ->where('ContentTranslations.langCode', '=', $parsedCriteria['lang']['value']);
                 }
             );
-            unset($criteria['lang']);
+            unset($parsedCriteria['lang']);
         } else {
-            if ($this->orderByTranslation($orderBy)) {
+            if ($this->orderByTranslation($parsedOrderBy)) {
                 throw new RepositoryException('Repository Validation Error: \'lang\' criteria is required', 500);
             }
         }
@@ -698,14 +705,14 @@ class ContentRepository extends BaseRepository {
     /**
      * Checks if we want to sort by non core field
      *
-     * @param Array $orderBy OrderBy array
+     * @param Array $parsedOrderBy OrderBy array
      *
      * @return bool
      * @throws RepositoryException
      */
-    private function orderByTranslation($orderBy)
+    private function orderByTranslation($parsedOrderBy)
     {
-        foreach ($orderBy as $order) {
+        foreach ($parsedOrderBy as $order) {
             if (!array_key_exists('relation', $order)) {
                 throw new RepositoryException('OrderBy should always have relation property');
             }
