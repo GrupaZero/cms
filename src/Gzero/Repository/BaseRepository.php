@@ -268,4 +268,78 @@ abstract class BaseRepository {
             ->count();
         return ($count) ? $url . '-' . $count : $url;
     }
+
+    /**
+     * This functions translate filter criteria and orderBy params to more extended version.
+     *
+     * @param array $criteria Filter criteria
+     * @param array $orderBy  Array of columns
+     *
+     * @return array
+     */
+    protected function parseArgs($criteria, $orderBy)
+    {
+        return [
+            'filter'  => $this->parseCriteria($criteria),
+            'orderBy' => $this->parseOrderBy($orderBy)
+        ];
+    }
+
+    /**
+     * Parse criteria to extended version
+     *
+     * @param array $criteria Filter criteria
+     *
+     * @return array
+     */
+    private function parseCriteria($criteria)
+    {
+        $result = [];
+        foreach ($criteria as $row) {
+            if (preg_match('/\./', $row[0])) {
+                $temp = explode('.', $row[0]);
+
+                $result[array_pop($temp)] = [
+                    'value'     => (is_numeric($row[2])) ? (float) $row[2] : $row[2],
+                    'operation' => $row[1],
+                    'relation'  => trim(implode('.', $temp), '.')
+                ];
+
+            } else {
+                $result[$row[0]] = [
+                    'value'     => (is_numeric($row[2])) ? (float) $row[2] : $row[2],
+                    'operation' => $row[1],
+                    'relation'  => null
+                ];
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * Parse orderBy to extended version
+     *
+     * @param array $orderBy Array of columns
+     *
+     * @return array
+     */
+    private function parseOrderBy($orderBy)
+    {
+        $result = [];
+        foreach ($orderBy as $row) {
+            if (preg_match('/\./', $row[0])) {
+                $temp                     = explode('.', $row[0]);
+                $result[array_pop($temp)] = [
+                    'direction' => $row[1],
+                    'relation'  => trim(implode('.', $temp), '.')
+                ];
+            } else {
+                $result[$row[0]] = [
+                    'direction' => $row[1],
+                    'relation'  => null
+                ];
+            }
+        }
+        return $result;
+    }
 }

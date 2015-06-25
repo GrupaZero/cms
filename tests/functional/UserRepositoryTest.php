@@ -117,26 +117,14 @@ class UserRepositoryTest extends \EloquentTestCase {
     public function can_sort_users_list()
     {
         // ASC
-        $result = $this->repository->getUsers(
-            [],
-            [
-                'email' => ['direction' => 'ASC', 'relation' => null]
-            ],
-            null
-        );
+        $result = $this->repository->getUsers([], [['email', 'ASC']], null);
 
         $this->assertEquals($result[0]->email, 'a@a.pl');
 
         $last = $result->toArray();
         $last = array_pop($last);
         // DESC
-        $result = $this->repository->getUsers(
-            [],
-            [
-                'email' => ['direction' => 'DESC', 'relation' => null]
-            ],
-            null
-        );
+        $result = $this->repository->getUsers([], [['email', 'DESC']], null);
 
         $this->assertEquals($result[0]->email, $last['email']);
     }

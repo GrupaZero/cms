@@ -713,8 +713,8 @@ class ContentRepositoryTest extends \EloquentTestCase {
 
         $contents = $this->repository->getContents(
             [
-                'type'     => ['value' => 'category', 'relation' => null],
-                'isActive' => ['value' => true, 'relation' => null]
+                ['type', '=', 'category'],
+                ['isActive', '=', true]
             ],
             [],
             null
@@ -755,11 +755,11 @@ class ContentRepositoryTest extends \EloquentTestCase {
         // Ascending
         $contents = $this->repository->getContents(
             [
-                'lang' => ['value' => 'en', 'relation' => null]
+                ['translations.lang', '=', 'en']
             ],
             [
-                'weight' => ['direction' => 'ASC', 'relation' => null],
-                'title'  => ['direction' => 'ASC', 'relation' => 'translations'],
+                ['weight', 'ASC'],
+                ['translations.title', 'ASC'],
             ],
             null
         );
@@ -771,11 +771,11 @@ class ContentRepositoryTest extends \EloquentTestCase {
         // Descending
         $contents = $this->repository->getContents(
             [
-                'lang' => ['value' => 'en', 'relation' => null]
+                ['translations.lang', '=', 'en']
             ],
             [
-                'weight' => ['direction' => 'DESC', 'relation' => null],
-                'title'  => ['direction' => 'DESC', 'relation' => 'translations'],
+                ['weight', 'DESC'],
+                ['translations.title', 'DESC'],
             ],
             null
         );
@@ -796,7 +796,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
 
         $this->repository->getContents(
             [],
-            ['title' => ['direction' => 'DESC', 'relation' => 'translations']],
+            [['translations.title', 'DESC']],
             null
         );
     }
@@ -811,7 +811,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
 
         $nodes = $this->repository->getContents(
             [],
-            ['weight' => ['direction' => 'DESC', 'relation' => null]],
+            [['weight', 'DESC']],
             null
         );
         $this->assertNotEmpty($nodes);

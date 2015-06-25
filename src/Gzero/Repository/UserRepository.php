@@ -153,10 +153,11 @@ class UserRepository extends BaseRepository implements AuthenticatableContract, 
     public function getUsers(array $criteria, array $orderBy = [], $page = 1, $pageSize = self::ITEMS_PER_PAGE)
     {
         $query = $this->newORMQuery();
-        $this->handleFilterCriteria($this->getTableName(), $criteria, $query);
+        $parsed = $this->parseArgs($criteria, $orderBy);
+        $this->handleFilterCriteria($this->getTableName(), $parsed['filter'], $query);
         $this->handleOrderBy(
             $this->getTableName(),
-            $orderBy,
+            $parsed['orderBy'],
             $query,
             $this->userDefaultOrderBy()
         );
