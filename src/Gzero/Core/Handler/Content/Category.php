@@ -34,24 +34,12 @@ class Category extends Content {
         $this->children = $this->contentRepo->getChildren(
             $content,
             [
-                'isActive' => [
-                    'value'    => true,
-                    'relation' => null
-                ],
+                ['isActive', '=', true]
             ],
             [
-                'isPromoted' => [
-                    'relation'  => null,
-                    'direction' => 'DESC',
-                ],
-                'isSticky'   => [
-                    'relation'  => null,
-                    'direction' => 'DESC'
-                ],
-                'weight'   => [
-                    'relation'  => null,
-                    'direction' => 'ASC'
-                ]
+                ['isPromoted', 'DESC'],
+                ['isSticky', 'DESC'],
+                ['weight', 'ASC']
             ],
             $this->request->get('page', 1),
             config('gzero.defaultPageSize', 20)
