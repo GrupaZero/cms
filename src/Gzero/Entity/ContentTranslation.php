@@ -1,5 +1,10 @@
 <?php namespace Gzero\Entity;
 
+use Gzero\Entity\Presenter\ContentPresenter;
+use Robbo\Presenter\PresentableInterface;
+use Robbo\Presenter\Robbo;
+use Gzero\Entity\Presenter\ContentTranslationPresenter;
+
 /**
  * This file is part of the GZERO CMS package.
  *
@@ -12,7 +17,7 @@
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2014, Adrian Skierniewski
  */
-class ContentTranslation extends Base {
+class ContentTranslation extends Base implements PresentableInterface {
 
     /**
      * @var array
@@ -35,5 +40,15 @@ class ContentTranslation extends Base {
     public function lang()
     {
         return $this->belongsTo('\Gzero\Entity\Lang');
+    }
+
+    /**
+     * Return a created presenter.
+     *
+     * @return \Robbo\Presenter\Presenter
+     */
+    public function getPresenter()
+    {
+        return new ContentTranslationPresenter($this);
     }
 }

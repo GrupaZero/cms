@@ -107,4 +107,5 @@ class ContentPresenter extends Presenter {
             return trans('common.noRatings');
         }
     }
+
 }
