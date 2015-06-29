@@ -18,6 +18,9 @@ use Robbo\Presenter\Presenter;
 class ContentTranslationPresenter extends Presenter {
 
     /**
+     * Return seoTitle of translation if exists
+     * otherwise return generated one
+     *
      * @param mixed $alternativeField alternative field to display when seoTitle field is empty
      *
      * @return string
@@ -31,6 +34,9 @@ class ContentTranslationPresenter extends Presenter {
     }
 
     /**
+     * Return seoDescription of translation if exists
+     * otherwise return generated one
+     *
      * @param mixed $alternativeField alternative field to display when seoDescription field is empty
      *
      * @return string
