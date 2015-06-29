@@ -47,11 +47,13 @@ class ContentTranslationPresenter extends Presenter {
             $alternativeField = config('gzero.seoDescriptionAlternativeField', 'body');
         }
 
+        $seoDescLenght = config('gzero.seoDescLength', 160);
+
         if ($this->seoDescription) {
             return $this->seoDescription;
         } else {
             $text = strip_tags($this->$alternativeField);
-            return strlen($text) >= 160 ? substr($text, 0, strpos($text, ' ', 160)) : $text;
+            return strlen($text) >= $seoDescLength ? substr($text, 0, strpos($text, ' ', $seoDescLength)) : $text;
         }
     }
 
