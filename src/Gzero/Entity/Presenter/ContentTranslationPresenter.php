@@ -31,7 +31,7 @@ class ContentTranslationPresenter extends Presenter {
     }
 
     /**
-     * @param bool $alternativeField alternative field to display when seoDescription field is empty
+     * @param mixed $alternativeField alternative field to display when seoDescription field is empty
      *
      * @return string
      */
