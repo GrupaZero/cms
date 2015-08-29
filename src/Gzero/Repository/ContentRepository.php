@@ -644,6 +644,7 @@ class ContentRepository extends BaseRepository {
                         ->where('ContentTranslations.langCode', '=', $parsedCriteria['lang']['value']);
                 }
             );
+            $query->where('ContentTranslations.isActive', '=', 1);
             unset($parsedCriteria['lang']);
         } else {
             if ($this->orderByTranslation($parsedOrderBy)) {
