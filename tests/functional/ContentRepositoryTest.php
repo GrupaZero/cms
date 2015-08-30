@@ -862,6 +862,48 @@ class ContentRepositoryTest extends \EloquentTestCase {
 
     }
 
+    /**
+     * @test
+     */
+    public function it_doesent_duplicate_content_when_translation_added()
+    {
+        $author  = User::find(1);
+        $content = $this->repository->create(
+            [
+                'type'             => 'content',
+                'isOnHome'         => false,
+                'isCommentAllowed' => false,
+                'isPromoted'       => false,
+                'isSticky'         => false,
+                'isActive'         => true,
+                'publishedAt'      => date('Y-m-d H:i:s'),
+                'translations'     => [
+                    'langCode' => 'en',
+                    'title'    => 'English translation 1'
+                ]
+            ],
+            $author
+        );
+        $this->assertInstanceOf('Gzero\Entity\Content', $content);
+
+        $translation = $this->repository->createTranslation($content, [
+            'langCode' => 'en',
+            'title'    => 'English translation 2'
+        ]);
+        $this->assertInstanceOf('Gzero\Entity\ContentTranslation', $translation);
+
+        $translatedContent = $this->repository->getContents(
+            [
+                ['lang', '=', 'en'],
+                ['type', '=', 'content']
+            ],
+            [],
+            1,
+            20
+        );
+        $this->assertEquals(1, $translatedContent->count());
+    }
+
     /*
     |--------------------------------------------------------------------------
     | END List tests

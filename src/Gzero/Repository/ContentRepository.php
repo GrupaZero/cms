@@ -641,10 +641,10 @@ class ContentRepository extends BaseRepository {
                 'ContentTranslations',
                 function ($join) use ($parsedCriteria) {
                     $join->on('Contents.id', '=', 'ContentTranslations.contentId')
-                        ->where('ContentTranslations.langCode', '=', $parsedCriteria['lang']['value']);
+                        ->where('ContentTranslations.langCode', '=', $parsedCriteria['lang']['value'])
+                        ->where('ContentTranslations.isActive', '=', 1);
                 }
             );
-            $query->where('ContentTranslations.isActive', '=', 1);
             unset($parsedCriteria['lang']);
         } else {
             if ($this->orderByTranslation($parsedOrderBy)) {
