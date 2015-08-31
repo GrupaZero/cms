@@ -3,6 +3,7 @@
 use Gzero\Entity\Content;
 use Gzero\Entity\User;
 use Gzero\Repository\ContentRepository;
+use Gzero\Repository\RepositoryException;
 use Illuminate\Events\Dispatcher;
 
 require_once(__DIR__ . '/../stub/TestSeeder.php');
@@ -247,10 +248,16 @@ class ContentRepositoryTest extends \EloquentTestCase {
         );
         $newContent = $this->repository->getById($content->id);
         $this->assertNotSame($content, $newContent);
-        $this->repository->deleteTranslation($newContent->translations()->first());
-        // content translations has been removed?
-        $this->assertNull($newContent->translations()->first());
 
+        $translation = $this->repository->createTranslation($content, [
+            'langCode' => 'en',
+            'title'    => 'English translation 2'
+        ]);
+        $this->assertEquals($content->translations(false)->count(), 2);
+
+        $this->repository->deleteTranslation($content->translations(false)->first());
+        // content translations has been removed?
+        $this->assertEquals($content->translations(false)->count(), 1);
     }
 
     /**
@@ -933,7 +940,8 @@ class ContentRepositoryTest extends \EloquentTestCase {
         $this->assertInstanceOf('Gzero\Entity\ContentTranslation', $translation);
         $this->assertTrue((bool)$translation->isActive);
 
-        $this->assertFalse($this->repository->deleteTranslation($translation));
+        $this->setExpectedException('Gzero\Repository\RepositoryException');
+        $this->repository->deleteTranslation($translation);
     }
 
     /*
