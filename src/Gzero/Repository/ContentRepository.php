@@ -595,7 +595,7 @@ class ContentRepository extends BaseRepository {
     public function deleteTranslation(ContentTranslation $translation)
     {
         if ((bool) $translation->isActive === true) {
-            throw new RepositoryException;
+            throw new RepositoryException('Cannot delete active translation', 500);
         }
         return $this->newQuery()->transaction(
             function () use ($translation) {
