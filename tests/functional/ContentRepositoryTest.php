@@ -939,7 +939,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
         $translations = $this->repository->getTranslations($content, []);
         $translation = $translations->first();
         $this->assertInstanceOf('Gzero\Entity\ContentTranslation', $translation);
-        $this->assertTrue((bool)$translation->isActive);
+        $this->assertEquals($translation->isActive, 1);
 
         $this->setExpectedException('Gzero\Repository\RepositoryException');
         $this->repository->deleteTranslation($translation);
