@@ -865,7 +865,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
     /**
      * @test
      */
-    public function it_doesent_duplicate_content_when_translation_added()
+    public function it_does_not_duplicate_content_when_translation_added()
     {
         $author  = User::find(1);
         $content = $this->repository->create(
@@ -902,6 +902,38 @@ class ContentRepositoryTest extends \EloquentTestCase {
             20
         );
         $this->assertEquals(1, $translatedContent->count());
+    }
+
+    /**
+     * @test
+     */
+    public function it_does_not_allow_to_delete_active_translation()
+    {
+        $author  = User::find(1);
+        $content = $this->repository->create(
+            [
+                'type'             => 'content',
+                'isOnHome'         => false,
+                'isCommentAllowed' => false,
+                'isPromoted'       => false,
+                'isSticky'         => false,
+                'isActive'         => true,
+                'publishedAt'      => date('Y-m-d H:i:s'),
+                'translations'     => [
+                    'langCode' => 'en',
+                    'title'    => 'English translation 1'
+                ]
+            ],
+            $author
+        );
+        $this->assertInstanceOf('Gzero\Entity\Content', $content);
+
+        $translations = $this->repository->getTranslations($content, []);
+        $translation = $translations->first();
+        $this->assertInstanceOf('Gzero\Entity\ContentTranslation', $translation);
+        $this->assertTrue((bool)$translation->isActive);
+
+        $this->assertFalse($this->repository->deleteTranslation($translation));
     }
 
     /*
