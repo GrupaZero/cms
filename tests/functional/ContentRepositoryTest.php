@@ -3,6 +3,7 @@
 use Gzero\Entity\Content;
 use Gzero\Entity\User;
 use Gzero\Repository\ContentRepository;
+use Gzero\Repository\RepositoryException;
 use Illuminate\Events\Dispatcher;
 
 require_once(__DIR__ . '/../stub/TestSeeder.php');
@@ -235,6 +236,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
      */
     public function can_delete_content_translation()
     {
+        $withActive = false;
         $content    = $this->repository->create(
             [
                 'type'         => 'content',
@@ -247,10 +249,16 @@ class ContentRepositoryTest extends \EloquentTestCase {
         );
         $newContent = $this->repository->getById($content->id);
         $this->assertNotSame($content, $newContent);
-        $this->repository->deleteTranslation($newContent->translations()->first());
-        // content translations has been removed?
-        $this->assertNull($newContent->translations()->first());
 
+        $translation = $this->repository->createTranslation($content, [
+            'langCode' => 'en',
+            'title'    => 'English translation 2'
+        ]);
+        $this->assertEquals($content->translations($withActive)->count(), 2);
+
+        $this->repository->deleteTranslation($content->translations($withActive)->first());
+        // content translations has been removed?
+        $this->assertEquals($content->translations($withActive)->count(), 1);
     }
 
     /**
@@ -865,7 +873,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
     /**
      * @test
      */
-    public function it_doesent_duplicate_content_when_translation_added()
+    public function it_does_not_duplicate_content_when_translation_added()
     {
         $author  = User::find(1);
         $content = $this->repository->create(
@@ -902,6 +910,39 @@ class ContentRepositoryTest extends \EloquentTestCase {
             20
         );
         $this->assertEquals(1, $translatedContent->count());
+    }
+
+    /**
+     * @test
+     */
+    public function it_does_not_allow_to_delete_active_translation()
+    {
+        $author  = User::find(1);
+        $content = $this->repository->create(
+            [
+                'type'             => 'content',
+                'isOnHome'         => false,
+                'isCommentAllowed' => false,
+                'isPromoted'       => false,
+                'isSticky'         => false,
+                'isActive'         => true,
+                'publishedAt'      => date('Y-m-d H:i:s'),
+                'translations'     => [
+                    'langCode' => 'en',
+                    'title'    => 'English translation 1'
+                ]
+            ],
+            $author
+        );
+        $this->assertInstanceOf('Gzero\Entity\Content', $content);
+
+        $translations = $this->repository->getTranslations($content, []);
+        $translation = $translations->first();
+        $this->assertInstanceOf('Gzero\Entity\ContentTranslation', $translation);
+        $this->assertEquals($translation->isActive, 1);
+
+        $this->setExpectedException('Gzero\Repository\RepositoryException');
+        $this->repository->deleteTranslation($translation);
     }
 
     /*
