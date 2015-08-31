@@ -236,6 +236,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
      */
     public function can_delete_content_translation()
     {
+        $withActive = false;
         $content    = $this->repository->create(
             [
                 'type'         => 'content',
@@ -253,11 +254,11 @@ class ContentRepositoryTest extends \EloquentTestCase {
             'langCode' => 'en',
             'title'    => 'English translation 2'
         ]);
-        $this->assertEquals($content->translations(false)->count(), 2);
+        $this->assertEquals($content->translations($withActive)->count(), 2);
 
-        $this->repository->deleteTranslation($content->translations(false)->first());
+        $this->repository->deleteTranslation($content->translations($withActive)->first());
         // content translations has been removed?
-        $this->assertEquals($content->translations(false)->count(), 1);
+        $this->assertEquals($content->translations($withActive)->count(), 1);
     }
 
     /**
