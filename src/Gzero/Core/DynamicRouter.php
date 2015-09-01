@@ -57,7 +57,18 @@ class DynamicRouter {
         try {
             $content = $this->repository->getByUrl($url, $lang->code);
             // Only if page is visible on public
-            if (!empty($content) && $content->isActive) {
+            if (!empty($content) && $content->canBeShown()) {
+                if (!$content->isActive) {
+                    app('session')->flash(
+                        'messages',
+                        [
+                            [
+                                'code' => 'warning',
+                                'text' => trans('common.contentNotPublished')
+                            ]
+                        ]
+                    );
+                }
                 $type = $this->resolveType($content->type);
                 return $type->load($content, $lang)->render();
             } else {
