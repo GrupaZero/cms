@@ -1,0 +1,36 @@
+<?php namespace Gzero\Entity;
+
+/**
+ * This file is part of the GZERO CMS package.
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ *
+ * Class Option
+ *
+ * @package    Gzero\Model
+ * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
+ * @copyright  Copyright (c) 2015, Adrian Skierniewski
+ */
+class Option extends Base {
+
+    /**
+     * @var array
+     */
+    protected $fillable = [
+        'key',
+        'value',
+        'categoryKey'
+    ];
+
+    /**
+     * Option category relation
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function category()
+    {
+        return $this->belongsTo('\Gzero\Entity\OptionCategory', 'categoryKey', 'key');
+    }
+
+}
