@@ -21,6 +21,16 @@ use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 class OptionRepository {
 
     /**
+     * @var OptionCategory
+     */
+    protected $optionCategoryModel;
+
+    /**
+     * @var Option
+     */
+    protected $optionModel;
+
+    /**
      * @var Array Whole options hierarchy.
      *            This array mapps each category name to an array (which may be empty)
      *            mapping param names to their values
@@ -35,11 +45,15 @@ class OptionRepository {
     /**
      * OptionRepository constructor
      *
-     * @param CacheManager $cache Cache
+     * @param OptionCategory $optionCategory OptionCategory model
+     * @param Option         $option         Option model
+     * @param CacheManager   $cache          Cache
      */
-    public function __construct(CacheManager $cache)
+    public function __construct(OptionCategory $optionCategory, Option $option, CacheManager $cache)
     {
-        $this->cache = $cache;
+        $this->optionCategoryModel = $optionCategory;
+        $this->optionModel         = $option;
+        $this->cache               = $cache;
         $this->init();
     }
 
@@ -84,22 +98,6 @@ class OptionRepository {
     }
 
     /**
-     * Check if the given option exists
-     *
-     * @param string $categoryKey Category key
-     * @param string $optionKey   Option key
-     *
-     * @return bool
-     * @throws RepositoryException When queried for non-existent category
-     */
-    public function optionExists($categoryKey, $optionKey)
-    {
-        $this->requireCategoryExists($categoryKey);
-
-        return array_key_exists($optionKey, $this->options[$categoryKey]);
-    }
-
-    /**
      * Get the value of the given option.
      *
      * @param string $categoryKey Category key
@@ -110,14 +108,10 @@ class OptionRepository {
      */
     public function getOption($categoryKey, $optionKey)
     {
-        $this->requireCategoryExists($categoryKey);
+        $this->requireOptionExists($categoryKey, $optionKey);
 
-        $category = $this->options[$categoryKey];
-        if (!array_key_exists($optionKey, $category)) {
-            throw new RepositoryException("Option " . $optionKey . " does not exist under the category " . $categoryKey);
-        }
 
-        return $category[$optionKey];
+        return $this->options[$categoryKey][$optionKey];
     }
 
     /**
@@ -130,9 +124,7 @@ class OptionRepository {
      */
     public function createCategory($categoryKey)
     {
-        if (array_key_exists($categoryKey, $this->options)) {
-            throw new RepositoryException("category " . $categoryKey . "already exists");
-        }
+        $this->requireCategoryDoesNotExist($categoryKey);
 
         $this->validateName($categoryKey);
 
@@ -191,19 +183,11 @@ class OptionRepository {
      */
     public function deleteOption($categoryKey, $optionKey)
     {
-        $this->requireCategoryExists($categoryKey);
-
-        $category = $this->options[$categoryKey];
-
-        if (!array_key_exists($optionKey, $category)) {
-            throw new RepositoryException(
-                "given option " . $optionKey . " does not exist within the " . $categoryKey . " category"
-            );
-        }
+        $this->requireOptionExists($categoryKey, $optionKey);
 
         Option::where(['categoryKey' => $categoryKey, 'key' => $optionKey])->delete();
         $this->refresh();
-        unset($category[$optionKey]);
+        unset($this->options[$categoryKey][$optionKey]);
     }
 
     /**
@@ -216,9 +200,11 @@ class OptionRepository {
         if ($this->cache->get('options')) {
             $this->options = $this->cache->get('options');
         } else {
-            $this->extractCategoriesFromModel(OptionCategory::all());
-            $this->extractOptionsFromModel(Option::all());
+            $this->extractCategoriesFromModel($this->optionCategoryModel->newQuery()->get(["key"]));
+            $this->extractOptionsFromModel($this->optionModel->newQuery()->get(["categoryKey", "key", "value"]));
             $this->cache->forever('options', $this->options);
+
+
         }
     }
 
@@ -232,9 +218,11 @@ class OptionRepository {
     private function extractCategoriesFromModel($optionCategoryModels)
     {
         $this->options = [];
-        foreach ($optionCategoryModels as $optionCategoryModel) {
-            $this->options[$optionCategoryModel->key] = [];
-        }
+        $optionCategoryModels->pluck('key')->each(
+            function ($categoryKey, $id) {
+                $this->options[$categoryKey] = [];
+            }
+        );
     }
 
     /**
@@ -246,13 +234,18 @@ class OptionRepository {
      */
     private function extractOptionsFromModel($optionModels)
     {
-        foreach ($optionModels as $optionModel) {
-            $categoryKey = $optionModel->categoryKey;
-            $key         = $optionModel->key;
-            $value       = $optionModel->value;
-
-            $this->options[$categoryKey][$key] = $value;
-        }
+        $optionModels->each(
+            function ($optionModel, $item) {
+                $this->options[$optionModel->categoryKey][$optionModel->key] = $optionModel->value;
+            }
+        );
+        //foreach ($optionModels as $optionModel) {
+        //    $categoryKey = $optionModel->categoryKey;
+        //    $key         = $optionModel->key;
+        //    $value       = $optionModel->value;
+        //
+        //    $this->options[$categoryKey][$key] = $value;
+        //}
     }
 
     /**
@@ -286,7 +279,38 @@ class OptionRepository {
     }
 
     /**
-     * Simply check if the category exist within the internal options aray
+     * Check if the given option exists
+     *
+     * @param string $categoryKey Category key
+     * @param string $optionKey   Option key
+     *
+     * @return bool
+     * @throws RepositoryException When queried for non-existent category
+     */
+    private function optionExists($categoryKey, $optionKey)
+    {
+        $this->requireCategoryExists($categoryKey);
+
+        return array_key_exists($optionKey, $this->options[$categoryKey]);
+    }
+
+    /**
+     * Make sure the given option exists - raise exception if not
+     *
+     * @param string $categoryKey Category key
+     * @param string $optionKey   Option key
+     *
+     * @throws RepositoryException
+     */
+    private function requireOptionExists($categoryKey, $optionKey)
+    {
+        if (!$this->optionExists($categoryKey, $optionKey)) {
+            throw new RepositoryException("option " . $optionKey . " in category " . $categoryKey . " does not exist");
+        }
+    }
+
+    /**
+     * Check if the category exists
      *
      * @param string $categoryKey Category key
      *
@@ -309,6 +333,21 @@ class OptionRepository {
     {
         if (!$this->categoryExists($categoryKey)) {
             throw new RepositoryException("category " . $categoryKey . " does not exist");
+        }
+    }
+
+    /**
+     * Make sure the given category does not already exist - raise exception if so
+     *
+     * @param string $categoryKey Category key
+     *
+     * @return void
+     * @throws RepositoryException
+     */
+    private function requireCategoryDoesNotExist($categoryKey)
+    {
+        if ($this->categoryExists($categoryKey)) {
+            throw new RepositoryException("The category " . $categoryKey . " already exists");
         }
     }
 }

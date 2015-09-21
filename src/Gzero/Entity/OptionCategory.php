@@ -14,6 +14,9 @@
  */
 class OptionCategory extends Base {
 
+    /**
+     * @var string
+     */
     protected $primaryKey = 'key';
 
     /**

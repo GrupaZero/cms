@@ -95,7 +95,6 @@ class OptionRepositoryTest extends \EloquentTestCase {
      */
     public function it_gets_standard_option()
     {
-        self::assertTrue($this->repository->optionExists(TestSeeder::CATEGORY_MAIN, TestSeeder::OPTION_STANDARD));
         self::assertEquals(
             TestSeeder::OPTION_VALUE_STANDARD,
             $this->repository->getOption(TestSeeder::CATEGORY_MAIN, TestSeeder::OPTION_STANDARD)
@@ -151,10 +150,9 @@ class OptionRepositoryTest extends \EloquentTestCase {
         $savedOption = OptionCategory::find($mainCategory)->options()->where(['key' => $newOptionKey])->first();
         self::assertNotNull($savedOption);
         self::assertEquals($value, $savedOption->value);
-        self::assertTrue($this->repository->optionExists($mainCategory, $newOptionKey));
 
         $this->recreateRepository();
-        self::assertTrue($this->repository->optionExists($mainCategory, $newOptionKey));
+        self::assertEquals($value, $this->repository->getOption($mainCategory, $newOptionKey));
     }
 
 
@@ -178,10 +176,10 @@ class OptionRepositoryTest extends \EloquentTestCase {
             where(['key' => TestSeeder::OPTION_STANDARD])->exists()
         );
     }
-
+    
     private function recreateRepository()
     {
-        $this->repository = new OptionRepository(new \Illuminate\Cache\CacheManager($this->app));
+        $this->repository = new OptionRepository(new OptionCategory(), new Option(), new \Illuminate\Cache\CacheManager($this->app));
     }
 
 }
