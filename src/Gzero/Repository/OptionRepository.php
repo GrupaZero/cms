@@ -219,7 +219,7 @@ class OptionRepository {
     {
         $this->options = [];
         $optionCategoryModels->pluck('key')->each(
-            function ($categoryKey, $id) {
+            function ($categoryKey) {
                 $this->options[$categoryKey] = [];
             }
         );
@@ -235,17 +235,10 @@ class OptionRepository {
     private function extractOptionsFromModel($optionModels)
     {
         $optionModels->each(
-            function ($optionModel, $item) {
+            function ($optionModel) {
                 $this->options[$optionModel->categoryKey][$optionModel->key] = $optionModel->value;
             }
         );
-        //foreach ($optionModels as $optionModel) {
-        //    $categoryKey = $optionModel->categoryKey;
-        //    $key         = $optionModel->key;
-        //    $value       = $optionModel->value;
-        //
-        //    $this->options[$categoryKey][$key] = $value;
-        //}
     }
 
     /**
