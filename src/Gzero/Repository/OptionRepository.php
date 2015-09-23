@@ -300,6 +300,7 @@ class OptionRepository {
      * @param string $categoryKey Category key
      * @param string $optionKey   Option key
      *
+     * @return void
      * @throws RepositoryException
      */
     private function requireOptionExists($categoryKey, $optionKey)
