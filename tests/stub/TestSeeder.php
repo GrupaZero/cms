@@ -4,6 +4,8 @@ use Faker\Factory;
 use Gzero\Entity\ContentType;
 use Gzero\Entity\Lang;
 use Gzero\Entity\User;
+use Gzero\Entity\Option;
+use Gzero\Entity\OptionCategory;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Gzero\Repository\UserRepository;
@@ -44,6 +46,7 @@ class TestSeeder extends Seeder {
         $this->seedLangs();
         $this->seedContentTypes();
         $this->seedUsers();
+        $this->seedOptions();
     }
 
     /**
@@ -118,6 +121,23 @@ class TestSeeder extends Seeder {
         );
 
         return $users;
+    }
+
+    const CATEGORY_MAIN = 'main';
+    const OPTION_STANDARD = 'standard';
+    const OPTION_STANDARD2 = 'standard2';
+    const OPTION_VALUE_STANDARD = 'cisco';
+    const OPTION_VALUE_STANDARD2 = 'microsoft';
+
+    private function seedOptions()
+    {
+        OptionCategory::create(['key' => self::CATEGORY_MAIN]);
+        OptionCategory::find(self::CATEGORY_MAIN)->options()->create(
+            ['key' => self::OPTION_STANDARD, 'value' => self::OPTION_VALUE_STANDARD]
+        );
+        OptionCategory::find(self::CATEGORY_MAIN)->options()->create(
+            ['key' => self::OPTION_STANDARD2, 'value' => self::OPTION_VALUE_STANDARD2]
+        );
     }
 
     /**
