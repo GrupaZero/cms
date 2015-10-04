@@ -32,7 +32,7 @@ class OptionRepository {
 
     /**
      * @var Array Whole options hierarchy.
-     *            This array mapps each category name to an array (which may be empty)
+     *            This array maps each category name to an array (which may be empty)
      *            mapping param names to their values
      */
     private $options;
@@ -128,7 +128,7 @@ class OptionRepository {
 
         $this->validateName($categoryKey);
 
-        OptionCategory::create(['key' => $categoryKey]);
+        $this->optionCategoryModel->create(['key' => $categoryKey]);
         $this->refresh();
         $this->options[$categoryKey] = [];
     }
@@ -150,7 +150,7 @@ class OptionRepository {
 
         $this->requireCategoryExists($categoryKey);
 
-        Option::updateOrCreate(['categoryKey' => $categoryKey, 'key' => $optionKey], ['value' => $value]);
+        $this->optionModel->updateOrCreate(['categoryKey' => $categoryKey, 'key' => $optionKey], ['value' => $value]);
         $this->refresh();
         $this->options[$categoryKey][$optionKey] = $value;
     }
@@ -167,7 +167,7 @@ class OptionRepository {
     {
         $this->requireCategoryExists($categoryKey);
 
-        OptionCategory::destroy($categoryKey);
+        $this->optionCategoryModel->destroy($categoryKey);
         $this->refresh();
         unset($this->options[$categoryKey]);
     }
@@ -185,7 +185,7 @@ class OptionRepository {
     {
         $this->requireOptionExists($categoryKey, $optionKey);
 
-        Option::where(['categoryKey' => $categoryKey, 'key' => $optionKey])->delete();
+        $this->optionModel->where(['categoryKey' => $categoryKey, 'key' => $optionKey])->delete();
         $this->refresh();
         unset($this->options[$categoryKey][$optionKey]);
     }
