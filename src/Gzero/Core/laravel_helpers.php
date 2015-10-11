@@ -2,6 +2,7 @@
 /**
  * This is shipped ONLY for COD AUTO-COMPLETION !
  */
+// @codingStandardsIgnoreStart
 use Illuminate\Support\Str;
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Auth\Access\Gate;
@@ -732,3 +733,4 @@ if (! function_exists('view')) {
         return $factory->make($view, $data, $mergeData);
     }
 }
+// @codingStandardsIgnoreEnd
