@@ -2,7 +2,6 @@
 /**
  * This is shipped ONLY for COD AUTO-COMPLETION !
  */
-// @codingStandardsIgnoreStart
 use Illuminate\Support\Str;
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Auth\Access\Gate;
@@ -175,6 +174,9 @@ if (! function_exists('config_path')) {
     }
 }
 
+/**
+ * @SuppressWarnings(PHPMD)
+ */
 if (! function_exists('cookie')) {
     /**
      * Create a new cookie instance.
@@ -284,6 +286,9 @@ if (! function_exists('elixir')) {
     }
 }
 
+/**
+ * @SuppressWarnings(PHPMD)
+ */
 if (! function_exists('env')) {
     /**
      * Gets the value of an environment variable. Supports boolean, empty and null.
@@ -733,4 +738,3 @@ if (! function_exists('view')) {
         return $factory->make($view, $data, $mergeData);
     }
 }
-// @codingStandardsIgnoreEnd

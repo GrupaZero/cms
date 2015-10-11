@@ -3,6 +3,7 @@
     <description>GZERO CMS PHP Coding Standards
     </description>
     <exclude-pattern>*/migrations/*</exclude-pattern>
+    <exclude-pattern>*/laravel_helpers.php</exclude-pattern>
     <rule ref="PSR1"/>
     <rule ref="PSR2">
         <!--but exclude their code ClassDeclaration-->
