@@ -1,5 +1,6 @@
 <?php
 
+use Gzero\Entity\ContentType;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
@@ -68,6 +69,9 @@ class CreateContent extends Migration {
                 $table->foreign('langCode')->references('code')->on('Langs')->onDelete('CASCADE');
             }
         );
+
+        // Seed content types
+        $this->seedContentTypes();
     }
 
     /**
@@ -80,6 +84,18 @@ class CreateContent extends Migration {
         Schema::drop('ContentTranslations');
         Schema::drop('Contents');
         Schema::drop('ContentTypes');
+    }
+
+    /**
+     * Seed content types
+     *
+     * @return void
+     */
+    private function seedContentTypes()
+    {
+        foreach (['content', 'category'] as $type) {
+            ContentType::firstOrCreate(['name' => $type, 'isActive' => true]);
+        }
     }
 
 }

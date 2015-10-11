@@ -84,6 +84,23 @@ class CMSSeeder extends Seeder {
                 'isEnabled' => true
             ]
         );
+
+        $langs['de'] = Lang::firstOrCreate(
+            [
+                'code'      => 'de',
+                'i18n'      => 'de_DE',
+                'isEnabled' => false
+            ]
+        );
+
+        $langs['fr'] = Lang::firstOrCreate(
+            [
+                'code'      => 'fr',
+                'i18n'      => 'fr_FR',
+                'isEnabled' => false
+            ]
+        );
+
         return $langs;
     }
 
