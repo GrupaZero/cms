@@ -1,5 +1,6 @@
 <?php
 
+use Gzero\Entity\Lang;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
@@ -23,6 +24,9 @@ class CreateLang extends Migration {
                 $table->timestamp('updatedAt');
             }
         );
+
+        // Seed langs
+        $this->seedLangs();
     }
 
     /**
@@ -35,4 +39,44 @@ class CreateLang extends Migration {
         Schema::drop('Langs');
     }
 
+    /**
+     * Seed langs
+     *
+     * @return void
+     */
+    private function seedLangs()
+    {
+        Lang::firstOrCreate(
+            [
+                'code'      => 'en',
+                'i18n'      => 'en_US',
+                'isEnabled' => true,
+                'isDefault' => true
+            ]
+        );
+
+        Lang::firstOrCreate(
+            [
+                'code'      => 'pl',
+                'i18n'      => 'pl_PL',
+                'isEnabled' => true
+            ]
+        );
+
+        Lang::firstOrCreate(
+            [
+                'code'      => 'de',
+                'i18n'      => 'de_DE',
+                'isEnabled' => false
+            ]
+        );
+
+        Lang::firstOrCreate(
+            [
+                'code'      => 'fr',
+                'i18n'      => 'fr_FR',
+                'isEnabled' => false
+            ]
+        );
+    }
 }

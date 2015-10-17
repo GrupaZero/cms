@@ -143,7 +143,7 @@ class OptionRepositoryTest extends \EloquentTestCase {
     {
         $mainCategory = TestSeeder::CATEGORY_MAIN;
         $newOptionKey = 'some option';
-        $value        = 'new option value';
+        $value        = ['en' => 'new option value'];
 
         $this->repository->updateOrCreateOption($mainCategory, $newOptionKey, $value);
 

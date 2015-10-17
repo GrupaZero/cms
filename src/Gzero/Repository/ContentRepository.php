@@ -590,7 +590,9 @@ class ContentRepository extends BaseRepository {
      *
      * @param ContentTranslation $translation entity to delete
      *
-     * @return boolean
+     * @return bool
+     * @throws RepositoryException
+     * @throws \Exception
      */
     public function deleteTranslation(ContentTranslation $translation)
     {

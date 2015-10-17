@@ -33,4 +33,31 @@ class Option extends Base {
         return $this->belongsTo('\Gzero\Entity\OptionCategory', 'categoryKey', 'key');
     }
 
+
+    /**
+     * Set the option value
+     *
+     * @param string $value option value
+     *
+     * @return string
+     */
+    public function setValueAttribute($value)
+    {
+        // Use json to save lang specific option values
+        $this->attributes['value'] = json_encode($value);
+    }
+
+    /**
+     * Get the option value
+     *
+     * @param string $value option value
+     *
+     * @return string
+     */
+    public function getValueAttribute($value)
+    {
+        // Decode retrieved value
+        return json_decode($value, true);
+    }
+
 }

@@ -1,5 +1,6 @@
 <?php
 
+use Gzero\Entity\User;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
@@ -35,6 +36,9 @@ class CreateUser extends Migration {
                 $table->timestamp('created_at');
             }
         );
+
+        // Seed users
+        $this->seedUsers();
     }
 
     /**
@@ -48,4 +52,25 @@ class CreateUser extends Migration {
         Schema::drop('Users');
     }
 
+    /**
+     * Seed users
+     *
+     * @return void
+     */
+    private function seedUsers()
+    {
+        // Create user
+        $user = User::create(
+            [
+                'email'     => 'admin@gzero.pl',
+                'firstName' => 'John',
+                'lastName'  => 'Doe',
+                'password'  => Hash::make('test')
+
+            ]
+        );
+
+        $user->isAdmin = 1;
+        $user->save();
+    }
 }
