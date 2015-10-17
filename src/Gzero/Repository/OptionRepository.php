@@ -200,11 +200,9 @@ class OptionRepository {
         if ($this->cache->get('options')) {
             $this->options = $this->cache->get('options');
         } else {
-            $this->extractCategoriesFromModel($this->optionCategoryModel->newQuery()->get(["key"]));
-            $this->extractOptionsFromModel($this->optionModel->newQuery()->get(["categoryKey", "key", "value"]));
+            $this->extractCategoriesFromModel($this->optionCategoryModel->newQuery()->get(["key"])->sortBy('key'));
+            $this->extractOptionsFromModel($this->optionModel->newQuery()->get(["categoryKey", "key", "value"])->sortBy('key'));
             $this->cache->forever('options', $this->options);
-
-
         }
     }
 
@@ -252,12 +250,12 @@ class OptionRepository {
     private function validateName($name)
     {
         if (!is_string($name) || trim($name) === '') {
-            throw new RepositoryException();
+            throw new RepositoryException("Invalid category name format");
         }
     }
 
     /**
-     * Validate the string for value of an option
+     * Validate the array for value of an option
      *
      * @param string $name Value to validate
      *
@@ -266,8 +264,8 @@ class OptionRepository {
      */
     private function validateValue($name)
     {
-        if (!is_string($name) || trim($name) === '') {
-            throw new RepositoryException();
+        if (!is_array($name)) {
+            throw new RepositoryException("Invalid option value format");
         }
     }
 

@@ -62,17 +62,23 @@ class CreateOptions extends Migration {
     {
         // gzero config options
         $options = [
-            'main' => [
+            'general' => [
                 'siteName'        => [],
-                'defaultPageSize' => [],
                 'siteDesc'        => [],
+                'defaultPageSize' => [],
+            ],
+            'seo'     => [
+                'seoDescLength'     => [],
+                'googleAnalyticsId' => [],
             ]
         ];
 
         // Propagate Lang options based on gzero config
-        foreach ($options['main'] as $key => $option) {
-            foreach (Lang::all()->toArray() as $lang) {
-                $options['main'][$key][$lang['code']] = config('gzero.' . $key);
+        foreach ($options as $categoryKey => $category) {
+            foreach ($options[$categoryKey] as $key => $option) {
+                foreach (Lang::all()->toArray() as $lang) {
+                    $options[$categoryKey][$key][$lang['code']] = config('gzero.' . $key);
+                }
             }
         }
 

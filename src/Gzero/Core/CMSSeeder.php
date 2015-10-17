@@ -271,20 +271,23 @@ class CMSSeeder extends Seeder {
     {
         // gzero config options
         $options = [
-            'main' => [
-                'siteName'                       => [],
-                'defaultPageSize'                => [],
-                'seoTitleAlternativeField'       => [],
-                'seoDescriptionAlternativeField' => [],
+            'general' => [
+                'siteName'        => [],
+                'siteDesc'        => [],
+                'defaultPageSize' => [],
+            ],
+            'seo'     => [
                 'seoDescLength'                  => [],
-                'siteDesc'                       => [],
+                'googleAnalyticsId'              => [],
             ]
         ];
 
         // Propagate Lang options based on gzero config
-        foreach ($options['main'] as $key => $option) {
-            foreach ($langs as $code => $lang) {
-                $options['main'][$key][$code] = config('gzero.' . $key);
+        foreach ($options as $categoryKey => $category) {
+            foreach ($options[$categoryKey] as $key => $option) {
+                foreach ($langs as $code => $lang) {
+                    $options[$categoryKey][$key][$code] = config('gzero.' . $key);
+                }
             }
         }
 
