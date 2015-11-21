@@ -20,13 +20,13 @@ class Auth {
     /**
      * If ajax request throw exception, otherwise redirect to login page
      *
-     * @param         $request
-     * @param Closure $next
+     * @param \Illuminate\Http\Request $request Request object
+     * @param Closure $next return request to next middleware
      *
      * @return \Illuminate\Http\RedirectResponse
      * @throws AccessForbiddenException
      */
-    function handle($request, Closure $next)
+    public function handle($request, Closure $next)
     {
         $auth = app()->make('auth');
         if (!$auth->check()) {
