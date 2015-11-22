@@ -39,3 +39,18 @@ if (!function_exists('group')) {
         app('router')->group($attributes, $callback);
     }
 }
+
+if (!function_exists('isProviderLoaded')) {
+    /**
+     * Check if specified provider is loaded
+     *
+     * @param string $provider name
+     *
+     * @return boolean
+     */
+    function isProviderLoaded($provider)
+    {
+        $loadedProviders = app()->getLoadedProviders();
+        return isset($loadedProviders[$provider]);
+    }
+}
