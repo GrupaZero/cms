@@ -19,6 +19,12 @@ use Illuminate\Http\RedirectResponse;
 class LanguageDetector {
 
     /**
+     * List of allowed prefixes that does not need multilingual detection
+     * @var array
+     */
+    protected $allowedPrefixes = ['admin', '_debugbar', '_hidden'];
+
+    /**
      * Config.
      *
      * @var Repository
@@ -45,7 +51,7 @@ class LanguageDetector {
      */
     public function handle($request, Closure $next)
     {
-        if (!preg_match('/^api/', $request->getHost()) && !in_array($request->segment(1), ['admin', '_debugbar'], true)) {
+        if (!preg_match('/^api/', $request->getHost()) && !in_array($request->segment(1), $this->allowedPrefixes, true)) {
             if ($this->config->get('gzero.multilang.enabled') && !$this->config->get('gzero.multilang.detected')) {
                 return new RedirectResponse(route('home'));
             }
