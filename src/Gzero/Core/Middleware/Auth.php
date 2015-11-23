@@ -1,6 +1,7 @@
 <?php namespace Gzero\Core\Middleware;
 
 use Closure;
+use Gzero\Api\AccessForbiddenException;
 
 /**
  * This file is part of the GZERO Platform package.
@@ -17,17 +18,21 @@ use Closure;
 class Auth {
 
     /**
-     * Redirect user to login page if not authenticated
+     * If ajax request throw exception, otherwise redirect to login page
      *
      * @param \Illuminate\Http\Request $request Request object
-     * @param \Closure                 $next    Next middleware
+     * @param Closure                  $next    return request to next middleware
      *
-     * @return mixed
+     * @return \Illuminate\Http\RedirectResponse
+     * @throws AccessForbiddenException
      */
     public function handle($request, Closure $next)
     {
         $auth = app()->make('auth');
         if (!$auth->check()) {
+            if ($request->ajax()) {
+                throw new AccessForbiddenException('Forbidden.', 403);
+            }
             return redirect()->to(config('gzero.loginRedirect', route('login')));
         }
         return $next($request);
