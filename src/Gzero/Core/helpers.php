@@ -61,7 +61,7 @@ if (!function_exists('option')) {
      *
      * @param string         $categoryKey category key
      * @param string         $optionKey   option key
-     * @param boolean|string $language lang code
+     * @param boolean|string $language    lang code
      *
      * @return array|false
      */
