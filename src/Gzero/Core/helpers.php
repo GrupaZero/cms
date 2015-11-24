@@ -57,6 +57,8 @@ if (!function_exists('isProviderLoaded')) {
 
 if (!function_exists('option')) {
     /**
+     * Return single option
+     *
      * @param string $categoryKey category key
      * @param string $optionKey   option key
      *
