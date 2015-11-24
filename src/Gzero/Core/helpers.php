@@ -62,10 +62,11 @@ if (!function_exists('option')) {
      * @param string         $categoryKey category key
      * @param string         $optionKey   option key
      * @param boolean|string $language    lang code
+     * @param boolean|string $fallback    fallback value
      *
      * @return array|false
      */
-    function option($categoryKey, $optionKey, $language = false)
+    function option($categoryKey, $optionKey, $language = false, $fallback = false)
     {
         $option   = app('options')->getOption($categoryKey, $optionKey);
         $language = $language ? $language : app()->getLocale();
@@ -73,7 +74,7 @@ if (!function_exists('option')) {
         if (array_key_exists($language, $option)) {
             return $option[$language];
         } else {
-            return false;
+            return $fallback ? $fallback : false;
         }
     }
 }
