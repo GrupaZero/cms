@@ -9,7 +9,7 @@ use Gzero\Core\OptionsService;
 require_once(__DIR__ . '/../stub/TestSeeder.php');
 require_once(__DIR__ . '/../stub/TestTreeSeeder.php');
 
-class OptionRepositoryTest extends \EloquentTestCase {
+class OptionsServiceTest extends \EloquentTestCase {
 
     /**
      * @var OptionRepository
