@@ -59,13 +59,21 @@ if (!function_exists('option')) {
     /**
      * Return single option
      *
-     * @param string $categoryKey category key
-     * @param string $optionKey   option key
+     * @param string         $categoryKey category key
+     * @param string         $optionKey   option key
+     * @param boolean|string $language lang code
      *
-     * @return array
+     * @return array|false
      */
-    function option($categoryKey, $optionKey)
+    function option($categoryKey, $optionKey, $language = false)
     {
-        return app('options')->getOption($categoryKey, $optionKey);
+        $option   = app('options')->getOption($categoryKey, $optionKey);
+        $language = $language ? $language : app()->getLocale();
+
+        if (array_key_exists($language, $option)) {
+            return $option[$language];
+        } else {
+            return false;
+        }
     }
 }
