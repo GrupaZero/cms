@@ -57,8 +57,8 @@ if (!function_exists('isProviderLoaded')) {
 
 if (!function_exists('option')) {
     /**
-     * @param $categoryKey
-     * @param $optionKey
+     * @param string $categoryKey category key
+     * @param string $optionKey   option key
      *
      * @return array
      */

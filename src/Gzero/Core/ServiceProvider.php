@@ -38,7 +38,7 @@ class ServiceProvider extends AbstractServiceProvider {
      */
     protected $aliases = [
         'Breadcrumbs' => 'DaveJamesMiller\Breadcrumbs\Facade',
-        'options' => 'Gzero\Core\OptionsService'
+        'options'     => 'Gzero\Core\OptionsService'
     ];
 
     /**

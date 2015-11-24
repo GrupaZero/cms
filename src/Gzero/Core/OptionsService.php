@@ -12,7 +12,7 @@ class OptionsService {
     /**
      * OptionsService constructor.
      *
-     * @param OptionRepository $repo
+     * @param OptionRepository $repo options repository
      */
     public function __construct(OptionRepository $repo)
     {
@@ -20,7 +20,9 @@ class OptionsService {
     }
 
     /**
-     * @return array
+     * Return list of all options categories
+     *
+     * @return array of categories
      */
     public function getCategories()
     {
@@ -28,9 +30,11 @@ class OptionsService {
     }
 
     /**
-     * @param $categoryKey
+     * Return all options from given category
      *
-     * @return array
+     * @param string $categoryKey category key
+     *
+     * @return array of options
      */
     public function getOptions($categoryKey)
     {
@@ -38,14 +42,16 @@ class OptionsService {
     }
 
     /**
-     * @param $categoryKey
-     * @param $optionKey
+     * Return a single option
      *
-     * @return array
+     * @param string $categoryKey category key
+     * @param string $optionKey   option key
+     *
+     * @return array with translations for given option
      */
     public function getOption($categoryKey, $optionKey)
     {
-        return json_decode($this->repository->getOption($categoryKey, $optionKey), true);
+        return $this->repository->getOption($categoryKey, $optionKey);
     }
 
 }
