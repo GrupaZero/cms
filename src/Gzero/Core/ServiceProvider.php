@@ -1,7 +1,9 @@
 <?php namespace Gzero\Core;
 
 use Gzero\Core\Menu\Register;
+use Gzero\Core\OptionsService;
 use Gzero\Repository\LangRepository;
+use Gzero\Repository\OptionRepository;
 use Symfony\Component\HttpFoundation\Request;
 use Illuminate\Foundation\AliasLoader;
 
@@ -35,7 +37,8 @@ class ServiceProvider extends AbstractServiceProvider {
      * @var array
      */
     protected $aliases = [
-        'Breadcrumbs' => 'DaveJamesMiller\Breadcrumbs\Facade'
+        'Breadcrumbs' => 'DaveJamesMiller\Breadcrumbs\Facade',
+        'options' => 'Gzero\Core\OptionsService'
     ];
 
     /**
@@ -153,7 +156,12 @@ class ServiceProvider extends AbstractServiceProvider {
      */
     protected function bindOtherStuff()
     {
-        //
+        app()->singleton(
+            'Gzero\Core\OptionsService',
+            function (OptionRepository $repo) {
+                return new OptionsService($repo);
+            }
+        );
     }
 
     /**

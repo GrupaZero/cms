@@ -54,3 +54,16 @@ if (!function_exists('isProviderLoaded')) {
         return isset($loadedProviders[$provider]);
     }
 }
+
+if (!function_exists('option')) {
+    /**
+     * @param $categoryKey
+     * @param $optionKey
+     *
+     * @return array
+     */
+    function option($categoryKey, $optionKey)
+    {
+        return app('options')->getOption($categoryKey, $optionKey);
+    }
+}
