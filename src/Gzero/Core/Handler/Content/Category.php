@@ -42,7 +42,7 @@ class Category extends Content {
                 ['weight', 'ASC']
             ],
             $this->request->get('page', 1),
-            option('general', 'defaultPageSize', false, 20)
+            option('general', 'defaultPageSize', 20)
         )->setPath($this->request->url());
 
         return $this;

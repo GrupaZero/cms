@@ -66,7 +66,7 @@ if (!function_exists('option')) {
      *
      * @return array|false
      */
-    function option($categoryKey, $optionKey, $language = false, $fallback = false)
+    function option($categoryKey, $optionKey, $fallback = false, $language = false)
     {
         $option   = app('options')->getOption($categoryKey, $optionKey);
         $language = $language ? $language : app()->getLocale();
