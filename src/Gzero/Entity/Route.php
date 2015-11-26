@@ -22,7 +22,7 @@ class Route extends Base {
     ];
 
     /**
-     * Translation one to many relation
+     * Polymorphic relation to entities that could have route
      *
      * @return \Illuminate\Database\Eloquent\Relations\MorphTo
      */
