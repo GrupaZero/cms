@@ -47,7 +47,7 @@ class ContentTranslationPresenter extends Presenter {
             $alternativeField = config('gzero.seoDescriptionAlternativeField', 'body');
         }
 
-        $seoDescLength = config('general', 'seoDescLength', 160);
+        $seoDescLength = option('seo', 'seoDescLength', 160);
 
         if ($this->seoDescription) {
             return $this->seoDescription;
