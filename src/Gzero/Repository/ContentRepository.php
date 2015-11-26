@@ -461,7 +461,6 @@ class ContentRepository extends BaseRepository {
         }
     }
 
-
     /**
      * Function handles creation of route from translations
      *

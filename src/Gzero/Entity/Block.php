@@ -39,6 +39,21 @@ class Block extends Base {
     }
 
     /**
+     * Translation one to many relation
+     *
+     * @param bool $active Only active translations
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function translations($active = true)
+    {
+        if ($active) {
+            return $this->hasMany('\Gzero\Entity\BlockTranslation', 'blockId')->where('isActive', '=', 1);
+        }
+        return $this->hasMany('\Gzero\Entity\BlockTranslation', 'blockId');
+    }
+
+    /**
      * Polymorphic relation to entities that could have relation to block (for example: menu)
      *
      * @return \Illuminate\Database\Eloquent\Relations\MorphTo
@@ -46,6 +61,16 @@ class Block extends Base {
     public function blockable()
     {
         return $this->morphTo();
+    }
+
+    /**
+     * Block author relation
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\belongsTo
+     */
+    public function author()
+    {
+        return $this->belongsTo('\Gzero\Entity\User', 'authorId', 'id');
     }
 
     /**

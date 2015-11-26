@@ -3,11 +3,14 @@
 use Config;
 use Faker\Factory;
 use Faker\Generator;
+use Gzero\Entity\Block;
+use Gzero\Entity\BlockType;
 use Gzero\Entity\Content;
 use Gzero\Entity\ContentType;
 use Gzero\Entity\Lang;
 use Gzero\Entity\OptionCategory;
 use Gzero\Entity\User;
+use Gzero\Repository\BlockRepository;
 use Gzero\Repository\ContentRepository;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -28,36 +31,52 @@ use Illuminate\Support\Facades\Hash;
  */
 class CMSSeeder extends Seeder {
 
+    const RANDOM_USERS = 12;
+    const RANDOM_BLOCKS = 12;
+
     /**
      * @var \Faker\Generator
      */
     protected $faker;
 
     /**
+     * @var ContentRepository
+     */
+    protected $contentRepository;
+
+    /**
+     * @var BlockRepository
+     */
+    protected $blockRepository;
+
+    /**
      * CMSSeeder constructor
      *
-     * @param ContentRepository $content Content repository
+     * @param ContentRepository $contentRepository Content repository
+     * @param BlockRepository   $blockRepository   Block repository
      */
-    public function __construct(ContentRepository $content)
+    public function __construct(ContentRepository $contentRepository, BlockRepository $blockRepository)
     {
-        $this->faker      = Factory::create();
-        $this->repository = $content;
+        $this->faker             = Factory::create();
+        $this->contentRepository = $contentRepository;
+        $this->blockRepository   = $blockRepository;
     }
 
     /**
      * This function run all seeds
      *
      * @return void
-     * @SuppressWarnings("PHPMD")
      */
     public function run()
     {
         $this->truncate();
         $langs        = $this->seedLangs();
         $contentTypes = $this->seedContentTypes();
-        $usersIds     = $this->seedUsers();
+        $blockTypes   = $this->seedBlockTypes();
+        $users        = $this->seedUsers();
         $this->seedOptions($langs);
-        $this->seedContent($contentTypes, $langs, $usersIds);
+        $this->seedContent($contentTypes, $langs, $users);
+        $this->seedBlock($blockTypes, $langs, $users);
     }
 
     /**
@@ -123,12 +142,12 @@ class CMSSeeder extends Seeder {
      *
      * @param array $contentTypes Content type
      * @param array $langs        Array with langs
-     * @param array $usersIds     Array with users
+     * @param array $users        Array with users
      *
      * @throws Exception
      * @return Content
      */
-    private function seedContent($contentTypes, $langs, $usersIds)
+    private function seedContent($contentTypes, $langs, $users)
     {
         $input = [
             [
@@ -174,8 +193,8 @@ class CMSSeeder extends Seeder {
         ];
         // seed categories
         foreach ($input as $content) {
-            $newContent = $this->repository->create($content, $usersIds);
-            $this->repository->createTranslation($newContent, $content['polishTranslation']);
+            $newContent = $this->contentRepository->create($content, $users[array_rand($users)]);
+            $this->contentRepository->createTranslation($newContent, $content['polishTranslation']);
             if ($newContent->type == 'category') {
                 for ($i = 0; $i < 10; $i++) {
                     // category children
@@ -183,7 +202,7 @@ class CMSSeeder extends Seeder {
                         $contentTypes['content'],
                         $newContent,
                         $langs,
-                        $usersIds
+                        $users
                     );
                 }
             }
@@ -218,8 +237,8 @@ class CMSSeeder extends Seeder {
         if (!empty($parent)) {
             $input['parentId'] = $parent->id;
         }
-        $content = $this->repository->create($input, $users);
-        $this->repository->createTranslation($content, $this->prepareContentTranslation($langs['pl']));
+        $content = $this->contentRepository->create($input, $users[array_rand($users)]);
+        $this->contentRepository->createTranslation($content, $this->prepareContentTranslation($langs['pl']));
         return $content;
     }
 
@@ -245,9 +264,9 @@ class CMSSeeder extends Seeder {
 
         $user->save();
 
-        for ($x = 0; $x < 50; $x++) {
-            $str  = md5($x);
-            $user = User::firstOrCreate(
+        $users = [$user];
+        for ($x = 0; $x < self::RANDOM_USERS; $x++) {
+            $user    = User::firstOrCreate(
                 [
                     'email'     => $this->faker->email,
                     'firstName' => $this->faker->firstName,
@@ -255,9 +274,10 @@ class CMSSeeder extends Seeder {
                     'password'  => Hash::make($this->faker->word)
                 ]
             );
+            $users[] = $user;
         }
 
-        return $user;
+        return $users;
     }
 
     /**
@@ -277,8 +297,8 @@ class CMSSeeder extends Seeder {
                 'defaultPageSize' => [],
             ],
             'seo'     => [
-                'seoDescLength'                  => [],
-                'googleAnalyticsId'              => [],
+                'seoDescLength'     => [],
+                'googleAnalyticsId' => [],
             ]
         ];
 
@@ -303,6 +323,69 @@ class CMSSeeder extends Seeder {
     }
 
     /**
+     * Seed block types
+     *
+     * @return array
+     */
+    private function seedBlockTypes()
+    {
+        $blockTypes = [];
+        foreach (['basic', 'menu', 'slider'] as $type) {
+            $blockTypes[$type] = BlockType::firstOrCreate(['name' => $type, 'isActive' => true]);
+        }
+        return $blockTypes;
+    }
+
+
+    /**
+     * Seed content
+     *
+     * @param array $blockTypes Block type
+     * @param array $langs      Array with langs
+     * @param array $users      Array with users
+     *
+     * @throws Exception
+     * @return Content
+     */
+    private function seedBlock($blockTypes, $langs, $users)
+    {
+        for ($x = 0; $x < self::RANDOM_BLOCKS; $x++) {
+            $this->seedRandomBlock(
+                $blockTypes[array_rand($blockTypes)],
+                $langs,
+                $users
+            );
+        }
+    }
+
+    /**
+     * Seed single block
+     *
+     * @param BlockType $type  Block type
+     * @param array     $langs Array with langs
+     * @param array     $users Array with users
+     *
+     * @return Block
+     */
+    private function seedRandomBlock(BlockType $type, $langs, $users)
+    {
+        $input = [
+            'type'         => $type->name,
+            'region'       => $this->faker->word,
+            'weight'       => rand(0, 12),
+            'filter'       => ['+' => ['1/2/*'], '-' => ['2']],
+            'options'      => array_combine($this->faker->words(), $this->faker->words()),
+            'isActive'     => (bool) rand(0, 1),
+            'isCacheable'  => (bool) rand(0, 1),
+            'translations' => $this->prepareBlockTranslation($langs['en'])
+        ];
+
+        $block = $this->blockRepository->create($input, $users[array_rand($users)]);
+        $this->blockRepository->createTranslation($block, $this->prepareBlockTranslation($langs['pl']));
+        return $block;
+    }
+
+    /**
      * Truncate database
      *
      * @return void
@@ -310,11 +393,11 @@ class CMSSeeder extends Seeder {
     private function truncate()
     {
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-        $tables             = DB::select('SHOW TABLES');
-        $tables_in_database = "Tables_in_" . Config::get('database.connections.mysql.database');
+        $tables           = DB::select('SHOW TABLES');
+        $tablesInDatabase = "Tables_in_" . Config::get('database.connections.mysql.database');
         foreach ($tables as $table) {
-            if ($table->$tables_in_database !== 'migrations') {
-                DB::table($table->$tables_in_database)->truncate();
+            if ($table->$tablesInDatabase !== 'migrations') {
+                DB::table($table->$tablesInDatabase)->truncate();
             }
         }
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
@@ -342,6 +425,31 @@ class CMSSeeder extends Seeder {
                 'seoTitle'       => $faker->realText(60, 1),
                 'seoDescription' => $faker->realText(160, 1),
                 'isActive'       => (bool) ($title) ? $isActive : rand(0, 1)
+            ];
+        }
+        throw new Exception("Translation language is required!");
+    }
+
+    /**
+     * Function generates translation for specified language
+     *
+     * @param Lang $lang     language of translation
+     * @param null $title    optional title value
+     * @param null $isActive optional isActive value
+     *
+     * @return array
+     * @throws Exception
+     */
+    private function prepareBlockTranslation(Lang $lang, $title = null, $isActive = null)
+    {
+        if ($lang) {
+            $faker = Factory::create($lang->i18n);
+            return [
+                'langCode'     => $lang->code,
+                'title'        => ($title) ? $title : $faker->realText(38, 1),
+                'body'         => $faker->realText(300),
+                'customFields' => array_combine($this->faker->words(), $this->faker->words()),
+                'isActive'     => (bool) ($title) ? $isActive : rand(0, 1)
             ];
         }
         throw new Exception("Translation language is required!");
