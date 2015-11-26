@@ -35,6 +35,12 @@ class ContentRepositoryTest extends \EloquentTestCase {
         $this->seed('TestSeeder'); // Relative to tests/app/
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | START Content tests
+    |--------------------------------------------------------------------------
+    */
+
     /**
      * @test
      */
@@ -386,6 +392,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
     /**
      * @test
      * @expectedException \Gzero\Core\Exception
+     * @expectedExceptionMessage Content type 'content' is not allowed for the parent type
      */
     public function it_checks_if_parent_is_proper_type()
     {
@@ -410,6 +417,12 @@ class ContentRepositoryTest extends \EloquentTestCase {
             ]
         );
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | END Content tests
+    |--------------------------------------------------------------------------
+    */
 
     /*
     |--------------------------------------------------------------------------
@@ -505,12 +518,12 @@ class ContentRepositoryTest extends \EloquentTestCase {
         // Tree seeds
         $this->seed('TestTreeSeeder');
 
-        $content        = $this->repository->getById(1); // first root
+        $content        = $this->repository->getById(5);
         $oldContentPath = $content->path;
         $this->repository->update(
             $content,
             [
-                'parentId' => 2, // second root
+                'parentId' => 1, // set parent id
             ]
         );
         $updatedContent = $this->repository->getById($content->id);
@@ -519,19 +532,40 @@ class ContentRepositoryTest extends \EloquentTestCase {
         $this->assertNotEquals($oldContentPath, $updatedContent->path);
         $this->assertEquals($newCategory->id, $updatedContent->parentId);
         $this->assertEquals($newCategory->path . $updatedContent->id . '/', $updatedContent->path);
+    }
 
-        // Descendants
-        $contents = $this->repository->getDescendants(
-            $updatedContent,
-            [],
-            [],
-            null
+    /**
+     * @test
+     */
+    public function can_update_parent_for_category_without_children()
+    {
+        // Tree seeds
+        $this->seed('TestTreeSeeder');
+
+        // Create new category without children
+        $category        = $this->repository->create(
+            [
+                'type'         => 'category',
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'Example title'
+                ]
+            ]
         );
-
-        // Should contain updated path
-        foreach ($contents as $key => $content) {
-            $this->assertContains($updatedContent->path, $content->path);
-        }
+        $category        = $this->repository->getById($category->id);
+        $oldCategoryPath = $category->path;
+        $this->repository->update(
+            $category,
+            [
+                'parentId' => 2, // set parent id
+            ]
+        );
+        $updatedCategory = $this->repository->getById($category->id);
+        $parentCategory  = $this->repository->getById($updatedCategory->parentId);
+        $this->assertNotEmpty($parentCategory);
+        $this->assertNotEquals($oldCategoryPath, $updatedCategory->path);
+        $this->assertEquals($parentCategory->id, $updatedCategory->parentId);
+        $this->assertEquals($parentCategory->path . $updatedCategory->id . '/', $updatedCategory->path);
     }
 
     /**
@@ -645,6 +679,28 @@ class ContentRepositoryTest extends \EloquentTestCase {
         $this->repository->forceDelete($content);
         // Content children has been removed?
         $this->assertEmpty($content->children()->get());
+    }
+
+    /**
+     * @test
+     * @expectedException \Gzero\Repository\RepositoryException
+     * @expectedExceptionMessage You cannot change parent of not empty category
+     */
+    public function it_does_not_allow_to_update_parent_for_category_with_children()
+    {
+        // Tree seeds
+        $this->seed('TestTreeSeeder');
+
+        // Get category with children
+        $category = $this->repository->getById(1);
+
+        // Update category parent
+        $this->repository->update(
+            $category,
+            [
+                'parentId' => 2,
+            ]
+        );
     }
 
     /*
@@ -795,6 +851,18 @@ class ContentRepositoryTest extends \EloquentTestCase {
         // translations title
         $this->assertEquals('B title', $contents[0]['translations'][0]['title']);
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | END Lists tests
+    |--------------------------------------------------------------------------
+    */
+
+    /*
+    |--------------------------------------------------------------------------
+    | START Translations tests
+    |--------------------------------------------------------------------------
+    */
 
     /**
      * @test
@@ -961,8 +1029,8 @@ class ContentRepositoryTest extends \EloquentTestCase {
             [
                 'type'         => 'content',
                 'translations' => [
-                    'langCode'       => 'en',
-                    'title'          => 'Example title',
+                    'langCode' => 'en',
+                    'title'    => 'Example title',
                 ]
             ]
         );
@@ -971,8 +1039,8 @@ class ContentRepositoryTest extends \EloquentTestCase {
         $this->repository->createTranslation(
             $content,
             [
-                'langCode'       => 'en',
-                'title'          => 'Modified example title',
+                'langCode' => 'en',
+                'title'    => 'Modified example title',
             ]
         );
 
@@ -985,7 +1053,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
 
     /*
     |--------------------------------------------------------------------------
-    | END List tests
+    | END Translations tests
     |--------------------------------------------------------------------------
     */
 }

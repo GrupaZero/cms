@@ -112,7 +112,7 @@ class ContentRepository extends BaseRepository {
                 );
             }
         } else {
-            throw new RepositoryException("Url and Language code of translation is required", 500);
+            throw new RepositoryException('Url and Language code of translation is required', 500);
         }
     }
 
@@ -416,7 +416,7 @@ class ContentRepository extends BaseRepository {
                     $this->createTranslation($content, $translations);
                     return $content;
                 } else {
-                    throw new RepositoryException("Content type and translation is required", 500);
+                    throw new RepositoryException('Content type and translation is required', 500);
                 }
             }
         );
@@ -457,7 +457,7 @@ class ContentRepository extends BaseRepository {
             $this->events->fire('content.translation.created', [$content, $translation]);
             return $translation;
         } else {
-            throw new RepositoryException("Language code and title of translation is required", 500);
+            throw new RepositoryException('Language code and title of translation is required', 500);
         }
     }
 
@@ -510,7 +510,7 @@ class ContentRepository extends BaseRepository {
             $this->events->fire('route.created', [$route]);
             return $route;
         } else {
-            throw new RepositoryException("Language code and title of translation is required", 500);
+            throw new RepositoryException('Language code and title of translation is required', 500);
         }
     }
 
@@ -529,13 +529,9 @@ class ContentRepository extends BaseRepository {
         $content = $this->newQuery()->transaction(
             function () use ($content, $data, $modifier) {
                 $content->fill($data);
+
                 if (!empty($data['parentId'])) {
-                    $parent = $this->getById($data['parentId']);
-                    if (!empty($parent)) {
-                        $content->setChildOf($parent);
-                    } else {
-                        $content->setAsRoot();
-                    }
+                    $this->handleParentUpdate($content, $data);
                 } else {
                     $content->save();
                 }
@@ -733,6 +729,41 @@ class ContentRepository extends BaseRepository {
             }
         }
         return false;
+    }
+
+    /**
+     * Handle updating content parent
+     *
+     * @param Content $content content entity
+     * @param array   $data    input data
+     *
+     * @return array
+     * @throws RepositoryException
+     */
+    private function handleParentUpdate(Content $content, array $data)
+    {
+        $parent = $this->getById($data['parentId']);
+
+        // @TODO handle parent change for category with children
+        if ($content->type === 'category') {
+            // Check if category has children
+            if (!empty($this->getChildren($content, [], [], [], [])->toArray())) {
+                throw new RepositoryException('You cannot change parent of not empty category');
+            }
+        };
+
+        // Set parent
+        if (!empty($parent)) {
+            /** @TODO get registered types */
+            $this->validateType(
+                $parent->type,
+                ['category'],
+                "Content type '" . $parent->type . "' is not allowed for the parent type"
+            );
+            $content->setChildOf($parent);
+        } else {
+            $content->setAsRoot();
+        }
     }
 
 }
