@@ -436,8 +436,13 @@ class ContentRepository extends BaseRepository {
     public function createTranslation(Content $content, Array $data)
     {
         if (array_key_exists('langCode', $data) && array_key_exists('title', $data)) {
-            // Creating or updating route from translations
-            $this->createRoute($content, $data['langCode'], $data['title']);
+
+            // Create route only for the first translation
+            if ($content->translations()->where('langCode', $data['langCode'])->first() === null) {
+                $this->createRoute($content, $data['langCode'], $data['title']);
+            };
+
+            // New translation query
             $translation = $this->newQuery()->transaction(
                 function () use ($content, $data) {
                     // Set all translation of this content as inactive
