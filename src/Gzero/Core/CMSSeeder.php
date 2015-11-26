@@ -394,7 +394,7 @@ class CMSSeeder extends Seeder {
     {
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         $tables           = DB::select('SHOW TABLES');
-        $tablesInDatabase = "Tables_in_" . Config::get('database.connections.mysql.database');
+        $tablesInDatabase = "Tables_in_" . config('database.connections.mysql.database');
         foreach ($tables as $table) {
             if ($table->$tablesInDatabase !== 'migrations') {
                 DB::table($table->$tablesInDatabase)->truncate();

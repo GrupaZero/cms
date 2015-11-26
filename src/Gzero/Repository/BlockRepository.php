@@ -2,7 +2,6 @@
 
 use Gzero\Entity\Block;
 use Gzero\Entity\BlockTranslation;
-use Gzero\Entity\Content;
 use Gzero\Entity\User;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Events\Dispatcher;
@@ -22,7 +21,7 @@ use Illuminate\Events\Dispatcher;
 class BlockRepository extends BaseRepository {
 
     /**
-     * @var Content
+     * @var Block
      */
     protected $model;
 
@@ -36,17 +35,17 @@ class BlockRepository extends BaseRepository {
     /**
      * Content repository constructor
      *
-     * @param Content    $content Content model
-     * @param Dispatcher $events  Events dispatcher
+     * @param Block      $block  Content model
+     * @param Dispatcher $events Events dispatcher
      */
-    public function __construct(Content $content, Dispatcher $events)
+    public function __construct(Block $block, Dispatcher $events)
     {
-        $this->model  = $content;
+        $this->model  = $block;
         $this->events = $events;
     }
 
     /**
-     * Create specific content entity
+     * Create specific block entity
      *
      * @param array     $data   Content entity to persist
      * @param User|null $author Author entity
@@ -71,7 +70,7 @@ class BlockRepository extends BaseRepository {
                     $this->createTranslation($block, $translations);
                     return $block;
                 } else {
-                    throw new RepositoryException("Content type and translation is required", 500);
+                    throw new RepositoryException("Content type and translation is required");
                 }
             }
         );
@@ -94,7 +93,7 @@ class BlockRepository extends BaseRepository {
             // New translation query
             $translation = $this->newQuery()->transaction(
                 function () use ($block, $data) {
-                    // Set all translation of this content as inactive
+                    // Set all translation of this block as inactive
                     $this->disableActiveTranslations($block->id, $data['langCode']);
                     $translation = new BlockTranslation();
                     $translation->fill($data);
@@ -103,11 +102,24 @@ class BlockRepository extends BaseRepository {
                     return $translation;
                 }
             );
-            $this->events->fire('content.translation.created', [$block, $translation]);
+            $this->events->fire('block.translation.created', [$block, $translation]);
             return $translation;
         } else {
-            throw new RepositoryException("Language code and title of translation is required", 500);
+            throw new RepositoryException("Language code and title of translation is required");
         }
+    }
+
+    /**
+     * Get translation of specified content by id.
+     *
+     * @param Block $block Block entity
+     * @param int   $id    Block Translation id
+     *
+     * @return BlockTranslation
+     */
+    public function getBlockTranslationById(Block $block, $id)
+    {
+        return $block->translations(false)->where('id', '=', $id)->first();
     }
 
     /**
@@ -138,7 +150,7 @@ class BlockRepository extends BaseRepository {
         if (in_array($type, $types)) {
             return $type;
         } else {
-            throw new RepositoryException($message, 500);
+            throw new RepositoryException($message);
         }
 
     }

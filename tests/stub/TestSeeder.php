@@ -1,6 +1,7 @@
 <?php
 
 use Faker\Factory;
+use Gzero\Entity\BlockType;
 use Gzero\Entity\ContentType;
 use Gzero\Entity\Lang;
 use Gzero\Entity\User;
@@ -45,6 +46,7 @@ class TestSeeder extends Seeder {
         $this->truncate();
         $this->seedLangs();
         $this->seedContentTypes();
+        $this->seedBlockTypes();
         $this->seedUsers();
         $this->seedOptions();
     }
@@ -88,6 +90,20 @@ class TestSeeder extends Seeder {
             $contentTypes[$type] = ContentType::firstOrCreate(['name' => $type, 'isActive' => true]);
         }
         return $contentTypes;
+    }
+
+    /**
+     * Seed block types
+     *
+     * @return array
+     */
+    private function seedBlockTypes()
+    {
+        $blockTypes = [];
+        foreach (['basic', 'menu', 'slider'] as $type) {
+            $blockTypes[$type] = BlockType::firstOrCreate(['name' => $type, 'isActive' => true]);
+        }
+        return $blockTypes;
     }
 
     /**
@@ -146,11 +162,11 @@ class TestSeeder extends Seeder {
     private function truncate()
     {
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-        $tables             = DB::select('SHOW TABLES');
-        $tables_in_database = "Tables_in_" . Config::get('database.connections.mysql.database');
+        $tables           = DB::select('SHOW TABLES');
+        $tablesInDatabase = "Tables_in_" . config('database.connections.mysql.database');
         foreach ($tables as $table) {
-            if ($table[$tables_in_database] !== 'migrations') {
-                DB::table($table[$tables_in_database])->truncate();
+            if ($table[$tablesInDatabase] !== 'migrations') {
+                DB::table($table[$tablesInDatabase])->truncate();
             }
         }
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');
