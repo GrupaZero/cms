@@ -250,10 +250,13 @@ class ContentRepositoryTest extends \EloquentTestCase {
         $newContent = $this->repository->getById($content->id);
         $this->assertNotSame($content, $newContent);
 
-        $translation = $this->repository->createTranslation($content, [
-            'langCode' => 'en',
-            'title'    => 'English translation 2'
-        ]);
+        $translation = $this->repository->createTranslation(
+            $content,
+            [
+                'langCode' => 'en',
+                'title'    => 'English translation 2'
+            ]
+        );
         $this->assertEquals($content->translations($withActive)->count(), 2);
 
         $this->repository->deleteTranslation($content->translations($withActive)->first());
@@ -894,10 +897,13 @@ class ContentRepositoryTest extends \EloquentTestCase {
         );
         $this->assertInstanceOf('Gzero\Entity\Content', $content);
 
-        $translation = $this->repository->createTranslation($content, [
-            'langCode' => 'en',
-            'title'    => 'English translation 2'
-        ]);
+        $translation = $this->repository->createTranslation(
+            $content,
+            [
+                'langCode' => 'en',
+                'title'    => 'English translation 2'
+            ]
+        );
         $this->assertInstanceOf('Gzero\Entity\ContentTranslation', $translation);
 
         $translatedContent = $this->repository->getContents(
@@ -937,12 +943,47 @@ class ContentRepositoryTest extends \EloquentTestCase {
         $this->assertInstanceOf('Gzero\Entity\Content', $content);
 
         $translations = $this->repository->getTranslations($content, []);
-        $translation = $translations->first();
+        $translation  = $translations->first();
         $this->assertInstanceOf('Gzero\Entity\ContentTranslation', $translation);
         $this->assertEquals($translation->isActive, 1);
 
         $this->setExpectedException('Gzero\Repository\RepositoryException');
         $this->repository->deleteTranslation($translation);
+    }
+
+    /**
+     * @test
+     */
+    public function it_creates_new_route_only_for_new_content()
+    {
+        // Create new content with first translation
+        $content = $this->repository->create(
+            [
+                'type'         => 'content',
+                'translations' => [
+                    'langCode'       => 'en',
+                    'title'          => 'Example title',
+                    'body'           => 'New example body',
+                    'seoTitle'       => 'New example seoTitle',
+                    'seoDescription' => 'New example seoDescription'
+                ]
+            ]
+        );
+
+        // Add new content translation
+        $this->repository->createTranslation(
+            $content,
+            [
+                'langCode'       => 'en',
+                'title'          => 'Modified example title',
+            ]
+        );
+
+        $newContent      = $this->repository->getById($content->id);
+        $newContentRoute = $newContent->route->translations()->first();
+        // Route translation should not be changed
+        $this->assertEquals('en', $newContentRoute['langCode']);
+        $this->assertEquals('example-title', $newContentRoute['url']);
     }
 
     /*
