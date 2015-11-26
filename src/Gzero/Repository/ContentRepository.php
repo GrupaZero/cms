@@ -106,13 +106,10 @@ class ContentRepository extends BaseRepository {
             if ($content) {
                 return $content;
             } else {
-                throw new RepositoryException(
-                    "Content with url: '" . $url . "' in language '" . $langCode . "' doesn't exist",
-                    500
-                );
+                throw new RepositoryException("Content with url: '" . $url . "' in language '" . $langCode . "' doesn't exist");
             }
         } else {
-            throw new RepositoryException('Url and Language code of translation is required', 500);
+            throw new RepositoryException('Url and Language code of translation is required');
         }
     }
 
@@ -130,14 +127,14 @@ class ContentRepository extends BaseRepository {
      */
     public function getTranslations(
         Content $content,
-        array $criteria,
+        array $criteria = [],
         array $orderBy = [],
         $page = 1,
         $pageSize = self::ITEMS_PER_PAGE
     ) {
         $query  = $content->translations(false);
         $parsed = $this->parseArgs($criteria, $orderBy);
-        $this->handleFilterCriteria($this->getTranslationsTableName(), $parsed['filter'], $query);
+        $this->handleFilterCriteria($this->getTranslationsTableName(), $query, $parsed['filter']);
         $this->handleOrderBy(
             $this->getTranslationsTableName(),
             $parsed['orderBy'],
@@ -170,7 +167,7 @@ class ContentRepository extends BaseRepository {
         $query  = $node->findAncestors();
         $parsed = $this->parseArgs($criteria, $orderBy);
         $this->handleTranslationsJoin($parsed['filter'], $parsed['orderBy'], $query);
-        $this->handleFilterCriteria($this->getTableName(), $parsed['filter'], $query);
+        $this->handleFilterCriteria($this->getTableName(), $query, $parsed['filter']);
         return $query->get();
     }
 
@@ -209,12 +206,17 @@ class ContentRepository extends BaseRepository {
      * @throws RepositoryException
      * @return EloquentCollection
      */
-    public function getDescendants(Tree $node, array $criteria, array $orderBy = [], $page = 1, $pageSize = self::ITEMS_PER_PAGE)
-    {
+    public function getDescendants(
+        Tree $node,
+        array $criteria = [],
+        array $orderBy = [],
+        $page = 1,
+        $pageSize = self::ITEMS_PER_PAGE
+    ) {
         $query  = $node->findDescendants();
         $parsed = $this->parseArgs($criteria, $orderBy);
         $this->handleTranslationsJoin($parsed['filter'], $parsed['orderBy'], $query);
-        $this->handleFilterCriteria($this->getTableName(), $parsed['filter'], $query);
+        $this->handleFilterCriteria($this->getTableName(), $query, $parsed['filter']);
         $this->handleAuthorJoin($query);
         $this->handleOrderBy(
             $this->getTableName(),
@@ -237,12 +239,17 @@ class ContentRepository extends BaseRepository {
      * @throws RepositoryException
      * @return EloquentCollection
      */
-    public function getChildren(Tree $node, array $criteria, array $orderBy = [], $page = 1, $pageSize = self::ITEMS_PER_PAGE)
-    {
+    public function getChildren(
+        Tree $node,
+        array $criteria = [],
+        array $orderBy = [],
+        $page = 1,
+        $pageSize = self::ITEMS_PER_PAGE
+    ) {
         $query  = $node->children();
         $parsed = $this->parseArgs($criteria, $orderBy);
         $this->handleTranslationsJoin($parsed['filter'], $parsed['orderBy'], $query);
-        $this->handleFilterCriteria($this->getTableName(), $parsed['filter'], $query);
+        $this->handleFilterCriteria($this->getTableName(), $query, $parsed['filter']);
         $this->handleAuthorJoin($query);
         $this->handleOrderBy(
             $this->getTableName(),
@@ -264,12 +271,12 @@ class ContentRepository extends BaseRepository {
      * @throws RepositoryException
      * @return EloquentCollection
      */
-    public function getContents(array $criteria, array $orderBy = [], $page = 1, $pageSize = self::ITEMS_PER_PAGE)
+    public function getContents(array $criteria = [], array $orderBy = [], $page = 1, $pageSize = self::ITEMS_PER_PAGE)
     {
         $query  = $this->newORMTreeQuery();
         $parsed = $this->parseArgs($criteria, $orderBy);
         $this->handleTranslationsJoin($parsed['filter'], $parsed['orderBy'], $query);
-        $this->handleFilterCriteria($this->getTableName(), $parsed['filter'], $query);
+        $this->handleFilterCriteria($this->getTableName(), $query, $parsed['filter']);
         $this->handleAuthorJoin($query);
         $this->handleOrderBy(
             $this->getTableName(),
@@ -291,12 +298,12 @@ class ContentRepository extends BaseRepository {
      * @throws RepositoryException
      * @return EloquentCollection
      */
-    public function getDeletedContents(array $criteria, array $orderBy = [], $page = 1, $pageSize = self::ITEMS_PER_PAGE)
+    public function getDeletedContents(array $criteria = [], array $orderBy = [], $page = 1, $pageSize = self::ITEMS_PER_PAGE)
     {
         $query  = $this->newORMTreeQuery()->onlyTrashed();
         $parsed = $this->parseArgs($criteria, $orderBy);
         $this->handleTranslationsJoin($parsed['filter'], $parsed['orderBy'], $query);
-        $this->handleFilterCriteria($this->getTableName(), $parsed['filter'], $query);
+        $this->handleFilterCriteria($this->getTableName(), $query, $parsed['filter']);
         $this->handleAuthorJoin($query);
         $this->handleOrderBy(
             $this->getTableName(),
@@ -317,7 +324,7 @@ class ContentRepository extends BaseRepository {
      *
      * @return EloquentCollection
      */
-    public function getTree(Tree $root, array $criteria, array $orderBy = [], $strict = true)
+    public function getTree(Tree $root, array $criteria = [], array $orderBy = [], $strict = true)
     {
         return $root->buildTree($this->getDescendants($root, $criteria, $orderBy, null), $strict);
     }
@@ -344,12 +351,12 @@ class ContentRepository extends BaseRepository {
      * @return mixed
      * @throws RepositoryException
      */
-    public function getRoots(array $criteria, array $orderBy = [])
+    public function getRoots(array $criteria = [], array $orderBy = [])
     {
         $query  = $this->getEloquentModel()->getRoots();
         $parsed = $this->parseArgs($criteria, $orderBy);
         $this->handleTranslationsJoin($parsed['filter'], $parsed['orderBy'], $query);
-        $this->handleFilterCriteria($this->getTableName(), $parsed['filter'], $query);
+        $this->handleFilterCriteria($this->getTableName(), $query, $parsed['filter']);
         $this->handleAuthorJoin($query);
         return $this->handlePagination($this->getTableName(), $query, null, null);
     }
@@ -416,7 +423,7 @@ class ContentRepository extends BaseRepository {
                     $this->createTranslation($content, $translations);
                     return $content;
                 } else {
-                    throw new RepositoryException('Content type and translation is required', 500);
+                    throw new RepositoryException('Content type and translation is required');
                 }
             }
         );
@@ -457,7 +464,7 @@ class ContentRepository extends BaseRepository {
             $this->events->fire('content.translation.created', [$content, $translation]);
             return $translation;
         } else {
-            throw new RepositoryException('Language code and title of translation is required', 500);
+            throw new RepositoryException('Language code and title of translation is required');
         }
     }
 
@@ -510,7 +517,7 @@ class ContentRepository extends BaseRepository {
             $this->events->fire('route.created', [$route]);
             return $route;
         } else {
-            throw new RepositoryException('Language code and title of translation is required', 500);
+            throw new RepositoryException('Language code and title of translation is required');
         }
     }
 
@@ -599,7 +606,7 @@ class ContentRepository extends BaseRepository {
     {
         if ($translation->isActive) {
 
-            throw new RepositoryException('Cannot delete active translation', 500);
+            throw new RepositoryException('Cannot delete active translation');
         }
         return $this->newQuery()->transaction(
             function () use ($translation) {
@@ -655,7 +662,7 @@ class ContentRepository extends BaseRepository {
             unset($parsedCriteria['lang']);
         } else {
             if ($this->orderByTranslation($parsedOrderBy)) {
-                throw new RepositoryException('Repository Validation Error: \'lang\' criteria is required', 500);
+                throw new RepositoryException('Repository Validation Error: \'lang\' criteria is required');
             }
         }
     }
@@ -705,7 +712,7 @@ class ContentRepository extends BaseRepository {
         if (in_array($type, $types)) {
             return $type;
         } else {
-            throw new RepositoryException($message, 500);
+            throw new RepositoryException($message);
         }
 
     }
@@ -747,7 +754,7 @@ class ContentRepository extends BaseRepository {
         // @TODO handle parent change for category with children
         if ($content->type === 'category') {
             // Check if category has children
-            if (!empty($this->getChildren($content, [], [], [], [])->toArray())) {
+            if (!empty($this->getChildren($content)->first())) {
                 throw new RepositoryException('You cannot change parent of not empty category');
             }
         };

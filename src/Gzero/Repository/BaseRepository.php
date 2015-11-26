@@ -100,13 +100,13 @@ abstract class BaseRepository {
      * Add filter rules to query
      *
      * @param string $entityTableName Base entity name (for example: Contents, Blocks, BlockTranslations etc.)
-     * @param array  $criteria        Array with filer criteria
      * @param mixed  $query           Query to add filter rules
+     * @param array  $criteria        Array with filer criteria
      *
      * @throws RepositoryException
      * @return void
      */
-    protected function handleFilterCriteria($entityTableName, array $criteria, $query)
+    protected function handleFilterCriteria($entityTableName, $query, array $criteria = [])
     {
         $conditions = [];
         foreach ($criteria as $condition => $value) {
@@ -193,7 +193,7 @@ abstract class BaseRepository {
             }
             return $defaultTable . '.';
         } catch (BadMethodCallException $e) {
-            throw new RepositoryException("Relation '" . $relationString . "' doesn't exist", 500);
+            throw new RepositoryException("Relation '" . $relationString . "' doesn't exist");
         }
 
     }
@@ -220,7 +220,7 @@ abstract class BaseRepository {
         if (method_exists($this->model, 'translations')) {
             return $this->model->translations()->getModel()->getTable();
         }
-        throw new RepositoryException("Entity '" . get_class($this->model) . "' doesn't have translations relation", 500);
+        throw new RepositoryException("Entity '" . get_class($this->model) . "' doesn't have translations relation");
     }
 
     /**
@@ -243,10 +243,10 @@ abstract class BaseRepository {
                     ->where('langCode', $langCode)
                     ->update(['isActive' => false]);
             } else {
-                throw new RepositoryException("Unable to find foreign key of related translations", 500);
+                throw new RepositoryException("Unable to find foreign key of related translations");
             }
         }
-        throw new RepositoryException("Entity '" . get_class($this->model) . "' doesn't have translations relation", 500);
+        throw new RepositoryException("Entity '" . get_class($this->model) . "' doesn't have translations relation");
     }
 
 
