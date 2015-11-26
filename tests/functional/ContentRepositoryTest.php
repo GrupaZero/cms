@@ -963,9 +963,6 @@ class ContentRepositoryTest extends \EloquentTestCase {
                 'translations' => [
                     'langCode'       => 'en',
                     'title'          => 'Example title',
-                    'body'           => 'New example body',
-                    'seoTitle'       => 'New example seoTitle',
-                    'seoDescription' => 'New example seoDescription'
                 ]
             ]
         );
