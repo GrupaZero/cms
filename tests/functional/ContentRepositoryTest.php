@@ -518,12 +518,13 @@ class ContentRepositoryTest extends \EloquentTestCase {
         // Tree seeds
         $this->seed('TestTreeSeeder');
 
+        $category       = $this->repository->getById(1);
         $content        = $this->repository->getById(5);
         $oldContentPath = $content->path;
         $this->repository->update(
             $content,
             [
-                'parentId' => 1, // set parent id
+                'parentId' => $category->id, // set parent id
             ]
         );
         $updatedContent = $this->repository->getById($content->id);
@@ -553,11 +554,12 @@ class ContentRepositoryTest extends \EloquentTestCase {
             ]
         );
         $category        = $this->repository->getById($category->id);
+        $parent          = $this->repository->getById(2);
         $oldCategoryPath = $category->path;
         $this->repository->update(
             $category,
             [
-                'parentId' => 2, // set parent id
+                'parentId' => $parent->id, // set parent id
             ]
         );
         $updatedCategory = $this->repository->getById($category->id);
@@ -693,12 +695,13 @@ class ContentRepositoryTest extends \EloquentTestCase {
 
         // Get category with children
         $category = $this->repository->getById(1);
+        $parent   = $this->repository->getById(2);
 
         // Update category parent
         $this->repository->update(
             $category,
             [
-                'parentId' => 2,
+                'parentId' => $parent->id,
             ]
         );
     }
