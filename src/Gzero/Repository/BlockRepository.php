@@ -66,7 +66,11 @@ class BlockRepository extends BaseRepository {
                     $block->fill($data);
                     /** @TODO How to set blockable polymorphic relation here, based on type ? */
                     if ($data['type'] === 'widget') {
-                        $block->blockable()->associate(Widget::create($data['widget']));
+                        if (array_key_exists('widget', $data) && is_array($data['widget'])) {
+                            $block->blockable()->associate(Widget::create($data['widget']));
+                        } else {
+                            throw new RepositoryException("Widget is required");
+                        }
                     }
                     if ($author) {
                         $block->author()->associate($author);
@@ -143,6 +147,7 @@ class BlockRepository extends BaseRepository {
     {
         $query  = $this->newORMQuery();
         $parsed = $this->parseArgs($criteria, $orderBy);
+        $this->handleTranslationsJoin($parsed['filter'], $parsed['orderBy'], $query);
         $this->handleFilterCriteria($this->getTableName(), $query, $parsed['filter']);
         $this->handleOrderBy(
             $this->getTableName(),
@@ -204,6 +209,35 @@ class BlockRepository extends BaseRepository {
     }
 
     /**
+     * Handle joining content translations table based on provided criteria
+     *
+     * @param array $parsedCriteria Array with filter criteria
+     * @param array $parsedOrderBy  Array with orderBy
+     * @param mixed $query          Eloquent query object
+     *
+     * @throws RepositoryException
+     * @return array
+     */
+    private function handleTranslationsJoin(array &$parsedCriteria, array $parsedOrderBy, $query)
+    {
+        if (!empty($parsedCriteria['lang'])) {
+            $query->leftJoin(
+                'BlockTranslations',
+                function ($join) use ($parsedCriteria) {
+                    $join->on('Blocks.id', '=', 'BlockTranslations.blockId')
+                        ->where('BlockTranslations.langCode', '=', $parsedCriteria['lang']['value'])
+                        ->where('BlockTranslations.isActive', '=', 1);
+                }
+            );
+            unset($parsedCriteria['lang']);
+        } else {
+            if ($this->orderByTranslation($parsedOrderBy)) {
+                throw new RepositoryException('Repository Validation Error: \'lang\' criteria is required');
+            }
+        }
+    }
+
+    /**
      * Checks if provided type exists
      *
      * @param string $type    type name
@@ -221,5 +255,26 @@ class BlockRepository extends BaseRepository {
             throw new RepositoryException($message);
         }
 
+    }
+
+    /**
+     * Checks if we want to sort by non core field
+     *
+     * @param Array $parsedOrderBy OrderBy array
+     *
+     * @return bool
+     * @throws RepositoryException
+     */
+    private function orderByTranslation($parsedOrderBy)
+    {
+        foreach ($parsedOrderBy as $order) {
+            if (!array_key_exists('relation', $order)) {
+                throw new RepositoryException('OrderBy should always have relation property');
+            }
+            if ($order['relation'] !== null) {
+                return true;
+            }
+        }
+        return false;
     }
 }

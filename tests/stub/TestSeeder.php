@@ -100,7 +100,7 @@ class TestSeeder extends Seeder {
     private function seedBlockTypes()
     {
         $blockTypes = [];
-        foreach (['basic', 'menu', 'slider'] as $type) {
+        foreach (['basic', 'menu', 'slider', 'widget', 'content'] as $type) {
             $blockTypes[$type] = BlockType::firstOrCreate(['name' => $type, 'isActive' => true]);
         }
         return $blockTypes;
