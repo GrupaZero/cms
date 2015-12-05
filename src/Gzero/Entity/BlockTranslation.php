@@ -36,7 +36,7 @@ class BlockTranslation extends Base implements PresentableInterface {
      */
     public function lang()
     {
-        return $this->belongsTo('\Gzero\Entity\Lang');
+        return $this->belongsTo(Lang::class);
     }
 
     /**

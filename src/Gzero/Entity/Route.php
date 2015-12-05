@@ -38,6 +38,6 @@ class Route extends Base {
      */
     public function translations()
     {
-        return $this->hasMany('\Gzero\Entity\RouteTranslation', 'routeId');
+        return $this->hasMany(RouteTranslation::class, 'routeId');
     }
 }

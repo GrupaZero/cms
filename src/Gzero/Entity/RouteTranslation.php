@@ -30,6 +30,6 @@ class RouteTranslation extends Base {
      */
     public function lang()
     {
-        return $this->belongsTo('\Gzero\Entity\Lang');
+        return $this->belongsTo(Lang::class);
     }
 }

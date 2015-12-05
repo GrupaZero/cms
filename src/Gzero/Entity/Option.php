@@ -30,7 +30,7 @@ class Option extends Base {
      */
     public function category()
     {
-        return $this->belongsTo('\Gzero\Entity\OptionCategory', 'categoryKey', 'key');
+        return $this->belongsTo(OptionCategory::class, 'categoryKey', 'key');
     }
 
 

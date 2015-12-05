@@ -33,7 +33,7 @@ class OptionCategory extends Base {
      */
     public function options()
     {
-        return $this->hasMany('\Gzero\Entity\Option', 'categoryKey');
+        return $this->hasMany(Option::class, 'categoryKey');
     }
 
 }

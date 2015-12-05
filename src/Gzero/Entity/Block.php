@@ -36,7 +36,7 @@ class Block extends Base {
      */
     public function type()
     {
-        return $this->belongsTo('\Gzero\Entity\BlockType', 'name', 'type');
+        return $this->belongsTo(BlockType::class, 'name', 'type');
     }
 
     /**
@@ -49,9 +49,9 @@ class Block extends Base {
     public function translations($active = true)
     {
         if ($active) {
-            return $this->hasMany('\Gzero\Entity\BlockTranslation', 'blockId')->where('isActive', '=', 1);
+            return $this->hasMany(BlockTranslation::class, 'blockId')->where('isActive', '=', 1);
         }
-        return $this->hasMany('\Gzero\Entity\BlockTranslation', 'blockId');
+        return $this->hasMany(BlockTranslation::class, 'blockId');
     }
 
     /**
@@ -71,7 +71,7 @@ class Block extends Base {
      */
     public function author()
     {
-        return $this->belongsTo('\Gzero\Entity\User', 'authorId', 'id');
+        return $this->belongsTo(User::class, 'authorId', 'id');
     }
 
     /**

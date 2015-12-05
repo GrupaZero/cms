@@ -72,7 +72,7 @@ class Content extends BaseTree implements PresentableInterface {
      */
     public function type()
     {
-        return $this->belongsTo('\Gzero\Entity\ContentType', 'name', 'type');
+        return $this->belongsTo(ContentType::class, 'name', 'type');
     }
 
     /**
@@ -82,7 +82,7 @@ class Content extends BaseTree implements PresentableInterface {
      */
     public function route()
     {
-        return $this->morphOne('\Gzero\Entity\Route', 'routable', 'routableType', 'routableId');
+        return $this->morphOne(Route::class, 'routable', 'routableType', 'routableId');
     }
 
     /**
@@ -95,9 +95,9 @@ class Content extends BaseTree implements PresentableInterface {
     public function translations($active = true)
     {
         if ($active) {
-            return $this->hasMany('\Gzero\Entity\ContentTranslation', 'contentId')->where('isActive', '=', 1);
+            return $this->hasMany(ContentTranslation::class, 'contentId')->where('isActive', '=', 1);
         }
-        return $this->hasMany('\Gzero\Entity\ContentTranslation', 'contentId');
+        return $this->hasMany(ContentTranslation::class, 'contentId');
     }
 
     /**
@@ -107,7 +107,7 @@ class Content extends BaseTree implements PresentableInterface {
      */
     public function author()
     {
-        return $this->belongsTo('\Gzero\Entity\User', 'authorId', 'id');
+        return $this->belongsTo(User::class, 'authorId', 'id');
     }
 
     /**

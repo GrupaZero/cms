@@ -31,7 +31,7 @@ class Widget extends Base {
      */
     public function blocks()
     {
-        return $this->morphMany('\Gzero\Entity\Block', 'blockable', 'blockableType', 'blockableId');
+        return $this->morphMany(Block::class, 'blockable', 'blockableType', 'blockableId');
     }
 
     /**
