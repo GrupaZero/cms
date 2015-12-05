@@ -66,11 +66,7 @@ class BlockRepository extends BaseRepository {
                     $block->fill($data);
                     /** @TODO How to set blockable polymorphic relation here, based on type ? */
                     if ($data['type'] === 'widget') {
-                        if (array_key_exists('widget', $data) && is_array($data['widget'])) {
-                            $block->blockable()->associate(Widget::create($data['widget']));
-                        } else {
-                            throw new RepositoryException("Widget is required");
-                        }
+                        $this->createWidget($block, $data);
                     }
                     if ($author) {
                         $block->author()->associate($author);
@@ -254,7 +250,6 @@ class BlockRepository extends BaseRepository {
         } else {
             throw new RepositoryException($message);
         }
-
     }
 
     /**
@@ -276,5 +271,24 @@ class BlockRepository extends BaseRepository {
             }
         }
         return false;
+    }
+
+    /**
+     * Creates a block widget
+     *
+     * @param Block $block block entity
+     * @param array $data  input data
+     *
+     * @return string
+     * @throws RepositoryException
+     *
+     */
+    private function createWidget(Block $block, array $data)
+    {
+        if (array_key_exists('widget', $data) && is_array($data['widget'])) {
+            $block->blockable()->associate(Widget::create($data['widget']));
+        } else {
+            throw new RepositoryException("Widget is required");
+        }
     }
 }
