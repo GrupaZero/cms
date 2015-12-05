@@ -3,7 +3,9 @@
 use Gzero\Entity\Block;
 use Gzero\Entity\BlockTranslation;
 use Gzero\Entity\User;
+use Gzero\Entity\Widget;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Events\Dispatcher;
 
 /**
@@ -59,9 +61,13 @@ class BlockRepository extends BaseRepository {
                 $translations = array_get($data, 'translations'); // Nested relation fields
                 if (!empty($translations) && array_key_exists('type', $data)) {
                     /** @TODO get registered types */
-                    $this->validateType($data['type'], ['basic', 'menu', 'slider']);
+                    $this->validateType($data['type'], ['basic', 'menu', 'slider', 'widget', 'content']);
                     $block = new Block();
                     $block->fill($data);
+                    /** @TODO How to set blockable polymorphic relation here, based on type ? */
+                    if ($data['type'] === 'widget') {
+                        $block->blockable()->associate(Widget::create($data['widget']));
+                    }
                     if ($author) {
                         $block->author()->associate($author);
                     }
@@ -70,7 +76,7 @@ class BlockRepository extends BaseRepository {
                     $this->createTranslation($block, $translations);
                     return $block;
                 } else {
-                    throw new RepositoryException("Content type and translation is required");
+                    throw new RepositoryException("Block type and translation is required");
                 }
             }
         );
@@ -123,6 +129,31 @@ class BlockRepository extends BaseRepository {
     }
 
     /**
+     * Get all blocks with specific criteria
+     *
+     * @param array    $criteria Filter criteria
+     * @param array    $orderBy  Array of columns
+     * @param int|null $page     Page number (if null == disabled pagination)
+     * @param int|null $pageSize Limit results
+     *
+     * @throws RepositoryException
+     * @return Collection
+     */
+    public function getBlocks(array $criteria = [], array $orderBy = [], $page = 1, $pageSize = self::ITEMS_PER_PAGE)
+    {
+        $query  = $this->newORMQuery();
+        $parsed = $this->parseArgs($criteria, $orderBy);
+        $this->handleFilterCriteria($this->getTableName(), $query, $parsed['filter']);
+        $this->handleOrderBy(
+            $this->getTableName(),
+            $parsed['orderBy'],
+            $query,
+            $this->blockDefaultOrderBy()
+        );
+        return $this->handlePagination($this->getTableName(), $query, $page, $pageSize);
+    }
+
+    /**
      * Eager load relations for eloquent collection.
      * We use this function in handlePagination method!
      *
@@ -132,7 +163,19 @@ class BlockRepository extends BaseRepository {
      */
     protected function listEagerLoad($results)
     {
-        $results->load('translations', 'author');
+        $results->load('translations', 'author', 'blockable');
+    }
+
+    /**
+     * Default order for user query
+     *
+     * @return callable
+     */
+    protected function blockDefaultOrderBy()
+    {
+        return function ($query) {
+            $query->orderBy('id', 'DESC');
+        };
     }
 
     /**

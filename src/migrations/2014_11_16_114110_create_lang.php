@@ -36,7 +36,7 @@ class CreateLang extends Migration {
      */
     public function down()
     {
-        Schema::drop('Langs');
+        Schema::dropIfExists('Langs');
     }
 
     /**

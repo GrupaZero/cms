@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  *
  * Class Content
  *
- * @package    Gzero\Model
+ * @package    Gzero\Entity
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2014, Adrian Skierniewski
  */
@@ -27,6 +27,7 @@ class Content extends BaseTree implements PresentableInterface {
      */
     protected $fillable = [
         'type',
+        'theme',
         'authorId',
         'path',
         'weight',
