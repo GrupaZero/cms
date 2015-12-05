@@ -116,7 +116,7 @@ class BlockRepository extends BaseRepository {
     }
 
     /**
-     * Get translation of specified content by id.
+     * Get translation of specified block by id.
      *
      * @param Block $block Block entity
      * @param int   $id    Block Translation id
@@ -140,6 +140,31 @@ class BlockRepository extends BaseRepository {
      * @return Collection
      */
     public function getBlocks(array $criteria = [], array $orderBy = [], $page = 1, $pageSize = self::ITEMS_PER_PAGE)
+    {
+        $query  = $this->newORMQuery();
+        $parsed = $this->parseArgs($criteria, $orderBy);
+        $this->handleFilterCriteria($this->getTableName(), $query, $parsed['filter']);
+        $this->handleOrderBy(
+            $this->getTableName(),
+            $parsed['orderBy'],
+            $query,
+            $this->blockDefaultOrderBy()
+        );
+        return $this->handlePagination($this->getTableName(), $query, $page, $pageSize);
+    }
+
+    /**
+     * Get all soft deleted blocks with specific criteria
+     *
+     * @param array    $criteria Filter criteria
+     * @param array    $orderBy  Array of columns
+     * @param int|null $page     Page number (if null == disabled pagination)
+     * @param int|null $pageSize Limit results
+     *
+     * @throws RepositoryException
+     * @return Collection
+     */
+    public function getDeletedBlocks(array $criteria = [], array $orderBy = [], $page = 1, $pageSize = self::ITEMS_PER_PAGE)
     {
         $query  = $this->newORMQuery();
         $parsed = $this->parseArgs($criteria, $orderBy);
