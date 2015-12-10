@@ -5,6 +5,7 @@ use Gzero\Entity\Presenter\ContentPresenter;
 use Robbo\Presenter\PresentableInterface;
 use Robbo\Presenter\Robbo;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Lanz\Commentable\Commentable;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -21,6 +22,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Content extends BaseTree implements PresentableInterface {
 
     use SoftDeletes;
+    use Commentable;
 
     /**
      * @var array
