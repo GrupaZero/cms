@@ -378,10 +378,10 @@ class ContentRepository extends BaseRepository {
     /**
      * Add comment to given content
      *
-     * @param Content $content
-     * @param string  $title
-     * @param string  $body
-     * @param string  $userId
+     * @param Content $content content object
+     * @param string  $title   comment title
+     * @param string  $body    comment body
+     * @param string  $userId  author id
      *
      * @return Content
      */
@@ -398,7 +398,7 @@ class ContentRepository extends BaseRepository {
     /**
      * Get content comments
      *
-     * @param Content $content
+     * @param Content $content content object
      *
      * @return mixed
      */
