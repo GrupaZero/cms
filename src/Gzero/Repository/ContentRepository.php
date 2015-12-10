@@ -379,9 +379,9 @@ class ContentRepository extends BaseRepository {
      * Add comment to given content
      *
      * @param Content $content
-     * @param         $title
-     * @param         $body
-     * @param         $userId
+     * @param string  $title
+     * @param string  $body
+     * @param string  $userId
      *
      * @return Content
      */
