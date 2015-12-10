@@ -381,7 +381,7 @@ class ContentRepository extends BaseRepository {
      * @param Content $content content object
      * @param string  $title   comment title
      * @param string  $body    comment body
-     * @param string  $userId  author id
+     * @param integer $userId  author id
      *
      * @return Content
      */
