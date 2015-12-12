@@ -60,10 +60,9 @@ class Content extends BaseTree implements PresentableInterface {
         if (!empty($routeTranslation->url)) {
             return $routeTranslation->url;
         } else {
-            throw new Exception("No route [$langCode] translation found for Content id: " . $this->getKey(), 500);
+            throw new Exception("No route [$langCode] translation found for Content id: " . $this->getKey());
         }
     }
-
 
     /**
      * Content type relation
@@ -82,7 +81,7 @@ class Content extends BaseTree implements PresentableInterface {
      */
     public function route()
     {
-        return $this->morphOne(Route::class, 'routable', 'routableType', 'routableId');
+        return $this->morphOne(Route::class, 'routable');
     }
 
     /**
@@ -119,7 +118,6 @@ class Content extends BaseTree implements PresentableInterface {
     {
         return new ContentPresenter($this);
     }
-
 
     /**
      * Return true if content can be shown to current user on front end
