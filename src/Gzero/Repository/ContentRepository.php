@@ -421,14 +421,14 @@ class ContentRepository extends BaseRepository {
                     }
                     // Content translations
                     $this->createTranslation($content, $translations);
-                    return $content;
+                    return $this->getById($content->id);
                 } else {
                     throw new RepositoryException('Content type and translation is required');
                 }
             }
         );
         $this->events->fire('content.created', [$content]);
-        return $content;
+        return $this->getById($content->id);
     }
 
     /**
