@@ -64,6 +64,7 @@ class BlockRepository extends BaseRepository {
                     $this->validateType($data['type'], ['basic', 'menu', 'slider', 'widget', 'content']);
                     $block = new Block();
                     $block->fill($data);
+                    $this->events->fire('block.creating', [$block, $author]);
                     /** @TODO How to set blockable polymorphic relation here, based on type ? */
                     if ($data['type'] === 'widget') {
                         $this->createWidget($block, $data);
@@ -74,13 +75,13 @@ class BlockRepository extends BaseRepository {
                     $block->save();
                     // Block translations
                     $this->createTranslation($block, $translations);
-                    return $block;
+                    $this->events->fire('block.created', [$block]);
+                    return $this->getById($block->id);
                 } else {
                     throw new RepositoryException("Block type and translation is required");
                 }
             }
         );
-        $this->events->fire('block.created', [$block]);
         return $block;
     }
 
@@ -103,16 +104,101 @@ class BlockRepository extends BaseRepository {
                     $this->disableActiveTranslations($block->id, $data['langCode']);
                     $translation = new BlockTranslation();
                     $translation->fill($data);
+                    $this->events->fire('block.translation.creating', [$block, $translation]);
                     $translation->isActive = 1; // Because only recent translation is active
                     $block->translations()->save($translation);
+                    $this->events->fire('block.translation.created', [$block, $translation]);
                     return $translation;
                 }
             );
-            $this->events->fire('block.translation.created', [$block, $translation]);
             return $translation;
         } else {
             throw new RepositoryException("Language code and title of translation is required");
         }
+    }
+
+    /**
+     * Update specific block entity
+     *
+     * @param Block     $block    Block entity
+     * @param array     $data     new data to save
+     * @param User|null $modifier User entity
+     *
+     * @return Block
+     * @SuppressWarnings("unused")
+     */
+    public function update(Block $block, Array $data, User $modifier = null)
+    {
+        $block = $this->newQuery()->transaction(
+            function () use ($block, $data, $modifier) {
+                $this->events->fire('block.updating', [$block, $data, $modifier]);
+                $block->fill($data);
+                $block->save();
+                $this->events->fire('block.updated', [$block]);
+                return $block;
+            }
+        );
+        return $block;
+    }
+
+    /**
+     * Delete specific block entity using softDelete
+     *
+     * @param Block $block Content entity to delete
+     *
+     * @return boolean
+     */
+    public function delete(Block $block)
+    {
+        return $this->newQuery()->transaction(
+            function () use ($block) {
+                $this->events->fire('block.deleting', [$block]);
+                $block->delete();
+                $this->events->fire('block.deleted', [$block]);
+                return true;
+            }
+        );
+    }
+
+    /**
+     * Delete specific block entity using forceDelete
+     *
+     * @param Block $block Content entity to delete
+     *
+     * @return boolean
+     */
+    public function forceDelete(Block $block)
+    {
+        return $this->newQuery()->transaction(
+            function () use ($block) {
+                $this->events->fire('block.forceDeleting', [$block]);
+                /** @TODO deleting menu? */
+                $block->forceDelete();
+                $this->events->fire('block.forceDeleted', [$block]);
+                return true;
+            }
+        );
+    }
+
+    /**
+     * Delete specific block translation entity
+     *
+     * @param BlockTranslation $translation entity to delete
+     *
+     * @return bool
+     * @throws RepositoryException
+     * @throws \Exception
+     */
+    public function deleteTranslation(BlockTranslation $translation)
+    {
+        if ($translation->isActive) {
+            throw new RepositoryException('Cannot delete active translation');
+        }
+        return $this->newQuery()->transaction(
+            function () use ($translation) {
+                return $translation->delete();
+            }
+        );
     }
 
     /**
@@ -200,7 +286,7 @@ class BlockRepository extends BaseRepository {
     protected function blockDefaultOrderBy()
     {
         return function ($query) {
-            $query->orderBy('id', 'DESC');
+            $query->orderBy('Blocks.weight', 'ASC');
         };
     }
 
@@ -255,7 +341,7 @@ class BlockRepository extends BaseRepository {
     /**
      * Checks if we want to sort by non core field
      *
-     * @param Array $parsedOrderBy OrderBy array
+     * @param array $parsedOrderBy OrderBy array
      *
      * @return bool
      * @throws RepositoryException

@@ -378,7 +378,6 @@ class BlockRepositoryTest extends \EloquentTestCase {
         $this->assertEquals('B title', $blocks[0]['translations'][0]['title']);
     }
 
-
     /**
      * @test
      */
