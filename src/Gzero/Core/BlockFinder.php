@@ -93,8 +93,12 @@ class BlockFinder {
     {
         $filter = [];
         if ($isPublic) {
-            // @TODO Handle isPublic
-            $blocks = $this->blockRepository->getBlocks();
+            $blocks = $this->blockRepository->getBlocks(
+                [['filter', '!=', null], ['isActive', '=', true]],
+                [['weight', 'ASC']],
+                null,
+                null
+            );
         } else {
             $blocks = $this->blockRepository->getBlocks([['filter', '!=', null]], [['weight', 'ASC']], null, null);
         }
