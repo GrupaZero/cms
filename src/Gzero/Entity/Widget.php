@@ -43,7 +43,7 @@ class Widget extends Base {
      */
     public function setArgsAttribute($value)
     {
-        $this->attributes['args'] = json_encode($value);
+        return ($value) ? $this->attributes['args'] = json_encode($value) : null;
     }
 
     /**
@@ -55,7 +55,7 @@ class Widget extends Base {
      */
     public function getArgsAttribute($value)
     {
-        return json_decode($value, true);
+        return ($value) ? json_decode($value, true) : $value;
     }
 
 }
