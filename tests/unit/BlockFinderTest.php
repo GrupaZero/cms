@@ -46,10 +46,8 @@ class BlockFinderTest extends \TestCase {
     {
         $block1         = new Block();
         $block1->id     = 1;
-        $block1->path   = '1/';
         $block2         = new Block();
         $block2->id     = 2;
-        $block2->path   = '1/2/';
         $block2->filter = ['+' => ['1/*']];
         $this->repo->shouldReceive('getBlocks')->andReturn(
             [
