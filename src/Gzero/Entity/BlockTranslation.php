@@ -58,7 +58,7 @@ class BlockTranslation extends Base implements PresentableInterface {
      */
     public function setCustomFieldsAttribute($value)
     {
-        $this->attributes['customFields'] = json_encode($value);
+        return ($value) ? $this->attributes['customFields'] = json_encode($value) : null;
     }
 
     /**
@@ -70,6 +70,6 @@ class BlockTranslation extends Base implements PresentableInterface {
      */
     public function getCustomFieldsAttribute($value)
     {
-        return json_decode($value, true);
+        return ($value) ? json_decode($value, true) : $value;
     }
 }

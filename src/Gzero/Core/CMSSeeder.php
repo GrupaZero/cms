@@ -375,7 +375,7 @@ class CMSSeeder extends Seeder {
             'type'         => $type->name,
             'region'       => $this->faker->word,
             'weight'       => rand(0, 12),
-            'filter'       => ['+' => ['1/2/*'], '-' => ['2']],
+            'filter'       => (rand(0, 1)) ? ['+' => ['1/' . rand(1, 20) . '/*'], '-' => [rand(1, 20) . '/']] : null,
             'options'      => array_combine($this->faker->words(), $this->faker->words()),
             'isActive'     => $isActive,
             'isCacheable'  => $isCacheable,

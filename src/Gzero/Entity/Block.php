@@ -83,7 +83,7 @@ class Block extends Base {
      */
     public function setFilterAttribute($value)
     {
-        $this->attributes['filter'] = json_encode($value);
+        return ($value) ? $this->attributes['filter'] = json_encode($value) : null;
     }
 
     /**
@@ -95,7 +95,7 @@ class Block extends Base {
      */
     public function getFilterAttribute($value)
     {
-        return json_decode($value, true);
+        return ($value) ? json_decode($value, true) : $value;
     }
 
     /**
@@ -107,7 +107,7 @@ class Block extends Base {
      */
     public function setOptionsAttribute($value)
     {
-        $this->attributes['options'] = json_encode($value);
+        return ($value) ? $this->attributes['options'] = json_encode($value) : null;
     }
 
     /**
@@ -119,6 +119,6 @@ class Block extends Base {
      */
     public function getOptionsAttribute($value)
     {
-        return json_decode($value, true);
+        return ($value) ? json_decode($value, true) : $value;
     }
 }

@@ -110,11 +110,24 @@ abstract class BaseRepository {
     {
         $conditions = [];
         foreach ($criteria as $condition => $value) {
-            $conditions[] = $query->where(
-                $this->resolveTableName($entityTableName, $value['relation'], $query) . $condition,
-                '=',
-                $value['value']
-            );
+            if ($value['value'] === null) {
+                if ($value['operation'] === '=') {
+                    $conditions[] = $query->whereNull(
+                        $this->resolveTableName($entityTableName, $value['relation'], $query) . $condition
+                    );
+                }
+                if ($value['operation'] === '!=') {
+                    $conditions[] = $query->whereNotNull(
+                        $this->resolveTableName($entityTableName, $value['relation'], $query) . $condition
+                    );
+                }
+            } else {
+                $conditions[] = $query->where(
+                    $this->resolveTableName($entityTableName, $value['relation'], $query) . $condition,
+                    $value['operation'],
+                    $value['value']
+                );
+            }
         }
     }
 
