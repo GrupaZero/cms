@@ -465,7 +465,7 @@ class ContentRepository extends BaseRepository {
                     return $translation;
                 }
             );
-            return $translation;
+            return $this->getById($translation->id);
         } else {
             throw new RepositoryException('Language code and title of translation is required');
         }
@@ -518,7 +518,7 @@ class ContentRepository extends BaseRepository {
                     return $route;
                 }
             );
-            return $route;
+            return $this->getById($route->id);
         } else {
             throw new RepositoryException('Language code and title of translation is required');
         }
