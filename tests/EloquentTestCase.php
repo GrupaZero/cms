@@ -3,7 +3,7 @@
 /**
  * This is simple laravel application test
  */
-class EloquentTestCase extends TestCase {
+class EloquentTestCase extends MigratedTestCase {
 
     protected $entityNamespace = 'Gzero\Entity';
 

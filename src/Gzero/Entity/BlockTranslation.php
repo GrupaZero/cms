@@ -12,7 +12,7 @@ use Gzero\Entity\Presenter\BlockTranslationPresenter;
  *
  * Class BlockTranslation
  *
- * @package    Gzero\Model
+ * @package    Gzero\Entity
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2015, Adrian Skierniewski
  */
@@ -36,7 +36,7 @@ class BlockTranslation extends Base implements PresentableInterface {
      */
     public function lang()
     {
-        return $this->belongsTo('\Gzero\Entity\Lang');
+        return $this->belongsTo(Lang::class);
     }
 
     /**
@@ -58,7 +58,7 @@ class BlockTranslation extends Base implements PresentableInterface {
      */
     public function setCustomFieldsAttribute($value)
     {
-        $this->attributes['customFields'] = json_encode($value);
+        return ($value) ? $this->attributes['customFields'] = json_encode($value) : null;
     }
 
     /**
@@ -70,6 +70,6 @@ class BlockTranslation extends Base implements PresentableInterface {
      */
     public function getCustomFieldsAttribute($value)
     {
-        return json_decode($value, true);
+        return ($value) ? json_decode($value, true) : $value;
     }
 }

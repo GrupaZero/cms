@@ -49,8 +49,8 @@ class CreateOptions extends Migration {
      */
     public function down()
     {
-        Schema::drop('Options');
-        Schema::drop('OptionCategories');
+        Schema::dropIfExists('Options');
+        Schema::dropIfExists('OptionCategories');
     }
 
     /**

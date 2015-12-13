@@ -13,9 +13,10 @@
 */
 
 require __DIR__ . '/vendor/autoload.php';
-
+require 'tests/app/Console/Kernel.php';
 //Test Cases
 require_once __DIR__ . '/tests/TestCase.php';
+require_once __DIR__ . '/tests/MigratedTestCase.php';
 require_once __DIR__ . '/tests/EloquentTestCase.php';
 
 /*

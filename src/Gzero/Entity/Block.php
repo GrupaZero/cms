@@ -8,7 +8,7 @@
  *
  * Class Block
  *
- * @package    Gzero\Model
+ * @package    Gzero\Entity
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2015, Adrian Skierniewski
  */
@@ -20,6 +20,7 @@ class Block extends Base {
     protected $fillable = [
         'type',
         'region',
+        'theme',
         'authorId',
         'weight',
         'filter',
@@ -35,7 +36,7 @@ class Block extends Base {
      */
     public function type()
     {
-        return $this->belongsTo('\Gzero\Entity\BlockType', 'name', 'type');
+        return $this->belongsTo(BlockType::class, 'name', 'type');
     }
 
     /**
@@ -48,9 +49,9 @@ class Block extends Base {
     public function translations($active = true)
     {
         if ($active) {
-            return $this->hasMany('\Gzero\Entity\BlockTranslation', 'blockId')->where('isActive', '=', 1);
+            return $this->hasMany(BlockTranslation::class, 'blockId')->where('isActive', '=', 1);
         }
-        return $this->hasMany('\Gzero\Entity\BlockTranslation', 'blockId');
+        return $this->hasMany(BlockTranslation::class, 'blockId');
     }
 
     /**
@@ -70,7 +71,7 @@ class Block extends Base {
      */
     public function author()
     {
-        return $this->belongsTo('\Gzero\Entity\User', 'authorId', 'id');
+        return $this->belongsTo(User::class, 'authorId', 'id');
     }
 
     /**
@@ -82,7 +83,7 @@ class Block extends Base {
      */
     public function setFilterAttribute($value)
     {
-        $this->attributes['filter'] = json_encode($value);
+        return ($value) ? $this->attributes['filter'] = json_encode($value) : null;
     }
 
     /**
@@ -94,7 +95,7 @@ class Block extends Base {
      */
     public function getFilterAttribute($value)
     {
-        return json_decode($value, true);
+        return ($value) ? json_decode($value, true) : $value;
     }
 
     /**
@@ -106,7 +107,7 @@ class Block extends Base {
      */
     public function setOptionsAttribute($value)
     {
-        $this->attributes['options'] = json_encode($value);
+        return ($value) ? $this->attributes['options'] = json_encode($value) : null;
     }
 
     /**
@@ -118,6 +119,6 @@ class Block extends Base {
      */
     public function getOptionsAttribute($value)
     {
-        return json_decode($value, true);
+        return ($value) ? json_decode($value, true) : $value;
     }
 }

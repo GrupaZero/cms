@@ -16,8 +16,8 @@ class CreateRoute extends Migration {
             'Routes',
             function (Blueprint $table) {
                 $table->increments('id');
-                $table->integer('routableId')->unsigned();
-                $table->string('routableType');
+                $table->integer('routableId')->unsigned()->nullable();
+                $table->string('routableType')->nullable();
                 $table->boolean('isActive');
                 $table->timestamp('createdAt');
                 $table->timestamp('updatedAt');
@@ -49,8 +49,8 @@ class CreateRoute extends Migration {
      */
     public function down()
     {
-        Schema::drop('RouteTranslations');
-        Schema::drop('Routes');
+        Schema::dropIfExists('RouteTranslations');
+        Schema::dropIfExists('Routes');
     }
 
 }

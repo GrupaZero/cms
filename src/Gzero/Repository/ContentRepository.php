@@ -75,6 +75,18 @@ class ContentRepository extends BaseRepository {
     }
 
     /**
+     * Get content route by id.
+     *
+     * @param int $id Content route id
+     *
+     * @return Route
+     */
+    public function getRouteById($id)
+    {
+        return $this->newORMQuery()->getRelation('route')->getQuery()->find($id);
+    }
+
+    /**
      * Get content entity by url address
      *
      * @param string $url      Url address
@@ -399,6 +411,7 @@ class ContentRepository extends BaseRepository {
                     $this->validateType($data['type'], ['content', 'category']);
                     $content = new Content();
                     $content->fill($data);
+                    $this->events->fire('content.creating', [$content, $author]);
                     if ($author) {
                         $content->author()->associate($author);
                     }
@@ -421,14 +434,15 @@ class ContentRepository extends BaseRepository {
                     }
                     // Content translations
                     $this->createTranslation($content, $translations);
+                    $content = $this->getById($content->id);
+                    $this->events->fire('content.created', [$content]);
                     return $content;
                 } else {
                     throw new RepositoryException('Content type and translation is required');
                 }
             }
         );
-        $this->events->fire('content.created', [$content]);
-        return $content;
+        return $this->getById($content->id);
     }
 
     /**
@@ -457,12 +471,13 @@ class ContentRepository extends BaseRepository {
                     $translation = new ContentTranslation();
                     $translation->fill($data);
                     $translation->isActive = 1; // Because only recent translation is active
+                    $this->events->fire('content.translation.creating', [$content, $translation]);
                     $content->translations()->save($translation);
+                    $this->events->fire('content.translation.created', [$content, $translation]);
                     return $translation;
                 }
             );
-            $this->events->fire('content.translation.created', [$content, $translation]);
-            return $translation;
+            return $this->getTranslationById($translation->id);
         } else {
             throw new RepositoryException('Language code and title of translation is required');
         }
@@ -509,12 +524,13 @@ class ContentRepository extends BaseRepository {
                         $url . str_slug($urlString),
                         $langCode
                     );
+                    $this->events->fire('route.creating', [$route]);
                     $route->translations()->save($routeTranslation);
+                    $this->events->fire('route.created', [$route]);
                     return $route;
                 }
             );
-            $this->events->fire('route.created', [$route]);
-            return $route;
+            return $this->getRouteById($route->id);
         } else {
             throw new RepositoryException('Language code and title of translation is required');
         }
@@ -535,16 +551,16 @@ class ContentRepository extends BaseRepository {
         $content = $this->newQuery()->transaction(
             function () use ($content, $data, $modifier) {
                 $content->fill($data);
-
+                $this->events->fire('content.updating', [$content]);
                 if (!empty($data['parentId'])) {
                     $this->handleParentUpdate($content, $data);
                 } else {
                     $content->save();
                 }
+                $this->events->fire('content.updated', [$content]);
                 return $content;
             }
         );
-        $this->events->fire('content.updated', [$content]);
         return $content;
     }
 
@@ -563,7 +579,10 @@ class ContentRepository extends BaseRepository {
                 foreach ($content->findDescendants()->get() as $node) {
                     $node->delete();
                 }
-                return $content->delete();
+                $this->events->fire('content.deleting', [$content]);
+                $content->delete();
+                $this->events->fire('content.deleted', [$content]);
+                return true;
             }
         );
     }
@@ -587,7 +606,10 @@ class ContentRepository extends BaseRepository {
                     ->where($routeRelation->getPlainMorphType(), '=', get_class($content))
                     ->whereIn($routeRelation->getPlainForeignKey(), $descendantsIds)
                     ->delete();
-                return $content->forceDelete();
+                $this->events->fire('content.forceDeleting', [$content]);
+                $content->forceDelete();
+                $this->events->fire('content.forceDeleted', [$content]);
+                return true;
             }
         );
     }

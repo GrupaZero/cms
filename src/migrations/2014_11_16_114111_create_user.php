@@ -48,8 +48,8 @@ class CreateUser extends Migration {
      */
     public function down()
     {
-        Schema::drop('PasswordReminders');
-        Schema::drop('Users');
+        Schema::dropIfExists('PasswordReminders');
+        Schema::dropIfExists('Users');
     }
 
     /**

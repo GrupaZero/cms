@@ -16,7 +16,7 @@ class CreateBlock extends Migration {
         Schema::create(
             'BlockTypes',
             function (Blueprint $table) {
-                $table->string('name')->index();
+                $table->string('name')->index()->unique();
                 $table->boolean('isActive');
                 $table->timestamp('createdAt');
                 $table->timestamp('updatedAt');
@@ -28,13 +28,14 @@ class CreateBlock extends Migration {
             function (Blueprint $table) {
                 $table->increments('id');
                 $table->string('type');
-                $table->string('region');
+                $table->string('region')->nullable();
+                $table->string("theme")->nullable();
                 $table->integer("blockableId")->unsigned()->nullable();
-                $table->string("blockableType");
+                $table->string("blockableType")->nullable();
                 $table->integer('authorId')->unsigned()->nullable();
-                $table->integer('weight');
                 $table->json('filter')->nullable();
                 $table->json('options')->nullable();
+                $table->integer('weight');
                 $table->boolean('isActive');
                 $table->boolean('isCacheable');
                 $table->timestamp('createdAt');
@@ -63,6 +64,19 @@ class CreateBlock extends Migration {
             }
         );
 
+        Schema::create(
+            'Widgets',
+            function (Blueprint $table) {
+                $table->increments('id');
+                $table->string('name')->unique();
+                $table->json('args')->nullable();
+                $table->boolean('isActive');
+                $table->boolean('isCacheable');
+                $table->timestamp('createdAt');
+                $table->timestamp('updatedAt');
+            }
+        );
+
         // Seed block types
         $this->seedBlockTypes();
     }
@@ -74,9 +88,10 @@ class CreateBlock extends Migration {
      */
     public function down()
     {
-        Schema::drop('BlockTranslations');
-        Schema::drop('Blocks');
-        Schema::drop('BlockTypes');
+        Schema::dropIfExists('BlockTranslations');
+        Schema::dropIfExists('Blocks');
+        Schema::dropIfExists('BlockTypes');
+        Schema::dropIfExists('Widgets');
     }
 
     /**
@@ -86,7 +101,7 @@ class CreateBlock extends Migration {
      */
     private function seedBlockTypes()
     {
-        foreach (['basic', 'menu', 'slider'] as $type) {
+        foreach (['basic', 'menu', 'slider', 'content', 'widget'] as $type) {
             BlockType::firstOrCreate(['name' => $type, 'isActive' => true]);
         }
     }

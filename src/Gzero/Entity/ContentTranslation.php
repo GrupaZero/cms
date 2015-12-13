@@ -1,6 +1,5 @@
 <?php namespace Gzero\Entity;
 
-use Gzero\Entity\Presenter\ContentPresenter;
 use Robbo\Presenter\PresentableInterface;
 use Robbo\Presenter\Robbo;
 use Gzero\Entity\Presenter\ContentTranslationPresenter;
@@ -13,7 +12,7 @@ use Gzero\Entity\Presenter\ContentTranslationPresenter;
  *
  * Class ContentTranslation
  *
- * @package    Gzero\Model
+ * @package    Gzero\Entity
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2014, Adrian Skierniewski
  */
@@ -39,7 +38,7 @@ class ContentTranslation extends Base implements PresentableInterface {
      */
     public function lang()
     {
-        return $this->belongsTo('\Gzero\Entity\Lang');
+        return $this->belongsTo(Lang::class);
     }
 
     /**

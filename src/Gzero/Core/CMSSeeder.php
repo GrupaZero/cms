@@ -32,7 +32,7 @@ use Illuminate\Support\Facades\Hash;
 class CMSSeeder extends Seeder {
 
     const RANDOM_USERS = 12;
-    const RANDOM_BLOCKS = 12;
+    const RANDOM_BLOCKS = 20;
 
     /**
      * @var \Faker\Generator
@@ -74,9 +74,9 @@ class CMSSeeder extends Seeder {
         $contentTypes = $this->seedContentTypes();
         $blockTypes   = $this->seedBlockTypes();
         $users        = $this->seedUsers();
+        $contents     = $this->seedContent($contentTypes, $langs, $users);
         $this->seedOptions($langs);
-        $this->seedContent($contentTypes, $langs, $users);
-        $this->seedBlock($blockTypes, $langs, $users);
+        $this->seedBlock($blockTypes, $langs, $users, $contents);
     }
 
     /**
@@ -149,7 +149,8 @@ class CMSSeeder extends Seeder {
      */
     private function seedContent($contentTypes, $langs, $users)
     {
-        $input = [
+        $contents = [];
+        $input    = [
             [
                 'type'              => 'category',
                 'weight'            => rand(0, 10),
@@ -198,15 +199,19 @@ class CMSSeeder extends Seeder {
             if ($newContent->type == 'category') {
                 for ($i = 0; $i < 10; $i++) {
                     // category children
-                    $this->seedRandomContent(
+                    $content = $this->seedRandomContent(
                         $contentTypes['content'],
                         $newContent,
                         $langs,
                         $users
                     );
+                    // Push to contents array
+                    $contents[$i] = $this->contentRepository->getById($content->id);
                 }
             }
         }
+
+        return $contents;
     }
 
     /**
@@ -330,7 +335,7 @@ class CMSSeeder extends Seeder {
     private function seedBlockTypes()
     {
         $blockTypes = [];
-        foreach (['basic', 'menu', 'slider'] as $type) {
+        foreach (['basic', 'menu', 'slider', 'content', 'widget'] as $type) {
             $blockTypes[$type] = BlockType::firstOrCreate(['name' => $type, 'isActive' => true]);
         }
         return $blockTypes;
@@ -343,17 +348,19 @@ class CMSSeeder extends Seeder {
      * @param array $blockTypes Block type
      * @param array $langs      Array with langs
      * @param array $users      Array with users
+     * @param array $contents   Array with contents
      *
-     * @throws Exception
-     * @return Content
+     * @return Block
      */
-    private function seedBlock($blockTypes, $langs, $users)
+    private function seedBlock($blockTypes, $langs, $users, $contents)
     {
         for ($x = 0; $x < self::RANDOM_BLOCKS; $x++) {
+            /** @var TYPE_NAME $contents */
             $this->seedRandomBlock(
                 $blockTypes[array_rand($blockTypes)],
                 $langs,
-                $users
+                $users,
+                $contents
             );
         }
     }
@@ -361,23 +368,36 @@ class CMSSeeder extends Seeder {
     /**
      * Seed single block
      *
-     * @param BlockType $type  Block type
-     * @param array     $langs Array with langs
-     * @param array     $users Array with users
+     * @param BlockType $type     Block type
+     * @param array     $langs    Array with langs
+     * @param array     $users    Array with users
+     * @param array     $contents Array with contents
      *
      * @return Block
      */
-    private function seedRandomBlock(BlockType $type, $langs, $users)
+    private function seedRandomBlock(BlockType $type, $langs, $users, $contents)
     {
-        $input = [
+        $isActive    = (bool) rand(0, 1);
+        $isCacheable = (bool) rand(0, 1);
+        $filter      = (rand(0, 1)) ? [
+            '+' => [$this->getRandomBlockFilter($contents)],
+            '-' => [$this->getRandomBlockFilter($contents)]
+        ] : null;
+        $input       = [
             'type'         => $type->name,
             'region'       => $this->faker->word,
             'weight'       => rand(0, 12),
-            'filter'       => ['+' => ['1/2/*'], '-' => ['2']],
+            'filter'       => $filter,
             'options'      => array_combine($this->faker->words(), $this->faker->words()),
-            'isActive'     => (bool) rand(0, 1),
-            'isCacheable'  => (bool) rand(0, 1),
-            'translations' => $this->prepareBlockTranslation($langs['en'])
+            'isActive'     => $isActive,
+            'isCacheable'  => $isCacheable,
+            'translations' => $this->prepareBlockTranslation($langs['en']),
+            'widget'       => [
+                'name'        => $this->faker->unique()->word,
+                'args'        => array_combine($this->faker->words(), $this->faker->words()),
+                'isActive'    => $isActive,
+                'isCacheable' => $isCacheable,
+            ],
         ];
 
         $block = $this->blockRepository->create($input, $users[array_rand($users)]);
@@ -497,5 +517,17 @@ class CMSSeeder extends Seeder {
             }
         }
         return implode('', $html);
+    }
+
+    /**
+     * Function generates block filter path
+     *
+     * @param array $contents Array with contents
+     *
+     * @return string
+     */
+    private function getRandomBlockFilter($contents)
+    {
+        return rand(0, 1) ? $contents[array_rand($contents)]->path . '*' : $contents[array_rand($contents)]->path;
     }
 }

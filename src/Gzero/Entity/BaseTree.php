@@ -11,7 +11,7 @@ use Carbon\Carbon;
  *
  * Class BaseTree
  *
- * @package    Gzero\Model
+ * @package    Gzero\Entity
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2014, Adrian Skierniewski
  */
@@ -91,4 +91,21 @@ abstract class BaseTree extends Tree {
         return Carbon::createFromFormat('Y-m-d H:i:s', $date)->toIso8601String();
     }
 
+    /**
+     * Get the polymorphic relationship columns.
+     *
+     * @param string $name name
+     * @param string $type type
+     * @param string $id   id
+     *
+     * @return array
+     */
+    protected function getMorphs($name, $type, $id)
+    {
+        $type = $type ?: $name . 'Type';
+
+        $id = $id ?: $name . 'Id';
+
+        return [$type, $id];
+    }
 }

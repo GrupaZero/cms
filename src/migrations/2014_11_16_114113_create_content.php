@@ -16,7 +16,7 @@ class CreateContent extends Migration {
         Schema::create(
             'ContentTypes',
             function (Blueprint $table) {
-                $table->string('name')->index();
+                $table->string('name')->index()->unique();
                 $table->boolean('isActive');
                 $table->timestamp('createdAt');
                 $table->timestamp('updatedAt');
@@ -28,6 +28,7 @@ class CreateContent extends Migration {
             function (Blueprint $table) {
                 $table->increments('id');
                 $table->string('type');
+                $table->string("theme")->nullable();
                 $table->integer('authorId')->unsigned()->nullable();
                 $table->string('path', 255)->nullable();
                 $table->integer('parentId')->unsigned()->nullable();
@@ -81,9 +82,9 @@ class CreateContent extends Migration {
      */
     public function down()
     {
-        Schema::drop('ContentTranslations');
-        Schema::drop('Contents');
-        Schema::drop('ContentTypes');
+        Schema::dropIfExists('ContentTranslations');
+        Schema::dropIfExists('Contents');
+        Schema::dropIfExists('ContentTypes');
     }
 
     /**

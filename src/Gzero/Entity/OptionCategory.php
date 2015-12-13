@@ -8,7 +8,7 @@
  *
  * Class OptionCategories
  *
- * @package    Gzero\Model
+ * @package    Gzero\Entity
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2015, Adrian Skierniewski
  */
@@ -33,7 +33,7 @@ class OptionCategory extends Base {
      */
     public function options()
     {
-        return $this->hasMany('\Gzero\Entity\Option', 'categoryKey');
+        return $this->hasMany(Option::class, 'categoryKey');
     }
 
 }
