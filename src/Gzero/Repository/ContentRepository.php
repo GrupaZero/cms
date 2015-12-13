@@ -75,6 +75,18 @@ class ContentRepository extends BaseRepository {
     }
 
     /**
+     * Get content route by id.
+     *
+     * @param int $id Content route id
+     *
+     * @return Route
+     */
+    public function getRouteById($id)
+    {
+        return $this->newORMQuery()->getRelation('route')->getQuery()->find($id);
+    }
+
+    /**
      * Get content entity by url address
      *
      * @param string $url      Url address
@@ -465,7 +477,7 @@ class ContentRepository extends BaseRepository {
                     return $translation;
                 }
             );
-            return $this->getById($translation->id);
+            return $this->getTranslationById($translation->id);
         } else {
             throw new RepositoryException('Language code and title of translation is required');
         }
@@ -518,7 +530,7 @@ class ContentRepository extends BaseRepository {
                     return $route;
                 }
             );
-            return $this->getById($route->id);
+            return $this->getRouteById($route->id);
         } else {
             throw new RepositoryException('Language code and title of translation is required');
         }
