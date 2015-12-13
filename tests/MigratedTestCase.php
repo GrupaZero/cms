@@ -3,7 +3,12 @@
 /**
  * This is simple laravel application test
  */
-class TestCase extends Illuminate\Foundation\Testing\TestCase {
+class MigratedTestCase extends Illuminate\Foundation\Testing\TestCase {
+
+    /**
+     * @var bool
+     */
+    static $initialSetup = false;
 
     /**
      * Creates the application.
@@ -28,6 +33,15 @@ class TestCase extends Illuminate\Foundation\Testing\TestCase {
         );
 
         $this->app->make('Illuminate\Contracts\Console\Kernel')->bootstrap();
+
+        if (!self::$initialSetup) {
+            try {
+                $this->artisan('migrate:reset');
+            } catch (Exception $e) {
+            }
+            $this->artisan('migrate', ['--path' => '/../../src/migrations']);  // Relative to tests/app/
+            self::$initialSetup = true;
+        }
 
         return $this->app;
     }

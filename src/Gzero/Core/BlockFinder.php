@@ -36,14 +36,14 @@ class BlockFinder {
     /**
      * It returns blocks ids that should be displayed on specified content
      *
-     * @param Content $content  Content
-     * @param bool    $isPublic Trigger to display only public blocks
+     * @param string $contentPath Content path
+     * @param bool   $isPublic    Trigger to display only public blocks
      *
      * @return array
      */
-    public function getBlocks(Content $content, $isPublic = false)
+    public function getBlocksIds($contentPath, $isPublic = false)
     {
-        return $this->findBlocksForContent($content->path, $this->buildFilterArray($isPublic));
+        return $this->findBlocksForContent($contentPath, $this->buildFilterArray($isPublic));
     }
 
     /**
