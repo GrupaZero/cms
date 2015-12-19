@@ -469,7 +469,7 @@ class BlockRepositoryTest extends \EloquentTestCase {
                 'filter'       => ['+' => ['1/*']],
                 'translations' => [
                     'langCode' => 'en',
-                    'title'    => 'A title'
+                    'title'    => 'First block title'
                 ]
             ]
         );
@@ -484,13 +484,91 @@ class BlockRepositoryTest extends \EloquentTestCase {
                 'filter'       => ['+' => ['1/*']],
                 'translations' => [
                     'langCode' => 'en',
-                    'title'    => 'B title'
+                    'title'    => 'Second block title'
+                ]
+            ]
+        );
+
+        // Block not in this page
+        $thirdBlock = $this->repository->create(
+            [
+                'type'         => 'basic',
+                'weight'       => 1,
+                'isActive'     => 1,
+                'region'       => 'footer',
+                'filter'       => ['+' => ['1/2/3/']],
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'Third block title'
+                ]
+            ]
+        );
+
+        // Block from one of the content parents
+        $fourthBlock = $this->repository->create(
+            [
+                'type'         => 'basic',
+                'weight'       => 1,
+                'isActive'     => 1,
+                'region'       => 'sidebar',
+                'filter'       => ['+' => ['1/2/3/*']],
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'Fourth block title'
+                ]
+            ]
+        );
+
+        // Block for this specific content
+        $fifthBlock = $this->repository->create(
+            [
+                'type'         => 'basic',
+                'weight'       => 1,
+                'isActive'     => 1,
+                'region'       => 'sidebar',
+                'filter'       => ['+' => ['1/2/3/4/5/6/']],
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'Fifth block title'
+                ]
+            ]
+        );
+
+        // Block shown and hidden on this specific content, should remain hidden
+        $sixthBlock = $this->repository->create(
+            [
+                'type'         => 'basic',
+                'weight'       => 1,
+                'isActive'     => 1,
+                'region'       => 'footer',
+                'filter'       => ['+' => ['1/2/3/4/5/6/'], '-' => ['1/2/3/4/5/6/']],
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'Sixth block title'
+                ]
+            ]
+        );
+
+        // Block shown on all pages
+        $seventhBlock = $this->repository->create(
+            [
+                'type'         => 'basic',
+                'weight'       => 1,
+                'isActive'     => 1,
+                'region'       => 'header',
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'Seventh block title'
                 ]
             ]
         );
 
         $blockIds = $this->finder->getBlocksIds($contentPath);
         $blocks   = $this->repository->getVisibleBlocks($blockIds);
+
+        // Available blocks number
+        $this->assertEquals(5, count($blocks));
+
         // First block
         $this->assertEquals($firstBlock->type, $blocks[0]->type);
         $this->assertEquals($firstBlock->region, $blocks[0]->region);
@@ -501,6 +579,21 @@ class BlockRepositoryTest extends \EloquentTestCase {
         $this->assertEquals($secondBlock->region, $blocks[1]->region);
         $this->assertEquals($secondBlock['translations'][0]['title'], $blocks[1]['translations'][0]['title']);
         $this->assertEquals($secondBlock['translations'][0]['langCode'], $blocks[1]['translations'][0]['langCode']);
+        // Fourth block
+        $this->assertEquals($fourthBlock->type, $blocks[2]->type);
+        $this->assertEquals($fourthBlock->region, $blocks[2]->region);
+        $this->assertEquals($fourthBlock['translations'][0]['title'], $blocks[2]['translations'][0]['title']);
+        $this->assertEquals($fourthBlock['translations'][0]['langCode'], $blocks[2]['translations'][0]['langCode']);
+        // Fifth block
+        $this->assertEquals($fifthBlock->type, $blocks[3]->type);
+        $this->assertEquals($fifthBlock->region, $blocks[3]->region);
+        $this->assertEquals($fifthBlock['translations'][0]['title'], $blocks[3]['translations'][0]['title']);
+        $this->assertEquals($fifthBlock['translations'][0]['langCode'], $blocks[3]['translations'][0]['langCode']);
+        // Seventh block
+        $this->assertEquals($seventhBlock->type, $blocks[4]->type);
+        $this->assertEquals($seventhBlock->region, $blocks[4]->region);
+        $this->assertEquals($seventhBlock['translations'][0]['title'], $blocks[4]['translations'][0]['title']);
+        $this->assertEquals($seventhBlock['translations'][0]['langCode'], $blocks[4]['translations'][0]['langCode']);
     }
 
     /*

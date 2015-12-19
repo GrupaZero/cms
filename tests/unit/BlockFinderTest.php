@@ -107,7 +107,7 @@ class BlockFinderTest extends \TestCase {
      */
     public function it_finds_correct_block_for_static_pages()
     {
-        // Our content path
+        // Home page route name
         $findPath = 'home';
         // Block visible on home page
         $block1         = new Block();
@@ -117,24 +117,33 @@ class BlockFinderTest extends \TestCase {
         $block2         = new Block();
         $block2->id     = 2;
         $block2->filter = ['+' => ['1/*']];
-        // Block visible only on that content
+        // Block visible only on specific content
         $block3         = new Block();
         $block3->id     = 3;
         $block3->filter = ['+' => ['1/2/3/4/5/6/']];
-        // Block hidden only on that content
+        // Block hidden only on specific content
         $block4         = new Block();
         $block4->id     = 4;
         $block4->filter = ['-' => ['1/2/3/4/5/6/']];
+        // Block hidden on homepage
+        $block5         = new Block();
+        $block5->id     = 5;
+        $block5->filter = ['+' => ['1/2/3/4/5/6/'], '-' => ['home']];
 
         // Check for repository method call
         $this->repo->shouldReceive('getBlocks')->andReturn(
             [
                 $block1,
                 $block2,
+                $block3,
+                $block4,
+                $block5,
             ]
         );
         // Block should be visible on home page
         $this->assertContains(1, $this->finder->getBlocksIds($findPath));
+        // Block should be visible on other page
+        $this->assertContains(5, $this->finder->getBlocksIds('1/2/3/4/5/6/'));
         // All other blocks should be hidden
         $this->assertNotContains(2, $this->finder->getBlocksIds($findPath));
         $this->assertNotContains(3, $this->finder->getBlocksIds($findPath));
