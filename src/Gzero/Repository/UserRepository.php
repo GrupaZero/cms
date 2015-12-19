@@ -117,7 +117,6 @@ class UserRepository extends BaseRepository implements AuthenticatableContract, 
      */
     protected function listEagerLoad($results)
     {
-        //$results->load('relation');
         $results->count(); // Place holder
     }
 
@@ -130,12 +129,6 @@ class UserRepository extends BaseRepository implements AuthenticatableContract, 
      */
     public function delete(User $user)
     {
-        /*return $this->newQuery()->transaction(
-            function () use ($user) {
-                return $user->delete();
-            }
-        );*/
-
         return $user->delete();
     }
 
@@ -152,7 +145,7 @@ class UserRepository extends BaseRepository implements AuthenticatableContract, 
      */
     public function getUsers(array $criteria = [], array $orderBy = [], $page = 1, $pageSize = self::ITEMS_PER_PAGE)
     {
-        $query = $this->newORMQuery();
+        $query  = $this->newORMQuery();
         $parsed = $this->parseArgs($criteria, $orderBy);
         $this->handleFilterCriteria($this->getTableName(), $query, $parsed['filter']);
         $this->handleOrderBy(

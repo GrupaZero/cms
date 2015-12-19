@@ -183,29 +183,6 @@ class ContentRepository extends BaseRepository {
         return $query->get();
     }
 
-    ///**
-    // * Get all siblings nodes to specific node
-    // *
-    // * @param TreeNode $node     Node to find siblings
-    // * @param array    $criteria Array of conditions
-    // * @param array    $orderBy  Array of columns
-    // * @param int|null $limit    Limit results
-    // * @param int|null $offset   Start from
-    // *
-    // * @return mixed
-    // */
-    //public function getSiblings(TreeNode $node, array $criteria = [], array $orderBy = null, $limit = null, $offset = null)
-    //{
-    //    $siblings = parent::findBy(array_merge($criteria, ['path' => $node->getPath()]), $orderBy, $limit, $offset);
-    //    // we skip $node
-    //    return array_filter(
-    //        $siblings,
-    //        function ($var) use ($node) {
-    //            return $var->getId() != $node->getId();
-    //        }
-    //    );
-    //}
-
     /**
      * Get all descendants nodes of specific node
      *

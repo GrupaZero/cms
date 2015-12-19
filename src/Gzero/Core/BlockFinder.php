@@ -1,7 +1,6 @@
 <?php namespace Gzero\Core;
 
 use Gzero\Entity\Block;
-use Gzero\Entity\Content;
 use Gzero\Repository\BlockRepository;
 
 /**
@@ -49,13 +48,16 @@ class BlockFinder {
     /**
      * Find all blocks ids that should be displayed on specific path
      *
-     * @param string $path   Content path
+     * @param string $path   Content path or static page named route
      * @param array  $filter Array with all filters
      *
      * @return array
      */
     protected function findBlocksForContent($path, $filter)
     {
+        if ($this->isStaticPage($path)) { // static page like "home", "contact" etc.
+            return $this->handleStaticPageCase($path, $filter);
+        }
         $ids      = explode('/', rtrim($path, '/'));
         $idsCount = count($ids);
         $blockIds = [];
@@ -75,9 +77,7 @@ class BlockFinder {
                     $allIds = $filter[$pathMatch] + $allIds;
                 }
             }
-            if (!empty($allIds)) {
-                $blockIds = array_keys($allIds, true, true); // We're returning only blocks ids with "+" for this site
-            }
+            $blockIds = array_keys($allIds, true, true); // We're returning only blocks ids with "+" for this site
         }
         return $blockIds;
     }
@@ -139,5 +139,33 @@ class BlockFinder {
             return $filter;
         }
         return $filter;
+    }
+
+    /**
+     * It checks if we're  dealing with static page
+     *
+     * @param string $path named route alias
+     *
+     * @return bool
+     */
+    private function isStaticPage($path)
+    {
+        return !preg_match('/\//', $path);
+    }
+
+    /**
+     * It checks which blocks should be displayed for specific static page
+     *
+     * @param string $path   Static page named route
+     * @param array  $filter Array with all filters
+     *
+     * @return array
+     */
+    private function handleStaticPageCase($path, $filter)
+    {
+        if (isset($filter[$path])) {
+            return array_keys($filter[$path], true, true);
+        }
+        return [];
     }
 }
