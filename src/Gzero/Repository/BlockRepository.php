@@ -241,6 +241,28 @@ class BlockRepository extends BaseRepository {
     }
 
     /**
+     * Get blocks by ids without pagination
+     *
+     * @param array $ids        Array with blocks ids
+     * @param bool  $onlyPublic Return only public blocks
+     *
+     * @throws RepositoryException
+     * @return Collection
+     */
+    public function getBlocksByIds(array $ids, $onlyPublic = true)
+    {
+        $query = $this->newORMQuery();
+        if ($onlyPublic) {
+            $query->where('isActive', '=', true);
+        }
+        $blocks = $query->whereIn('id', $ids)
+            ->orderBy('weight', 'ASC')
+            ->get();
+        $this->listEagerLoad($blocks);
+        return $blocks;
+    }
+
+    /**
      * Get all soft deleted blocks with specific criteria
      *
      * @param array    $criteria Filter criteria
