@@ -4,6 +4,7 @@ use Gzero\Entity\Block;
 use Gzero\Entity\User;
 use Gzero\Repository\BlockRepository;
 use Illuminate\Events\Dispatcher;
+use Gzero\Core\BlockFinder;
 
 require_once(__DIR__ . '/../stub/TestSeeder.php');
 require_once(__DIR__ . '/../stub/TestTreeSeeder.php');
@@ -27,10 +28,16 @@ class BlockRepositoryTest extends \EloquentTestCase {
      */
     protected $repository;
 
+    /**
+     * @var BlockFinder
+     */
+    protected $finder;
+
     public function setUp()
     {
         parent::setUp();
         $this->repository = new BlockRepository(new Block(), new Dispatcher());
+        $this->finder     = new BlockFinder($this->repository);
         $this->seed('TestSeeder'); // Relative to tests/app/
     }
 
@@ -443,6 +450,57 @@ class BlockRepositoryTest extends \EloquentTestCase {
         $this->assertEquals($secondBlock->region, $blocks[0]->region);
         $this->assertEquals($secondBlock['translations'][0]['title'], $blocks[0]['translations'][0]['title']);
         $this->assertEquals($secondBlock['translations'][0]['langCode'], $blocks[0]['translations'][0]['langCode']);
+    }
+
+    /**
+     * @test
+     */
+    public function can_find_blocks_for_content()
+    {
+        // Our content path
+        $contentPath = '1/2/3/4/5/6/';
+        // Block in header region
+        $firstBlock = $this->repository->create(
+            [
+                'type'         => 'basic',
+                'weight'       => 0,
+                'isActive'     => 1,
+                'region'       => 'header',
+                'filter'       => ['+' => ['1/*']],
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'A title'
+                ]
+            ]
+        );
+
+        // Block in footer region
+        $secondBlock = $this->repository->create(
+            [
+                'type'         => 'basic',
+                'weight'       => 1,
+                'isActive'     => 1,
+                'region'       => 'footer',
+                'filter'       => ['+' => ['1/*']],
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'B title'
+                ]
+            ]
+        );
+
+        $blockIds = $this->finder->getBlocksIds($contentPath);
+        $blocks   = $this->repository->getVisibleBlocks($blockIds);
+        // First block
+        $this->assertEquals($firstBlock->type, $blocks[0]->type);
+        $this->assertEquals($firstBlock->region, $blocks[0]->region);
+        $this->assertEquals($firstBlock['translations'][0]['title'], $blocks[0]['translations'][0]['title']);
+        $this->assertEquals($firstBlock['translations'][0]['langCode'], $blocks[0]['translations'][0]['langCode']);
+        // Second block
+        $this->assertEquals($secondBlock->type, $blocks[1]->type);
+        $this->assertEquals($secondBlock->region, $blocks[1]->region);
+        $this->assertEquals($secondBlock['translations'][0]['title'], $blocks[1]['translations'][0]['title']);
+        $this->assertEquals($secondBlock['translations'][0]['langCode'], $blocks[1]['translations'][0]['langCode']);
     }
 
     /*

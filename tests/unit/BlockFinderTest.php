@@ -102,6 +102,45 @@ class BlockFinderTest extends \TestCase {
         $this->assertNotContains(7, $this->finder->getBlocksIds($contentPath));
     }
 
+    /**
+     * @test
+     */
+    public function it_finds_correct_block_for_static_pages()
+    {
+        // Our content path
+        $findPath = 'home';
+        // Block visible on home page
+        $block1         = new Block();
+        $block1->id     = 1;
+        $block1->filter = ['+' => ['home']];
+        // Block visible on all root children's pages
+        $block2         = new Block();
+        $block2->id     = 2;
+        $block2->filter = ['+' => ['1/*']];
+        // Block visible only on that content
+        $block3         = new Block();
+        $block3->id     = 3;
+        $block3->filter = ['+' => ['1/2/3/4/5/6/']];
+        // Block hidden only on that content
+        $block4         = new Block();
+        $block4->id     = 4;
+        $block4->filter = ['-' => ['1/2/3/4/5/6/']];
+
+        // Check for repository method call
+        $this->repo->shouldReceive('getBlocks')->andReturn(
+            [
+                $block1,
+                $block2,
+            ]
+        );
+        // Block should be visible on home page
+        $this->assertContains(1, $this->finder->getBlocksIds($findPath));
+        // All other blocks should be hidden
+        $this->assertNotContains(2, $this->finder->getBlocksIds($findPath));
+        $this->assertNotContains(3, $this->finder->getBlocksIds($findPath));
+        $this->assertNotContains(4, $this->finder->getBlocksIds($findPath));
+    }
+
 
     /**
      * @test
