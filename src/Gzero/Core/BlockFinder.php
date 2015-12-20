@@ -99,8 +99,9 @@ class BlockFinder {
      */
     protected function buildFilterArray($isPublic)
     {
-        if ($this->cache->get('blocks:filter:' . $isPublic)) {
-            return $this->cache->get('blocks:filter:' . $isPublic);
+        $cacheKey = ($isPublic) ? 'public' : 'admin';
+        if ($this->cache->get('blocks:filter:' . $cacheKey)) {
+            return $this->cache->get('blocks:filter:' . $cacheKey);
         } else {
             $filter = [];
             if ($isPublic) {
@@ -116,7 +117,7 @@ class BlockFinder {
             foreach ($blocks as $block) {
                 $filter = $this->extractFilterProperty($block, $filter);
             }
-            $this->cache->forever('blocks:filter:' . $isPublic, $filter);
+            $this->cache->forever('blocks:filter:' . $cacheKey, $filter);
             return $filter;
         }
     }
