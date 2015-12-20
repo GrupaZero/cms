@@ -1,5 +1,6 @@
 <?php namespace Gzero\Entity;
 
+use Gzero\Entity\Presenter\BlockPresenter;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
@@ -76,6 +77,16 @@ class Block extends Base {
     public function author()
     {
         return $this->belongsTo(User::class, 'authorId', 'id');
+    }
+
+    /**
+     * Return a created presenter.
+     *
+     * @return \Robbo\Presenter\Presenter
+     */
+    public function getPresenter()
+    {
+        return new BlockPresenter($this);
     }
 
     /**

@@ -71,11 +71,8 @@ class BlockLoad {
     {
         if ($request->method() === 'GET' && $route->domain() === env('DOMAIN') && $route->getName()) {
             $blockIds = $this->blockFinder->getBlocksIds($route->getName());
-            if (!empty($blockIds)) {
-                $blocks = $this->blockRepository->getVisibleBlocks($blockIds);
-                view()->share('blocks', $blocks->groupBy('region'));
-            }
-
+            $blocks   = $this->blockRepository->getVisibleBlocks($blockIds);
+            view()->share('blocks', $blocks->groupBy('region'));
         }
     }
 
@@ -89,10 +86,8 @@ class BlockLoad {
     public function handleContentRoute(Content $content)
     {
         $blockIds = $this->blockFinder->getBlocksIds($content->path);
-        if (!empty($blockIds)) {
-            $blocks = $this->blockRepository->getVisibleBlocks($blockIds);
-            view()->share('blocks', $blocks->groupBy('region'));
-        }
+        $blocks   = $this->blockRepository->getVisibleBlocks($blockIds);
+        view()->share('blocks', $blocks->groupBy('region'));
     }
 
 }

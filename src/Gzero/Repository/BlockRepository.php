@@ -255,10 +255,17 @@ class BlockRepository extends BaseRepository {
         if ($onlyPublic) {
             $query->where('isActive', '=', true);
         }
-        $blocks = $query->whereIn('id', $ids)
-            ->orWhere('filter', null)
-            ->orderBy('weight', 'ASC')
-            ->get();
+        if (!empty($ids)) {
+            $blocks = $query->whereIn('id', $ids)
+                ->orWhere('filter', null)
+                ->orderBy('weight', 'ASC')
+                ->get();
+        } else { // blocks on all pages only
+            $blocks = $query->where('filter', null)
+                ->orderBy('weight', 'ASC')
+                ->get();
+        }
+
         $this->listEagerLoad($blocks);
         return $blocks;
     }

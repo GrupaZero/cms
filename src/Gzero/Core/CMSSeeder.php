@@ -385,7 +385,7 @@ class CMSSeeder extends Seeder {
         ] : null;
         $input       = [
             'type'         => $type->name,
-            'region'       => $this->faker->word,
+            'region'       => $this->getRandomBlockRegion(),
             'weight'       => rand(0, 12),
             'filter'       => $filter,
             'options'      => array_combine($this->faker->words(), $this->faker->words()),
@@ -529,5 +529,16 @@ class CMSSeeder extends Seeder {
     private function getRandomBlockFilter($contents)
     {
         return rand(0, 1) ? $contents[array_rand($contents)]->path . '*' : $contents[array_rand($contents)]->path;
+    }
+
+    /**
+     * Function returns one of the available block regions
+     *
+     * @return string
+     */
+    private function getRandomBlockRegion()
+    {
+        $availableRegions = config('gzero.available_blocks_regions');
+        return $availableRegions[array_rand($availableRegions, 1)];
     }
 }
