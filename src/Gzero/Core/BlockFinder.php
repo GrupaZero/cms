@@ -2,6 +2,7 @@
 
 use Gzero\Entity\Block;
 use Gzero\Repository\BlockRepository;
+use Illuminate\Cache\CacheManager;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -23,13 +24,20 @@ class BlockFinder {
     protected $blockRepository;
 
     /**
+     * @var CacheManager
+     */
+    protected $cache;
+
+    /**
      * BlockFinder constructor
      *
      * @param BlockRepository $block Block repository
+     * @param CacheManager    $cache Cache
      */
-    public function __construct(BlockRepository $block)
+    public function __construct(BlockRepository $block, CacheManager $cache)
     {
         $this->blockRepository = $block;
+        $this->cache           = $cache;
     }
 
     /**
@@ -91,22 +99,26 @@ class BlockFinder {
      */
     protected function buildFilterArray($isPublic)
     {
-        $filter = [];
-        if ($isPublic) {
-            $blocks = $this->blockRepository->getBlocks(
-                [['filter', '!=', null], ['isActive', '=', true]],
-                [['weight', 'ASC']],
-                null,
-                null
-            );
+        if ($this->cache->get('blocks:filter:' . $isPublic)) {
+            return $this->cache->get('blocks:filter:' . $isPublic);
         } else {
-            $blocks = $this->blockRepository->getBlocks([['filter', '!=', null]], [['weight', 'ASC']], null, null);
+            $filter = [];
+            if ($isPublic) {
+                $blocks = $this->blockRepository->getBlocks(
+                    [['filter', '!=', null], ['isActive', '=', true]],
+                    [['weight', 'ASC']],
+                    null,
+                    null
+                );
+            } else {
+                $blocks = $this->blockRepository->getBlocks([['filter', '!=', null]], [['weight', 'ASC']], null, null);
+            }
+            foreach ($blocks as $block) {
+                $filter = $this->extractFilterProperty($block, $filter);
+            }
+            $this->cache->forever('blocks:filter:' . $isPublic, $filter);
+            return $filter;
         }
-        foreach ($blocks as $block) {
-            $filter = $this->extractFilterProperty($block, $filter);
-        }
-        // @TODO Add cache
-        return $filter;
     }
 
     /**
