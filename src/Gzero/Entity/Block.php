@@ -1,5 +1,7 @@
 <?php namespace Gzero\Entity;
 
+use Illuminate\Database\Eloquent\SoftDeletes;
+
 /**
  * This file is part of the GZERO CMS package.
  *
@@ -13,6 +15,8 @@
  * @copyright  Copyright (c) 2015, Adrian Skierniewski
  */
 class Block extends Base {
+
+    use SoftDeletes;
 
     /**
      * @var array

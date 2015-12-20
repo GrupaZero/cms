@@ -276,7 +276,7 @@ class BlockRepository extends BaseRepository {
      */
     public function getDeletedBlocks(array $criteria = [], array $orderBy = [], $page = 1, $pageSize = self::ITEMS_PER_PAGE)
     {
-        $query  = $this->newORMQuery();
+        $query  = $this->newORMQuery()->onlyTrashed();
         $parsed = $this->parseArgs($criteria, $orderBy);
         $this->handleFilterCriteria($this->getTableName(), $query, $parsed['filter']);
         $this->handleOrderBy(
