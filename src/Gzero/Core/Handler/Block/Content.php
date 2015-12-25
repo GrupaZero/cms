@@ -22,13 +22,19 @@ class Content implements BlockTypeHandler {
      */
     private $block;
 
+    /**
+     * @var
+     */
+    private $translations;
+
     // @codingStandardsIgnoreStart
     /**
      * {@inheritdoc}
      */
     public function load(Block $block, Lang $lang)
     {
-        $this->block = $block;
+        $this->block        = $block;
+        $this->translations = $block->getPresenter()->translation($lang->code);
         return $this;
     }
 
@@ -37,10 +43,10 @@ class Content implements BlockTypeHandler {
      */
     public function render()
     {
-        //return \View::make(
-        //    'blocks.basic',
-        //    ['block' => $this->block, 'translations' => $this->block->getTranslations()->first()]
-        //)->render();
+        return \View::make(
+            'blocks.content',
+            ['block' => $this->block, 'translations' => $this->translations]
+        )->render();
     }
     // @codingStandardsIgnoreEnd
 }

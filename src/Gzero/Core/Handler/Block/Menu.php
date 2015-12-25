@@ -18,7 +18,15 @@ use Gzero\Repository\MenuLinkRepository;
  */
 class Menu implements BlockTypeHandler {
 
+    /**
+     * @var
+     */
     private $block;
+
+    /**
+     * @var
+     */
+    private $translations;
 
     /**
      * Menu constructor
@@ -35,11 +43,8 @@ class Menu implements BlockTypeHandler {
      */
     public function load(Block $block, Lang $lang)
     {
-        //if ($block->getMenu()) {
-        //    $this->block = $block;
-        //} else {
-        //    throw new BlockHandlerException('Block Menu Handler: Menu not found!');
-        //}
+        $this->block        = $block;
+        $this->translations = $block->getPresenter()->translation($lang->code);
         return $this;
     }
 
@@ -48,17 +53,10 @@ class Menu implements BlockTypeHandler {
      */
     public function render()
     {
-        //$translation = $this->block->getTranslations()->first();
-        //$menu        = $this->block->getMenu();
-        //$menuTree    = $this->menuRepo->getDescendants($menu, true);
-        //return \View::make(
-        //    'blocks.menu',
-        //    [
-        //        'block'        => $this->block,
-        //        'translations' => $translation,
-        //        'menu'         => $menuTree
-        //    ]
-        //)->render();
+        return \View::make(
+            'blocks.menu',
+            ['block' => $this->block, 'translations' => $this->translations]
+        )->render();
     }
 
     // @codingStandardsIgnoreEnd

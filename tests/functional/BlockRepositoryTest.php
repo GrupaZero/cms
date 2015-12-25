@@ -3,6 +3,7 @@
 use Gzero\Entity\Block;
 use Gzero\Entity\User;
 use Gzero\Repository\BlockRepository;
+use Illuminate\Cache\CacheManager;
 use Illuminate\Events\Dispatcher;
 use Gzero\Core\BlockFinder;
 
@@ -37,7 +38,7 @@ class BlockRepositoryTest extends \EloquentTestCase {
     {
         parent::setUp();
         $this->repository = new BlockRepository(new Block(), new Dispatcher());
-        $this->finder     = new BlockFinder($this->repository);
+        $this->finder     = new BlockFinder($this->repository, new CacheManager($this->app));
         $this->seed('TestSeeder'); // Relative to tests/app/
     }
 

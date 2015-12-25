@@ -82,7 +82,7 @@ class BlockRepository extends BaseRepository {
                 }
             }
         );
-        return $block;
+        return $this->getById($block->id);
     }
 
     /**
@@ -108,10 +108,10 @@ class BlockRepository extends BaseRepository {
                     $translation->isActive = 1; // Because only recent translation is active
                     $block->translations()->save($translation);
                     $this->events->fire('block.translation.created', [$block, $translation]);
-                    return $translation;
+                    return $this->getBlockTranslationById($block, $translation->id);
                 }
             );
-            return $translation;
+            return $this->getBlockTranslationById($block, $translation->id);
         } else {
             throw new RepositoryException("Language code and title of translation is required");
         }

@@ -17,8 +17,15 @@ use Gzero\Entity\Lang;
  */
 class Slider implements BlockTypeHandler {
 
+    /**
+     * @var
+     */
     private $block;
 
+    /**
+     * @var
+     */
+    private $translations;
     // @codingStandardsIgnoreStart
 
     /**
@@ -26,7 +33,8 @@ class Slider implements BlockTypeHandler {
      */
     public function load(Block $block, Lang $lang)
     {
-        $this->block = $block;
+        $this->block        = $block;
+        $this->translations = $block->getPresenter()->translation($lang->code);
         return $this;
     }
 
@@ -35,7 +43,10 @@ class Slider implements BlockTypeHandler {
      */
     public function render()
     {
-        return \View::make('blocks.slider', ['block' => $this->block])->render();
+        return \View::make(
+            'blocks.slider',
+            ['block' => $this->block, 'translations' => $this->translations]
+        )->render();
     }
 
     // @codingStandardsIgnoreEnd
