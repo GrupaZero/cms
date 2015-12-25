@@ -1,7 +1,7 @@
 <?php namespace Gzero\Core;
 
 use Gzero\Repository\ContentRepository;
-use Illuminate\Foundation\Application;
+use Illuminate\Events\Dispatcher;
 use Gzero\Entity\Lang;
 use Gzero\Core\Handler\Content\ContentTypeHandler;
 use Illuminate\Support\Facades\View;
@@ -22,25 +22,27 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 class DynamicRouter {
 
     /**
-     * @var Application
-     */
-    private $app;
-
-    /**
      * @var ContentRepository
      */
     private $repository;
 
     /**
+     * The events dispatcher
+     *
+     * @var Dispatcher
+     */
+    protected $events;
+
+    /**
      * DynamicRouter constructor
      *
-     * @param Application       $app        Laravel application
      * @param ContentRepository $repository Content repository
+     * @param Dispatcher        $events     Events dispatcher
      */
-    public function __construct(Application $app, ContentRepository $repository)
+    public function __construct(ContentRepository $repository, Dispatcher $events)
     {
-        $this->app        = $app;
         $this->repository = $repository;
+        $this->events     = $events;
     }
 
     /**
@@ -69,6 +71,7 @@ class DynamicRouter {
                         ]
                     );
                 }
+                $this->events->fire('router.contentMatched', [$content]);
                 $type = $this->resolveType($content->type);
                 return $type->load($content, $lang)->render();
             } else {
@@ -89,7 +92,7 @@ class DynamicRouter {
      */
     private function resolveType($typeName)
     {
-        $type = $this->app->make('content_type:' . $typeName);
+        $type = app()->make('content:type:' . $typeName);
         if (!$type instanceof ContentTypeHandler) {
             throw new \ReflectionException("Type: $typeName must implement ContentTypeInterface");
         }

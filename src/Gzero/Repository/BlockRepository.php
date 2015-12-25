@@ -35,9 +35,9 @@ class BlockRepository extends BaseRepository {
     protected $events;
 
     /**
-     * Content repository constructor
+     * Block repository constructor
      *
-     * @param Block      $block  Content model
+     * @param Block      $block  Block model
      * @param Dispatcher $events Events dispatcher
      */
     public function __construct(Block $block, Dispatcher $events)
@@ -49,7 +49,7 @@ class BlockRepository extends BaseRepository {
     /**
      * Create specific block entity
      *
-     * @param array     $data   Content entity to persist
+     * @param array     $data   Array with all required fields to persist
      * @param User|null $author Author entity
      *
      * @return Block
@@ -82,13 +82,13 @@ class BlockRepository extends BaseRepository {
                 }
             }
         );
-        return $block;
+        return $this->getById($block->id);
     }
 
     /**
      * Creates translation for specified block entity
      *
-     * @param Block $block Content entity
+     * @param Block $block Block entity
      * @param array $data  new data to save
      *
      * @return BlockTranslation
@@ -108,10 +108,10 @@ class BlockRepository extends BaseRepository {
                     $translation->isActive = 1; // Because only recent translation is active
                     $block->translations()->save($translation);
                     $this->events->fire('block.translation.created', [$block, $translation]);
-                    return $translation;
+                    return $this->getBlockTranslationById($block, $translation->id);
                 }
             );
-            return $translation;
+            return $this->getBlockTranslationById($block, $translation->id);
         } else {
             throw new RepositoryException("Language code and title of translation is required");
         }
@@ -121,7 +121,7 @@ class BlockRepository extends BaseRepository {
      * Update specific block entity
      *
      * @param Block     $block    Block entity
-     * @param array     $data     new data to save
+     * @param array     $data     New data to save
      * @param User|null $modifier User entity
      *
      * @return Block
@@ -144,7 +144,7 @@ class BlockRepository extends BaseRepository {
     /**
      * Delete specific block entity using softDelete
      *
-     * @param Block $block Content entity to delete
+     * @param Block $block Block entity to delete
      *
      * @return boolean
      */
@@ -163,7 +163,7 @@ class BlockRepository extends BaseRepository {
     /**
      * Delete specific block entity using forceDelete
      *
-     * @param Block $block Content entity to delete
+     * @param Block $block Block entity to delete
      *
      * @return boolean
      */
@@ -172,7 +172,7 @@ class BlockRepository extends BaseRepository {
         return $this->newQuery()->transaction(
             function () use ($block) {
                 $this->events->fire('block.forceDeleting', [$block]);
-                /** @TODO deleting menu? */
+                /** @TODO handling delete other stuff like a menu etc. */
                 $block->forceDelete();
                 $this->events->fire('block.forceDeleted', [$block]);
                 return true;
@@ -241,6 +241,36 @@ class BlockRepository extends BaseRepository {
     }
 
     /**
+     * Get all visible blocks
+     *
+     * @param array $ids        Array with blocks ids returned from block finder
+     * @param bool  $onlyPublic Return only public blocks
+     *
+     * @throws RepositoryException
+     * @return Collection
+     */
+    public function getVisibleBlocks(array $ids, $onlyPublic = true)
+    {
+        $query = $this->newORMQuery();
+        if ($onlyPublic) {
+            $query->where('isActive', '=', true);
+        }
+        if (!empty($ids)) {
+            $blocks = $query->whereIn('id', $ids)
+                ->orWhere('filter', null)
+                ->orderBy('weight', 'ASC')
+                ->get();
+        } else { // blocks on all pages only
+            $blocks = $query->where('filter', null)
+                ->orderBy('weight', 'ASC')
+                ->get();
+        }
+
+        $this->listEagerLoad($blocks);
+        return $blocks;
+    }
+
+    /**
      * Get all soft deleted blocks with specific criteria
      *
      * @param array    $criteria Filter criteria
@@ -253,7 +283,7 @@ class BlockRepository extends BaseRepository {
      */
     public function getDeletedBlocks(array $criteria = [], array $orderBy = [], $page = 1, $pageSize = self::ITEMS_PER_PAGE)
     {
-        $query  = $this->newORMQuery();
+        $query  = $this->newORMQuery()->onlyTrashed();
         $parsed = $this->parseArgs($criteria, $orderBy);
         $this->handleFilterCriteria($this->getTableName(), $query, $parsed['filter']);
         $this->handleOrderBy(

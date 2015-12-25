@@ -2,7 +2,6 @@
 
 use Gzero\Entity\Block;
 use Gzero\Entity\Lang;
-use Gzero\Repository\MenuLinkRepository;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -10,13 +9,13 @@ use Gzero\Repository\MenuLinkRepository;
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  *
- * Class Menu
+ * Class Widget
  *
  * @package    Gzero\BlockTypeHandlers
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2014, Adrian Skierniewski
  */
-class Menu implements BlockTypeHandler {
+class Widget implements BlockTypeHandler {
 
     /**
      * @var
@@ -27,17 +26,7 @@ class Menu implements BlockTypeHandler {
      * @var
      */
     private $translations;
-
-    /**
-     * Menu constructor
-     *
-     */
-    public function __construct()
-    {
-    }
-
     // @codingStandardsIgnoreStart
-
     /**
      * {@inheritdoc}
      */
@@ -54,10 +43,9 @@ class Menu implements BlockTypeHandler {
     public function render()
     {
         return \View::make(
-            'blocks.menu',
+            'blocks.widget',
             ['block' => $this->block, 'translations' => $this->translations]
         )->render();
     }
-
     // @codingStandardsIgnoreEnd
 }

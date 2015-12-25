@@ -31,7 +31,7 @@ class OptionRepository {
     protected $optionModel;
 
     /**
-     * @var Array Whole options hierarchy.
+     * @var array Whole options hierarchy.
      *            This array maps each category name to an array (which may be empty)
      *            mapping param names to their values
      */
