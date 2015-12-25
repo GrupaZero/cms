@@ -2,6 +2,7 @@
 
 use Gzero\Core\BlockFinder;
 use Gzero\Entity\Block;
+use Illuminate\Cache\CacheManager;
 use Mockery as m;
 
 /**
@@ -31,7 +32,7 @@ class BlockFinderTest extends \TestCase {
     {
         parent::setUp();
         $this->repo   = m::mock('Gzero\Repository\BlockRepository');
-        $this->finder = new BlockFinder($this->repo);
+        $this->finder = new BlockFinder($this->repo, new CacheManager($this->app));
     }
 
     public function tearDown()
