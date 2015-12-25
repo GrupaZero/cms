@@ -92,7 +92,7 @@ class DynamicRouter {
      */
     private function resolveType($typeName)
     {
-        $type = app()->make('content_type:' . $typeName);
+        $type = app()->make('content:type:' . $typeName);
         if (!$type instanceof ContentTypeHandler) {
             throw new \ReflectionException("Type: $typeName must implement ContentTypeInterface");
         }

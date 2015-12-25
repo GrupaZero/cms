@@ -1,11 +1,9 @@
 <?php namespace Gzero\Core;
 
 use Gzero\Core\Menu\Register;
-use Gzero\Core\OptionsService;
 use Gzero\Repository\LangRepository;
 use Gzero\Repository\OptionRepository;
 use Symfony\Component\HttpFoundation\Request;
-use Illuminate\Foundation\AliasLoader;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -121,11 +119,11 @@ class ServiceProvider extends AbstractServiceProvider {
     protected function bindTypes()
     {
         foreach ($this->app['config']['gzero.block_type'] as $type => $class) {
-            $this->app->bind("block_type:$type", $class);
+            $this->app->bind("block:type:$type", $class);
         }
 
         foreach ($this->app['config']['gzero.content_type'] as $type => $class) {
-            $this->app->bind("content_type:$type", $class);
+            $this->app->bind("content:type:$type", $class);
         }
     }
 

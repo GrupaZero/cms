@@ -2,7 +2,6 @@
 
 use Gzero\Entity\Block;
 use Gzero\Entity\Lang;
-use Gzero\Repository\MenuLinkRepository;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -10,36 +9,26 @@ use Gzero\Repository\MenuLinkRepository;
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  *
- * Class Menu
+ * Class Content
  *
  * @package    Gzero\BlockTypeHandlers
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2014, Adrian Skierniewski
  */
-class Menu implements BlockTypeHandler {
-
-    private $block;
+class Content implements BlockTypeHandler {
 
     /**
-     * Menu constructor
-     *
+     * @var
      */
-    public function __construct()
-    {
-    }
+    private $block;
 
     // @codingStandardsIgnoreStart
-
     /**
      * {@inheritdoc}
      */
     public function load(Block $block, Lang $lang)
     {
-        //if ($block->getMenu()) {
-        //    $this->block = $block;
-        //} else {
-        //    throw new BlockHandlerException('Block Menu Handler: Menu not found!');
-        //}
+        $this->block = $block;
         return $this;
     }
 
@@ -48,18 +37,10 @@ class Menu implements BlockTypeHandler {
      */
     public function render()
     {
-        //$translation = $this->block->getTranslations()->first();
-        //$menu        = $this->block->getMenu();
-        //$menuTree    = $this->menuRepo->getDescendants($menu, true);
         //return \View::make(
-        //    'blocks.menu',
-        //    [
-        //        'block'        => $this->block,
-        //        'translations' => $translation,
-        //        'menu'         => $menuTree
-        //    ]
+        //    'blocks.basic',
+        //    ['block' => $this->block, 'translations' => $this->block->getTranslations()->first()]
         //)->render();
     }
-
     // @codingStandardsIgnoreEnd
 }

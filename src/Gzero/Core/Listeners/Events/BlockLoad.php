@@ -3,6 +3,8 @@
 use Gzero\Core\BlockFinder;
 use Gzero\Entity\Content;
 use Gzero\Repository\BlockRepository;
+use Gzero\Repository\LangRepository;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Route;
 
@@ -31,15 +33,22 @@ class BlockLoad {
     private $blockRepository;
 
     /**
+     * @var LangRepository
+     */
+    private $langRepository;
+
+    /**
      * Event constructor.
      *
      * @param BlockFinder     $blockFinder     Block Finder
      * @param BlockRepository $blockRepository Block Repository
+     * @param LangRepository  $langRepository  Lang Repository
      */
-    public function __construct(BlockFinder $blockFinder, BlockRepository $blockRepository)
+    public function __construct(BlockFinder $blockFinder, BlockRepository $blockRepository, LangRepository $langRepository)
     {
         $this->blockFinder     = $blockFinder;
         $this->blockRepository = $blockRepository;
+        $this->langRepository  = $langRepository;
     }
 
     /**
@@ -72,6 +81,7 @@ class BlockLoad {
         if ($request->method() === 'GET' && $route->domain() === env('DOMAIN') && $route->getName()) {
             $blockIds = $this->blockFinder->getBlocksIds($route->getName());
             $blocks   = $this->blockRepository->getVisibleBlocks($blockIds);
+            $this->handleBlockRendering($blocks);
             view()->share('blocks', $blocks->groupBy('region'));
         }
     }
@@ -87,7 +97,23 @@ class BlockLoad {
     {
         $blockIds = $this->blockFinder->getBlocksIds($content->path);
         $blocks   = $this->blockRepository->getVisibleBlocks($blockIds);
+        $this->handleBlockRendering($blocks);
         view()->share('blocks', $blocks->groupBy('region'));
+    }
+
+    /**
+     * It renders blocks
+     *
+     * @param Collection $blocks List of blocks to render
+     *
+     * @return void
+     */
+    protected function handleBlockRendering($blocks)
+    {
+        foreach ($blocks as &$block) {
+            $type        = app()->make('block:type:' . $block->type);
+            $block->view = $type->load($block, $this->langRepository->getCurrent())->render();
+        }
     }
 
 }
