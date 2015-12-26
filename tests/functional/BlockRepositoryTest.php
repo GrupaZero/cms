@@ -38,7 +38,7 @@ class BlockRepositoryTest extends \EloquentTestCase {
     public function setUp()
     {
         parent::setUp();
-        $this->repository = new BlockRepository(new Block(), new Dispatcher(), new CacheManager($this->app));
+        $this->repository = new BlockRepository(new Block(), new Dispatcher());
         $this->finder     = new BlockFinder($this->repository, new CacheManager($this->app));
         $this->seed('TestSeeder'); // Relative to tests/app/
     }
@@ -211,6 +211,38 @@ class BlockRepositoryTest extends \EloquentTestCase {
                 ]
             ]
         );
+    }
+
+    /**
+     * @test
+     */
+    public function can_set_block_filter_as_null()
+    {
+        $author = User::find(1);
+        $block  = $this->repository->create(
+            [
+                'type'         => 'menu',
+                'region'       => 'test',
+                'filter'       => ['+' => ['1/2/3']],
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'Example block title'
+                ]
+            ],
+            $author
+        );
+        $this->repository->update(
+            $block,
+            [
+                'filter' => null,
+            ],
+            $author
+        );
+        $newBlock = $this->repository->getById($block->id);
+
+
+        // Block
+        $this->assertNull($newBlock->filter);
     }
 
     /*

@@ -4,10 +4,10 @@ use Gzero\Entity\Block;
 use Gzero\Entity\BlockTranslation;
 use Gzero\Entity\User;
 use Gzero\Entity\Widget;
-use Illuminate\Cache\CacheManager;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Events\Dispatcher;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -36,22 +36,15 @@ class BlockRepository extends BaseRepository {
     protected $events;
 
     /**
-     * @var CacheManager
-     */
-    protected $cache;
-
-    /**
      * Block repository constructor
      *
-     * @param Block        $block  Block model
-     * @param Dispatcher   $events Events dispatcher
-     * @param CacheManager $cache  Cache
+     * @param Block      $block  Block model
+     * @param Dispatcher $events Events dispatcher
      */
-    public function __construct(Block $block, Dispatcher $events, CacheManager $cache)
+    public function __construct(Block $block, Dispatcher $events)
     {
         $this->model  = $block;
         $this->events = $events;
-        $this->cache  = $cache;
     }
 
     /**
@@ -116,7 +109,7 @@ class BlockRepository extends BaseRepository {
                     $translation->isActive = 1; // Because only recent translation is active
                     $block->translations()->save($translation);
                     $this->events->fire('block.translation.created', [$block, $translation]);
-                    $this->clearBlocksCache('public');
+                    $this->clearBlocksCache('admin');
                     return $this->getBlockTranslationById($block, $translation->id);
                 }
             );
@@ -144,7 +137,7 @@ class BlockRepository extends BaseRepository {
                 $block->fill($data);
                 $block->save();
                 $this->events->fire('block.updated', [$block]);
-                $this->clearBlocksCache('public');
+                $this->clearBlocksCache('admin');
                 return $this->getById($block->id);
             }
         );
@@ -427,6 +420,6 @@ class BlockRepository extends BaseRepository {
      */
     private function clearBlocksCache($cacheKey)
     {
-        $this->cache->forget('blocks:filter:' . $cacheKey);
+        Cache::forget('blocks:filter:' . $cacheKey);
     }
 }
