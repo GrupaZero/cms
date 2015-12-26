@@ -7,6 +7,7 @@ use Illuminate\Cache\CacheManager;
 use Illuminate\Events\Dispatcher;
 use Gzero\Core\BlockFinder;
 
+
 require_once(__DIR__ . '/../stub/TestSeeder.php');
 require_once(__DIR__ . '/../stub/TestTreeSeeder.php');
 
@@ -210,6 +211,38 @@ class BlockRepositoryTest extends \EloquentTestCase {
                 ]
             ]
         );
+    }
+
+    /**
+     * @test
+     */
+    public function can_set_block_filter_as_null()
+    {
+        $author = User::find(1);
+        $block  = $this->repository->create(
+            [
+                'type'         => 'menu',
+                'region'       => 'test',
+                'filter'       => ['+' => ['1/2/3']],
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'Example block title'
+                ]
+            ],
+            $author
+        );
+        $this->repository->update(
+            $block,
+            [
+                'filter' => null,
+            ],
+            $author
+        );
+        $newBlock = $this->repository->getById($block->id);
+
+
+        // Block
+        $this->assertNull($newBlock->filter);
     }
 
     /*

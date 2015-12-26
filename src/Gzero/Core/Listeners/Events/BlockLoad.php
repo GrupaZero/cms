@@ -79,10 +79,12 @@ class BlockLoad {
     public function handleLaravelRoute(Route $route, Request $request)
     {
         if ($request->method() === 'GET' && $route->domain() === env('DOMAIN') && $route->getName()) {
-            $blockIds = $this->blockFinder->getBlocksIds($route->getName());
-            $blocks   = $this->blockRepository->getVisibleBlocks($blockIds);
+            $blockIds = $this->blockFinder->getBlocksIds($route->getName(), true);
+            $blocks   = $this->blockRepository->getVisibleBlocks($blockIds, true);
             $this->handleBlockRendering($blocks);
-            view()->share('blocks', $blocks->groupBy('region'));
+            $blocks   = $blocks->groupBy('region');
+            view()->share('blocks', $blocks);
+            view()->share('sidebarsNumber', $this->getSidebarsNumber($blocks));
         }
     }
 
@@ -95,10 +97,12 @@ class BlockLoad {
      */
     public function handleContentRoute(Content $content)
     {
-        $blockIds = $this->blockFinder->getBlocksIds($content->path);
-        $blocks   = $this->blockRepository->getVisibleBlocks($blockIds);
+        $blockIds = $this->blockFinder->getBlocksIds($content->path, true);
+        $blocks   = $this->blockRepository->getVisibleBlocks($blockIds, true);
         $this->handleBlockRendering($blocks);
-        view()->share('blocks', $blocks->groupBy('region'));
+        $blocks   = $blocks->groupBy('region');
+        view()->share('blocks', $blocks);
+        view()->share('sidebarsNumber', $this->getSidebarsNumber($blocks));
     }
 
     /**
@@ -114,6 +118,24 @@ class BlockLoad {
             $type        = app()->make('block:type:' . $block->type);
             $block->view = $type->load($block, $this->langRepository->getCurrent())->render();
         }
+    }
+
+    /**
+     * It gets number of active sidebars regions
+     *
+     * @param Collection $blocks List of blocks
+     *
+     * @return int number of active sidebars
+     */
+    protected function getSidebarsNumber($blocks)
+    {
+        $sidebarsNumber = 0;
+        foreach (['sidebarLeft', 'sidebarRight'] as $region) {
+            if ($blocks->has($region)) {
+                $sidebarsNumber++;
+            }
+        }
+        return $sidebarsNumber;
     }
 
 }

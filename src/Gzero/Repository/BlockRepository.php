@@ -7,6 +7,7 @@ use Gzero\Entity\Widget;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Events\Dispatcher;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -82,7 +83,7 @@ class BlockRepository extends BaseRepository {
                 }
             }
         );
-        return $this->getById($block->id);
+        return $block;
     }
 
     /**
@@ -108,10 +109,11 @@ class BlockRepository extends BaseRepository {
                     $translation->isActive = 1; // Because only recent translation is active
                     $block->translations()->save($translation);
                     $this->events->fire('block.translation.created', [$block, $translation]);
+                    $this->clearBlocksCache();
                     return $this->getBlockTranslationById($block, $translation->id);
                 }
             );
-            return $this->getBlockTranslationById($block, $translation->id);
+            return $translation;
         } else {
             throw new RepositoryException("Language code and title of translation is required");
         }
@@ -135,7 +137,8 @@ class BlockRepository extends BaseRepository {
                 $block->fill($data);
                 $block->save();
                 $this->events->fire('block.updated', [$block]);
-                return $block;
+                $this->clearBlocksCache();
+                return $this->getById($block->id);
             }
         );
         return $block;
@@ -252,20 +255,18 @@ class BlockRepository extends BaseRepository {
     public function getVisibleBlocks(array $ids, $onlyPublic = true)
     {
         $query = $this->newORMQuery();
+        if (!empty($ids)) {
+            $query->whereIn('id', $ids)
+                ->orWhere('filter', null)
+                ->orderBy('weight', 'ASC');
+        } else { // blocks on all pages only
+            $query->where('filter', null)
+                ->orderBy('weight', 'ASC');
+        }
         if ($onlyPublic) {
             $query->where('isActive', '=', true);
         }
-        if (!empty($ids)) {
-            $blocks = $query->whereIn('id', $ids)
-                ->orWhere('filter', null)
-                ->orderBy('weight', 'ASC')
-                ->get();
-        } else { // blocks on all pages only
-            $blocks = $query->where('filter', null)
-                ->orderBy('weight', 'ASC')
-                ->get();
-        }
-
+        $blocks = $query->get();
         $this->listEagerLoad($blocks);
         return $blocks;
     }
@@ -406,5 +407,16 @@ class BlockRepository extends BaseRepository {
         } else {
             throw new RepositoryException("Widget is required");
         }
+    }
+
+    /**
+     * Clears blocks cache
+     *
+     * @return void
+     */
+    private function clearBlocksCache()
+    {
+        Cache::forget('blocks:filter:public');
+        Cache::forget('blocks:filter:admin');
     }
 }
