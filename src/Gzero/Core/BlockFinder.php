@@ -100,7 +100,7 @@ class BlockFinder {
     protected function buildFilterArray($isPublic)
     {
         $cacheKey = ($isPublic) ? 'public' : 'admin';
-        if ($this->cache->get('blocks:filter:' . $cacheKey)) {
+        if ($this->cache->has('blocks:filter:' . $cacheKey)) {
             return $this->cache->get('blocks:filter:' . $cacheKey);
         } else {
             $filter = [];

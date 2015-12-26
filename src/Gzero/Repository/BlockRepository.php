@@ -109,7 +109,7 @@ class BlockRepository extends BaseRepository {
                     $translation->isActive = 1; // Because only recent translation is active
                     $block->translations()->save($translation);
                     $this->events->fire('block.translation.created', [$block, $translation]);
-                    $this->clearBlocksCache('admin');
+                    $this->clearBlocksCache();
                     return $this->getBlockTranslationById($block, $translation->id);
                 }
             );
@@ -137,7 +137,7 @@ class BlockRepository extends BaseRepository {
                 $block->fill($data);
                 $block->save();
                 $this->events->fire('block.updated', [$block]);
-                $this->clearBlocksCache('admin');
+                $this->clearBlocksCache();
                 return $this->getById($block->id);
             }
         );
@@ -255,20 +255,18 @@ class BlockRepository extends BaseRepository {
     public function getVisibleBlocks(array $ids, $onlyPublic = true)
     {
         $query = $this->newORMQuery();
+        if (!empty($ids)) {
+            $query->whereIn('id', $ids)
+                ->orWhere('filter', null)
+                ->orderBy('weight', 'ASC');
+        } else { // blocks on all pages only
+            $query->where('filter', null)
+                ->orderBy('weight', 'ASC');
+        }
         if ($onlyPublic) {
             $query->where('isActive', '=', true);
         }
-        if (!empty($ids)) {
-            $blocks = $query->whereIn('id', $ids)
-                ->orWhere('filter', null)
-                ->orderBy('weight', 'ASC')
-                ->get();
-        } else { // blocks on all pages only
-            $blocks = $query->where('filter', null)
-                ->orderBy('weight', 'ASC')
-                ->get();
-        }
-
+        $blocks = $query->get();
         $this->listEagerLoad($blocks);
         return $blocks;
     }
@@ -414,12 +412,11 @@ class BlockRepository extends BaseRepository {
     /**
      * Clears blocks cache
      *
-     * @param string $cacheKey cache key
-     *
      * @return void
      */
-    private function clearBlocksCache($cacheKey)
+    private function clearBlocksCache()
     {
-        Cache::forget('blocks:filter:' . $cacheKey);
+        Cache::forget('blocks:filter:public');
+        Cache::forget('blocks:filter:admin');
     }
 }
