@@ -7,6 +7,7 @@ use Illuminate\Cache\CacheManager;
 use Illuminate\Events\Dispatcher;
 use Gzero\Core\BlockFinder;
 
+
 require_once(__DIR__ . '/../stub/TestSeeder.php');
 require_once(__DIR__ . '/../stub/TestTreeSeeder.php');
 
@@ -37,7 +38,7 @@ class BlockRepositoryTest extends \EloquentTestCase {
     public function setUp()
     {
         parent::setUp();
-        $this->repository = new BlockRepository(new Block(), new Dispatcher());
+        $this->repository = new BlockRepository(new Block(), new Dispatcher(), new CacheManager($this->app));
         $this->finder     = new BlockFinder($this->repository, new CacheManager($this->app));
         $this->seed('TestSeeder'); // Relative to tests/app/
     }
