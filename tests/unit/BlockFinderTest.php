@@ -155,6 +155,52 @@ class BlockFinderTest extends \TestCase {
     /**
      * @test
      */
+    public function it_finds_block_with_only_hidden_filter_on_other_pages()
+    {
+        // Our content path
+        $findPath = '1/2/3/4/5/6/';
+        // Block hidden on home page - should be visible on our content
+        $block1         = new Block();
+        $block1->id     = 1;
+        $block1->filter = ['+' => [], '-' => ['home']];
+        // Block hidden on all root children's pages should - be hidden on our content
+        $block2         = new Block();
+        $block2->id     = 2;
+        $block2->filter = ['+' => [], '-' => ['1/*']];
+        // Block hidden for all content parents children's - should be hidden on our content
+        $block3         = new Block();
+        $block3->id     = 3;
+        $block3->filter = ['+' => [], '-' => ['1/2/3/*']];
+        // Block hidden only on specific content - should be hidden on our content
+        $block4         = new Block();
+        $block4->id     = 4;
+        $block4->filter = ['+' => [], '-' => ['1/2/3/4/5/6/']];
+
+        // Check for repository method call
+        $this->repo->shouldReceive('getBlocks')->andReturn(
+            [
+                $block1,
+                $block2,
+                $block3,
+                $block4
+            ]
+        );
+        // Blocks that should be visible on home page
+        $this->assertNotContains(1, $this->finder->getBlocksIds('home'));
+        $this->assertContains(2, $this->finder->getBlocksIds('home'));
+        $this->assertContains(3, $this->finder->getBlocksIds('home'));
+        $this->assertContains(4, $this->finder->getBlocksIds('home'));
+        // Blocks that should be visible on our content
+        $this->assertContains(1, $this->finder->getBlocksIds($findPath));
+        $this->assertNotContains(2, $this->finder->getBlocksIds($findPath));
+        $this->assertNotContains(3, $this->finder->getBlocksIds($findPath));
+        $this->assertNotContains(4, $this->finder->getBlocksIds($findPath));
+    }
+
+
+    /**
+     * @test
+     */
     public function it_uses_correct_order_of_operations()
     {
         // Our content path
