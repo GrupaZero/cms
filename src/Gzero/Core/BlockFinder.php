@@ -3,6 +3,7 @@
 use Gzero\Entity\Block;
 use Gzero\Repository\BlockRepository;
 use Illuminate\Cache\CacheManager;
+use Illuminate\Database\Eloquent\Collection;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -123,11 +124,11 @@ class BlockFinder {
     /**
      * It extracts all filters from blocks & build filter array
      *
-     * @param array $blocks Blocks
+     * @param array|Collection $blocks Blocks
      *
      * @return array
      */
-    protected function extractFilterProperty(Array $blocks)
+    protected function extractFilterProperty($blocks)
     {
         $filter   = [];
         $excluded = [];
