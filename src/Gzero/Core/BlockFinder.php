@@ -3,6 +3,7 @@
 use Gzero\Entity\Block;
 use Gzero\Repository\BlockRepository;
 use Illuminate\Cache\CacheManager;
+use Illuminate\Database\Eloquent\Collection;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -50,7 +51,7 @@ class BlockFinder {
      */
     public function getBlocksIds($contentPath, $isPublic = false)
     {
-        return $this->findBlocksForContent($contentPath, $this->buildFilterArray($isPublic));
+        return $this->findBlocksForPath($contentPath, $this->getFilterArray($isPublic));
     }
 
     /**
@@ -61,7 +62,7 @@ class BlockFinder {
      *
      * @return array
      */
-    protected function findBlocksForContent($path, $filter)
+    protected function findBlocksForPath($path, $filter)
     {
         if ($this->isStaticPage($path)) { // static page like "home", "contact" etc.
             return $this->handleStaticPageCase($path, $filter);
@@ -71,8 +72,8 @@ class BlockFinder {
         $blockIds = [];
         if ($idsCount === 1) { // Root case
             $rootPath = $ids[0] . '/';
-            if (isset($filter[$rootPath])) {
-                $blockIds = array_keys($filter[$rootPath], true, true);
+            if (isset($filter['paths'][$rootPath])) {
+                $blockIds = array_keys($filter['paths'][$rootPath], true, true);
             }
         } else {
             $allIds     = [];
@@ -80,12 +81,13 @@ class BlockFinder {
             foreach ($ids as $index => $id) {
                 $parentPath .= $id . '/';
                 $pathMatch = ($index + 1 < $idsCount) ? $parentPath . '*' : $parentPath;
-                if (isset($filter[$pathMatch])) {
+                if (isset($filter['paths'][$pathMatch])) {
                     // Order of operation is important! We want to override $allIds be lower level filter (left overrides right)
-                    $allIds = $filter[$pathMatch] + $allIds;
+                    $allIds = $filter['paths'][$pathMatch] + $allIds;
                 }
             }
-            $blockIds = array_keys($allIds, true, true); // We're returning only blocks ids with "+" for this site
+            // We're returning only blocks ids that uses filter property
+            $blockIds = array_keys($allIds + $filter['excluded'], true, true);
         }
         return $blockIds;
     }
@@ -97,13 +99,12 @@ class BlockFinder {
      *
      * @return array
      */
-    protected function buildFilterArray($isPublic)
+    protected function getFilterArray($isPublic)
     {
         $cacheKey = ($isPublic) ? 'public' : 'admin';
         if ($this->cache->has('blocks:filter:' . $cacheKey)) {
             return $this->cache->get('blocks:filter:' . $cacheKey);
         } else {
-            $filter = [];
             if ($isPublic) {
                 $blocks = $this->blockRepository->getBlocks(
                     [['filter', '!=', null], ['isActive', '=', true]],
@@ -114,23 +115,67 @@ class BlockFinder {
             } else {
                 $blocks = $this->blockRepository->getBlocks([['filter', '!=', null]], [['weight', 'ASC']], null, null);
             }
-            foreach ($blocks as $block) {
-                $filter = $this->extractFilterProperty($block, $filter);
-            }
+            $filter = $this->buildFilterArray($blocks);
             $this->cache->forever('blocks:filter:' . $cacheKey, $filter);
             return $filter;
         }
     }
 
     /**
-     * It extracts all filters from single block
+     * It extracts all filters from blocks & build filter array
      *
-     * @param Block $block  Block
-     * @param array $filter Array with all filters
+     * @param array|Collection $blocks Blocks
      *
      * @return array
      */
-    protected function extractFilterProperty(Block $block, $filter)
+    protected function buildFilterArray($blocks)
+    {
+        $filter   = [];
+        $excluded = [];
+        foreach ($blocks as $block) {
+            $this->extractFilter($block, $filter, $excluded);
+        }
+        return ['paths' => $filter, 'excluded' => $excluded];
+    }
+
+    /**
+     * It checks if we're  dealing with static page
+     *
+     * @param string $path named route alias
+     *
+     * @return bool
+     */
+    protected function isStaticPage($path)
+    {
+        return !preg_match('/\//', $path);
+    }
+
+    /**
+     * It checks which blocks should be displayed for specific static page
+     *
+     * @param string $path   Static page named route
+     * @param array  $filter Array with all filters
+     *
+     * @return array
+     */
+    protected function handleStaticPageCase($path, $filter)
+    {
+        if (isset($filter['paths'][$path])) {
+            return array_keys($filter['paths'][$path] + $filter['excluded'], true, true);
+        }
+        return array_keys($filter['excluded'], true, true);
+    }
+
+    /**
+     * It extracts filter property from single block
+     *
+     * @param Block $block    Block instance
+     * @param array $filter   Filter array
+     * @param array $excluded Excluded array
+     *
+     * @return void
+     */
+    protected function extractFilter(Block $block, Array &$filter, Array &$excluded)
     {
         if (isset($block->filter['+'])) {
             foreach ($block->filter['+'] as $filterValue) {
@@ -148,37 +193,9 @@ class BlockFinder {
                 } else {
                     $filter[$filterValue] = [$block->id => false];
                 }
+                // By default block with - should display on all sited except those from filter
+                $excluded[$block->id] = true;
             }
-            return $filter;
         }
-        return $filter;
-    }
-
-    /**
-     * It checks if we're  dealing with static page
-     *
-     * @param string $path named route alias
-     *
-     * @return bool
-     */
-    private function isStaticPage($path)
-    {
-        return !preg_match('/\//', $path);
-    }
-
-    /**
-     * It checks which blocks should be displayed for specific static page
-     *
-     * @param string $path   Static page named route
-     * @param array  $filter Array with all filters
-     *
-     * @return array
-     */
-    private function handleStaticPageCase($path, $filter)
-    {
-        if (isset($filter[$path])) {
-            return array_keys($filter[$path], true, true);
-        }
-        return [];
     }
 }
