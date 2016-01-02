@@ -9,7 +9,7 @@
     ],
     "require": {
         "php": ">=5.5.9",
-        "gzero/entity": "dev-master",
+        "gzero/entity": "self.version",
         "illuminate/events": "5.1.*",
         "illuminate/database": "5.1.*"
     },
