@@ -1,5 +1,6 @@
 <?php namespace Gzero\Core;
 
+use Gzero\Entity\Block;
 use Gzero\Repository\BlockRepository;
 use Illuminate\Cache\CacheManager;
 
@@ -84,7 +85,7 @@ class BlockFinder {
                     $allIds = $filter['paths'][$pathMatch] + $allIds;
                 }
             }
-            // We're returning only blocks ids with "+" for this site
+            // We're returning only blocks ids that uses filter property
             $blockIds = array_keys($allIds + $filter['excluded'], true, true);
         }
         return $blockIds;
@@ -120,7 +121,7 @@ class BlockFinder {
     }
 
     /**
-     * It extracts all filters from single block
+     * It extracts all filters from blocks & build filter array
      *
      * @param array $blocks Blocks
      *
@@ -131,27 +132,8 @@ class BlockFinder {
         $filter   = [];
         $excluded = [];
         foreach ($blocks as $block) {
-            if (isset($block->filter['+'])) {
-                foreach ($block->filter['+'] as $filterValue) {
-                    if (isset($filter[$filterValue])) {
-                        $filter[$filterValue][$block->id] = true;
-                    } else {
-                        $filter[$filterValue] = [$block->id => true];
-                    }
-                }
-            }
-            if (isset($block->filter['-'])) {
-                foreach ($block->filter['-'] as $filterValue) {
-                    if (isset($filter[$filterValue])) {
-                        $filter[$filterValue][$block->id] = false;
-                    } else {
-                        $filter[$filterValue] = [$block->id => false];
-                    }
-                    $excluded[$block->id] = true;
-                }
-            }
+            $this->extractFilter($block, $filter, $excluded);
         }
-
         return ['paths' => $filter, 'excluded' => $excluded];
     }
 
@@ -162,7 +144,7 @@ class BlockFinder {
      *
      * @return bool
      */
-    private function isStaticPage($path)
+    protected function isStaticPage($path)
     {
         return !preg_match('/\//', $path);
     }
@@ -175,11 +157,44 @@ class BlockFinder {
      *
      * @return array
      */
-    private function handleStaticPageCase($path, $filter)
+    protected function handleStaticPageCase($path, $filter)
     {
         if (isset($filter['paths'][$path])) {
             return array_keys($filter['paths'][$path] + $filter['excluded'], true, true);
         }
-        return [];
+        return array_keys($filter['excluded'], true, true);
+    }
+
+    /**
+     * It extracts filter property from single block
+     *
+     * @param Block $block    Block instance
+     * @param array $filter   Filter array
+     * @param array $excluded Excluded array
+     *
+     * @return void
+     */
+    protected function extractFilter(Block $block, Array &$filter, Array &$excluded)
+    {
+        if (isset($block->filter['+'])) {
+            foreach ($block->filter['+'] as $filterValue) {
+                if (isset($filter[$filterValue])) {
+                    $filter[$filterValue][$block->id] = true;
+                } else {
+                    $filter[$filterValue] = [$block->id => true];
+                }
+            }
+        }
+        if (isset($block->filter['-'])) {
+            foreach ($block->filter['-'] as $filterValue) {
+                if (isset($filter[$filterValue])) {
+                    $filter[$filterValue][$block->id] = false;
+                } else {
+                    $filter[$filterValue] = [$block->id => false];
+                }
+                // By default block with - should display on all sited except those from filter
+                $excluded[$block->id] = true;
+            }
+        }
     }
 }
