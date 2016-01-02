@@ -51,7 +51,7 @@ class BlockFinder {
      */
     public function getBlocksIds($contentPath, $isPublic = false)
     {
-        return $this->findBlocksForPath($contentPath, $this->buildFilterArray($isPublic));
+        return $this->findBlocksForPath($contentPath, $this->getFilterArray($isPublic));
     }
 
     /**
@@ -99,7 +99,7 @@ class BlockFinder {
      *
      * @return array
      */
-    protected function buildFilterArray($isPublic)
+    protected function getFilterArray($isPublic)
     {
         $cacheKey = ($isPublic) ? 'public' : 'admin';
         if ($this->cache->has('blocks:filter:' . $cacheKey)) {
@@ -115,7 +115,7 @@ class BlockFinder {
             } else {
                 $blocks = $this->blockRepository->getBlocks([['filter', '!=', null]], [['weight', 'ASC']], null, null);
             }
-            $filter = $this->extractFilterProperty($blocks);
+            $filter = $this->buildFilterArray($blocks);
             $this->cache->forever('blocks:filter:' . $cacheKey, $filter);
             return $filter;
         }
@@ -128,7 +128,7 @@ class BlockFinder {
      *
      * @return array
      */
-    protected function extractFilterProperty($blocks)
+    protected function buildFilterArray($blocks)
     {
         $filter   = [];
         $excluded = [];
