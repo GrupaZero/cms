@@ -50,7 +50,9 @@ class AbstractServiceProvider extends SP {
     protected function registerAdditionalProviders()
     {
         foreach ($this->providers as $provider) {
-            $this->app->register($provider);
+            if (class_exists($provider)) {
+                $this->app->register($provider);
+            }
         }
     }
 
@@ -63,10 +65,12 @@ class AbstractServiceProvider extends SP {
     {
         $loader = AliasLoader::getInstance();
         foreach ($this->aliases as $alias => $provider) {
-            $loader->alias(
-                $alias,
-                $provider
-            );
+            if (class_exists($provider)) {
+                $loader->alias(
+                    $alias,
+                    $provider
+                );
+            }
         }
     }
 }
