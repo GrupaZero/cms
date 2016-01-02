@@ -148,7 +148,7 @@ class BlockFinderTest extends \TestCase {
         // All other blocks should be hidden
         $this->assertNotContains(2, $this->finder->getBlocksIds($findPath));
         $this->assertNotContains(3, $this->finder->getBlocksIds($findPath));
-        $this->assertNotContains(4, $this->finder->getBlocksIds($findPath));
+        $this->assertContains(4, $this->finder->getBlocksIds($findPath));
     }
 
 
@@ -228,26 +228,22 @@ class BlockFinderTest extends \TestCase {
         // Our pages paths
         $contentPath    = '1/2/';
         $staticPagePath    = 'contact';
-        // blocks shown on all pages - should be visible
+        // block hidden on other pages - should be visible
         $block1         = new Block();
         $block1->id     = 1;
-        $block1->filter = NULL;
-        // block hidden on other pages - should be visible
-        $block2         = new Block();
-        $block2->id     = 2;
-        $block2->filter = ['+' => [], '-' => ['4/*']];
+        $block1->filter = ['+' => [], '-' => ['4/*']];
         // block shown only on other pages - should not be visible
-        $block3 = new Block();
-        $block3->id = 3;
-        $block3->filter = ['+' => ['4/*'], '-' => []];
+        $block2 = new Block();
+        $block2->id = 2;
+        $block2->filter = ['+' => ['4/*'], '-' => []];
         // block hidden on other static page - should be visible
-        $block4         = new Block();
-        $block4->id     = 4;
-        $block4->filter = ['+' => [], '-' => ['home']];
+        $block3         = new Block();
+        $block3->id     = 3;
+        $block3->filter = ['+' => [], '-' => ['home']];
         // block shown only on other static page - should not be visible
-        $block5 = new Block();
-        $block5->id = 5;
-        $block5->filter = ['+' => ['home'], '-' => []];
+        $block4 = new Block();
+        $block4->id = 4;
+        $block4->filter = ['+' => ['home'], '-' => []];
 
         // Check for repository method call
         $this->repo->shouldReceive('getBlocks')->andReturn(
@@ -256,20 +252,17 @@ class BlockFinderTest extends \TestCase {
                 $block2,
                 $block3,
                 $block4,
-                $block5
             ]
         );
         // Check blocks for content
         $this->assertContains(1, $this->finder->getBlocksIds($contentPath));
-        $this->assertContains(2, $this->finder->getBlocksIds($contentPath));
-        $this->assertContains(4, $this->finder->getBlocksIds($contentPath));
-        $this->assertNotContains(3, $this->finder->getBlocksIds($contentPath));
-        $this->assertNotContains(5, $this->finder->getBlocksIds($contentPath));
+        $this->assertContains(3, $this->finder->getBlocksIds($contentPath));
+        $this->assertNotContains(2, $this->finder->getBlocksIds($contentPath));
+        $this->assertNotContains(4, $this->finder->getBlocksIds($contentPath));
         // Check blocks for static page
         $this->assertContains(1, $this->finder->getBlocksIds($staticPagePath));
-        $this->assertContains(2, $this->finder->getBlocksIds($staticPagePath));
-        $this->assertContains(4, $this->finder->getBlocksIds($staticPagePath));
-        $this->assertNotContains(3, $this->finder->getBlocksIds($staticPagePath));
-        $this->assertNotContains(5, $this->finder->getBlocksIds($staticPagePath));
+        $this->assertContains(3, $this->finder->getBlocksIds($staticPagePath));
+        $this->assertNotContains(2, $this->finder->getBlocksIds($staticPagePath));
+        $this->assertNotContains(4, $this->finder->getBlocksIds($staticPagePath));
     }
 }

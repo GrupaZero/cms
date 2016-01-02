@@ -158,6 +158,7 @@ class BlockRepository extends BaseRepository {
                 $this->events->fire('block.deleting', [$block]);
                 $block->delete();
                 $this->events->fire('block.deleted', [$block]);
+                $this->clearBlocksCache();
                 return true;
             }
         );
@@ -178,6 +179,7 @@ class BlockRepository extends BaseRepository {
                 /** @TODO handling delete other stuff like a menu etc. */
                 $block->forceDelete();
                 $this->events->fire('block.forceDeleted', [$block]);
+                $this->clearBlocksCache();
                 return true;
             }
         );
