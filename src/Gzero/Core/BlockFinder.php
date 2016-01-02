@@ -1,6 +1,5 @@
 <?php namespace Gzero\Core;
 
-use Gzero\Entity\Block;
 use Gzero\Repository\BlockRepository;
 use Illuminate\Cache\CacheManager;
 
@@ -50,7 +49,7 @@ class BlockFinder {
      */
     public function getBlocksIds($contentPath, $isPublic = false)
     {
-        return $this->findBlocksForContent($contentPath, $this->buildFilterArray($isPublic));
+        return $this->findBlocksForPath($contentPath, $this->buildFilterArray($isPublic));
     }
 
     /**
@@ -61,7 +60,7 @@ class BlockFinder {
      *
      * @return array
      */
-    protected function findBlocksForContent($path, $filter)
+    protected function findBlocksForPath($path, $filter)
     {
         if ($this->isStaticPage($path)) { // static page like "home", "contact" etc.
             return $this->handleStaticPageCase($path, $filter);
@@ -71,8 +70,8 @@ class BlockFinder {
         $blockIds = [];
         if ($idsCount === 1) { // Root case
             $rootPath = $ids[0] . '/';
-            if (isset($filter[$rootPath])) {
-                $blockIds = array_keys($filter[$rootPath], true, true);
+            if (isset($filter['paths'][$rootPath])) {
+                $blockIds = array_keys($filter['paths'][$rootPath], true, true);
             }
         } else {
             $allIds     = [];
@@ -80,12 +79,13 @@ class BlockFinder {
             foreach ($ids as $index => $id) {
                 $parentPath .= $id . '/';
                 $pathMatch = ($index + 1 < $idsCount) ? $parentPath . '*' : $parentPath;
-                if (isset($filter[$pathMatch])) {
+                if (isset($filter['paths'][$pathMatch])) {
                     // Order of operation is important! We want to override $allIds be lower level filter (left overrides right)
-                    $allIds = $filter[$pathMatch] + $allIds;
+                    $allIds = $filter['paths'][$pathMatch] + $allIds;
                 }
             }
-            $blockIds = array_keys($allIds, true, true); // We're returning only blocks ids with "+" for this site
+            // We're returning only blocks ids with "+" for this site
+            $blockIds = array_keys($allIds + $filter['excluded'], true, true);
         }
         return $blockIds;
     }
@@ -103,7 +103,6 @@ class BlockFinder {
         if ($this->cache->has('blocks:filter:' . $cacheKey)) {
             return $this->cache->get('blocks:filter:' . $cacheKey);
         } else {
-            $filter = [];
             if ($isPublic) {
                 $blocks = $this->blockRepository->getBlocks(
                     [['filter', '!=', null], ['isActive', '=', true]],
@@ -114,9 +113,7 @@ class BlockFinder {
             } else {
                 $blocks = $this->blockRepository->getBlocks([['filter', '!=', null]], [['weight', 'ASC']], null, null);
             }
-            foreach ($blocks as $block) {
-                $filter = $this->extractFilterProperty($block, $filter);
-            }
+            $filter = $this->extractFilterProperty($blocks);
             $this->cache->forever('blocks:filter:' . $cacheKey, $filter);
             return $filter;
         }
@@ -125,33 +122,37 @@ class BlockFinder {
     /**
      * It extracts all filters from single block
      *
-     * @param Block $block  Block
-     * @param array $filter Array with all filters
+     * @param array $blocks Blocks
      *
      * @return array
      */
-    protected function extractFilterProperty(Block $block, $filter)
+    protected function extractFilterProperty(Array $blocks)
     {
-        if (isset($block->filter['+'])) {
-            foreach ($block->filter['+'] as $filterValue) {
-                if (isset($filter[$filterValue])) {
-                    $filter[$filterValue][$block->id] = true;
-                } else {
-                    $filter[$filterValue] = [$block->id => true];
+        $filter   = [];
+        $excluded = [];
+        foreach ($blocks as $block) {
+            if (isset($block->filter['+'])) {
+                foreach ($block->filter['+'] as $filterValue) {
+                    if (isset($filter[$filterValue])) {
+                        $filter[$filterValue][$block->id] = true;
+                    } else {
+                        $filter[$filterValue] = [$block->id => true];
+                    }
+                }
+            }
+            if (isset($block->filter['-'])) {
+                foreach ($block->filter['-'] as $filterValue) {
+                    if (isset($filter[$filterValue])) {
+                        $filter[$filterValue][$block->id] = false;
+                    } else {
+                        $filter[$filterValue] = [$block->id => false];
+                    }
+                    $excluded[$block->id] = true;
                 }
             }
         }
-        if (isset($block->filter['-'])) {
-            foreach ($block->filter['-'] as $filterValue) {
-                if (isset($filter[$filterValue])) {
-                    $filter[$filterValue][$block->id] = false;
-                } else {
-                    $filter[$filterValue] = [$block->id => false];
-                }
-            }
-            return $filter;
-        }
-        return $filter;
+
+        return ['paths' => $filter, 'excluded' => $excluded];
     }
 
     /**
@@ -176,8 +177,8 @@ class BlockFinder {
      */
     private function handleStaticPageCase($path, $filter)
     {
-        if (isset($filter[$path])) {
-            return array_keys($filter[$path], true, true);
+        if (isset($filter['paths'][$path])) {
+            return array_keys($filter['paths'][$path] + $filter['excluded'], true, true);
         }
         return [];
     }
