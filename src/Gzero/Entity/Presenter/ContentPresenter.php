@@ -58,6 +58,34 @@ class ContentPresenter extends Presenter {
     }
 
     /**
+     * This function get single route url
+     *
+     * @param string $langCode LangCode
+     *
+     * @return string
+     */
+    public function routeUrl($langCode)
+    {
+        $routeUrl = '';
+        if (!empty($this->route) && !empty($langCode)) {
+            $route = $this->route->translations->filter(
+                function ($translation) use ($langCode) {
+                    return $translation->langCode === $langCode;
+                }
+            )->first();
+
+            if (!empty($route)) {
+                if (config('gzero.multilang.enabled')) {
+                    $routeUrl = url('/') . '/' . $route->langCode . '/' . $route->url;
+                } else {
+                    $routeUrl = url('/') . '/' . $route->url;
+                }
+            }
+        }
+        return $routeUrl;
+    }
+
+    /**
      * This function returns formatted publish date
      *
      * @return string
