@@ -34,7 +34,7 @@ class UserRepository extends BaseRepository implements AuthenticatableContract, 
     protected $events;
 
     /**
-     * Content repository constructor
+     * User repository constructor
      *
      * @param User       $user   Content model
      * @param Dispatcher $events Events dispatcher
