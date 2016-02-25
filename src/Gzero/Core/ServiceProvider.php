@@ -1,5 +1,7 @@
 <?php namespace Gzero\Core;
 
+use Gzero\Core\Command\MysqlDump;
+use Gzero\Core\Command\MysqlRestore;
 use Gzero\Core\Menu\Register;
 use Gzero\Repository\LangRepository;
 use Gzero\Repository\OptionRepository;
@@ -134,7 +136,18 @@ class ServiceProvider extends AbstractServiceProvider {
      */
     public function bindCommands()
     {
-        //
+        $this->app['command.mysqldump'] = $this->app->share(
+            function ($app) {
+                return new MysqlDump();
+            }
+        );
+
+        $this->app['command.mysqlrestore'] = $this->app->share(
+            function ($app) {
+                return new MysqlRestore();
+            }
+        );
+        $this->commands(['command.mysqldump', 'command.mysqlrestore']);
     }
 
     /**
