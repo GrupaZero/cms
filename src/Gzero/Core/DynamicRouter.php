@@ -56,6 +56,8 @@ class DynamicRouter {
      */
     public function handleRequest($url, Lang $lang)
     {
+        //Get url without query string, so that pagination can work
+        $url = preg_replace('/\?.*/', '', $url);
         try {
             $content = $this->repository->getByUrl($url, $lang->code);
             // Only if page is visible on public

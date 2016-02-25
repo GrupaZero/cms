@@ -39,7 +39,8 @@ class Category extends Content {
             [
                 ['isPromoted', 'DESC'],
                 ['isSticky', 'DESC'],
-                ['weight', 'ASC']
+                ['weight', 'ASC'],
+                ['publishedAt', 'DESC']
             ],
             $this->request->get('page', 1),
             option('general', 'defaultPageSize', 20)

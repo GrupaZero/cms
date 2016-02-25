@@ -20,7 +20,8 @@ if (!function_exists('setMultilangRouting')) {
                 return ['domain' => Config::get('gzero.domain'), 'prefix' => App::getLocale()];
             }
         } else {
-            return [];
+            // Set domain for static pages block finder
+            return ['domain' => Config::get('gzero.domain')];
         }
     }
 }
