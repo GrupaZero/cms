@@ -71,10 +71,13 @@ class BlockFinder {
         $idsCount = count($ids);
         $blockIds = [];
         if ($idsCount === 1) { // Root case
+            $allIds   = [];
             $rootPath = $ids[0] . '/';
             if (isset($filter['paths'][$rootPath])) {
-                $blockIds = array_keys($filter['paths'][$rootPath], true, true);
+                $allIds = $filter['paths'][$rootPath];
             }
+            // We're returning only blocks ids that uses filter property
+            $blockIds = array_keys($allIds + $filter['excluded'], true, true);
         } else {
             $allIds     = [];
             $parentPath = '';
