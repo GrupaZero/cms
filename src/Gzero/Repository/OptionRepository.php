@@ -201,7 +201,9 @@ class OptionRepository {
             $this->options = $this->cache->get('options');
         } else {
             $this->extractCategoriesFromModel($this->optionCategoryModel->newQuery()->get(["key"])->sortBy('key'));
-            $this->extractOptionsFromModel($this->optionModel->newQuery()->get(["categoryKey", "key", "value"])->sortBy('key'));
+            $this->extractOptionsFromModel(
+                $this->optionModel->newQuery()->get(["id", "categoryKey", "key", "value"])->sortBy('id')
+            );
             $this->cache->forever('options', $this->options);
         }
     }

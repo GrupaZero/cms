@@ -132,4 +132,15 @@ class Content extends BaseTree implements PresentableInterface {
             return $this->isActive;
         }
     }
+
+    /**
+     * Find all trashed descendants for specific node with this node as root
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function findDescendantsWithTrashed()
+    {
+        return static::withTrashed()->where($this->getTreeColumn('path'), 'LIKE', $this->{$this->getTreeColumn('path')} . '%')
+            ->orderBy($this->getTreeColumn('level'), 'ASC');
+    }
 }

@@ -297,9 +297,10 @@ class CMSSeeder extends Seeder {
         // gzero config options
         $options = [
             'general' => [
-                'siteName'        => [],
-                'siteDesc'        => [],
-                'defaultPageSize' => [],
+                'siteName'         => [],
+                'siteDesc'         => [],
+                'defaultPageSize'  => [],
+                'cookiesPolicyUrl' => [],
             ],
             'seo'     => [
                 'seoDescLength'     => [],
