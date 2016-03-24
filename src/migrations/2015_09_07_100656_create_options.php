@@ -63,9 +63,10 @@ class CreateOptions extends Migration {
         // gzero config options
         $options = [
             'general' => [
-                'siteName'        => [],
-                'siteDesc'        => [],
-                'defaultPageSize' => [],
+                'siteName'         => [],
+                'siteDesc'         => [],
+                'defaultPageSize'  => [],
+                'cookiesPolicyUrl' => [],
             ],
             'seo'     => [
                 'seoDescLength'     => [],

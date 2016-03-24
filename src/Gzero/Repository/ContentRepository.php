@@ -576,7 +576,7 @@ class ContentRepository extends BaseRepository {
         return $this->newQuery()->transaction(
             function () use ($content) {
                 $routeRelation  = $content->route();
-                $descendantsIds = $content->findDescendants()->lists('id');
+                $descendantsIds = $content->findDescendantsWithTrashed()->lists('id');
                 // First we need to delete all routes because it's polymorphic relation
                 $this->newQuery()
                     ->table($routeRelation->getModel()->getTable())
@@ -584,7 +584,7 @@ class ContentRepository extends BaseRepository {
                     ->whereIn($routeRelation->getPlainForeignKey(), $descendantsIds)
                     ->delete();
                 $this->events->fire('content.forceDeleting', [$content]);
-                $content->forceDelete();
+                $content->withTrashed()->forceDelete();
                 $this->events->fire('content.forceDeleted', [$content]);
                 return true;
             }

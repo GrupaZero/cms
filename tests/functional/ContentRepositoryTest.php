@@ -214,6 +214,8 @@ class ContentRepositoryTest extends \EloquentTestCase {
 
     /**
      * @test
+     * @expectedException \Gzero\Core\Exception
+     * @expectedExceptionMessage Content with url: 'example-title' in language 'en' doesn't exist
      */
     public function can_force_delete_content()
     {
@@ -229,12 +231,50 @@ class ContentRepositoryTest extends \EloquentTestCase {
 
         $newContent         = $this->repository->getById($content->id);
         $contentTranslation = $newContent->translations()->first();
+        $contentRoute       = $newContent->route()->first();
         $this->assertNotSame($content, $newContent);
         $this->repository->forceDelete($newContent);
         // content has been removed?
         $this->assertNull($this->repository->getById($newContent->id));
         // content translations has been removed?
         $this->assertNull($this->repository->getTranslationById($contentTranslation->id));
+        // content route has been removed?
+        $this->assertNull($this->repository->getRouteById($contentRoute->id));
+        // content route translation been removed?
+        $this->assertNull($this->repository->getByUrl('example-title', 'en'));
+    }
+
+    /**
+     * @test
+     * @expectedException \Gzero\Core\Exception
+     * @expectedExceptionMessage Content with url: 'example-title' in language 'en' doesn't exist
+     */
+    public function can_force_delete_soft_deleted_content()
+    {
+        $content = $this->repository->create(
+            [
+                'type'         => 'content',
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'Example title'
+                ]
+            ]
+        );
+
+        $newContent         = $this->repository->getById($content->id);
+        $contentTranslation = $newContent->translations()->first();
+        $contentRoute       = $newContent->route()->first();
+        $this->assertNotSame($content, $newContent);
+        $this->repository->delete($newContent);
+        $this->repository->forceDelete($newContent);
+        // content has been removed?
+        $this->assertNull($this->repository->getById($newContent->id));
+        // content translations has been removed?
+        $this->assertNull($this->repository->getTranslationById($contentTranslation->id));
+        // content route has been removed?
+        $this->assertNull($this->repository->getRouteById($contentRoute->id));
+        // content route translation been removed?
+        $this->assertNull($this->repository->getByUrl('example-title', 'en'));
     }
 
     /**
