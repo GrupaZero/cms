@@ -758,6 +758,21 @@ class ContentRepositoryTest extends \EloquentTestCase {
 
     /**
      * @test
+     */
+    public function can_force_delete_soft_deleted_content_with_children()
+    {
+        // Tree seeds
+        $this->seed('TestTreeSeeder');
+
+        $content = $this->repository->getById(1);
+        $this->repository->delete($content);
+        $this->repository->forceDelete($content);
+        // Content children has been removed?
+        $this->assertEmpty($content->children()->get());
+    }
+
+    /**
+     * @test
      * @expectedException \Gzero\Repository\RepositoryException
      * @expectedExceptionMessage You cannot change parent of not empty category
      */
