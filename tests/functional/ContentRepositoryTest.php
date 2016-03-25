@@ -229,17 +229,34 @@ class ContentRepositoryTest extends \EloquentTestCase {
             ]
         );
 
+        $otherContent = $this->repository->create(
+            [
+                'type'         => 'content',
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'Other title'
+                ]
+            ]
+        );
+
         $newContent         = $this->repository->getById($content->id);
+        $notRelatedContent  = $this->repository->getById($otherContent->id);
         $contentTranslation = $newContent->translations()->first();
         $contentRoute       = $newContent->route()->first();
         $this->assertNotSame($content, $newContent);
+        $this->assertNotSame($otherContent, $notRelatedContent);
         $this->repository->forceDelete($newContent);
+        // Get not related content
+        $content2 = $this->repository->getById($notRelatedContent->id);
+
         // content has been removed?
         $this->assertNull($this->repository->getById($newContent->id));
         // content translations has been removed?
         $this->assertNull($this->repository->getTranslationById($contentTranslation->id));
         // content route has been removed?
         $this->assertNull($this->repository->getRouteById($contentRoute->id));
+        // not related content should not be removed
+        $this->assertNotNull($content2);
         // content route translation been removed?
         $this->assertNull($this->repository->getByUrl('example-title', 'en'));
     }
@@ -261,18 +278,34 @@ class ContentRepositoryTest extends \EloquentTestCase {
             ]
         );
 
+        $otherContent = $this->repository->create(
+            [
+                'type'         => 'content',
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'Other title'
+                ]
+            ]
+        );
+
         $newContent         = $this->repository->getById($content->id);
+        $notRelatedContent  = $this->repository->getById($otherContent->id);
         $contentTranslation = $newContent->translations()->first();
         $contentRoute       = $newContent->route()->first();
         $this->assertNotSame($content, $newContent);
+        $this->assertNotSame($otherContent, $notRelatedContent);
         $this->repository->delete($newContent);
         $this->repository->forceDelete($newContent);
+        // Get not related content
+        $content2 = $this->repository->getById($notRelatedContent->id);
         // content has been removed?
         $this->assertNull($this->repository->getById($newContent->id));
         // content translations has been removed?
         $this->assertNull($this->repository->getTranslationById($contentTranslation->id));
         // content route has been removed?
         $this->assertNull($this->repository->getRouteById($contentRoute->id));
+        // not related content should not be removed
+        $this->assertNotNull($content2);
         // content route translation been removed?
         $this->assertNull($this->repository->getByUrl('example-title', 'en'));
     }
@@ -718,6 +751,21 @@ class ContentRepositoryTest extends \EloquentTestCase {
         $this->seed('TestTreeSeeder');
 
         $content = $this->repository->getById(1);
+        $this->repository->forceDelete($content);
+        // Content children has been removed?
+        $this->assertEmpty($content->children()->get());
+    }
+
+    /**
+     * @test
+     */
+    public function can_force_delete_soft_deleted_content_with_children()
+    {
+        // Tree seeds
+        $this->seed('TestTreeSeeder');
+
+        $content = $this->repository->getById(1);
+        $this->repository->delete($content);
         $this->repository->forceDelete($content);
         // Content children has been removed?
         $this->assertEmpty($content->children()->get());
