@@ -2,6 +2,7 @@
 
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Auth\Passwords\CanResetPassword;
+use Gzero\Entity\Presenter\UserPresenter;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 
@@ -27,6 +28,7 @@ class User extends Base implements AuthenticatableContract, CanResetPasswordCont
      */
     protected $fillable = [
         'email',
+        'nickName',
         'firstName',
         'lastName',
         'password',
@@ -101,5 +103,15 @@ class User extends Base implements AuthenticatableContract, CanResetPasswordCont
     public function getReminderEmail()
     {
         return $this->email;
+    }
+
+    /**
+     * Return a created presenter.
+     *
+     * @return \Robbo\Presenter\Presenter
+     */
+    public function getPresenter()
+    {
+        return new UserPresenter($this);
     }
 }
