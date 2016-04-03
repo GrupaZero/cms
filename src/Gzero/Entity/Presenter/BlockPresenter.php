@@ -44,7 +44,7 @@ class BlockPresenter extends Presenter {
     public function authorName()
     {
         if (!empty($this->author)) {
-            return $this->author->firstName . ' ' . $this->author->lastName;
+            return $this->author->getPresenter()->displayName();
         } else {
             return trans('common.anonymous');
         }

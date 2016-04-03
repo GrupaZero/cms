@@ -23,10 +23,11 @@ class BaseUserValidator extends AbstractValidator {
             'password' => 'required'
         ],
         'register' => [
-            'email'     => 'required|email',
-            'password'  => 'required|min:6',
-            'firstName' => 'required|min:2|regex:/^([^0-9]*)$/', // without numbers
-            'lastName'  => 'required|min:2|regex:/^([^0-9]*)$/' // without numbers
+            'email'                 => 'required|email|unique:Users',
+            'nickName'              => 'required|min:3|unique:Users',
+            'password'              => 'required|min:6',
+            'firstName'             => 'min:2|regex:/^([^0-9]*)$/', // without numbers
+            'lastName'              => 'min:2|regex:/^([^0-9]*)$/' // without numbers
         ],
         'remind'   => [
             'email' => 'required|email',
@@ -38,6 +39,7 @@ class BaseUserValidator extends AbstractValidator {
             'token'                 => '',
         ],
         'update'   => [
+            'nickName'              => 'required|min:3|unique:Users,nickName,@userId',
             'firstName'             => 'min:2|regex:/^([^0-9]*)$/', // without numbers
             'lastName'              => 'min:2|regex:/^([^0-9]*)$/', // without numbers
             'password'              => 'sometimes|min:6|same:password_confirmation|required_with:password_confirmation',

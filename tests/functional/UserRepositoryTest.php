@@ -42,6 +42,7 @@ class UserRepositoryTest extends \EloquentTestCase {
             [
                 'email'     => 'test_user@phpunit.com',
                 'password'  => 'test',
+                'nickName'  => 'Nickname',
                 'firstName' => 'Jan',
                 'lastName'  => 'Kowalski',
             ]
@@ -53,12 +54,14 @@ class UserRepositoryTest extends \EloquentTestCase {
             [
                 $user->email,
                 $user->id,
+                $user->nickName,
                 $user->firstName,
                 $user->lastName
             ],
             [
                 $created->email,
                 $created->id,
+                $created->nickName,
                 $created->firstName,
                 $created->lastName
             ]

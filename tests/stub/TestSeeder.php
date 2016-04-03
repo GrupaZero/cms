@@ -119,6 +119,7 @@ class TestSeeder extends Seeder {
         $users[] = User::firstOrCreate(
             [
                 'email'     => 'a@a.pl',
+                'nickName'  => 'Example user',
                 'firstName' => 'John',
                 'lastName'  => 'Doe',
                 'password'  => Hash::make('test')
@@ -129,6 +130,7 @@ class TestSeeder extends Seeder {
         $users[] = User::firstOrCreate(
             [
                 'email'     => 'b@b.pl',
+                'nickName'  => 'Test user',
                 'firstName' => 'John',
                 'lastName'  => 'Doe',
                 'password'  => Hash::make('test123')
