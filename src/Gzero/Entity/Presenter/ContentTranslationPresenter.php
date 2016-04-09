@@ -30,7 +30,13 @@ class ContentTranslationPresenter extends Presenter {
         if (!$alternativeField) {
             $alternativeField = config('gzero.seoTitleAlternativeField', 'title');
         }
-        return strip_tags($this->seoTitle ? $this->seoTitle : $this->$alternativeField);
+        $text = $this->removeNewLinesAndWhitespace($this->$alternativeField);
+        // if alternative field is not empty
+        if ($text) {
+            return $this->seoTitle ? $this->removeNewLinesAndWhitespace($this->seoTitle) : $text;
+        }
+        // show site name as default
+        return option('general', 'siteName');
     }
 
     /**
@@ -43,18 +49,34 @@ class ContentTranslationPresenter extends Presenter {
      */
     public function seoDescription($alternativeField = false)
     {
+        $seoDescLength = option('seo', 'seoDescLength', 160);
         if (!$alternativeField) {
             $alternativeField = config('gzero.seoDescriptionAlternativeField', 'body');
         }
-
-        $seoDescLength = option('seo', 'seoDescLength', 160);
-
+        // if SEO description is set
         if ($this->seoDescription) {
-            return $this->seoDescription;
+            return $this->removeNewLinesAndWhitespace($this->seoDescription);
         } else {
-            $text = strip_tags($this->$alternativeField);
-            return strlen($text) >= $seoDescLength ? substr($text, 0, strpos($text, ' ', $seoDescLength)) : $text;
+            $text = $this->removeNewLinesAndWhitespace($this->$alternativeField);
+            // if alternative field is not empty
+            if ($text) {
+                return strlen($text) >= $seoDescLength ? substr($text, 0, strpos($text, ' ', $seoDescLength)) : $text;
+            };
+            // show site description as default
+            return option('general', 'siteDesc');
         }
     }
 
+    /**
+     * Function removes new lines and strip whitespace (or other characters) from the beginning and end of a string
+     *
+     * @param string $string  string to replace
+     * @param string $replace replacement
+     *
+     * @return string
+     */
+    private function removeNewLinesAndWhitespace($string, $replace = " ")
+    {
+        return str_replace(["\n\r", "\n\n", "\n", "\r"], $replace, trim(strip_tags($string)));
+    }
 }
