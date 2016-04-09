@@ -39,6 +39,7 @@ class BaseUserValidator extends AbstractValidator {
             'token'                 => '',
         ],
         'update'   => [
+            'email'                 => 'required|email|unique:Users,email,@userId',
             'nickName'              => 'required|min:3|unique:Users,nickName,@userId',
             'firstName'             => 'min:2|regex:/^([^0-9]*)$/', // without numbers
             'lastName'              => 'min:2|regex:/^([^0-9]*)$/', // without numbers
