@@ -71,6 +71,10 @@ class UserRepository extends BaseRepository implements AuthenticatableContract, 
      */
     public function create(Array $data)
     {
+        // handle empty nickname users
+        if (empty($data['nickName'])) {
+            $data['nickName'] = $this->buildUniqueNickname();
+        }
         $user = $this->newQuery()->transaction(
             function () use ($data) {
                 $user = new User();
@@ -242,4 +246,21 @@ class UserRepository extends BaseRepository implements AuthenticatableContract, 
     | END AuthenticatableContract AND CanResetPasswordContract
     |--------------------------------------------------------------------------
     */
+
+    /**
+     * Function returns an unique user nickname from given url in specific language
+     *
+     * @param string $replacement string nick replacement to use, "Anonymous" is default
+     *
+     * @return string $nickname an unique user nickname
+     */
+    protected function buildUniqueNickname($replacement = 'anonymous')
+    {
+        // search for duplicated url
+        $count = $this->newQuery()
+            ->table('Users')
+            ->whereRaw("nickName REGEXP '^$replacement($|-[0-9]+$)'")
+            ->count();
+        return ($count) ? $replacement . '-' . $count : $replacement;
+    }
 }

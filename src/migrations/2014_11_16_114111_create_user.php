@@ -19,7 +19,7 @@ class CreateUser extends Migration {
                 $table->increments('id');
                 $table->string('email')->unique();
                 $table->string('password');
-                $table->string('nickName')->unique();
+                $table->string('nickName')->unique()->nullable();
                 $table->string('firstName')->nullable();
                 $table->string('lastName')->nullable();
                 $table->string('rememberToken');
