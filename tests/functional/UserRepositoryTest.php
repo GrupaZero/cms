@@ -71,6 +71,69 @@ class UserRepositoryTest extends \EloquentTestCase {
     /**
      * @test
      */
+    public function can_create_user_with_empty_nickname_as_anonymous()
+    {
+        $firstUser = $this->repository->create(
+            [
+                'email'     => 'first_user@phpunit.com',
+                'password'  => 'test',
+                'nickName'  => '',
+                'firstName' => 'Jan',
+                'lastName'  => 'Kowalski',
+            ]
+        );
+
+        $secondUser = $this->repository->create(
+            [
+                'email'     => 'second_user@phpunit.com',
+                'password'  => 'test',
+                'nickName'  => '',
+                'firstName' => 'Jan',
+                'lastName'  => 'Kowalski',
+            ]
+        );
+
+        $firstUserFromDb = $this->repository->getById($firstUser->id);
+        $secondUserFromDb = $this->repository->getById($secondUser->id);
+
+        $this->assertEquals(
+            [
+                $firstUser->email,
+                $firstUser->id,
+                'anonymous',
+                $firstUser->firstName,
+                $firstUser->lastName
+            ],
+            [
+                $firstUserFromDb->email,
+                $firstUserFromDb->id,
+                $firstUserFromDb->nickName,
+                $firstUserFromDb->firstName,
+                $firstUserFromDb->lastName
+            ]
+        );
+
+        $this->assertEquals(
+            [
+                $secondUser->email,
+                $secondUser->id,
+                'anonymous-1',
+                $secondUser->firstName,
+                $secondUser->lastName
+            ],
+            [
+                $secondUserFromDb->email,
+                $secondUserFromDb->id,
+                $secondUserFromDb->nickName,
+                $secondUserFromDb->firstName,
+                $secondUserFromDb->lastName
+            ]
+        );
+    }
+
+    /**
+     * @test
+     */
     public function password_is_hashed_after_user_update()
     {
         $user = $this->repository->create(
