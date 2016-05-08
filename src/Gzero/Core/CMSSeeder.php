@@ -35,8 +35,8 @@ use Illuminate\Support\Facades\Hash;
 class CMSSeeder extends Seeder {
 
     const RANDOM_USERS = 12;
-    const RANDOM_BLOCKS = 2;
-    const RANDOM_FILES = 1;
+    const RANDOM_BLOCKS = 10;
+    const RANDOM_FILES = 4;
 
     /**
      * @var \Faker\Generator
@@ -361,15 +361,19 @@ class CMSSeeder extends Seeder {
      */
     private function seedBlock($blockTypes, $langs, $users, $contents)
     {
+        $blocks = [];
         for ($x = 0; $x < self::RANDOM_BLOCKS; $x++) {
             /** @var TYPE_NAME $contents */
-            $this->seedRandomBlock(
+            $block = $this->seedRandomBlock(
                 $blockTypes[array_rand($blockTypes)],
                 $langs,
                 $users,
                 $contents
             );
+            $blocks[] = $block;
         }
+
+        return $blocks;
     }
 
     /**
@@ -433,31 +437,35 @@ class CMSSeeder extends Seeder {
      * @param array $langs     Array with langs
      * @param array $users     Array with users
      * @param array $contents  Array with contents
-     * @param array $blocks    Array with contents
+     * @param array $blocks    Array with blocks
      *
      * @return File
      */
     private function seedFiles($fileTypes, $langs, $users, $contents, $blocks)
     {
+        $files = [];
         // seed files for contents
         for ($x = 0; $x < self::RANDOM_FILES; $x++) {
-            $this->seedRandomFiles(
+            $file    = $this->seedRandomFiles(
                 $fileTypes[array_rand($fileTypes)],
                 $langs,
                 $users,
                 $contents
             );
+            $files[] = $file;
+        }
+        // seed files for blocks
+        for ($x = 0; $x < self::RANDOM_FILES; $x++) {
+            $file    = $this->seedRandomFiles(
+                $fileTypes[array_rand($fileTypes)],
+                $langs,
+                $users,
+                $blocks
+            );
+            $files[] = $file;
         }
 
-        //// seed files for blocks
-        //for ($x = 0; $x < self::RANDOM_FILES; $x++) {
-        //    $this->seedRandomFiles(
-        //        $fileTypes[array_rand($fileTypes)],
-        //        $langs,
-        //        $users,
-        //        $blocks
-        //    );
-        //}
+        return $files;
     }
 
     /**

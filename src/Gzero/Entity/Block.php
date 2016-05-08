@@ -77,7 +77,7 @@ class Block extends Base {
      */
     public function files()
     {
-        return $this->morphToMany(File::class, 'uploadable');
+        return $this->morphToMany(File::class, 'uploadable')->withTimestamps();
     }
 
     /**

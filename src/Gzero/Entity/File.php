@@ -57,7 +57,7 @@ class File extends Base {
      */
     public function contents()
     {
-        return $this->morphedByMany(Content::class, 'uploadable');
+        return $this->morphedByMany(Content::class, 'uploadable')->withTimestamps();
     }
 
     /**
@@ -67,7 +67,7 @@ class File extends Base {
      */
     public function blocks()
     {
-        return $this->morphedByMany(Block::class, 'uploadable');
+        return $this->morphedByMany(Block::class, 'uploadable')->withTimestamps();
     }
 
     /**

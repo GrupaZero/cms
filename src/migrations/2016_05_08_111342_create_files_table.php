@@ -68,6 +68,7 @@ class CreateFilesTable extends Migration
                 $table->integer('weight');
                 $table->timestamp('createdAt');
                 $table->timestamp('updatedAt');
+                $table->foreign('fileId')->references('id')->on('Files')->onDelete('CASCADE');
             }
         );
 

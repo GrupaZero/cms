@@ -137,7 +137,7 @@ abstract class Base extends Model {
         // appropriate query constraints then entirely manages the hydrations.
         $query = $instance->newQuery();
 
-        $table = $table ?: Str::plural($name);
+        $table = $table ?: ucfirst(Str::plural($name));
 
         return new MorphToMany(
             $query, $this, $name, $table, $foreignKey,
@@ -162,7 +162,7 @@ abstract class Base extends Model {
         // For the inverse of the polymorphic many-to-many relations, we will change
         // the way we determine the foreign and other keys, as it is the opposite
         // of the morph-to-many method since we're figuring out these inverses.
-        $otherKey = $otherKey ?: $name.'Id';
+        $otherKey = $otherKey ?: $name .'Id';
 
         return $this->morphToMany($related, $name, $table, $foreignKey, $otherKey, true);
     }

@@ -106,7 +106,7 @@ class Content extends BaseTree implements PresentableInterface {
      */
     public function files()
     {
-        return $this->morphToMany(File::class, 'uploadable');
+        return $this->morphToMany(File::class, 'uploadable')->withTimestamps();
     }
 
     /**
