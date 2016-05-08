@@ -7,6 +7,9 @@ use Gzero\Entity\Block;
 use Gzero\Entity\BlockType;
 use Gzero\Entity\Content;
 use Gzero\Entity\ContentType;
+use Gzero\Entity\File;
+use Gzero\Entity\FileTranslation;
+use Gzero\Entity\FileType;
 use Gzero\Entity\Lang;
 use Gzero\Entity\OptionCategory;
 use Gzero\Entity\User;
@@ -32,7 +35,7 @@ use Illuminate\Support\Facades\Hash;
 class CMSSeeder extends Seeder {
 
     const RANDOM_USERS = 12;
-    const RANDOM_BLOCKS = 20;
+    const RANDOM_BLOCKS = 2;
 
     /**
      * @var \Faker\Generator
@@ -76,7 +79,9 @@ class CMSSeeder extends Seeder {
         $users        = $this->seedUsers();
         $contents     = $this->seedContent($contentTypes, $langs, $users);
         $this->seedOptions($langs);
-        $this->seedBlock($blockTypes, $langs, $users, $contents);
+        $blocks = $this->seedBlock($blockTypes, $langs, $users, $contents);
+        //$fileTypes   = $this->seedFileTypes();
+        $this->seedFiles($langs, $users, $contents, $blocks);
     }
 
     /**
@@ -407,6 +412,60 @@ class CMSSeeder extends Seeder {
     }
 
     /**
+     * Seed block types
+     *
+     * @return array
+     */
+    private function seedFileTypes()
+    {
+        $fileTypes = [];
+        foreach (['image', 'document', 'video', 'music'] as $type) {
+            $fileTypes[$type] = FileType::firstOrCreate(['name' => $type, 'isActive' => true]);
+        }
+        return $fileTypes;
+    }
+
+    /**
+     * Seed single block
+     *
+     * @param FileType $type     File type
+     * @param array    $langs    Array with langs
+     * @param array    $users    Array with users
+     * @param array    $contents Array with contents
+     * @param array    $blocks   Array with contents
+     *
+     * @return Block
+     */
+    private function seedFiles($langs, $users, $contents, $blocks)
+    {
+        $isActive = (bool) rand(0, 1);
+        $faker    = Factory::create($langs['en']->i18n);
+        $type     = FileType::firstOrCreate(['name' => 'image', 'isActive' => true]);
+        $user     = $users[array_rand($users)];
+        $content  = $contents[array_rand($contents)];
+        //$block   = $blocks[array_rand($blocks)];
+        $input   = [
+            'type'      => $type->name,
+            'name'      => $faker->word,
+            'extension' => $faker->fileExtension,
+            'size'      => $faker->fileExtension,
+            'mimeType'  => $faker->mimeType,
+            'info'      => array_combine($this->faker->words(), $this->faker->words()),
+            'isActive'  => $isActive,
+            'createdBy' => $user->id,
+        ];
+
+        $file = File::firstOrCreate($input);
+        $translation = new FileTranslation();
+        $translation->fill($this->prepareFileTranslation($langs['en']));
+        $file->translations()->save($translation);
+        $content->files()->attach($file->id, ['weight' => rand(0, 10)]);
+        //$block->files()->attach($file->id, ['weight' => rand(0, 10)]);
+
+        //return $file;
+    }
+
+    /**
      * Truncate database
      *
      * @return void
@@ -471,6 +530,28 @@ class CMSSeeder extends Seeder {
                 'body'         => $faker->realText(300),
                 'customFields' => array_combine($this->faker->words(), $this->faker->words()),
                 'isActive'     => (bool) ($title) ? $isActive : rand(0, 1)
+            ];
+        }
+        throw new Exception("Translation language is required!");
+    }
+
+    /**
+     * Function generates translation for specified language
+     *
+     * @param Lang $lang  language of translation
+     * @param null $title optional title value
+     *
+     * @return array
+     * @throws Exception
+     */
+    private function prepareFileTranslation(Lang $lang, $title = null)
+    {
+        if ($lang) {
+            $faker = Factory::create($lang->i18n);
+            return [
+                'langCode'    => $lang->code,
+                'title'       => ($title) ? $title : $faker->realText(38, 1),
+                'description' => $faker->realText(300)
             ];
         }
         throw new Exception("Translation language is required!");
