@@ -1,7 +1,9 @@
 <?php namespace Gzero\Entity;
 
+use Gzero\Core\Override\MorphToMany;
 use Gzero\EloquentTree\Model\Tree;
 use Carbon\Carbon;
+use Illuminate\Support\Str;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -108,4 +110,65 @@ abstract class BaseTree extends Tree {
 
         return [$type, $id];
     }
+
+    /**
+     * Define a polymorphic many-to-many relationship.
+     *
+     * @param string $related
+     * @param string $name
+     * @param string $table
+     * @param string $foreignKey
+     * @param string $otherKey
+     * @param bool   $inverse
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphToMany
+     */
+    public function morphToMany($related, $name, $table = null, $foreignKey = null, $otherKey = null, $inverse = false)
+    {
+        $caller = $this->getBelongsToManyCaller();
+
+        // First, we will need to determine the foreign key and "other key" for the
+        // relationship. Once we have determined the keys we will make the query
+        // instances, as well as the relationship instances we need for these.
+        $foreignKey = $foreignKey ?: $name . 'Id';
+
+        $instance = new $related;
+
+        $otherKey = $otherKey ?: $instance->getForeignKey();
+
+        // Now we're ready to create a new query builder for this related model and
+        // the relationship instances for this relation. This relations will set
+        // appropriate query constraints then entirely manages the hydrations.
+        $query = $instance->newQuery();
+
+        $table = $table ?: Str::plural($name);
+
+        return new MorphToMany(
+            $query, $this, $name, $table, $foreignKey,
+            $otherKey, $caller, $inverse
+        );
+    }
+
+    /**
+     * Define a polymorphic, inverse many-to-many relationship.
+     *
+     * @param  string  $related
+     * @param  string  $name
+     * @param  string  $table
+     * @param  string  $foreignKey
+     * @param  string  $otherKey
+     * @return \Illuminate\Database\Eloquent\Relations\MorphToMany
+     */
+    public function morphedByMany($related, $name, $table = null, $foreignKey = null, $otherKey = null)
+    {
+        $foreignKey = $foreignKey ?: $this->getForeignKey();
+
+        // For the inverse of the polymorphic many-to-many relations, we will change
+        // the way we determine the foreign and other keys, as it is the opposite
+        // of the morph-to-many method since we're figuring out these inverses.
+        $otherKey = $otherKey ?: $name.'Id';
+
+        return $this->morphToMany($related, $name, $table, $foreignKey, $otherKey, true);
+    }
+
 }

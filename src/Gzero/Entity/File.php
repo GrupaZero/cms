@@ -57,7 +57,7 @@ class File extends Base {
      */
     public function contents()
     {
-        return $this->morphedByMany(Content::class, 'uploadable', 'Uploadables', 'uploadableId', 'fileId');
+        return $this->morphedByMany(Content::class, 'uploadable');
     }
 
     /**
@@ -67,7 +67,7 @@ class File extends Base {
      */
     public function blocks()
     {
-        return $this->morphedByMany(Block::class, 'uploadable', 'Uploadables', 'uploadableId', 'fileId');
+        return $this->morphedByMany(Block::class, 'uploadable');
     }
 
     /**

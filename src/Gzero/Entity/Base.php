@@ -1,8 +1,9 @@
 <?php namespace Gzero\Entity;
 
-use Gzero\Override\MorphToMany;
+use Gzero\Core\Override\MorphToMany;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
+use Illuminate\Support\Str;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -115,7 +116,7 @@ abstract class Base extends Model {
         // First, we will need to determine the foreign key and "other key" for the
         // relationship. Once we have determined the keys we will make the query
         // instances, as well as the relationship instances we need for these.
-        $foreignKey = $foreignKey ?: $name . '_id';
+        $foreignKey = $foreignKey ?: $name . 'Id';
 
         $instance = new $related;
 
@@ -132,5 +133,27 @@ abstract class Base extends Model {
             $query, $this, $name, $table, $foreignKey,
             $otherKey, $caller, $inverse
         );
+    }
+
+    /**
+     * Define a polymorphic, inverse many-to-many relationship.
+     *
+     * @param  string  $related
+     * @param  string  $name
+     * @param  string  $table
+     * @param  string  $foreignKey
+     * @param  string  $otherKey
+     * @return \Illuminate\Database\Eloquent\Relations\MorphToMany
+     */
+    public function morphedByMany($related, $name, $table = null, $foreignKey = null, $otherKey = null)
+    {
+        $foreignKey = $foreignKey ?: $this->getForeignKey();
+
+        // For the inverse of the polymorphic many-to-many relations, we will change
+        // the way we determine the foreign and other keys, as it is the opposite
+        // of the morph-to-many method since we're figuring out these inverses.
+        $otherKey = $otherKey ?: $name.'Id';
+
+        return $this->morphToMany($related, $name, $table, $foreignKey, $otherKey, true);
     }
 }

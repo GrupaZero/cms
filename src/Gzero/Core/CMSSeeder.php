@@ -36,6 +36,7 @@ class CMSSeeder extends Seeder {
 
     const RANDOM_USERS = 12;
     const RANDOM_BLOCKS = 2;
+    const RANDOM_FILES = 1;
 
     /**
      * @var \Faker\Generator
@@ -78,10 +79,10 @@ class CMSSeeder extends Seeder {
         $blockTypes   = $this->seedBlockTypes();
         $users        = $this->seedUsers();
         $contents     = $this->seedContent($contentTypes, $langs, $users);
+        $blocks       = $this->seedBlock($blockTypes, $langs, $users, $contents);
+        $fileTypes    = $this->seedFileTypes();
+        $files        = $this->seedFiles($fileTypes, $langs, $users, $contents, $blocks);
         $this->seedOptions($langs);
-        $blocks = $this->seedBlock($blockTypes, $langs, $users, $contents);
-        //$fileTypes   = $this->seedFileTypes();
-        $this->seedFiles($langs, $users, $contents, $blocks);
     }
 
     /**
@@ -349,7 +350,7 @@ class CMSSeeder extends Seeder {
 
 
     /**
-     * Seed content
+     * Seed block
      *
      * @param array $blockTypes Block type
      * @param array $langs      Array with langs
@@ -426,25 +427,56 @@ class CMSSeeder extends Seeder {
     }
 
     /**
-     * Seed single block
+     * Seed file
      *
-     * @param FileType $type     File type
-     * @param array    $langs    Array with langs
-     * @param array    $users    Array with users
-     * @param array    $contents Array with contents
-     * @param array    $blocks   Array with contents
+     * @param array $fileTypes File type
+     * @param array $langs     Array with langs
+     * @param array $users     Array with users
+     * @param array $contents  Array with contents
+     * @param array $blocks    Array with contents
      *
-     * @return Block
+     * @return File
      */
-    private function seedFiles($langs, $users, $contents, $blocks)
+    private function seedFiles($fileTypes, $langs, $users, $contents, $blocks)
+    {
+        // seed files for contents
+        for ($x = 0; $x < self::RANDOM_FILES; $x++) {
+            $this->seedRandomFiles(
+                $fileTypes[array_rand($fileTypes)],
+                $langs,
+                $users,
+                $contents
+            );
+        }
+
+        //// seed files for blocks
+        //for ($x = 0; $x < self::RANDOM_FILES; $x++) {
+        //    $this->seedRandomFiles(
+        //        $fileTypes[array_rand($fileTypes)],
+        //        $langs,
+        //        $users,
+        //        $blocks
+        //    );
+        //}
+    }
+
+    /**
+     * Seed single file
+     *
+     * @param FileType $type   File type
+     * @param array    $langs  Array with langs
+     * @param array    $users  Array with users
+     * @param array    $entity Array with entities to attach file to
+     *
+     * @return File
+     */
+    private function seedRandomFiles(FileType $type, $langs, $users, $entity)
     {
         $isActive = (bool) rand(0, 1);
         $faker    = Factory::create($langs['en']->i18n);
-        $type     = FileType::firstOrCreate(['name' => 'image', 'isActive' => true]);
         $user     = $users[array_rand($users)];
-        $content  = $contents[array_rand($contents)];
-        //$block   = $blocks[array_rand($blocks)];
-        $input   = [
+        $entity   = $entity[array_rand($entity)];
+        $input    = [
             'type'      => $type->name,
             'name'      => $faker->word,
             'extension' => $faker->fileExtension,
@@ -455,14 +487,13 @@ class CMSSeeder extends Seeder {
             'createdBy' => $user->id,
         ];
 
-        $file = File::firstOrCreate($input);
+        $file        = File::firstOrCreate($input);
         $translation = new FileTranslation();
         $translation->fill($this->prepareFileTranslation($langs['en']));
         $file->translations()->save($translation);
-        $content->files()->attach($file->id, ['weight' => rand(0, 10)]);
-        //$block->files()->attach($file->id, ['weight' => rand(0, 10)]);
+        $entity->files()->attach($file->id, ['weight' => rand(0, 10)]);
 
-        //return $file;
+        return $file;
     }
 
     /**
