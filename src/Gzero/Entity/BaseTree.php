@@ -70,6 +70,16 @@ abstract class BaseTree extends Tree {
     }
 
     /**
+     * Get the default foreign key name for the model.
+     *
+     * @return string
+     */
+    public function getForeignKey()
+    {
+        return snake_case(class_basename($this)).'Id';
+    }
+
+    /**
      * Default accessor do createdAt
      *
      * @param string $date Date string
