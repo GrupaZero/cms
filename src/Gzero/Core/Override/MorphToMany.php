@@ -31,10 +31,16 @@ class MorphToMany extends \Illuminate\Database\Eloquent\Relations\MorphToMany {
         $relationName = null,
         $inverse = false
     ) {
-        $this->inverse    = $inverse;
-        $this->morphType  = $name . 'Type';
-        $this->morphClass = $inverse ? $query->getModel()->getMorphClass() : $parent->getMorphClass();
-
-        parent::__construct($query, $parent, $table, $foreignKey, $otherKey, $relationName);
+        parent::__construct(
+            $query,
+            $parent,
+            $name,
+            $table,
+            $foreignKey,
+            $otherKey,
+            $relationName = null,
+            $inverse = false
+        );
+        $this->morphType = $name . 'Type';
     }
 }
