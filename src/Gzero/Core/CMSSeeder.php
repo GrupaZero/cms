@@ -364,7 +364,7 @@ class CMSSeeder extends Seeder {
         $blocks = [];
         for ($x = 0; $x < self::RANDOM_BLOCKS; $x++) {
             /** @var TYPE_NAME $contents */
-            $block = $this->seedRandomBlock(
+            $block    = $this->seedRandomBlock(
                 $blockTypes[array_rand($blockTypes)],
                 $langs,
                 $users,
@@ -488,17 +488,21 @@ class CMSSeeder extends Seeder {
             'type'      => $type->name,
             'name'      => $faker->word,
             'extension' => $faker->fileExtension,
-            'size'      => $faker->fileExtension,
+            'size'      => $faker->randomNumber,
             'mimeType'  => $faker->mimeType,
             'info'      => array_combine($this->faker->words(), $this->faker->words()),
             'isActive'  => $isActive,
             'createdBy' => $user->id,
         ];
-
-        $file        = File::firstOrCreate($input);
-        $translation = new FileTranslation();
-        $translation->fill($this->prepareFileTranslation($langs['en']));
-        $file->translations()->save($translation);
+        // create file record in db
+        $file = File::firstOrCreate($input);
+        // seed all languages translations
+        foreach ($langs as $lang) {
+            $translation = new FileTranslation();
+            $translation->fill($this->prepareFileTranslation($lang));
+            $file->translations()->save($translation);
+        }
+        // add relation to provided entity
         $entity->files()->attach($file->id, ['weight' => rand(0, 10)]);
 
         return $file;
