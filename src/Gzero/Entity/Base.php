@@ -62,7 +62,7 @@ abstract class Base extends Model {
      */
     public function getForeignKey()
     {
-        return snake_case(class_basename($this)).'Id';
+        return snake_case(class_basename($this)) . 'Id';
     }
 
     /**
@@ -110,12 +110,12 @@ abstract class Base extends Model {
     /**
      * Define a polymorphic many-to-many relationship.
      *
-     * @param string $related
-     * @param string $name
-     * @param string $table
-     * @param string $foreignKey
-     * @param string $otherKey
-     * @param bool   $inverse
+     * @param string $related    related model
+     * @param string $name       relation name
+     * @param string $table      table name
+     * @param string $foreignKey foreign key
+     * @param string $otherKey   other key
+     * @param bool   $inverse    if use reversed relationship
      *
      * @return \Illuminate\Database\Eloquent\Relations\MorphToMany
      */
@@ -148,11 +148,12 @@ abstract class Base extends Model {
     /**
      * Define a polymorphic, inverse many-to-many relationship.
      *
-     * @param  string  $related
-     * @param  string  $name
-     * @param  string  $table
-     * @param  string  $foreignKey
-     * @param  string  $otherKey
+     * @param string $related    related model
+     * @param string $name       relation name
+     * @param string $table      table name
+     * @param string $foreignKey foreign key
+     * @param string $otherKey   other key
+     *
      * @return \Illuminate\Database\Eloquent\Relations\MorphToMany
      */
     public function morphedByMany($related, $name, $table = null, $foreignKey = null, $otherKey = null)
@@ -162,7 +163,7 @@ abstract class Base extends Model {
         // For the inverse of the polymorphic many-to-many relations, we will change
         // the way we determine the foreign and other keys, as it is the opposite
         // of the morph-to-many method since we're figuring out these inverses.
-        $otherKey = $otherKey ?: $name .'Id';
+        $otherKey = $otherKey ?: $name . 'Id';
 
         return $this->morphToMany($related, $name, $table, $foreignKey, $otherKey, true);
     }
