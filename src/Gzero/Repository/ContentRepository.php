@@ -11,6 +11,7 @@ use Gzero\Entity\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Events\Dispatcher;
+use Lanz\Commentable\Comment;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -361,6 +362,38 @@ class ContentRepository extends BaseRepository {
     public function getContentTranslationById(Content $content, $id)
     {
         return $content->translations(false)->where('id', '=', $id)->first();
+    }
+
+    /**
+     * Add comment to given content
+     *
+     * @param Content $content content object
+     * @param string  $title   comment title
+     * @param string  $body    comment body
+     * @param integer $userId  author id
+     *
+     * @return Content
+     */
+    public function addComment(Content $content, $title, $body, $userId)
+    {
+        $comment          = new Comment();
+        $comment->title   = $title;
+        $comment->body    = $body;
+        $comment->user_id = $userId;
+        $content->comments()->save($comment);
+        return $content;
+    }
+
+    /**
+     * Get content comments
+     *
+     * @param Content $content content object
+     *
+     * @return mixed
+     */
+    public function getComments(Content $content)
+    {
+        return $content->comments;
     }
 
     /*

@@ -1142,6 +1142,30 @@ class ContentRepositoryTest extends \EloquentTestCase {
         $this->assertEquals('example-title', $newContentRoute['url']);
     }
 
+    /**
+     * @test
+     */
+    public function can_create_and_get_comments()
+    {
+        $author   = User::find(1);
+        $content  = $this->repository->create(
+            [
+                'type'         => 'content',
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'Example title',
+                ]
+            ]
+        );
+        $content  = $this->repository->addComment($content, 'Comment Title', 'Comment Body', $author->id);
+        $comments = $this->repository->getComments($content);
+        $comment = $comments[0];
+
+        $this->assertEquals('Comment Title', $comment->title);
+        $this->assertEquals('Comment Body', $comment->body);
+        $this->assertEquals($author->id, $comment->user_id);
+    }
+
     /*
     |--------------------------------------------------------------------------
     | END Translations tests

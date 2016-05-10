@@ -27,8 +27,9 @@ class ServiceProvider extends AbstractServiceProvider {
      * @var array
      */
     protected $providers = [
-        'Robbo\Presenter\PresenterServiceProvider',
-        'DaveJamesMiller\Breadcrumbs\ServiceProvider'
+        \Robbo\Presenter\PresenterServiceProvider::class,
+        \DaveJamesMiller\Breadcrumbs\ServiceProvider::class,
+        \Lanz\Commentable\CommentableServiceProvider::class
     ];
 
     /**
