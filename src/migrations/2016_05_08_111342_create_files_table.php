@@ -33,7 +33,7 @@ class CreateFilesTable extends Migration
                 $table->string('extension');
                 $table->integer('size')->nullable();
                 $table->string('mimeType');
-                $table->json('info');
+                $table->json('info')->nullable();
                 $table->integer('createdBy')->unsigned()->nullable();
                 $table->boolean('isActive');
                 $table->timestamp('createdAt');

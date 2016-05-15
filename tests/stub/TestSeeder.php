@@ -3,6 +3,7 @@
 use Faker\Factory;
 use Gzero\Entity\BlockType;
 use Gzero\Entity\ContentType;
+use Gzero\Entity\FileType;
 use Gzero\Entity\Lang;
 use Gzero\Entity\User;
 use Gzero\Entity\Option;
@@ -49,6 +50,7 @@ class TestSeeder extends Seeder {
         $this->seedBlockTypes();
         $this->seedUsers();
         $this->seedOptions();
+        $this->seedFileTypes();
     }
 
     /**
@@ -104,6 +106,18 @@ class TestSeeder extends Seeder {
             $blockTypes[$type] = BlockType::firstOrCreate(['name' => $type, 'isActive' => true]);
         }
         return $blockTypes;
+    }
+
+    /**
+     * Seed file types
+     *
+     * @return void
+     */
+    private function seedFileTypes()
+    {
+        foreach (['image', 'document', 'video', 'music'] as $type) {
+            FileType::firstOrCreate(['name' => $type, 'isActive' => true]);
+        }
     }
 
     /**

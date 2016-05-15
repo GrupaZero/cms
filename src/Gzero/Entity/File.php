@@ -61,7 +61,7 @@ class File extends Base {
     }
 
     /**
-     * Get all of the contents that are assigned this file.
+     * Get all of the blocks that are assigned this file.
      *
      * @return \Illuminate\Database\Eloquent\Relations\MorphTo
      */
@@ -88,6 +88,26 @@ class File extends Base {
     public function getPresenter()
     {
         return new FilePresenter($this);
+    }
+
+    /**
+     * Return file name with extension
+     *
+     * @return \Robbo\Presenter\Presenter
+     */
+    public function getFileName()
+    {
+        return $this->name . '.' . $this->extension;
+    }
+
+    /**
+     * Returns file upload path based on upload directory name and file type plural name e.g. public/images/
+     *
+     * @return string
+     */
+    public function getUploadPath()
+    {
+        return config('gzero.upload.directory') . '/' . str_plural($this->type) . '/';
     }
 
     /**

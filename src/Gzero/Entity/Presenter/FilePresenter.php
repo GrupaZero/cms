@@ -1,5 +1,6 @@
 <?php namespace Gzero\Entity\Presenter;
 
+use Illuminate\Support\Facades\Storage;
 use Robbo\Presenter\Presenter;
 
 /**
@@ -50,4 +51,13 @@ class FilePresenter extends Presenter {
         }
     }
 
+    /**
+     * This function returns file url in storage
+     *
+     * @return string
+     */
+    public function url()
+    {
+        return Storage::url($this->getUploadPath() . $this->getFileName());
+    }
 }

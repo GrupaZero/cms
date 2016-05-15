@@ -1,5 +1,7 @@
 <?php namespace Gzero\Entity;
 
+use Illuminate\Support\Facades\Cache;
+
 /**
  * This file is part of the GZERO CMS package.
  *
@@ -32,4 +34,21 @@ class FileType extends Base {
         'extensions',
         'isActive'
     ];
+
+    /**
+     * Return list of active types.
+     *
+     * @return array
+     */
+    public function getActiveTypes()
+    {
+        $types = Cache::rememberForever(
+            'fileTypes',
+            function () {
+                return array_pluck($this->where('isActive', true)->get(['name'])->toArray(), 'name');
+            }
+        );
+
+        return $types;
+    }
 }

@@ -139,10 +139,7 @@ abstract class Base extends Model {
 
         $table = $table ?: ucfirst(Str::plural($name));
 
-        return new MorphToMany(
-            $query, $this, $name, $table, $foreignKey,
-            $otherKey, $caller, $inverse
-        );
+        return new MorphToMany($query, $this, $name, $table, $foreignKey, $otherKey, $caller, $inverse);
     }
 
     /**
