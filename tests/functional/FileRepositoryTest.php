@@ -268,6 +268,34 @@ class FileRepositoryTest extends \EloquentTestCase {
 
     /**
      * @test
+     */
+    public function can_delete_file_translation()
+    {
+        $uploadedFile = $this->getExampleFile();
+        $file         = $this->repository->create(
+            [
+                'type'         => 'image',
+                'translations' => [
+                    'langCode'    => 'en',
+                    'title'       => 'Example file title',
+                    'description' => 'Example file description'
+                ]
+            ],
+            $uploadedFile
+        );
+
+        $newFile        = $this->repository->getById($file->id);
+        $newTranslation = $newFile->translations[0];
+
+        // delete file translation
+        $this->repository->deleteTranslation($newTranslation);
+        // file translations
+        $foundTranslation = $this->repository->getFileTranslationById($newFile, $newTranslation->id);
+        $this->assertNull($foundTranslation);
+    }
+
+    /**
+     * @test
      * @expectedException \Gzero\Core\Exception
      * @expectedExceptionMessage File type is invalid
      */

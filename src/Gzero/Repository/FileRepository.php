@@ -174,6 +174,24 @@ class FileRepository extends BaseRepository {
     }
 
     /**
+     * Delete specific file translation entity
+     *
+     * @param FileTranslation $translation entity to delete
+     *
+     * @return bool
+     * @throws RepositoryException
+     * @throws \Exception
+     */
+    public function deleteTranslation(FileTranslation $translation)
+    {
+        return $this->newQuery()->transaction(
+            function () use ($translation) {
+                return $translation->delete();
+            }
+        );
+    }
+
+    /**
      * Get translation of specified file by id.
      *
      * @param File $file File entity
