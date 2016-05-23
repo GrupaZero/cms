@@ -132,6 +132,7 @@ abstract class BaseTree extends Tree {
      * @param bool   $inverse    if use reversed relationship
      *
      * @return \Illuminate\Database\Eloquent\Relations\MorphToMany
+     * @SuppressWarnings(PHPMD)
      */
     public function morphToMany($related, $name, $table = null, $foreignKey = null, $otherKey = null, $inverse = false)
     {
