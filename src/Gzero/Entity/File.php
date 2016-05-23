@@ -1,6 +1,7 @@
 <?php namespace Gzero\Entity;
 
 use Gzero\Entity\Presenter\FilePresenter;
+use Illuminate\Support\Facades\Storage;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -111,6 +112,23 @@ class File extends Base {
     }
 
     /**
+     * Returns file public url
+     *
+     * @return string
+     */
+    public function getUrl()
+    {
+        $url = $this->getUploadPath() . $this->getFileName();
+        if (Storage::getDefaultDriver() === 's3') {
+            return Storage::disk('s3')->getDriver()->getAdapter()->getClient()->getObjectUrl(
+                config('filesystems.disks.s3.bucket'),
+                $url
+            );
+        }
+        return route('home') . '/' . $url;
+    }
+
+    /**
      * Set the info value
      *
      * @param string $value info value
@@ -133,6 +151,4 @@ class File extends Base {
     {
         return ($value) ? json_decode($value, true) : $value;
     }
-
-
 }
