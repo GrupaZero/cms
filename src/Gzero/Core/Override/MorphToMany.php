@@ -10,16 +10,16 @@ class MorphToMany extends \Illuminate\Database\Eloquent\Relations\MorphToMany {
     /**
      * Create a new morph to many relationship instance.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param \Illuminate\Database\Eloquent\Model   $parent
-     * @param string                                $name
-     * @param string                                $table
-     * @param string                                $foreignKey
-     * @param string                                $otherKey
-     * @param string                                $relationName
-     * @param bool                                  $inverse
+     * @param \Illuminate\Database\Eloquent\Builder $query        query string
+     * @param \Illuminate\Database\Eloquent\Model   $parent       parent model
+     * @param string                                $name         name
+     * @param string                                $table        table name
+     * @param string                                $foreignKey   foreign key
+     * @param string                                $otherKey     other key
+     * @param string                                $relationName relation name
+     * @param bool                                  $inverse      whether it should be reversed
      *
-     * @return void
+     * @SuppressWarnings(PHPMD)
      */
     public function __construct(
         Builder $query,
