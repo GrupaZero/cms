@@ -73,7 +73,7 @@ class FileRepository extends BaseRepository {
                         $file = new File();
                         $file->fill($data);
                         // put file in storage
-                        Storage::put($file->getUploadPath() . $uploadedFile->getFilename(), $resource);
+                        Storage::put($file->getUploadPath() . $uploadedFile->getClientOriginalName(), $resource);
                         $this->events->fire('file.creating', [$file, $author]);
                         if ($author) {
                             $file->author()->associate($author);
@@ -348,8 +348,8 @@ class FileRepository extends BaseRepository {
     private function getFileData(UploadedFile $uploadedFile)
     {
         return [
-            'name'      => pathinfo($uploadedFile->getFilename(), PATHINFO_FILENAME),
-            'extension' => $uploadedFile->getExtension(),
+            'name'      => pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME),
+            'extension' => $uploadedFile->getClientOriginalExtension(),
             'size'      => $uploadedFile->getSize(),
             'mimeType'  => $uploadedFile->getMimeType(),
         ];
