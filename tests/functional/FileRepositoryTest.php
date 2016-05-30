@@ -133,6 +133,24 @@ class FileRepositoryTest extends \EloquentTestCase {
     /**
      * @test
      */
+    public function can_create_file_without_translation()
+    {
+        $uploadedFile = $this->getExampleFile();
+        $file         = $this->repository->create(
+            [
+                'type'         => 'image',
+                'isActive'     => true
+            ],
+            $uploadedFile
+        );
+        $newFile      = $this->repository->getById($file->id);
+        $this->assertNotSame($file, $newFile);
+        $this->assertEquals($file->name, $newFile->name);
+    }
+
+    /**
+     * @test
+     */
     public function can_create_file_with_unique_name_if_file_name_is_already_taken()
     {
         $uploadedFile  = $this->getExampleFile();

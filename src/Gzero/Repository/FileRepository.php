@@ -68,7 +68,7 @@ class FileRepository extends BaseRepository {
                     $resource     = fopen($uploadedFile->getRealPath(), 'r');
                     $data         = array_merge($data, $this->getFileData($uploadedFile));
                     $translations = array_get($data, 'translations'); // Nested relation fields
-                    if (!empty($translations) && array_key_exists('type', $data)) {
+                    if (array_key_exists('type', $data)) {
                         $this->validateType($data['type']);
                         $file = new File();
                         $file->fill($data);
@@ -86,11 +86,13 @@ class FileRepository extends BaseRepository {
                         }
                         $file->save();
                         // File translations
-                        $this->createTranslation($file, $translations);
-                        $this->events->fire('file.created', [$file]);
+                        if (!empty($translations)) {
+                            $this->createTranslation($file, $translations);
+                            $this->events->fire('file.created', [$file]);
+                        }
                         return $this->getById($file->id);
                     } else {
-                        throw new RepositoryException("File type and translation is required");
+                        throw new RepositoryException("File type is required");
                     }
                 }
             );
