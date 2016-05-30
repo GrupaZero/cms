@@ -125,7 +125,7 @@ class File extends Base {
                 $url
             );
         }
-        return route('home') . '/' . $url;
+        return asset($url);
     }
 
     /**

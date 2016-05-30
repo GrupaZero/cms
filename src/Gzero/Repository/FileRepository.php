@@ -72,8 +72,14 @@ class FileRepository extends BaseRepository {
                         $this->validateType($data['type']);
                         $file = new File();
                         $file->fill($data);
+                        // prepare file name
+                        $path = $file->getUploadPath() . $uploadedFile->getClientOriginalName();
+                        if (Storage::has($path)) {
+                            $file->name = $this->getUniqueFileName($file->getUploadPath(), $uploadedFile);
+                            $path       = $file->getUploadPath() . $file->name . '.' . $file->extension;
+                        }
                         // put file in storage
-                        Storage::put($file->getUploadPath() . $uploadedFile->getClientOriginalName(), $resource);
+                        Storage::put($path, $resource);
                         $this->events->fire('file.creating', [$file, $author]);
                         if ($author) {
                             $file->author()->associate($author);
@@ -164,7 +170,10 @@ class FileRepository extends BaseRepository {
         return $this->newQuery()->transaction(
             function () use ($file) {
                 $this->events->fire('file.deleting', [$file]);
-                Storage::delete($file->getUploadPath() . $file->getFileName());
+                $url = $file->getUploadPath() . $file->getFileName();
+                if (Storage::has($url)) {
+                    Storage::delete($url);
+                }
                 $file->delete();
                 $file->translations()->delete();
                 $this->events->fire('file.deleted', [$file]);
@@ -353,6 +362,27 @@ class FileRepository extends BaseRepository {
             'size'      => $uploadedFile->getSize(),
             'mimeType'  => $uploadedFile->getMimeType(),
         ];
+    }
+
+    /**
+     * Function returns an unique file name based on files already located in provided storage directory
+     *
+     * @param string       $directory    string storage directory to search in
+     * @param UploadedFile $uploadedFile The object returned by the Request file method
+     *
+     * @return string $fileName an unique file name
+     */
+    private function getUniqueFileName($directory, UploadedFile $uploadedFile)
+    {
+        $files    = Storage::files($directory);
+        $fileName = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME);
+        $count    = 0;
+        foreach ($files as $file) {
+            if (preg_match("'^$fileName($|-[0-9]+$)'", pathinfo($file, PATHINFO_FILENAME))) {
+                $count++;
+            };
+        }
+        return ($count) ? $fileName . '-' . $count : $fileName;
     }
 
 }

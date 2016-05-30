@@ -127,7 +127,55 @@ class FileRepositoryTest extends \EloquentTestCase {
         );
         $newFile      = $this->repository->getById($file->id);
         $this->assertNotSame($file, $newFile);
-        $this->assertNull($newFile->author);
+        $this->assertEquals($file->name, $newFile->name);
+    }
+
+    /**
+     * @test
+     */
+    public function can_create_file_with_unique_name_if_file_name_is_already_taken()
+    {
+        $uploadedFile  = $this->getExampleFile();
+        $file          = $this->repository->create(
+            [
+                'type'         => 'image',
+                'isActive'     => true,
+                'translations' => [
+                    'langCode'    => 'en',
+                    'title'       => 'Example file title',
+                    'description' => 'Example file description'
+                ]
+            ],
+            $uploadedFile
+        );
+        $secondFile    = $this->repository->create(
+            [
+                'type'         => 'image',
+                'isActive'     => true,
+                'translations' => [
+                    'langCode'    => 'en',
+                    'title'       => 'Second file title',
+                    'description' => 'Second file description'
+                ]
+            ],
+            $uploadedFile
+        );
+        $thirdFile = $this->repository->create(
+            [
+                'type'         => 'image',
+                'isActive'     => true,
+                'translations' => [
+                    'langCode'    => 'en',
+                    'title'       => 'Third file title',
+                    'description' => 'Third file description'
+                ]
+            ],
+            $uploadedFile
+        );
+
+        $this->assertEquals($file->name, 'example');
+        $this->assertEquals($secondFile->name, 'example-1');
+        $this->assertEquals($thirdFile->name, 'example-2');
     }
 
     /**
