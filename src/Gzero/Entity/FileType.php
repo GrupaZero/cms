@@ -1,5 +1,6 @@
 <?php namespace Gzero\Entity;
 
+use Gzero\Core\Handler\File\FileTypeHandler;
 use Illuminate\Support\Facades\Cache;
 
 /**
@@ -50,5 +51,22 @@ class FileType extends Base {
         );
 
         return $types;
+    }
+
+    /**
+     * Dynamically resolve type of content
+     *
+     * @param String $typeName Type name
+     *
+     * @return FileTypeHandler
+     * @throws \ReflectionException
+     */
+    public function resolveType($typeName)
+    {
+        $type = app()->make('file:type:' . $typeName);
+        if (!$type instanceof FileTypeHandler) {
+            throw new \ReflectionException("Type: $typeName must implement FileTypeInterface");
+        }
+        return $type;
     }
 }

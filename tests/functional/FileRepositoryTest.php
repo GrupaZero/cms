@@ -65,7 +65,7 @@ class FileRepositoryTest extends \EloquentTestCase {
     public function can_create_file()
     {
 
-        $uploadedFile = $this->getExampleFile();
+        $uploadedFile = $this->getExampleImage();
         $author       = User::find(1);
         $file         = $this->repository->create(
             [
@@ -112,7 +112,7 @@ class FileRepositoryTest extends \EloquentTestCase {
      */
     public function can_create_file_without_author()
     {
-        $uploadedFile = $this->getExampleFile();
+        $uploadedFile = $this->getExampleImage();
         $file         = $this->repository->create(
             [
                 'type'         => 'image',
@@ -135,11 +135,11 @@ class FileRepositoryTest extends \EloquentTestCase {
      */
     public function can_create_file_without_translation()
     {
-        $uploadedFile = $this->getExampleFile();
+        $uploadedFile = $this->getExampleImage();
         $file         = $this->repository->create(
             [
-                'type'         => 'image',
-                'isActive'     => true
+                'type'     => 'image',
+                'isActive' => true
             ],
             $uploadedFile
         );
@@ -153,47 +153,63 @@ class FileRepositoryTest extends \EloquentTestCase {
      */
     public function can_create_file_with_unique_name_if_file_name_is_already_taken()
     {
-        $uploadedFile  = $this->getExampleFile();
-        $file          = $this->repository->create(
+        $uploadedFile = $this->getExampleImage();
+        $file         = $this->repository->create(
             [
-                'type'         => 'image',
-                'isActive'     => true,
-                'translations' => [
-                    'langCode'    => 'en',
-                    'title'       => 'Example file title',
-                    'description' => 'Example file description'
-                ]
+                'type'     => 'image',
+                'isActive' => true
             ],
             $uploadedFile
         );
-        $secondFile    = $this->repository->create(
+        $secondFile   = $this->repository->create(
             [
-                'type'         => 'image',
-                'isActive'     => true,
-                'translations' => [
-                    'langCode'    => 'en',
-                    'title'       => 'Second file title',
-                    'description' => 'Second file description'
-                ]
+                'type'     => 'image',
+                'isActive' => true
             ],
             $uploadedFile
         );
-        $thirdFile = $this->repository->create(
+        $thirdFile    = $this->repository->create(
             [
-                'type'         => 'image',
-                'isActive'     => true,
-                'translations' => [
-                    'langCode'    => 'en',
-                    'title'       => 'Third file title',
-                    'description' => 'Third file description'
-                ]
+                'type'     => 'image',
+                'isActive' => true
             ],
             $uploadedFile
         );
-
-        $this->assertEquals($file->name, 'example');
-        $this->assertEquals($secondFile->name, 'example-1');
-        $this->assertEquals($thirdFile->name, 'example-2');
+        // delete second file
+        $this->repository->delete($secondFile);
+        $fourthFile = $this->repository->create(
+            [
+                'type'     => 'image',
+                'isActive' => true
+            ],
+            $uploadedFile
+        );
+        // delete first file
+        $this->repository->delete($file);
+        // re upload first file
+        $fifthFile = $this->repository->create(
+            [
+                'type'     => 'image',
+                'isActive' => true
+            ],
+            $uploadedFile
+        );
+        // Document file
+        $documentFile = $this->repository->create(
+            [
+                'type'     => 'document',
+                'isActive' => true
+            ],
+            $this->getExampleDocument()
+        );
+        // Images file
+        $this->assertEquals('example', $file->name);
+        $this->assertEquals('example-1', $secondFile->name);
+        $this->assertEquals('example-2', $thirdFile->name);
+        $this->assertEquals('example-3', $fourthFile->name);
+        $this->assertEquals('example', $fifthFile->name);
+        // Document file
+        $this->assertEquals('example', $documentFile->name);
     }
 
     /**
@@ -201,7 +217,7 @@ class FileRepositoryTest extends \EloquentTestCase {
      */
     public function can_create_and_get_file_translation()
     {
-        $uploadedFile     = $this->getExampleFile();
+        $uploadedFile     = $this->getExampleImage();
         $file             = $this->repository->create(
             [
                 'type'         => 'image',
@@ -261,7 +277,7 @@ class FileRepositoryTest extends \EloquentTestCase {
      */
     public function can_set_file_as_inactive()
     {
-        $uploadedFile = $this->getExampleFile();
+        $uploadedFile = $this->getExampleImage();
         $file         = $this->repository->create(
             [
                 'type'         => 'image',
@@ -292,7 +308,7 @@ class FileRepositoryTest extends \EloquentTestCase {
      */
     public function can_delete_file()
     {
-        $uploadedFile = $this->getExampleFile();
+        $uploadedFile = $this->getExampleImage();
         $file         = $this->repository->create(
             [
                 'type'         => 'image',
@@ -337,7 +353,7 @@ class FileRepositoryTest extends \EloquentTestCase {
      */
     public function can_delete_file_translation()
     {
-        $uploadedFile = $this->getExampleFile();
+        $uploadedFile = $this->getExampleImage();
         $file         = $this->repository->create(
             [
                 'type'         => 'image',
@@ -367,7 +383,7 @@ class FileRepositoryTest extends \EloquentTestCase {
      */
     public function it_checks_existence_of_file_type()
     {
-        $uploadedFile = $this->getExampleFile();
+        $uploadedFile = $this->getExampleImage();
         $this->repository->create(
             [
                 'type'         => 'fakeType',
@@ -376,6 +392,22 @@ class FileRepositoryTest extends \EloquentTestCase {
                     'title'       => 'Example file title',
                     'description' => 'Example file description'
                 ]
+            ],
+            $uploadedFile
+        );
+    }
+
+    /**
+     * @test
+     * @expectedException \Gzero\Core\Handler\File\FileHandlerException
+     * @expectedExceptionMessage The extension of this file (.png) is not allowed for video files
+     */
+    public function it_validates_allowed_file_extension()
+    {
+        $uploadedFile = $this->getExampleImage();
+        $this->repository->create(
+            [
+                'type' => 'video'
             ],
             $uploadedFile
         );
@@ -399,8 +431,8 @@ class FileRepositoryTest extends \EloquentTestCase {
      */
     public function can_filter_files_list_by_type()
     {
-        $uploadedFile = $this->getExampleFile();
-        // File in header region
+        $uploadedFile = $this->getExampleImage();
+        // Image file
         $firstFile = $this->repository->create(
             [
                 'type'         => 'image',
@@ -415,7 +447,7 @@ class FileRepositoryTest extends \EloquentTestCase {
         );
 
 
-        // File in footer region
+        // Document file
         $secondFile = $this->repository->create(
             [
                 'type'         => 'document',
@@ -426,7 +458,7 @@ class FileRepositoryTest extends \EloquentTestCase {
                     'description' => 'Example file description'
                 ]
             ],
-            $uploadedFile
+            $this->getExampleDocument()
         );
 
         // Get files
@@ -450,7 +482,7 @@ class FileRepositoryTest extends \EloquentTestCase {
      */
     public function can_sort_files_list()
     {
-        $uploadedFile = $this->getExampleFile();
+        $uploadedFile = $this->getExampleImage();
         $firstFile    = $this->repository->create(
             [
                 'type'         => 'image',
@@ -511,7 +543,7 @@ class FileRepositoryTest extends \EloquentTestCase {
      */
     public function can_paginate_files_list()
     {
-        $uploadedFile = $this->getExampleFile();
+        $uploadedFile = $this->getExampleImage();
         $firstFile    = $this->repository->create(
             [
                 'type'         => 'image',
@@ -574,9 +606,14 @@ class FileRepositoryTest extends \EloquentTestCase {
     |--------------------------------------------------------------------------
     */
 
-    private function getExampleFile()
+    private function getExampleImage()
     {
         return new UploadedFile($this->filesDir . '/example.png', 'example.png', 'image/jpeg', null, null, true);
+    }
+
+    private function getExampleDocument()
+    {
+        return new UploadedFile($this->filesDir . '/example.txt', 'example.txt', 'text/plain', null, null, true);
     }
 
 }

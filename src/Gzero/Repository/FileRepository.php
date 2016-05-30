@@ -69,9 +69,10 @@ class FileRepository extends BaseRepository {
                     $data         = array_merge($data, $this->getFileData($uploadedFile));
                     $translations = array_get($data, 'translations'); // Nested relation fields
                     if (array_key_exists('type', $data)) {
-                        $this->validateType($data['type']);
+                        $type = $this->typeModel->resolveType($this->validateType($data['type']));
                         $file = new File();
                         $file->fill($data);
+                        $type->validateExtension($file);
                         // prepare file name
                         $path = $file->getUploadPath() . $uploadedFile->getClientOriginalName();
                         if (Storage::has($path)) {
@@ -383,6 +384,11 @@ class FileRepository extends BaseRepository {
             if (preg_match("'^$fileName($|-[0-9]+$)'", pathinfo($file, PATHINFO_FILENAME))) {
                 $count++;
             };
+        }
+        // check again for duplicated file name, which may be added manually e.g 'public/images/example-1.png'
+        $path = $directory . $fileName . '-' . $count . '.' . $uploadedFile->getClientOriginalExtension();
+        if (Storage::has($path)) {
+            $count++;
         }
         return ($count) ? $fileName . '-' . $count : $fileName;
     }
