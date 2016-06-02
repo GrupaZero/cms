@@ -28,7 +28,7 @@ class CreateContent extends Migration {
             function (Blueprint $table) {
                 $table->increments('id');
                 $table->string('type');
-                $table->string("theme")->nullable();
+                $table->string('theme')->nullable();
                 $table->integer('authorId')->unsigned()->nullable();
                 $table->string('path', 255)->nullable();
                 $table->integer('parentId')->unsigned()->nullable();

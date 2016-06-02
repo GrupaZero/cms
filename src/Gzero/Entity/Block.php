@@ -69,6 +69,17 @@ class Block extends Base {
         return $this->morphTo();
     }
 
+
+    /**
+     * Get all of the files for the content.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\morphToMany
+     */
+    public function files()
+    {
+        return $this->morphToMany(File::class, 'uploadable')->withTimestamps();
+    }
+
     /**
      * Block author relation
      *

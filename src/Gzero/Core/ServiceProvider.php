@@ -114,18 +114,25 @@ class ServiceProvider extends AbstractServiceProvider {
     }
 
     /**
-     * Bind content and block types
+     * Bind entities types classes
      *
      * @return void
      */
     protected function bindTypes()
     {
-        foreach ($this->app['config']['gzero.block_type'] as $type => $class) {
-            $this->app->bind("block:type:$type", $class);
-        }
+        $entities = [
+            'block',
+            'content',
+            'file'
+        ];
 
-        foreach ($this->app['config']['gzero.content_type'] as $type => $class) {
-            $this->app->bind("content:type:$type", $class);
+        foreach ($entities as $entity) {
+            $key = "gzero.$entity" . '_type';
+            if (isset($this->app['config'][$key])) {
+                foreach ($this->app['config'][$key] as $type => $class) {
+                    $this->app->bind("$entity:type:$type", $class);
+                }
+            }
         }
     }
 

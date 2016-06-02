@@ -7,6 +7,9 @@ use Gzero\Entity\Block;
 use Gzero\Entity\BlockType;
 use Gzero\Entity\Content;
 use Gzero\Entity\ContentType;
+use Gzero\Entity\File;
+use Gzero\Entity\FileTranslation;
+use Gzero\Entity\FileType;
 use Gzero\Entity\Lang;
 use Gzero\Entity\OptionCategory;
 use Gzero\Entity\User;
@@ -32,7 +35,8 @@ use Illuminate\Support\Facades\Hash;
 class CMSSeeder extends Seeder {
 
     const RANDOM_USERS = 12;
-    const RANDOM_BLOCKS = 20;
+    const RANDOM_BLOCKS = 10;
+    const RANDOM_FILES = 4;
 
     /**
      * @var \Faker\Generator
@@ -75,8 +79,10 @@ class CMSSeeder extends Seeder {
         $blockTypes   = $this->seedBlockTypes();
         $users        = $this->seedUsers();
         $contents     = $this->seedContent($contentTypes, $langs, $users);
+        $blocks       = $this->seedBlock($blockTypes, $langs, $users, $contents);
+        $fileTypes    = $this->seedFileTypes();
+        $files        = $this->seedFiles($fileTypes, $langs, $users, $contents, $blocks);
         $this->seedOptions($langs);
-        $this->seedBlock($blockTypes, $langs, $users, $contents);
     }
 
     /**
@@ -344,7 +350,7 @@ class CMSSeeder extends Seeder {
 
 
     /**
-     * Seed content
+     * Seed block
      *
      * @param array $blockTypes Block type
      * @param array $langs      Array with langs
@@ -355,15 +361,19 @@ class CMSSeeder extends Seeder {
      */
     private function seedBlock($blockTypes, $langs, $users, $contents)
     {
+        $blocks = [];
         for ($x = 0; $x < self::RANDOM_BLOCKS; $x++) {
             /** @var TYPE_NAME $contents */
-            $this->seedRandomBlock(
+            $block    = $this->seedRandomBlock(
                 $blockTypes[array_rand($blockTypes)],
                 $langs,
                 $users,
                 $contents
             );
+            $blocks[] = $block;
         }
+
+        return $blocks;
     }
 
     /**
@@ -404,6 +414,98 @@ class CMSSeeder extends Seeder {
         $block = $this->blockRepository->create($input, $users[array_rand($users)]);
         $this->blockRepository->createTranslation($block, $this->prepareBlockTranslation($langs['pl']));
         return $block;
+    }
+
+    /**
+     * Seed block types
+     *
+     * @return array
+     */
+    private function seedFileTypes()
+    {
+        $fileTypes = [];
+        foreach (['image', 'document', 'video', 'music'] as $type) {
+            $fileTypes[$type] = FileType::firstOrCreate(['name' => $type, 'isActive' => true]);
+        }
+        return $fileTypes;
+    }
+
+    /**
+     * Seed file
+     *
+     * @param array $fileTypes File type
+     * @param array $langs     Array with langs
+     * @param array $users     Array with users
+     * @param array $contents  Array with contents
+     * @param array $blocks    Array with blocks
+     *
+     * @return File
+     */
+    private function seedFiles($fileTypes, $langs, $users, $contents, $blocks)
+    {
+        $files = [];
+        // seed files for contents
+        for ($x = 0; $x < self::RANDOM_FILES; $x++) {
+            $file    = $this->seedRandomFiles(
+                $fileTypes[array_rand($fileTypes)],
+                $langs,
+                $users,
+                $contents
+            );
+            $files[] = $file;
+        }
+        // seed files for blocks
+        for ($x = 0; $x < self::RANDOM_FILES; $x++) {
+            $file    = $this->seedRandomFiles(
+                $fileTypes[array_rand($fileTypes)],
+                $langs,
+                $users,
+                $blocks
+            );
+            $files[] = $file;
+        }
+
+        return $files;
+    }
+
+    /**
+     * Seed single file
+     *
+     * @param FileType $type   File type
+     * @param array    $langs  Array with langs
+     * @param array    $users  Array with users
+     * @param array    $entity Array with entities to attach file to
+     *
+     * @return File
+     */
+    private function seedRandomFiles(FileType $type, $langs, $users, $entity)
+    {
+        $isActive = (bool) rand(0, 1);
+        $faker    = Factory::create($langs['en']->i18n);
+        $user     = $users[array_rand($users)];
+        $entity   = $entity[array_rand($entity)];
+        $input    = [
+            'type'      => $type->name,
+            'name'      => $faker->word,
+            'extension' => $faker->fileExtension,
+            'size'      => $faker->randomNumber,
+            'mimeType'  => $faker->mimeType,
+            'info'      => array_combine($this->faker->words(), $this->faker->words()),
+            'isActive'  => $isActive,
+            'createdBy' => $user->id,
+        ];
+        // create file record in db
+        $file = File::firstOrCreate($input);
+        // seed all languages translations
+        foreach ($langs as $lang) {
+            $translation = new FileTranslation();
+            $translation->fill($this->prepareFileTranslation($lang));
+            $file->translations()->save($translation);
+        }
+        // add relation to provided entity
+        $entity->files()->attach($file->id, ['weight' => rand(0, 10)]);
+
+        return $file;
     }
 
     /**
@@ -471,6 +573,28 @@ class CMSSeeder extends Seeder {
                 'body'         => $faker->realText(300),
                 'customFields' => array_combine($this->faker->words(), $this->faker->words()),
                 'isActive'     => (bool) ($title) ? $isActive : rand(0, 1)
+            ];
+        }
+        throw new Exception("Translation language is required!");
+    }
+
+    /**
+     * Function generates translation for specified language
+     *
+     * @param Lang $lang  language of translation
+     * @param null $title optional title value
+     *
+     * @return array
+     * @throws Exception
+     */
+    private function prepareFileTranslation(Lang $lang, $title = null)
+    {
+        if ($lang) {
+            $faker = Factory::create($lang->i18n);
+            return [
+                'langCode'    => $lang->code,
+                'title'       => ($title) ? $title : $faker->realText(38, 1),
+                'description' => $faker->realText(300)
             ];
         }
         throw new Exception("Translation language is required!");

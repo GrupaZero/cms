@@ -31,7 +31,8 @@ return [
         'Illuminate\Session\SessionServiceProvider',
         'Illuminate\Translation\TranslationServiceProvider',
         'Illuminate\Validation\ValidationServiceProvider',
-        'Illuminate\View\ViewServiceProvider'
+        'Illuminate\View\ViewServiceProvider',
+        'Gzero\Core\ServiceProvider',
     ],
     'aliases'   => [
 
