@@ -705,6 +705,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
         $content = $this->repository->create(
             [
                 'type'         => 'content',
+                'level'        => 1,
                 'weight'       => 0,
                 'translations' => [
                     'langCode' => 'en',
@@ -728,21 +729,40 @@ class ContentRepositoryTest extends \EloquentTestCase {
 
         $this->assertEquals($deletedBefore + 1, $deletedAfter);
 
-        // get contents by level
+    }
+
+    /**
+     * @test
+     */
+    public function can_get_list_of_deleted_contents_tree()
+    {
+        $content = $this->repository->create(
+            [
+                'type'         => 'content',
+                'level'        => 1,
+                'weight'       => 0,
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'A title'
+                ]
+            ]
+        );
+
         $contentsBefore = count($this->repository->getContentsByLevel([], [], null, null));
 
-        $deletedBefore = count($this->repository->getDeletedContents([], [], null, null));
+        $deletedBefore = count($this->repository->getDeletedContentsByLevel([], [], null, null));
 
         $this->repository->delete($content);
 
         $contentsAfter = count($this->repository->getContentsByLevel([], [], null, null));
 
-        $deletedAfter = count($this->repository->getDeletedContents([], [], null, null));
+        $deletedAfter = count($this->repository->getDeletedContentsByLevel([], [], null, null));
 
         $this->assertEquals($contentsBefore - 1, $contentsAfter);
 
         $this->assertEquals($deletedBefore + 1, $deletedAfter);
     }
+
 
     /**
      * @test
@@ -923,6 +943,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
             [
                 'type'         => 'content',
                 'weight'       => 0,
+                'level'        => 1,
                 'translations' => [
                     'langCode' => 'en',
                     'title'    => 'A title'
@@ -933,6 +954,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
             [
                 'type'         => 'content',
                 'weight'       => 1,
+                'level'        => 0,
                 'translations' => [
                     'langCode' => 'en',
                     'title'    => 'B title'
@@ -940,6 +962,8 @@ class ContentRepositoryTest extends \EloquentTestCase {
             ]
         );
 
+
+
         // Ascending
         $contents = $this->repository->getContents(
             [
@@ -1004,6 +1028,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
         $this->assertEquals(1, $contents[0]['weight']);
         // translations title
         $this->assertEquals('B title', $contents[0]['translations'][0]['title']);
+
     }
 
     /*
@@ -1025,13 +1050,24 @@ class ContentRepositoryTest extends \EloquentTestCase {
     public function it_checks_existence_of_lang_code_on_translations_join()
     {
         // Tree seeds
-        $this->seed('TestTreeSeeder');
+        $this->seed('TestSeeder');
 
         $this->repository->getContents(
             [],
             [['translations.title', 'DESC']],
             null
         );
+
+    }
+
+    /**
+     * @test
+     * @expectedException \Gzero\Core\Exception
+     */
+    public function it_checks_existence_of_lang_code_on_translations_join_tree()
+    {
+        // Tree seeds
+        $this->seed('TestTreeSeeder');
 
         $this->repository->getContentsByLevel(
             [],
