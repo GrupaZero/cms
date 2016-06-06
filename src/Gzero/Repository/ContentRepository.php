@@ -260,12 +260,20 @@ class ContentRepository extends BaseRepository {
      * @throws RepositoryException
      * @return EloquentCollection
      */
-    public function getContents(array $criteria = [], array $orderBy = [], $page = 1, $pageSize = self::ITEMS_PER_PAGE)
-    {
-        $query = $this->newORMQuery();
+    public function getContents(
+        array $criteria = [],
+        array $orderBy = [],
+        $page = 1,
+        $pageSize = self::ITEMS_PER_PAGE
+    ) {
+        $query = $this->newORMTreeQuery();
         $parsed = $this->parseArgs($criteria, $orderBy);
         $this->handleTranslationsJoin($parsed['filter'], $parsed['orderBy'], $query);
-        $this->handleFilterCriteria($this->getTableName(), $query, $parsed['filter']);
+        $this->handleFilterCriteria(
+            $this->getTableName(),
+            $query,
+            $parsed['filter']
+        );
         $this->handleAuthorJoin($query);
         $this->handleOrderBy(
             $this->getTableName(),
@@ -273,7 +281,12 @@ class ContentRepository extends BaseRepository {
             $query,
             $this->contentDefaultOrderBy()
         );
-        return $this->handlePagination($this->getTableName(), $query, $page, $pageSize);
+        return $this->handlePagination(
+            $this->getTableName(),
+            $query,
+            $page,
+            $pageSize
+        );
     }
 
     /**
@@ -287,12 +300,20 @@ class ContentRepository extends BaseRepository {
      * @throws RepositoryException
      * @return EloquentCollection
      */
-    public function getContentsByLevel(array $criteria = [], array $orderBy = [], $page = 1, $pageSize = self::ITEMS_PER_PAGE)
-    {
+    public function getContentsByLevel(
+        array $criteria = [],
+        array $orderBy = [],
+        $page = 1,
+        $pageSize = self::ITEMS_PER_PAGE
+    ) {
         $query  = $this->newORMTreeQuery();
         $parsed = $this->parseArgs($criteria, $orderBy);
         $this->handleTranslationsJoin($parsed['filter'], $parsed['orderBy'], $query);
-        $this->handleFilterCriteria($this->getTableName(), $query, $parsed['filter']);
+        $this->handleFilterCriteria(
+            $this->getTableName(),
+            $query,
+            $parsed['filter']
+        );
         $this->handleAuthorJoin($query);
         $this->handleOrderBy(
             $this->getTableName(),
@@ -300,9 +321,13 @@ class ContentRepository extends BaseRepository {
             $query,
             $this->contentDefaultOrderBy()
         );
-        return $this->handlePagination($this->getTableName(), $query, $page, $pageSize);
+        return $this->handlePagination(
+            $this->getTableName(),
+            $query,
+            $page,
+            $pageSize
+        );
     }
-
     /**
      * Get all soft deleted contents with specific criteria with tree structure
      *
@@ -314,12 +339,20 @@ class ContentRepository extends BaseRepository {
      * @throws RepositoryException
      * @return EloquentCollection
      */
-    public function getDeletedContents(array $criteria = [], array $orderBy = [], $page = 1, $pageSize = self::ITEMS_PER_PAGE)
-    {
+    public function getDeletedContents(
+        array $criteria = [],
+        array $orderBy = [],
+        $page = 1,
+        $pageSize = self::ITEMS_PER_PAGE
+    ) {
         $query  = $this->newORMQuery()->onlyTrashed();
         $parsed = $this->parseArgs($criteria, $orderBy);
         $this->handleTranslationsJoin($parsed['filter'], $parsed['orderBy'], $query);
-        $this->handleFilterCriteria($this->getTableName(), $query, $parsed['filter']);
+        $this->handleFilterCriteria(
+            $this->getTableName(),
+            $query,
+            $parsed['filter']
+        );
         $this->handleAuthorJoin($query);
         $this->handleOrderBy(
             $this->getTableName(),
@@ -327,7 +360,12 @@ class ContentRepository extends BaseRepository {
             $query,
             $this->contentDefaultOrderBy()
         );
-        return $this->handlePagination($this->getTableName(), $query, $page, $pageSize);
+        return $this->handlePagination(
+            $this->getTableName(),
+            $query,
+            $page,
+            $pageSize
+        );
     }
 
     /**
@@ -341,12 +379,20 @@ class ContentRepository extends BaseRepository {
      * @throws RepositoryException
      * @return EloquentCollection
      */
-    public function getDeletedContentsByLevel(array $criteria = [], array $orderBy = [], $page = 1, $pageSize = self::ITEMS_PER_PAGE)
-    {
+    public function getDeletedContentsByLevel(
+        array $criteria = [],
+        array $orderBy = [],
+        $page = 1,
+        $pageSize = self::ITEMS_PER_PAGE
+    ) {
         $query  = $this->newORMTreeQuery()->onlyTrashed();
         $parsed = $this->parseArgs($criteria, $orderBy);
         $this->handleTranslationsJoin($parsed['filter'], $parsed['orderBy'], $query);
-        $this->handleFilterCriteria($this->getTableName(), $query, $parsed['filter']);
+        $this->handleFilterCriteria(
+            $this->getTableName(),
+            $query,
+            $parsed['filter']
+        );
         $this->handleAuthorJoin($query);
         $this->handleOrderBy(
             $this->getTableName(),
@@ -354,7 +400,12 @@ class ContentRepository extends BaseRepository {
             $query,
             $this->contentDefaultOrderBy()
         );
-        return $this->handlePagination($this->getTableName(), $query, $page, $pageSize);
+        return $this->handlePagination(
+            $this->getTableName(),
+            $query,
+            $page,
+            $pageSize
+        );
     }
 
     /**
