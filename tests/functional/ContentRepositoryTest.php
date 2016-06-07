@@ -748,15 +748,15 @@ class ContentRepositoryTest extends \EloquentTestCase {
             ]
         );
 
-        $contentsBefore = count($this->repository->getContentsByLevel([], [], null, null));
+        $contentsBefore = count($this->repository->getContentsByLevel());
 
-        $deletedBefore = count($this->repository->getDeletedContentsByLevel([], [], null, null));
+        $deletedBefore = count($this->repository->getDeletedContentsByLevel());
 
         $this->repository->delete($content);
 
-        $contentsAfter = count($this->repository->getContentsByLevel([], [], null, null));
+        $contentsAfter = count($this->repository->getContentsByLevel());
 
-        $deletedAfter = count($this->repository->getDeletedContentsByLevel([], [], null, null));
+        $deletedAfter = count($this->repository->getDeletedContentsByLevel());
 
         $this->assertEquals($contentsBefore - 1, $contentsAfter);
 
@@ -1008,6 +1008,8 @@ class ContentRepositoryTest extends \EloquentTestCase {
             ],
             null
         );
+        //level
+        $this->assertEquals(1,$contents[0]['level']);
         // weight
         $this->assertEquals(0, $contents[0]['weight']);
         // translations title
@@ -1024,6 +1026,8 @@ class ContentRepositoryTest extends \EloquentTestCase {
             ],
             null
         );
+        //level
+        $this->assertEquals(0,$contents[0]['level']);
         // weight
         $this->assertEquals(1, $contents[0]['weight']);
         // translations title
@@ -1044,7 +1048,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
     */
 
     /**
-     * @test
+     * @test Change tree seeder to seeder
      * @expectedException \Gzero\Core\Exception
      */
     public function it_checks_existence_of_lang_code_on_translations_join()
