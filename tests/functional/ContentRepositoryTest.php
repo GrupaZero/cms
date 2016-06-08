@@ -705,7 +705,6 @@ class ContentRepositoryTest extends \EloquentTestCase {
         $content = $this->repository->create(
             [
                 'type'         => 'content',
-                'level'        => 1,
                 'weight'       => 0,
                 'translations' => [
                     'langCode' => 'en',
@@ -739,7 +738,6 @@ class ContentRepositoryTest extends \EloquentTestCase {
         $content = $this->repository->create(
             [
                 'type'         => 'content',
-                'level'        => 1,
                 'weight'       => 0,
                 'translations' => [
                     'langCode' => 'en',
