@@ -1009,7 +1009,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
             null
         );
         //level
-        $this->assertEquals(1,$contents[0]['level']);
+        $this->assertEquals(0,$contents[0]['level']);
         // weight
         $this->assertEquals(0, $contents[0]['weight']);
         // translations title
