@@ -260,13 +260,9 @@ class ContentRepository extends BaseRepository {
      * @throws RepositoryException
      * @return EloquentCollection
      */
-    public function getContents(
-        array $criteria = [],
-        array $orderBy = [],
-        $page = 1,
-        $pageSize = self::ITEMS_PER_PAGE
-    ) {
-        $query = $this->newORMTreeQuery();
+    public function getContents(array $criteria = [], array $orderBy = [], $page = 1, $pageSize = self::ITEMS_PER_PAGE)
+    {
+        $query  = $this->newORMQuery();
         $parsed = $this->parseArgs($criteria, $orderBy);
         $this->handleTranslationsJoin($parsed['filter'], $parsed['orderBy'], $query);
         $this->handleFilterCriteria(
@@ -290,7 +286,8 @@ class ContentRepository extends BaseRepository {
     }
 
     /**
-     * Get all contents with specific criteria with tree structure
+     * Get all contents with specific criteria sorted by level.
+     * It can be used to build tree structure.
      *
      * @param array    $criteria Filter criteria
      * @param array    $orderBy  Array of columns
@@ -300,12 +297,8 @@ class ContentRepository extends BaseRepository {
      * @throws RepositoryException
      * @return EloquentCollection
      */
-    public function getContentsByLevel(
-        array $criteria = [],
-        array $orderBy = [],
-        $page = 1,
-        $pageSize = self::ITEMS_PER_PAGE
-    ) {
+    public function getContentsByLevel(array $criteria = [], array $orderBy = [], $page = 1, $pageSize = self::ITEMS_PER_PAGE)
+    {
         $query  = $this->newORMTreeQuery();
         $parsed = $this->parseArgs($criteria, $orderBy);
         $this->handleTranslationsJoin($parsed['filter'], $parsed['orderBy'], $query);
@@ -328,6 +321,7 @@ class ContentRepository extends BaseRepository {
             $pageSize
         );
     }
+
     /**
      * Get all soft deleted contents with specific criteria with tree structure
      *
@@ -339,12 +333,8 @@ class ContentRepository extends BaseRepository {
      * @throws RepositoryException
      * @return EloquentCollection
      */
-    public function getDeletedContents(
-        array $criteria = [],
-        array $orderBy = [],
-        $page = 1,
-        $pageSize = self::ITEMS_PER_PAGE
-    ) {
+    public function getDeletedContents(array $criteria = [], array $orderBy = [], $page = 1, $pageSize = self::ITEMS_PER_PAGE)
+    {
         $query  = $this->newORMQuery()->onlyTrashed();
         $parsed = $this->parseArgs($criteria, $orderBy);
         $this->handleTranslationsJoin($parsed['filter'], $parsed['orderBy'], $query);
