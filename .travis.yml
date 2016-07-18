@@ -5,6 +5,9 @@ php:
   - 5.6
   - hhvm
 
+addons:
+  mariadb: '10.1'
+
 before_script:
   - mkdir -p build/logs
   - composer self-update

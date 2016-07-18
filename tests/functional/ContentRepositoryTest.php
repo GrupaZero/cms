@@ -702,10 +702,10 @@ class ContentRepositoryTest extends \EloquentTestCase {
      */
     public function can_get_list_of_deleted_contents()
     {
-        $content = $this->repository->create(
+        $category = $this->repository->create(
             [
-                'type'         => 'content',
-                'weight'       => 0,
+                'type'         => 'category',
+                'weight'       => 3,
                 'translations' => [
                     'langCode' => 'en',
                     'title'    => 'A title'
@@ -713,20 +713,130 @@ class ContentRepositoryTest extends \EloquentTestCase {
             ]
         );
 
-        $contentsBefore = count($this->repository->getContents([], [], null, null));
+        $content1 = $this->repository->create(
+            [
+                'type'         => 'content',
+                'parentId'     => $category->id,
+                'weight'       => 2,
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'A title'
+                ]
+            ]
+        );
 
-        $deletedBefore = count($this->repository->getDeletedContents([], [], null, null));
+        $content2 = $this->repository->create(
+            [
+                'type'         => 'content',
+                'parentId'     => $category->id,
+                'weight'       => 0,
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'B title'
+                ]
+            ]
+        );
 
-        $this->repository->delete($content);
+        $contents = $this->repository->getContents([], [['weight', 'ASC']], null, null);
 
-        $contentsAfter = count($this->repository->getContents([], [], null, null));
+        $this->assertEquals(3, $contents->count());
 
-        $deletedAfter = count($this->repository->getDeletedContents([], [], null, null));
+        $this->assertEquals($contents[0]->weight, 0);
+        $this->assertEquals($contents[0]->level, 1);
+        $this->assertEquals($contents[1]->weight, 2);
+        $this->assertEquals($contents[1]->level, 1);
+        $this->assertEquals($contents[2]->weight, 3);
+        $this->assertEquals($contents[2]->level, 0);
 
-        $this->assertEquals($contentsBefore - 1, $contentsAfter);
+        $this->repository->delete($content1);
+        $this->repository->delete($content2);
+        $this->repository->delete($category);
 
-        $this->assertEquals($deletedBefore + 1, $deletedAfter);
+        $contentsAfterDelete = $this->repository->getContents([], [['weight', 'ASC']], null, null);
+        $deletedContents     = $this->repository->getDeletedContents([], [['weight', 'ASC']], null, null);
+
+        $this->assertEquals(0, $contentsAfterDelete->count());
+        $this->assertEquals(3, $deletedContents->count());
+
+        $this->assertEquals($deletedContents[0]->weight, 0);
+        $this->assertEquals($deletedContents[0]->level, 1);
+        $this->assertEquals($deletedContents[1]->weight, 2);
+        $this->assertEquals($deletedContents[1]->level, 1);
+        $this->assertEquals($deletedContents[2]->weight, 3);
+        $this->assertEquals($deletedContents[2]->level, 0);
+
     }
+
+    /**
+     * @test
+     */
+    public function can_get_list_of_deleted_contents_tree()
+    {
+        $category = $this->repository->create(
+            [
+                'type'         => 'category',
+                'weight'       => 3,
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'A title'
+                ]
+            ]
+        );
+
+        $content1 = $this->repository->create(
+            [
+                'type'         => 'content',
+                'parentId'     => $category->id,
+                'weight'       => 2,
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'A title'
+                ]
+            ]
+        );
+
+        $content2 = $this->repository->create(
+            [
+                'type'         => 'content',
+                'parentId'     => $category->id,
+                'weight'       => 0,
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'B title'
+                ]
+            ]
+        );
+
+        $contents = $this->repository->getContentsByLevel([], [['weight', 'ASC']], null, null);
+
+        $this->assertEquals(3, $contents->count());
+
+        $this->assertEquals($contents[0]->weight, 3);
+        $this->assertEquals($contents[0]->level, 0);
+        $this->assertEquals($contents[1]->weight, 0);
+        $this->assertEquals($contents[1]->level, 1);
+        $this->assertEquals($contents[2]->weight, 2);
+        $this->assertEquals($contents[2]->level, 1);
+
+        $this->repository->delete($content1);
+        $this->repository->delete($content2);
+        $this->repository->delete($category);
+
+        $contentsAfterDelete = $this->repository->getContentsByLevel([], [['weight', 'ASC']], null, null);
+        $deletedContents     = $this->repository->getDeletedContentsByLevel([], [['weight', 'ASC']], null, null);
+
+        $this->assertEquals(0, $contentsAfterDelete->count());
+        $this->assertEquals(3, $deletedContents->count());
+
+        $this->assertEquals($deletedContents[0]->weight, 3);
+        $this->assertEquals($deletedContents[0]->level, 0);
+        $this->assertEquals($deletedContents[1]->weight, 0);
+        $this->assertEquals($deletedContents[1]->level, 1);
+        $this->assertEquals($deletedContents[2]->weight, 2);
+        $this->assertEquals($deletedContents[2]->level, 1);
+
+    }
+
 
     /**
      * @test
@@ -882,6 +992,20 @@ class ContentRepositoryTest extends \EloquentTestCase {
             $this->assertEquals('category', $content->type);
             $this->assertEquals(true, $content->isActive);
         }
+
+        $contents = $this->repository->getContentsByLevel(
+            [
+                ['type', '=', 'category'],
+                ['isActive', '=', true]
+            ],
+            [],
+            null
+        );
+
+        foreach ($contents as $content) {
+            $this->assertEquals('category', $content->type);
+            $this->assertEquals(true, $content->isActive);
+        }
     }
 
     /**
@@ -889,9 +1013,20 @@ class ContentRepositoryTest extends \EloquentTestCase {
      */
     public function can_sort_contents_list()
     {
+        $category = $this->repository->create(
+            [
+                'type'         => 'category',
+                'weight'       => 10,
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'C title'
+                ]
+            ]
+        );
         $this->repository->create(
             [
                 'type'         => 'content',
+                'parentId'     => $category->id,
                 'weight'       => 0,
                 'translations' => [
                     'langCode' => 'en',
@@ -902,6 +1037,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
         $this->repository->create(
             [
                 'type'         => 'content',
+                'parentId'     => $category->id,
                 'weight'       => 1,
                 'translations' => [
                     'langCode' => 'en',
@@ -921,10 +1057,15 @@ class ContentRepositoryTest extends \EloquentTestCase {
             ],
             null
         );
-        // weight
-        $this->assertEquals(0, $contents[0]['weight']);
+
+        $this->assertEquals(3, $contents->count());
+        $this->assertEquals(0, $contents[0]->weight);
+        $this->assertEquals(1, $contents[1]->weight);
+        $this->assertEquals(10, $contents[2]->weight);
         // translations title
-        $this->assertEquals('A title', $contents[0]['translations'][0]['title']);
+        $this->assertEquals('A title', $contents[0]->translations[0]->title);
+        $this->assertEquals('B title', $contents[1]->translations[0]->title);
+        $this->assertEquals('C title', $contents[2]->translations[0]->title);
 
         // Descending
         $contents = $this->repository->getContents(
@@ -937,10 +1078,64 @@ class ContentRepositoryTest extends \EloquentTestCase {
             ],
             null
         );
-        // weight
-        $this->assertEquals(1, $contents[0]['weight']);
-        // translations title
-        $this->assertEquals('B title', $contents[0]['translations'][0]['title']);
+
+        $this->assertEquals(3, $contents->count());
+        $this->assertEquals(10, $contents[0]->weight);
+        $this->assertEquals(1, $contents[1]->weight);
+        $this->assertEquals(0, $contents[2]->weight);
+
+        $this->assertEquals('C title', $contents[0]->translations[0]->title);
+        $this->assertEquals('B title', $contents[1]->translations[0]->title);
+        $this->assertEquals('A title', $contents[2]->translations[0]->title);
+
+        // Ascending
+        $contents = $this->repository->getContentsByLevel(
+            [
+                ['translations.lang', '=', 'en']
+            ],
+            [
+                ['weight', 'ASC'],
+                ['translations.title', 'ASC'],
+            ],
+            null
+        );
+
+        $this->assertEquals(3, $contents->count());
+        $this->assertEquals(10, $contents[0]->weight);
+        $this->assertEquals(0, $contents[0]->level);
+        $this->assertEquals(0, $contents[1]->weight);
+        $this->assertEquals(1, $contents[1]->level);
+        $this->assertEquals(1, $contents[2]->weight);
+        $this->assertEquals(1, $contents[1]->level);
+
+        $this->assertEquals('C title', $contents[0]->translations[0]->title);
+        $this->assertEquals('A title', $contents[1]->translations[0]->title);
+        $this->assertEquals('B title', $contents[2]->translations[0]->title);
+
+        // Descending
+        $contents = $this->repository->getContentsByLevel(
+            [
+                ['translations.lang', '=', 'en']
+            ],
+            [
+                ['weight', 'DESC'],
+                ['translations.title', 'DESC'],
+            ],
+            null
+        );
+
+        $this->assertEquals(3, $contents->count());
+        $this->assertEquals(10, $contents[0]->weight);
+        $this->assertEquals(0, $contents[0]->level);
+        $this->assertEquals(1, $contents[1]->weight);
+        $this->assertEquals(1, $contents[1]->level);
+        $this->assertEquals(0, $contents[2]->weight);
+        $this->assertEquals(1, $contents[2]->level);
+
+        $this->assertEquals('C title', $contents[0]->translations[0]->title);
+        $this->assertEquals('B title', $contents[1]->translations[0]->title);
+        $this->assertEquals('A title', $contents[2]->translations[0]->title);
+
     }
 
     /*
@@ -956,15 +1151,32 @@ class ContentRepositoryTest extends \EloquentTestCase {
     */
 
     /**
-     * @test
+     * @test Change tree seeder to seeder
      * @expectedException \Gzero\Core\Exception
      */
     public function it_checks_existence_of_lang_code_on_translations_join()
     {
         // Tree seeds
-        $this->seed('TestTreeSeeder');
+        $this->seed('TestSeeder');
 
         $this->repository->getContents(
+            [],
+            [['translations.title', 'DESC']],
+            null
+        );
+
+    }
+
+    /**
+     * @test
+     * @expectedException \Gzero\Core\Exception
+     */
+    public function it_checks_existence_of_lang_code_on_translations_join_tree()
+    {
+        // Tree seeds
+        $this->seed('TestTreeSeeder');
+
+        $this->repository->getContentsByLevel(
             [],
             [['translations.title', 'DESC']],
             null
@@ -980,6 +1192,13 @@ class ContentRepositoryTest extends \EloquentTestCase {
         $this->seed('TestTreeSeeder');
 
         $nodes = $this->repository->getContents(
+            [],
+            [['weight', 'DESC']],
+            null
+        );
+        $this->assertNotEmpty($nodes);
+
+        $nodes = $this->repository->getContentsByLevel(
             [],
             [['weight', 'DESC']],
             null
@@ -1075,6 +1294,18 @@ class ContentRepositoryTest extends \EloquentTestCase {
             20
         );
         $this->assertEquals(1, $translatedContent->count());
+
+        $translatedContent = $this->repository->getContentsByLevel(
+            [
+                ['lang', '=', 'en'],
+                ['type', '=', 'content']
+            ],
+            [],
+            1,
+            20
+        );
+        $this->assertEquals(1, $translatedContent->count());
+
     }
 
     /**
