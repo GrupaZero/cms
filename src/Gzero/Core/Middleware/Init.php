@@ -36,7 +36,7 @@ class Init {
     public function handle($request, Closure $next)
     {
         if (str_contains($request->getRequestUri(), 'index.php')) {
-            return new RedirectResponse(url(preg_replace('#index.php(/)?#', '', $request->fullUrl())));
+            return new RedirectResponse(url(preg_replace('#index.php(/)?#', '', $request->fullUrl())), 301);
         }
         return $next($request);
     }
