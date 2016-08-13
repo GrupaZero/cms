@@ -30,8 +30,7 @@ class Permission extends Base {
      */
     protected $fillable = [
         'name',
-        'category',
-        'description'
+        'category'
     ];
 
     /**
