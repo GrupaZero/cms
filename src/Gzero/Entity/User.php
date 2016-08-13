@@ -44,6 +44,8 @@ class User extends Base implements AuthenticatableContract, CanResetPasswordCont
 
     /**
      * The roles that belong to the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
      */
     public function roles()
     {
