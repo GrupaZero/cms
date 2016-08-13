@@ -136,4 +136,105 @@ class ContentPresenter extends Presenter {
         }
     }
 
+    /**
+     * This function returns the first img url from provided text
+     *
+     * @param string $text text to get first image url from
+     *
+     * @return string first image url
+     */
+    public function getFirstImageUrl($text)
+    {
+        $url = null;
+
+        if (!empty($text)) {
+            preg_match('/< *img[^>]*src *= *["\']?([^"\']*)/i', $text, $matches);
+        }
+
+        if (!empty($matches) && isset($matches[1])) {
+            $url = $matches[1];
+        }
+
+        return $url;
+    }
+
+    /**
+     * This function returns the JSON-LD Structured Data Markup for specified language
+     *
+     * @param string $langCode translation lang code to get tags for
+     * @param string $type     schema.org hierarchy type for the content - 'Article' as default
+     *
+     * @return string first image url
+     */
+    public function stDataMarkup($langCode, $type = 'Article')
+    {
+        $html = [];
+        $tags = null;
+
+        if (!empty($langCode)) {
+            $translation      = $this->translation($langCode);
+            $routeTranslation = $this->routeTranslation($langCode);
+
+            if (!empty($translation)) {
+                $firstImageUrl = $this->getFirstImageUrl($translation->teaser);
+
+                $tags = [
+                    '@context'         => 'http://schema.org',
+                    '@type'            => $type,
+                    "publisher"        => [
+                        '@type' => 'Brand',
+                        'url'   => route('home'),
+                        'name'  => config('gzero.siteName'),
+                        'logo'  => [
+                            '@type' => 'ImageObject',
+                            'url'   => asset('/images/logo.png')
+                        ]
+                    ],
+                    'mainEntityOfPage' => [
+                        '@type' => 'WebPage',
+                        '@id'   => route('home')
+                    ],
+                    'headline'         => $translation->title,
+                    'author'           => [
+                        '@type' => "Person",
+                        'name'  => $this->authorName()
+                    ],
+                    'datePublished'    => $this->createdAt,
+                    'dateModified'     => $this->updatedAt,
+                    'url'              => $this->routeUrl($langCode),
+                ];
+
+                //@TODO add parent categories names
+                if ($this->level > 0) {
+                    $url = explode('/', $routeTranslation->url);
+                    if ($this->level === 1) {
+                        $tags['articleSection'] = [ucfirst($url[0])];
+                    } else {
+                        $tags['articleSection'] = [ucfirst($url[0]), ucfirst($url[1])];
+                    }
+                }
+            }
+        }
+
+        //@TODO use content thumbnail
+        if (!empty($firstImageUrl)) {
+            $tags['image'] = [
+                '@type'  => 'ImageObject',
+                'url'    => $firstImageUrl,
+                'width'  => '729',
+                'height' => '486'
+            ];
+        }
+
+        if (!empty($tags)) {
+            $html = [
+                '<script type="application/ld+json">',
+                json_encode($tags, true),
+                '</script>'
+            ];
+        }
+
+        return implode('', $html);
+    }
+
 }
