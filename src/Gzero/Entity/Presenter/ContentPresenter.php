@@ -182,7 +182,7 @@ class ContentPresenter extends Presenter {
                 $tags = [
                     '@context'         => 'http://schema.org',
                     '@type'            => $type,
-                    "publisher"        => [
+                    'publisher'        => [
                         '@type' => 'Brand',
                         'url'   => route('home'),
                         'name'  => config('gzero.siteName'),
