@@ -161,12 +161,13 @@ class ContentPresenter extends Presenter {
     /**
      * This function returns the JSON-LD Structured Data Markup for specified language
      *
-     * @param string $langCode translation lang code to get tags for
-     * @param string $type     schema.org hierarchy type for the content - 'Article' as default
+     * @param string $langCode        translation lang code to get tags for
+     * @param string $type            schema.org hierarchy type for the content - 'Article' as default
+     * @param array  $imageDimensions optional image dimensions
      *
      * @return string first image url
      */
-    public function stDataMarkup($langCode, $type = 'Article')
+    public function stDataMarkup($langCode, $type = 'Article', $imageDimensions = ['729', '486'])
     {
         $html = [];
         $tags = null;
@@ -207,7 +208,7 @@ class ContentPresenter extends Presenter {
                 //@TODO add parent categories names
                 if ($this->level > 0) {
                     $url = explode('/', $routeTranslation->url);
-                    if ($this->level === 1) {
+                    if ($this->level === '1') {
                         $tags['articleSection'] = [ucfirst($url[0])];
                     } else {
                         $tags['articleSection'] = [ucfirst($url[0]), ucfirst($url[1])];
@@ -221,8 +222,8 @@ class ContentPresenter extends Presenter {
             $tags['image'] = [
                 '@type'  => 'ImageObject',
                 'url'    => $firstImageUrl,
-                'width'  => '729',
-                'height' => '486'
+                'width'  => $imageDimensions[0],
+                'height' => $imageDimensions[1]
             ];
         }
 
