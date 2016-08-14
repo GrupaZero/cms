@@ -87,9 +87,9 @@ class ServiceProvider extends AbstractServiceProvider {
      */
     public function boot()
     {
-        parent::boot();
         $this->detectLanguage();
         $this->registerCommands();
+        $this->registerPolicies();
     }
 
     /**
@@ -189,6 +189,26 @@ class ServiceProvider extends AbstractServiceProvider {
     public function registerCommands()
     {
         //
+    }
+
+    /**
+     * Register polices
+     *
+     * @return void
+     */
+    protected function registerPolicies()
+    {
+        $gate = app('Illuminate\Contracts\Auth\Access\Gate');
+        $gate->before(
+            function ($user) {
+                //if ($user->isSuperAdmin()) {
+                //    return true;
+                //}
+            }
+        );
+        foreach ($this->policies as $key => $value) {
+            $gate->policy($key, $value);
+        }
     }
 
     /**

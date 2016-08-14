@@ -38,6 +38,13 @@ class User extends Base implements AuthenticatableContract, AuthorizableContract
     ];
 
     /**
+     * Permission map
+     *
+     * @var array
+     */
+    protected $permissionsMap = null;
+
+    /**
      * The attributes excluded from the model's JSON form.
      *
      * @var array
@@ -73,12 +80,16 @@ class User extends Base implements AuthenticatableContract, AuthorizableContract
      */
     public function hasPermission($permission)
     {
-        $permissionsMap = cache()->get('permissions:' . $this->id, null);
-        if ($permissionsMap === null) {
-            $permissionsMap = $this->buildPermissionsMap();
-            cache()->forever('permissions:' . $this->id, $permissionsMap);
+        if (!is_array($this->permissionsMap)) {
+            $permissionsMap = cache()->get('permissions:' . $this->id, null);
+            if ($permissionsMap === null) { // Not in cache
+                $this->permissionsMap = $this->buildPermissionsMap();
+                cache()->forever('permissions:' . $this->id, $this->permissionsMap);
+            } else {
+                $this->permissionsMap = $permissionsMap;
+            }
         }
-        return in_array($permission, $permissionsMap);
+        return in_array($permission, $this->permissionsMap);
     }
 
     /**
