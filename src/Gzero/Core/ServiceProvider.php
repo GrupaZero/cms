@@ -1,10 +1,10 @@
 <?php namespace Gzero\Core;
 
-use Gzero\Core\Policies\BlockPolicy;
-use Gzero\Core\Policies\ContentPolicy;
 use Gzero\Core\Commands\MysqlDump;
 use Gzero\Core\Commands\MysqlRestore;
 use Gzero\Core\Menu\Register;
+use Gzero\Core\Policies\BlockPolicy;
+use Gzero\Core\Policies\ContentPolicy;
 use Gzero\Core\Policies\FilePolicy;
 use Gzero\Core\Policies\OptionPolicy;
 use Gzero\Core\Policies\UserPolicy;
@@ -201,9 +201,7 @@ class ServiceProvider extends AbstractServiceProvider {
         $gate = app('Illuminate\Contracts\Auth\Access\Gate');
         $gate->before(
             function ($user) {
-                //if ($user->isSuperAdmin()) {
-                //    return true;
-                //}
+                return $user->isSuperAdmin();
             }
         );
         foreach ($this->policies as $key => $value) {
