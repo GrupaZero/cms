@@ -1,7 +1,7 @@
 <?php namespace Gzero\Core;
 
-use Gzero\Core\Command\MysqlDump;
-use Gzero\Core\Command\MysqlRestore;
+use Gzero\Core\Commands\MysqlDump;
+use Gzero\Core\Commands\MysqlRestore;
 use Gzero\Core\Menu\Register;
 use Gzero\Repository\LangRepository;
 use Gzero\Repository\OptionRepository;
@@ -27,8 +27,8 @@ class ServiceProvider extends AbstractServiceProvider {
      * @var array
      */
     protected $providers = [
-        'Robbo\Presenter\PresenterServiceProvider',
-        'DaveJamesMiller\Breadcrumbs\ServiceProvider'
+        \Robbo\Presenter\PresenterServiceProvider::class,
+        \DaveJamesMiller\Breadcrumbs\ServiceProvider::class
     ];
 
     /**
@@ -37,8 +37,8 @@ class ServiceProvider extends AbstractServiceProvider {
      * @var array
      */
     protected $aliases = [
-        'Breadcrumbs' => 'DaveJamesMiller\Breadcrumbs\Facade',
-        'options'     => 'Gzero\Core\OptionsService'
+        'Breadcrumbs' => \DaveJamesMiller\Breadcrumbs\Facade::class,
+        'options'     => \Gzero\Core\OptionsService::class
     ];
 
     /**
