@@ -46,7 +46,7 @@ class FilePolicy {
     /**
      * Policy for displaying single element
      *
-     * @param User    $user    User trying to do it
+     * @param User $user User trying to do it
      * @param File $file File that we're trying to update
      *
      * @return boolean
@@ -62,7 +62,7 @@ class FilePolicy {
     /**
      * Policy for deleting single element
      *
-     * @param User    $user    User trying to do it
+     * @param User $user User trying to do it
      * @param File $file File that we're trying to update
      *
      * @return boolean

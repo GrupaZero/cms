@@ -81,7 +81,7 @@ class CreateRolesAndPermissionsTable extends Migration {
     private function createRolesAndPermissions()
     {
         $permissions = [];
-        $entities    = ['content', 'block', 'user', 'files'];
+        $entities    = ['content', 'block', 'user', 'file'];
         foreach ($entities as $entity) {
             $permissions[] = [
                 'name'     => $entity . '-create',

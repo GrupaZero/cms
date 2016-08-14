@@ -2,6 +2,7 @@
 
 namespace Gzero\Core\Policies;
 
+use Gzero\Entity\Option;
 use Gzero\Entity\User;
 
 class OptionPolicy {
@@ -15,31 +16,24 @@ class OptionPolicy {
      */
     public function read(User $user)
     {
-        return $user->hasPermission('options-read-read');
+        return $user->hasPermission('options-read');
     }
 
     /**
-     * Policy for updating general options
+     * Policy for updating options for specified category
      *
-     * @param User $user User trying to do it
+     * @param User   $user        User trying to do it
+     * @param Option $option      Option class name
+     * @param String $categoryKey option category
      *
-     * @return boolean
+     * @return bool
      */
-    public function updateGeneral(User $user)
+    public function update(User $user, $option, $categoryKey)
     {
-        return $user->hasPermission('options-update-general');
-    }
-
-    /**
-     * Policy for updating seo options
-     *
-     * @param User $user User trying to do it
-     *
-     * @return boolean
-     */
-    public function updateSEO(User $user)
-    {
-        return $user->hasPermission('options-update-seo');
+        if (!empty($option)) {
+            return $user->hasPermission('options-update-' . $categoryKey);
+        }
+        return false;
     }
 
 }
