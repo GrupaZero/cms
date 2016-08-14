@@ -1,8 +1,18 @@
 <?php namespace Gzero\Core;
 
+use Gzero\Core\Policies\BlockPolicy;
+use Gzero\Core\Policies\ContentPolicy;
 use Gzero\Core\Commands\MysqlDump;
 use Gzero\Core\Commands\MysqlRestore;
 use Gzero\Core\Menu\Register;
+use Gzero\Core\Policies\FilePolicy;
+use Gzero\Core\Policies\OptionPolicy;
+use Gzero\Core\Policies\UserPolicy;
+use Gzero\Entity\Block;
+use Gzero\Entity\Content;
+use Gzero\Entity\File;
+use Gzero\Entity\Option;
+use Gzero\Entity\User;
 use Gzero\Repository\LangRepository;
 use Gzero\Repository\OptionRepository;
 use Symfony\Component\HttpFoundation\Request;
@@ -42,6 +52,19 @@ class ServiceProvider extends AbstractServiceProvider {
     ];
 
     /**
+     * The policy mappings for the application.
+     *
+     * @var array
+     */
+    protected $policies = [
+        Block::class   => BlockPolicy::class,
+        Content::class => ContentPolicy::class,
+        File::class    => FilePolicy::class,
+        User::class    => UserPolicy::class,
+        Option::class  => OptionPolicy::class
+    ];
+
+    /**
      * Register the service provider.
      *
      * @return void
@@ -64,6 +87,7 @@ class ServiceProvider extends AbstractServiceProvider {
      */
     public function boot()
     {
+        parent::boot();
         $this->detectLanguage();
         $this->registerCommands();
     }

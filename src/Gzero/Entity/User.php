@@ -55,6 +55,16 @@ class User extends Base implements AuthenticatableContract, AuthorizableContract
     }
 
     /**
+     * Checks is user have super admin permissions
+     *
+     * @return boolean
+     */
+    public function isSuperAdmin()
+    {
+        return (boolean) $this->isAdmin;
+    }
+
+    /**
      * It checks if given user have specified permission
      *
      * @param string $permission Permission name

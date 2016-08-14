@@ -32,6 +32,13 @@ class AbstractServiceProvider extends SP {
     protected $aliases = [];
 
     /**
+     * The policy mappings for the application.
+     *
+     * @var array
+     */
+    protected $policies = [];
+
+    /**
      * Register the service provider.
      *
      * @return void
@@ -40,6 +47,16 @@ class AbstractServiceProvider extends SP {
     {
         $this->registerAdditionalProviders();
         $this->registerProvidersAliases();
+    }
+
+    /**
+     * Bootstrap the application events.
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        $this->registerPolicies();
     }
 
     /**
@@ -71,6 +88,26 @@ class AbstractServiceProvider extends SP {
                     $provider
                 );
             }
+        }
+    }
+
+    /**
+     * Register polices
+     *
+     * @return void
+     */
+    protected function registerPolicies()
+    {
+        $gate = app('Illuminate\Contracts\Auth\Access\Gate');
+        $gate->before(
+            function ($user) {
+                if ($user->isSuperAdmin()) {
+                    return true;
+                }
+            }
+        );
+        foreach ($this->policies as $key => $value) {
+            $gate->policy($key, $value);
         }
     }
 }
