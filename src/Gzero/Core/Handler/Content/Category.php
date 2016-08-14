@@ -80,7 +80,7 @@ class Category extends Content {
         $this->breadcrumbs->register(
             'category',
             function ($breadcrumbs) use ($lang, $url) {
-                $breadcrumbs->push('Start', $url);
+                $breadcrumbs->push(trans('common.home'), $url);
                 foreach (explode('/', $this->content->getUrl($lang->code)) as $urlPart) {
                     $url .= '/' . $urlPart;
                     $name = ucwords(str_replace('-', ' ', $urlPart));
