@@ -516,11 +516,12 @@ class CMSSeeder extends Seeder {
     private function truncate()
     {
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-        $tables           = DB::select('SHOW TABLES');
-        $tablesInDatabase = "Tables_in_" . config('database.connections.mysql.database');
+        $tables    = DB::select('SHOW TABLES');
+        $tableName = "Tables_in_" . config('database.connections.mysql.database');
         foreach ($tables as $table) {
-            if ($table->$tablesInDatabase !== 'migrations') {
-                DB::table($table->$tablesInDatabase)->truncate();
+            // We don't want to truncate ACL tables too
+            if ($table->$tableName !== 'migrations' && !str_contains($table->$tableName, 'ACL')) {
+                DB::table($table->$tableName)->truncate();
             }
         }
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');

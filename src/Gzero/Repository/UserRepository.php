@@ -121,7 +121,7 @@ class UserRepository extends BaseRepository implements AuthenticatableContract, 
      */
     protected function listEagerLoad($results)
     {
-        $results->count(); // Place holder
+        $results->load('roles');
     }
 
     /**

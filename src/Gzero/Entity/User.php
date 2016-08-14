@@ -12,7 +12,7 @@ use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  *
- * Class Content
+ * Class User
  *
  * @package    Gzero\Entity
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
@@ -33,7 +33,6 @@ class User extends Base implements AuthenticatableContract, CanResetPasswordCont
         'lastName',
         'password',
         'hasSocialIntegrations'
-
     ];
 
     /**
@@ -42,6 +41,33 @@ class User extends Base implements AuthenticatableContract, CanResetPasswordCont
      * @var array
      */
     protected $hidden = ['password'];
+
+    /**
+     * The roles that belong to the user.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class, 'ACLUserRoles')->withTimestamps();
+    }
+
+    /**
+     * It checks if given user have specified permission
+     *
+     * @param string $permission Permission name
+     *
+     * @return bool
+     */
+    public function hasPermission($permission)
+    {
+        $permissionsMap = cache()->get('permissions:' . $this->id, null);
+        if ($permissionsMap === null) {
+            $permissionsMap = $this->buildPermissionsMap();
+            cache()->forever('permissions:' . $this->id, $permissionsMap);
+        }
+        return in_array($permission, $permissionsMap);
+    }
 
     /**
      * Get the unique identifier for the user.
@@ -113,5 +139,25 @@ class User extends Base implements AuthenticatableContract, CanResetPasswordCont
     public function getPresenter()
     {
         return new UserPresenter($this);
+    }
+
+    /**
+     * It build permission map.
+     * Later we store this map cache.
+     *
+     * @return array
+     */
+    private function buildPermissionsMap()
+    {
+        $permissionsMap = [];
+        $roles          = $this->roles()->with('permissions')->get()->toArray();
+        foreach ($roles as $role) {
+            if (!empty($role['permissions'])) {
+                foreach ($role['permissions'] as $permission) {
+                    $permissionsMap[] = $permission['name'];
+                }
+            }
+        }
+        return array_unique($permissionsMap);
     }
 }
