@@ -1,6 +1,6 @@
 <?php namespace Gzero\Entity;
 
-use Gzero\Core\Override\MorphToMany;
+use Gzero\Core\Overrides\MorphToMany;
 use Gzero\EloquentTree\Model\Tree;
 use Carbon\Carbon;
 use Illuminate\Support\Str;

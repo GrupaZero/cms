@@ -1,6 +1,6 @@
 <?php namespace Gzero\Entity;
 
-use Gzero\Core\Override\MorphToMany;
+use Gzero\Core\Overrides\MorphToMany;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
 use Illuminate\Support\Str;

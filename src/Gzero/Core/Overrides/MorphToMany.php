@@ -1,6 +1,6 @@
 <?php
 
-namespace Gzero\Core\Override;
+namespace Gzero\Core\Overrides;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;

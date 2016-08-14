@@ -1,4 +1,4 @@
-<?php namespace Gzero\Core\Command;
+<?php namespace Gzero\Core\Commands;
 
 use Illuminate\Console\Command;
 
