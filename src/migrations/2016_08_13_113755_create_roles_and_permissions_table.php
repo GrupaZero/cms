@@ -141,7 +141,7 @@ class CreateRolesAndPermissionsTable extends Migration {
 
         $moderatorRole = Role::create(['name' => 'Moderator']);
         $permissionIds = Permission::whereIn('category', ['block', 'content', 'file'])
-            ->orWhereIn('name', ['manage'])
+            ->orWhereIn('name', ['admin-api-access'])
             ->get(['id'])
             ->pluck('id')
             ->toArray();
