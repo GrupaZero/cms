@@ -3,6 +3,16 @@
 use Gzero\Core\Commands\MysqlDump;
 use Gzero\Core\Commands\MysqlRestore;
 use Gzero\Core\Menu\Register;
+use Gzero\Core\Policies\BlockPolicy;
+use Gzero\Core\Policies\ContentPolicy;
+use Gzero\Core\Policies\FilePolicy;
+use Gzero\Core\Policies\OptionPolicy;
+use Gzero\Core\Policies\UserPolicy;
+use Gzero\Entity\Block;
+use Gzero\Entity\Content;
+use Gzero\Entity\File;
+use Gzero\Entity\Option;
+use Gzero\Entity\User;
 use Gzero\Repository\LangRepository;
 use Gzero\Repository\OptionRepository;
 use Symfony\Component\HttpFoundation\Request;
@@ -42,6 +52,19 @@ class ServiceProvider extends AbstractServiceProvider {
     ];
 
     /**
+     * The policy mappings for the application.
+     *
+     * @var array
+     */
+    protected $policies = [
+        Block::class   => BlockPolicy::class,
+        Content::class => ContentPolicy::class,
+        File::class    => FilePolicy::class,
+        User::class    => UserPolicy::class,
+        Option::class  => OptionPolicy::class
+    ];
+
+    /**
      * Register the service provider.
      *
      * @return void
@@ -66,6 +89,7 @@ class ServiceProvider extends AbstractServiceProvider {
     {
         $this->detectLanguage();
         $this->registerCommands();
+        $this->registerPolicies();
     }
 
     /**
@@ -165,6 +189,24 @@ class ServiceProvider extends AbstractServiceProvider {
     public function registerCommands()
     {
         //
+    }
+
+    /**
+     * Register polices
+     *
+     * @return void
+     */
+    protected function registerPolicies()
+    {
+        $gate = app('Illuminate\Contracts\Auth\Access\Gate');
+        $gate->before(
+            function ($user) {
+                return $user->isSuperAdmin();
+            }
+        );
+        foreach ($this->policies as $key => $value) {
+            $gate->policy($key, $value);
+        }
     }
 
     /**
