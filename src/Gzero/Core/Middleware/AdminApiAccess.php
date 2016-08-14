@@ -14,7 +14,7 @@ use Closure;
  * @author     Mateusz Urbanowicz <urbanowiczmateusz89@gmail.com>
  * @copyright  Copyright (c) 2015, Mateusz Urbanowicz
  */
-class Access {
+class AdminApiAccess {
 
     /**
      * Return 404 if user is not authenticated or got no admin rights
@@ -26,11 +26,10 @@ class Access {
      */
     public function handle($request, Closure $next)
     {
-        $auth = app()->make('auth');
-        if (!$auth->check() || !$auth->user()->isAdmin) {
-            abort(404, trans('HTTP.NOT_FOUND'));
+        if (auth()->check() && (auth()->user()->hasPermission('admin-api-access') || auth()->user()->isSuperAdmin())) {
+            return $next($request);
         }
-        return $next($request);
+        return abort(404, trans('HTTP.NOT_FOUND'));
     }
 
 }

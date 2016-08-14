@@ -21,12 +21,16 @@ class UserPolicy {
     /**
      * Policy for displaying single element
      *
-     * @param User $user User trying to do it
+     * @param User $user   User trying to do it
+     * @param User $entity User that we're trying to read
      *
      * @return boolean
      */
-    public function read(User $user)
+    public function read(User $user, User $entity)
     {
+        if ($entity->id === $user->id) {
+            return true;
+        }
         return $user->hasPermission('user-read');
     }
 
@@ -52,7 +56,7 @@ class UserPolicy {
      */
     public function update(User $user, User $entity)
     {
-        if ($entity->author->id === $user->id) {
+        if ($entity->id === $user->id) {
             return true;
         }
         return $user->hasPermission('user-update');
@@ -68,7 +72,7 @@ class UserPolicy {
      */
     public function delete(User $user, User $entity)
     {
-        if ($entity->author->id === $user->id) {
+        if ($entity->id === $user->id) {
             return true;
         }
         return $user->hasPermission('user-delete');
