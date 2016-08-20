@@ -1,10 +1,15 @@
 <?php namespace functional;
 
 use Gzero\Entity\Content;
+use Gzero\Entity\File;
+use Gzero\Entity\FileType;
 use Gzero\Entity\User;
 use Gzero\Repository\ContentRepository;
+use Gzero\Repository\FileRepository;
 use Gzero\Repository\RepositoryException;
 use Illuminate\Events\Dispatcher;
+use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 require_once(__DIR__ . '/../stub/TestSeeder.php');
 require_once(__DIR__ . '/../stub/TestTreeSeeder.php');
@@ -28,11 +33,31 @@ class ContentRepositoryTest extends \EloquentTestCase {
      */
     protected $repository;
 
+    /**
+     * @var FileRepository
+     */
+    protected $fileRepository;
+
+    /**
+     * files directory
+     */
+    protected $filesDir;
+
     public function setUp()
     {
         parent::setUp();
-        $this->repository = new ContentRepository(new Content(), new Dispatcher());
+        $this->repository     = new ContentRepository(new Content(), new Dispatcher());
+        $this->fileRepository = new FileRepository(new File(), new FileType(), new Dispatcher());
+        $this->filesDir       = __DIR__ . '/../resources';
         $this->seed('TestSeeder'); // Relative to tests/app/
+    }
+
+    public function tearDown()
+    {
+        $dirName = config('gzero.upload.directory');
+        if ($dirName) {
+            Storage::deleteDirectory($dirName);
+        }
     }
 
     /*
@@ -1378,4 +1403,68 @@ class ContentRepositoryTest extends \EloquentTestCase {
     | END Translations tests
     |--------------------------------------------------------------------------
     */
+
+    /*
+    |--------------------------------------------------------------------------
+    | START Files tests
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * @test
+     */
+    public function can_add_files()
+    {
+        $fileIds = [];
+
+        // Create new content with first translation
+        $content = $this->repository->create(
+            [
+                'type'         => 'content',
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'Example title',
+                ]
+            ]
+        );
+
+        // Create files
+        $uploadedFile = $this->getExampleImage();
+        $author       = User::find(1);
+        for ($i = 0; $i < 3; $i++) {
+            $file = $this->fileRepository->create(
+                [
+                    'type'         => 'image',
+                    'isActive'     => true,
+                    'info'         => ['key' => 'value'],
+                    'translations' => [
+                        'langCode'    => 'en',
+                        'title'       => 'Example file title',
+                        'description' => 'Example file description'
+                    ]
+                ],
+                $uploadedFile,
+                $author
+            );
+
+            $fileIds[] = $file->id;
+        }
+
+        // Assign files
+        $content = $this->repository->addFiles($content, $fileIds);
+        $files = $content->files()->get();
+        dd($files);
+
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | END Files tests
+    |--------------------------------------------------------------------------
+    */
+
+    private function getExampleImage()
+    {
+        return new UploadedFile($this->filesDir . '/example.png', 'example.png', 'image/jpeg', null, null, true);
+    }
 }
