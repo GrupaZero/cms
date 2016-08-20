@@ -63,7 +63,7 @@ abstract class BaseRepository {
      */
     public function getDeletedById($id)
     {
-        return $this->newORMQuery()->onlyTrashed()->find($id);
+        return $this->newORMQuery()->withTrashed()->find($id);
     }
 
     /**
