@@ -80,7 +80,7 @@ class FileRepository extends BaseRepository {
                             $path       = $file->getUploadPath() . $file->name . '.' . $file->extension;
                         }
                         // put file in storage
-                        if (config('filesystems.default') === 's3') { // fix for the wrong mime types on s3
+                        if (Storage::getDefaultDriver() === 's3') { // fix for the wrong mime types on s3
                             Storage::disk('s3')->getDriver()->getAdapter()->getClient()->putObject(
                                 [
                                     'Bucket'      => config('filesystems.disks.s3.bucket'),
