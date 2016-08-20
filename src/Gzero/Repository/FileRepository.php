@@ -80,7 +80,19 @@ class FileRepository extends BaseRepository {
                             $path       = $file->getUploadPath() . $file->name . '.' . $file->extension;
                         }
                         // put file in storage
-                        Storage::put($path, $resource);
+                        if (config('filesystems.default') === 's3') { // fix for the wrong mime types on s3
+                            Storage::disk('s3')->getDriver()->getAdapter()->getClient()->putObject(
+                                [
+                                    'Bucket'      => config('filesystems.disks.s3.bucket'),
+                                    'Key'         => $path,
+                                    'Body'        => file_get_contents($uploadedFile),
+                                    'ContentType' => $file->mimeType
+                                ]
+                            );
+                        } else {
+                            Storage::put($path, $resource);
+                        }
+
                         $this->events->fire('file.creating', [$file, $author]);
                         if ($author) {
                             $file->author()->associate($author);
