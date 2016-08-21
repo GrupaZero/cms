@@ -200,9 +200,9 @@ class OptionRepository {
         if ($this->cache->get('options')) {
             $this->options = $this->cache->get('options');
         } else {
-            $this->extractCategoriesFromModel($this->optionCategoryModel->newQuery()->get(["key"])->sortBy('key'));
+            $this->extractCategoriesFromModel($this->optionCategoryModel->newQuery()->get(['key'])->sortBy('key'));
             $this->extractOptionsFromModel(
-                $this->optionModel->newQuery()->get(["id", "categoryKey", "key", "value"])->sortBy('id')
+                $this->optionModel->newQuery()->get(['id', 'categoryKey', 'key', 'value'])->sortBy('id')
             );
             $this->cache->forever('options', $this->options);
         }
@@ -247,12 +247,12 @@ class OptionRepository {
      * @param string $name Name to validate
      *
      * @return void
-     * @throws RepositoryException
+     * @throws RepositoryValidationException
      */
     private function validateName($name)
     {
         if (!is_string($name) || trim($name) === '') {
-            throw new RepositoryException("Invalid category name format");
+            throw new RepositoryValidationException('Invalid category name format');
         }
     }
 
@@ -262,12 +262,12 @@ class OptionRepository {
      * @param string $name Value to validate
      *
      * @return void
-     * @throws RepositoryException
+     * @throws RepositoryValidationException
      */
     private function validateValue($name)
     {
         if (!is_array($name)) {
-            throw new RepositoryException("Invalid option value format");
+            throw new RepositoryValidationException('Invalid option value format');
         }
     }
 
@@ -294,12 +294,14 @@ class OptionRepository {
      * @param string $optionKey   Option key
      *
      * @return void
-     * @throws RepositoryException
+     * @throws RepositoryValidationException
      */
     private function requireOptionExists($categoryKey, $optionKey)
     {
         if (!$this->optionExists($categoryKey, $optionKey)) {
-            throw new RepositoryException("option " . $optionKey . " in category " . $categoryKey . " does not exist");
+            throw new RepositoryValidationException(
+                'Option ' . $optionKey . ' in category ' . $categoryKey . ' does not exist'
+            );
         }
     }
 
@@ -321,12 +323,12 @@ class OptionRepository {
      * @param string $categoryKey Category key
      *
      * @return void
-     * @throws RepositoryException
+     * @throws RepositoryValidationException
      */
     private function requireCategoryExists($categoryKey)
     {
         if (!$this->categoryExists($categoryKey)) {
-            throw new RepositoryException("category " . $categoryKey . " does not exist");
+            throw new RepositoryValidationException('Category ' . $categoryKey . ' does not exist');
         }
     }
 
@@ -336,12 +338,12 @@ class OptionRepository {
      * @param string $categoryKey Category key
      *
      * @return void
-     * @throws RepositoryException
+     * @throws RepositoryValidationException
      */
     private function requireCategoryDoesNotExist($categoryKey)
     {
         if ($this->categoryExists($categoryKey)) {
-            throw new RepositoryException("The category " . $categoryKey . " already exists");
+            throw new RepositoryValidationException('The category ' . $categoryKey . ' already exists');
         }
     }
 }

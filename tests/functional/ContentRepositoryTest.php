@@ -3,7 +3,6 @@
 use Gzero\Entity\Content;
 use Gzero\Entity\User;
 use Gzero\Repository\ContentRepository;
-use Gzero\Repository\RepositoryException;
 use Illuminate\Events\Dispatcher;
 
 require_once(__DIR__ . '/../stub/TestSeeder.php');
@@ -214,8 +213,6 @@ class ContentRepositoryTest extends \EloquentTestCase {
 
     /**
      * @test
-     * @expectedException \Gzero\Core\Exception
-     * @expectedExceptionMessage Content with url: 'example-title' in language 'en' doesn't exist
      */
     public function can_force_delete_content()
     {
@@ -263,8 +260,6 @@ class ContentRepositoryTest extends \EloquentTestCase {
 
     /**
      * @test
-     * @expectedException \Gzero\Core\Exception
-     * @expectedExceptionMessage Content with url: 'example-title' in language 'en' doesn't exist
      */
     public function can_force_delete_soft_deleted_content()
     {
@@ -329,7 +324,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
         $newContent = $this->repository->getById($content->id);
         $this->assertNotSame($content, $newContent);
 
-        $translation = $this->repository->createTranslation(
+        $this->repository->createTranslation(
             $content,
             [
                 'langCode' => 'en',
@@ -383,7 +378,8 @@ class ContentRepositoryTest extends \EloquentTestCase {
 
     /**
      * @test
-     * @expectedException \Gzero\Core\Exception
+     * @expectedException \Gzero\Repository\RepositoryValidationException
+     * @expectedExceptionMessage Content type doesn't exist
      */
     public function it_checks_existence_of_content_type()
     {
@@ -400,16 +396,16 @@ class ContentRepositoryTest extends \EloquentTestCase {
 
     /**
      * @test
-     * @expectedException \Gzero\Core\Exception
      */
     public function it_checks_existence_of_content_url()
     {
-        $this->repository->getByUrl('example-title', 'en');
+        $this->assertNull($this->repository->getByUrl('example-title', 'en'));
     }
 
     /**
      * @test
-     * @expectedException \Gzero\Core\Exception
+     * @expectedException \Gzero\Repository\RepositoryValidationException
+     * @expectedExceptionMessage Content type and translation is required
      */
     public function it_checks_existence_of_content_translation()
     {
@@ -418,7 +414,8 @@ class ContentRepositoryTest extends \EloquentTestCase {
 
     /**
      * @test
-     * @expectedException \Gzero\Core\Exception
+     * @expectedException \Gzero\Repository\RepositoryValidationException
+     * @expectedExceptionMessage Parent has not been translated in this language, translate it first!
      */
     public function it_checks_existence_of_parent_route_translation()
     {
@@ -446,7 +443,8 @@ class ContentRepositoryTest extends \EloquentTestCase {
 
     /**
      * @test
-     * @expectedException \Gzero\Core\Exception
+     * @expectedException \Gzero\Repository\RepositoryValidationException
+     * @expectedExceptionMessage Parent node id: 1 doesn't exist
      */
     public function it_checks_existence_of_parent()
     {
@@ -464,7 +462,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
 
     /**
      * @test
-     * @expectedException \Gzero\Core\Exception
+     * @expectedException \Gzero\Repository\RepositoryValidationException
      * @expectedExceptionMessage Content type 'content' is not allowed for the parent type
      */
     public function it_checks_if_parent_is_proper_type()
@@ -1151,25 +1149,22 @@ class ContentRepositoryTest extends \EloquentTestCase {
     */
 
     /**
-     * @test Change tree seeder to seeder
-     * @expectedException \Gzero\Core\Exception
+     * @test                     Change tree seeder to seeder
+     * @expectedException \Gzero\Repository\RepositoryException
+     * @expectedExceptionMessage Error: 'lang' criteria is required
      */
     public function it_checks_existence_of_lang_code_on_translations_join()
     {
         // Tree seeds
         $this->seed('TestSeeder');
 
-        $this->repository->getContents(
-            [],
-            [['translations.title', 'DESC']],
-            null
-        );
-
+        $this->repository->getContents([], [['translations.title', 'DESC']], null);
     }
 
     /**
      * @test
-     * @expectedException \Gzero\Core\Exception
+     * @expectedException \Gzero\Repository\RepositoryException
+     * @expectedExceptionMessage Error: 'lang' criteria is required
      */
     public function it_checks_existence_of_lang_code_on_translations_join_tree()
     {

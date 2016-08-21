@@ -57,11 +57,10 @@ class Content extends BaseTree implements PresentableInterface {
                 return $translation->langCode == $langCode;
             }
         )->first();
-        if (!empty($routeTranslation->url)) {
-            return $routeTranslation->url;
-        } else {
+        if (empty($routeTranslation->url)) {
             throw new Exception("No route [$langCode] translation found for Content id: " . $this->getKey());
         }
+        return $routeTranslation->url;
     }
 
     /**
