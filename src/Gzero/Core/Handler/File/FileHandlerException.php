@@ -1,5 +1,7 @@
 <?php namespace Gzero\Core\Handler\File;
 
+use Gzero\Core\Exception;
+
 /**
  * This file is part of the GZERO CMS package.
  *
@@ -12,6 +14,6 @@
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2014, Adrian Skierniewski
  */
-class FileHandlerException extends \Exception {
+class FileHandlerException extends Exception {
 
 }

@@ -378,7 +378,7 @@ class FileRepositoryTest extends \EloquentTestCase {
 
     /**
      * @test
-     * @expectedException \Gzero\Core\Exception
+     * @expectedException \Gzero\Repository\RepositoryException
      * @expectedExceptionMessage File type is invalid
      */
     public function it_checks_existence_of_file_type()
