@@ -43,8 +43,6 @@ if (!function_exists('action')) {
      * @param  array  $parameters
      * @param  bool   $absolute
      *
-     * @SuppressWarnings(PHPMD)
-     *
      * @return string
      */
     function action($name, $parameters = [], $absolute = true)
@@ -196,6 +194,9 @@ if (!function_exists('config_path')) {
     }
 }
 
+/**
+ * @SuppressWarnings(PHPMD)
+ */
 if (!function_exists('cookie')) {
     /**
      * Create a new cookie instance.
@@ -207,8 +208,6 @@ if (!function_exists('cookie')) {
      * @param  string $domain
      * @param  bool   $secure
      * @param  bool   $httpOnly
-     *
-     * @SuppressWarnings(PHPMD)
      *
      * @return \Symfony\Component\HttpFoundation\Cookie
      */
@@ -325,6 +324,9 @@ if (!function_exists('elixir')) {
     }
 }
 
+/**
+ * @SuppressWarnings(PHPMD)
+ */
 if (!function_exists('env')) {
     /**
      * Gets the value of an environment variable. Supports boolean, empty and null.
