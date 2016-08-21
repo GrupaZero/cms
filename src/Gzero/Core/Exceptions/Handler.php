@@ -67,7 +67,7 @@ class Handler extends ExceptionHandler {
                 );
             }
 
-            $code = method_exists($e, 'getStatusCode') ? $e->getStatusCode() : self::SERVER_ERROR;
+            $code = $this->getStatusCode($e);
 
             if (app()->environment() == 'production') {
                 return $this->errorResponse(
@@ -119,5 +119,29 @@ class Handler extends ExceptionHandler {
             response()->json($errorResponse, !empty($errorResponse['code']) ? $errorResponse['code'] : self::SERVER_ERROR),
             $request
         );
+    }
+
+    /**
+     * Returns an exception status code, or SERVER_ERROR if there are no getCode or getStatusCode methods
+     *
+     * @param \Exception $e Excetion
+     *
+     * @SuppressWarnings(PHPMD)
+     *
+     * @return int status code
+     */
+    protected function getStatusCode(Exception $e)
+    {
+        $code = self::SERVER_ERROR;
+
+        if (method_exists($e, 'getCode')) {
+            $code = $e->getCode();
+        }
+
+        if (method_exists($e, 'getStatusCode')) {
+            $code = $e->getStatusCode();
+        }
+
+        return $code;
     }
 }
