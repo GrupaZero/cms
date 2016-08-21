@@ -1,7 +1,5 @@
 <?php namespace Gzero\Repository;
 
-use Gzero\Core\Exception;
-
 /**
  * This file is part of the GZERO CMS package.
  *
@@ -12,7 +10,7 @@ use Gzero\Core\Exception;
  *
  * @package    Gzero\Repository
  */
-class RepositoryValidationException extends Exception {
+class RepositoryValidationException extends RepositoryException {
 
     /**
      * Construct the exception. Note: The message is NOT binary safe.
