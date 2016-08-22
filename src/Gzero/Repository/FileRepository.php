@@ -57,49 +57,61 @@ class FileRepository extends BaseRepository {
      * @param User|null    $author       Author entity
      *
      * @return File
-     * @throws \Exception
+     * @throws RepositoryValidationException
      */
     public function create(Array $data, UploadedFile $uploadedFile, User $author = null)
     {
-        if ($uploadedFile->isValid()) {
-            $file = $this->newQuery()->transaction(
-                function () use ($data, $author, $uploadedFile) {
-                    // File PHP resource for the resource put method, which will use Flysystem's underlying stream support.
-                    $resource     = fopen($uploadedFile->getRealPath(), 'r');
-                    $data         = array_merge($data, $this->getFileData($uploadedFile));
-                    $translations = array_get($data, 'translations'); // Nested relation fields
-                    if (array_key_exists('type', $data)) {
-                        $type = $this->typeModel->resolveType($this->validateType($data['type']));
-                        $file = new File();
-                        $file->fill($data);
-                        $type->validateExtension($file);
-                        // prepare file name
-                        $path = $file->getUploadPath() . $uploadedFile->getClientOriginalName();
-                        if (Storage::has($path)) {
-                            $file->name = $this->getUniqueFileName($file->getUploadPath(), $uploadedFile);
-                            $path       = $file->getUploadPath() . $file->name . '.' . $file->extension;
-                        }
-                        // put file in storage
-                        Storage::put($path, $resource);
-                        $this->events->fire('file.creating', [$file, $author]);
-                        if ($author) {
-                            $file->author()->associate($author);
-                        }
-                        $file->save();
-                        // File translations
-                        if (!empty($translations)) {
-                            $this->createTranslation($file, $translations);
-                            $this->events->fire('file.created', [$file]);
-                        }
-                        return $this->getById($file->id);
-                    } else {
-                        throw new RepositoryException("File type is required");
+        if (!$uploadedFile->isValid()) {
+            throw new RepositoryValidationException("Error occurred while uploading the file to the server");
+        }
+        $file = $this->newQuery()->transaction(
+            function () use ($data, $author, $uploadedFile) {
+                // File PHP resource for the resource put method, which will use Flysystem's underlying stream support.
+                $resource     = fopen($uploadedFile->getRealPath(), 'r');
+                $data         = array_merge($data, $this->getFileData($uploadedFile));
+                $translations = array_get($data, 'translations'); // Nested relation fields
+                if (array_key_exists('type', $data)) {
+                    $type = $this->typeModel->resolveType($this->validateType($data['type']));
+                    $file = new File();
+                    $file->fill($data);
+                    $type->validateExtension($file);
+                    // prepare file name
+                    $path = $file->getUploadPath() . $uploadedFile->getClientOriginalName();
+                    if (Storage::has($path)) {
+                        $file->name = $this->getUniqueFileName($file->getUploadPath(), $uploadedFile);
+                        $path       = $file->getUploadPath() . $file->name . '.' . $file->extension;
                     }
+                    // put file in storage
+                    if (Storage::getDefaultDriver() === 's3') { // fix for the wrong mime types on s3
+                        Storage::disk('s3')->getDriver()->getAdapter()->getClient()->putObject(
+                            [
+                                'Bucket'      => config('filesystems.disks.s3.bucket'),
+                                'Key'         => $path,
+                                'Body'        => file_get_contents($uploadedFile),
+                                'ContentType' => $file->mimeType
+                            ]
+                        );
+                    } else {
+                        Storage::put($path, $resource);
+                    }
+
+                    $this->events->fire('file.creating', [$file, $author]);
+                    if ($author) {
+                        $file->author()->associate($author);
+                    }
+                    $file->save();
+                    // File translations
+                    if (!empty($translations)) {
+                        $this->createTranslation($file, $translations);
+                        $this->events->fire('file.created', [$file]);
+                    }
+                    return $this->getById($file->id);
+                } else {
+                    throw new RepositoryValidationException("File type is required");
                 }
-            );
-            return $file;
-        };
-        throw new RepositoryException("Error occurred while uploading the file to the server");
+            }
+        );
+        return $file;
     }
 
     /**
@@ -109,31 +121,30 @@ class FileRepository extends BaseRepository {
      * @param array $data new data to save
      *
      * @return FileTranslation
-     * @throws RepositoryException
+     * @throws RepositoryValidationException
      */
     public function createTranslation(File $file, Array $data)
     {
-        if (array_key_exists('langCode', $data) && array_key_exists('title', $data)) {
-            // New translation query
-            $translation = $this->newQuery()->transaction(
-                function () use ($file, $data) {
-                    // Remove any existing translation in this language
-                    $existingTranslation = $this->getFileTranslationByLangCode($file, $data['langCode']);
-                    if ($existingTranslation) {
-                        $existingTranslation->delete();
-                    }
-                    $translation = new FileTranslation();
-                    $translation->fill($data);
-                    $this->events->fire('file.translation.creating', [$file, $translation]);
-                    $file->translations()->save($translation);
-                    $this->events->fire('file.translation.created', [$file, $translation]);
-                    return $this->getFileTranslationById($file, $translation->id);
-                }
-            );
-            return $translation;
-        } else {
-            throw new RepositoryException("Language code and title of translation is required");
+        if (!array_key_exists('langCode', $data) || !array_key_exists('title', $data)) {
+            throw new RepositoryValidationException("Language code and title of translation is required");
         }
+        // New translation query
+        $translation = $this->newQuery()->transaction(
+            function () use ($file, $data) {
+                // Remove any existing translation in this language
+                $existingTranslation = $this->getFileTranslationByLangCode($file, $data['langCode']);
+                if ($existingTranslation) {
+                    $existingTranslation->delete();
+                }
+                $translation = new FileTranslation();
+                $translation->fill($data);
+                $this->events->fire('file.translation.creating', [$file, $translation]);
+                $file->translations()->save($translation);
+                $this->events->fire('file.translation.created', [$file, $translation]);
+                return $this->getFileTranslationById($file, $translation->id);
+            }
+        );
+        return $translation;
     }
 
     /**
@@ -239,7 +250,7 @@ class FileRepository extends BaseRepository {
      * @param int|null $pageSize Limit results
      *
      * @throws RepositoryException
-     * @return Collection
+     * @return EloquentCollection
      */
     public function getFiles(array $criteria = [], array $orderBy = [], $page = 1, $pageSize = self::ITEMS_PER_PAGE)
     {
@@ -305,7 +316,7 @@ class FileRepository extends BaseRepository {
             unset($parsedCriteria['lang']);
         } else {
             if ($this->orderByTranslation($parsedOrderBy)) {
-                throw new RepositoryException('Repository Validation Error: \'lang\' criteria is required');
+                throw new RepositoryValidationException('Error: \'lang\' criteria is required');
             }
         }
     }
@@ -318,14 +329,14 @@ class FileRepository extends BaseRepository {
      * @param string $message exception message
      *
      * @return string
-     * @throws RepositoryException
+     * @throws RepositoryValidationException
      */
     private function validateType($type, $message = "File type is invalid")
     {
         if (in_array($type, $this->typeModel->getActiveTypes())) {
             return $type;
         } else {
-            throw new RepositoryException($message);
+            throw new RepositoryValidationException($message);
         }
     }
 
@@ -335,13 +346,13 @@ class FileRepository extends BaseRepository {
      * @param array $parsedOrderBy OrderBy array
      *
      * @return bool
-     * @throws RepositoryException
+     * @throws RepositoryValidationException
      */
     private function orderByTranslation($parsedOrderBy)
     {
         foreach ($parsedOrderBy as $order) {
             if (!array_key_exists('relation', $order)) {
-                throw new RepositoryException('OrderBy should always have relation property');
+                throw new RepositoryValidationException('OrderBy should always have relation property');
             }
             if ($order['relation'] !== null) {
                 return true;

@@ -38,54 +38,60 @@ class OptionRepositoryTest extends \EloquentTestCase {
 
     /**
      * @test
-     * @expectedException \Gzero\Core\Exception
+     * @expectedException \Gzero\Repository\RepositoryException
+     * @expectedExceptionMessage Category nonexistent category does not exist
      */
-    public function it_gets_nonexistent_category_options()
+    public function it_checks_existence_of_category_when_getting_an_option()
     {
         $this->repository->getOptions('nonexistent category');
     }
 
     /**
      * @test
-     * @expectedException \Gzero\Core\Exception
+     * @expectedException \Gzero\Repository\RepositoryException
+     * @expectedExceptionMessage Category nonexistent category does not exist
      */
-    public function it_gets_nonexistent_category_option()
+    public function it_checks_existence_of_category_and_option_when_getting_an_non_existing_option()
     {
         $this->repository->getOption('nonexistent category', 'nonexistent option');
     }
 
     /**
      * @test
-     * @expectedException \Gzero\Core\Exception
+     * @expectedException \Gzero\Repository\RepositoryException
+     * @expectedExceptionMessage Option nonexistent option in category main does not exist
      */
-    public function it_gets_nonexistent_option()
+    public function it_checks_existence_of_option_when_getting_an_option()
     {
         $this->repository->getOption(TestSeeder::CATEGORY_MAIN, 'nonexistent option');
     }
 
     /**
      * @test
-     * @expectedException \Gzero\Core\Exception
+     * @expectedException \Gzero\Repository\RepositoryException
+     * @expectedExceptionMessage Category nonexistent category does not exist
      */
-    public function it_deletes_nonexistent_category()
+    public function it_checks_existence_of_category_when_deleting_an_option()
     {
         $this->repository->deleteCategory('nonexistent category');
     }
 
     /**
      * @test
-     * @expectedException \Gzero\Core\Exception
+     * @expectedException \Gzero\Repository\RepositoryException
+     * @expectedExceptionMessage Category nonexistent category does not exist
      */
-    public function it_deletes_nonexistent_category_option()
+    public function it_checks_existence_of_category_and_option_when_deleting_an_non_existing_option()
     {
         $this->repository->deleteOption('nonexistent category', 'nonexistent option');
     }
 
     /**
      * @test
-     * @expectedException \Gzero\Core\Exception
+     * @expectedException \Gzero\Repository\RepositoryException
+     * @expectedExceptionMessage Option nonexistent option in category main does not exist
      */
-    public function it_deletes_nonexistent_option()
+    public function it_checks_existence_of_option_when_deleting_an_option()
     {
         $this->repository->deleteOption(TestSeeder::CATEGORY_MAIN, 'nonexistent option');
     }

@@ -57,31 +57,27 @@ class DynamicRouter {
     public function handleRequest($url, Lang $lang)
     {
         //Get url without query string, so that pagination can work
-        $url = preg_replace('/\?.*/', '', $url);
-        try {
-            $content = $this->repository->getByUrl($url, $lang->code);
-            // Only if page is visible on public
-            if (!empty($content) && $content->canBeShown()) {
-                if (!$content->isActive) {
-                    app('session')->flash(
-                        'messages',
-                        [
-                            [
-                                'code' => 'warning',
-                                'text' => trans('common.contentNotPublished')
-                            ]
-                        ]
-                    );
-                }
-                $this->events->fire('router.contentMatched', [$content]);
-                $type = $this->resolveType($content->type);
-                return $type->load($content, $lang)->render();
-            } else {
-                throw new NotFoundHttpException();
-            }
-        } catch (\ReflectionException $e) {
+        $url     = preg_replace('/\?.*/', '', $url);
+        $content = $this->repository->getByUrl($url, $lang->code);
+        // Only if page is visible on public
+        if (empty($content) || !$content->canBeShown()) {
             throw new NotFoundHttpException();
         }
+
+        if (!$content->isActive) {
+            app('session')->flash(
+                'messages',
+                [
+                    [
+                        'code' => 'warning',
+                        'text' => trans('common.contentNotPublished')
+                    ]
+                ]
+            );
+        }
+        $this->events->fire('router.contentMatched', [$content]);
+        $type = $this->resolveType($content->type);
+        return $type->load($content, $lang)->render();
     }
 
     /**

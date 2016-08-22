@@ -179,7 +179,7 @@ class BlockRepositoryTest extends \EloquentTestCase {
 
     /**
      * @test
-     * @expectedException \Gzero\Core\Exception
+     * @expectedException \Gzero\Repository\RepositoryException
      * @expectedExceptionMessage Block type doesn't exist
      */
     public function it_checks_existence_of_block_type()
@@ -197,7 +197,7 @@ class BlockRepositoryTest extends \EloquentTestCase {
 
     /**
      * @test
-     * @expectedException \Gzero\Core\Exception
+     * @expectedException \Gzero\Repository\RepositoryException
      * @expectedExceptionMessage Widget is required
      */
     public function it_checks_existence_of_widget()
