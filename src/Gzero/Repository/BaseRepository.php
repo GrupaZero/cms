@@ -63,6 +63,18 @@ abstract class BaseRepository {
      */
     public function getDeletedById($id)
     {
+        return $this->newORMQuery()->onlyTrashed()->find($id);
+    }
+
+    /**
+     * Get single softDeleted entity
+     *
+     * @param integer $id Entity id
+     *
+     * @return mixed
+     */
+    public function getByIdWithTrashed($id)
+    {
         return $this->newORMQuery()->withTrashed()->find($id);
     }
 
