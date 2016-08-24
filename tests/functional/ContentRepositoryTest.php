@@ -489,6 +489,76 @@ class ContentRepositoryTest extends \EloquentTestCase {
         );
     }
 
+    /**
+     * @test
+     */
+    public function it_should_retrive_id_of_non_trashed_content() {
+        $content = $this->repository->create(
+            [
+                'type'         => 'content',
+                'isActive'     => 1,
+                'translations' => [
+                    'langCode'       => 'en',
+                    'title'          => 'Fake title',
+                    'teaser'         => '<p>Super fake...</p>',
+                    'body'           => '<p>Super fake body of some post!</p>',
+                    'seoTitle'       => 'fake-title',
+                    'seoDescription' => 'desc-demonstrate-fake',
+                    'isActive'       => 1
+                ]
+            ]
+        );
+        $newContent = $this->repository->getByIdWithTrashed($content->id);
+        $this->assertEquals($content->id, $newContent->id);
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_retrive_id_of_trashed_content() {
+        $content = $this->repository->create(
+            [
+                'type'         => 'content',
+                'isActive'     => 1,
+                'translations' => [
+                    'langCode'       => 'en',
+                    'title'          => 'Fake title',
+                    'teaser'         => '<p>Super fake...</p>',
+                    'body'           => '<p>Super fake body of some post!</p>',
+                    'seoTitle'       => 'fake-title',
+                    'seoDescription' => 'desc-demonstrate-fake',
+                    'isActive'       => 1
+                ]
+            ]
+        );
+        $this->repository->delete($content);
+        $trashedContent = $this->repository->getByIdWithTrashed($content->id);
+        $this->assertEquals($content->id, $trashedContent->id);
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_not_retrive_id_of_force_deleted_content() {
+        $content = $this->repository->create(
+            [
+                'type'         => 'content',
+                'isActive'     => 1,
+                'translations' => [
+                    'langCode'       => 'en',
+                    'title'          => 'Fake title',
+                    'teaser'         => '<p>Super fake...</p>',
+                    'body'           => '<p>Super fake body of some post!</p>',
+                    'seoTitle'       => 'fake-title',
+                    'seoDescription' => 'desc-demonstrate-fake',
+                    'isActive'       => 1
+                ]
+            ]
+        );
+        $this->repository->forceDelete($content);
+        $this->assertNull($this->repository->getByIdWithTrashed($content->id));
+    }
+
     /*
     |--------------------------------------------------------------------------
     | END Content tests
