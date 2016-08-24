@@ -248,7 +248,7 @@ class BlockRepositoryTest extends \EloquentTestCase {
     /**
      * @test
      */
-    public function it_should_retrive_id_of_non_trashed_block() {
+    public function it_should_retrive_non_trashed_block() {
         $block = $this->repository->create(
             [
                 'type'         => 'menu',
@@ -271,7 +271,7 @@ class BlockRepositoryTest extends \EloquentTestCase {
     /**
      * @test
      */
-    public function it_should_retrive_id_of_trashed_block() {
+    public function it_should_retrive_trashed_block() {
         $block = $this->repository->create(
             [
                 'type'         => 'menu',
@@ -295,7 +295,7 @@ class BlockRepositoryTest extends \EloquentTestCase {
     /**
      * @test
      */
-    public function it_should_not_retrive_id_of_force_deleted_block() {
+    public function it_should_not_retrive_force_deleted_block() {
         $block = $this->repository->create(
             [
                 'type'         => 'menu',
