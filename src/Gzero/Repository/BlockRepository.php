@@ -178,7 +178,7 @@ class BlockRepository extends BaseRepository {
                 if ($this->getById($block->id)) { // without soft deleted
                     $block->forceDelete();
                 } else {
-                    $block->onlyTrashed()->forceDelete();
+                    $block->onlyTrashed()->find($block->id)->forceDelete();
                 }
                 //$block->forceDelete();
                 $this->events->fire('block.forceDeleted', [$block]);
