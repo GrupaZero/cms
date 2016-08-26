@@ -248,6 +248,58 @@ class BlockRepositoryTest extends \EloquentTestCase {
     /**
      * @test
      */
+    public function it_should_force_delete_one_block()
+    {
+        $author  = User::find(1);
+        $block  = $this->repository->create(
+            [
+                'type'         => 'menu',
+                'region'       => 'test',
+                'weight'       => 1,
+                'filter'       => ['+' => ['1/2/3']],
+                'options'      => ['test' => 'value'],
+                'isActive'     => true,
+                'isCacheable'  => true,
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'Example block title'
+                ]
+            ],
+            $author
+        );
+        $block2  = $this->repository->create(
+            [
+                'type'         => 'menu',
+                'region'       => 'test',
+                'weight'       => 1,
+                'filter'       => ['+' => ['1/2/3']],
+                'options'      => ['test' => 'value'],
+                'isActive'     => true,
+                'isCacheable'  => true,
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'Example block title'
+                ]
+            ],
+            $author
+        );
+
+        $this->repository->delete($block);
+        $this->repository->delete($block2);
+
+        $this->assertNull($this->repository->getById($block->id));
+        $this->assertNull($this->repository->getById($block2->id));
+
+        $this->repository->forceDelete($block);
+        $this->assertNull($this->repository->getDeletedById($block->id));
+
+        // block2 should exist
+        $this->assertNotNull($this->repository->getDeletedById($block2->id));
+    }
+
+    /**
+     * @test
+     */
     public function it_should_retrive_non_trashed_block() {
         $block = $this->repository->create(
             [

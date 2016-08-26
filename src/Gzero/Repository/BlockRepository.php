@@ -175,7 +175,12 @@ class BlockRepository extends BaseRepository {
             function () use ($block) {
                 $this->events->fire('block.forceDeleting', [$block]);
                 /** @TODO handling delete other stuff like a menu etc. */
-                $block->forceDelete();
+                if ($this->getById($block->id)) { // without soft deleted
+                    $block->forceDelete();
+                } else {
+                    $block->onlyTrashed()->find($block->id)->forceDelete();
+                }
+                //$block->forceDelete();
                 $this->events->fire('block.forceDeleted', [$block]);
                 $this->clearBlocksCache();
                 return true;

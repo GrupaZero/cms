@@ -664,7 +664,7 @@ class ContentRepository extends BaseRepository {
                 if ($this->getById($content->id)) { // without soft deleted
                     $content->forceDelete();
                 } else {
-                    $content->onlyTrashed()->forceDelete();
+                    $content->onlyTrashed()->find($content->id)->forceDelete();
                 }
                 $this->events->fire('content.forceDeleted', [$content]);
                 return true;

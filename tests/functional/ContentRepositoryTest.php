@@ -492,6 +492,58 @@ class ContentRepositoryTest extends \EloquentTestCase {
     /**
      * @test
      */
+    public function it_should_force_delete_one_content()
+    {
+        $author  = User::find(1);
+        $content = $this->repository->create(
+            [
+                'type'             => 'content',
+                'isOnHome'         => true,
+                'isCommentAllowed' => true,
+                'isPromoted'       => true,
+                'isSticky'         => true,
+                'isActive'         => true,
+                'publishedAt'      => date('Y-m-d H:i:s'),
+                'translations'     => [
+                    'langCode' => 'en',
+                    'title'    => 'Example title'
+                ]
+            ],
+            $author
+        );
+        $content2 = $this->repository->create(
+            [
+                'type'             => 'content',
+                'isOnHome'         => true,
+                'isCommentAllowed' => true,
+                'isPromoted'       => true,
+                'isSticky'         => true,
+                'isActive'         => true,
+                'publishedAt'      => date('Y-m-d H:i:s'),
+                'translations'     => [
+                    'langCode' => 'en',
+                    'title'    => 'Example title'
+                ]
+            ],
+            $author
+        );
+
+        $this->repository->delete($content);
+        $this->repository->delete($content2);
+
+        $this->assertNull($this->repository->getById($content->id));
+        $this->assertNull($this->repository->getById($content2->id));
+
+        $this->repository->forceDelete($content);
+        $this->assertNull($this->repository->getDeletedById($content->id));
+
+        // content2 should exist
+        $this->assertNotNull($this->repository->getDeletedById($content2->id));
+    }
+
+    /**
+     * @test
+     */
     public function it_should_retrive_non_trashed_content() {
         $content = $this->repository->create(
             [
