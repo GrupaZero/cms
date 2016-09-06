@@ -179,7 +179,7 @@ class BlockRepositoryTest extends \EloquentTestCase {
 
     /**
      * @test
-     * @expectedException \Gzero\Core\Exception
+     * @expectedException \Gzero\Repository\RepositoryException
      * @expectedExceptionMessage Block type doesn't exist
      */
     public function it_checks_existence_of_block_type()
@@ -197,7 +197,7 @@ class BlockRepositoryTest extends \EloquentTestCase {
 
     /**
      * @test
-     * @expectedException \Gzero\Core\Exception
+     * @expectedException \Gzero\Repository\RepositoryException
      * @expectedExceptionMessage Widget is required
      */
     public function it_checks_existence_of_widget()
@@ -243,6 +243,128 @@ class BlockRepositoryTest extends \EloquentTestCase {
 
         // Block
         $this->assertNull($newBlock->filter);
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_force_delete_one_block()
+    {
+        $author  = User::find(1);
+        $block  = $this->repository->create(
+            [
+                'type'         => 'menu',
+                'region'       => 'test',
+                'weight'       => 1,
+                'filter'       => ['+' => ['1/2/3']],
+                'options'      => ['test' => 'value'],
+                'isActive'     => true,
+                'isCacheable'  => true,
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'Example block title'
+                ]
+            ],
+            $author
+        );
+        $block2  = $this->repository->create(
+            [
+                'type'         => 'menu',
+                'region'       => 'test',
+                'weight'       => 1,
+                'filter'       => ['+' => ['1/2/3']],
+                'options'      => ['test' => 'value'],
+                'isActive'     => true,
+                'isCacheable'  => true,
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'Example block title'
+                ]
+            ],
+            $author
+        );
+
+        $this->repository->delete($block);
+        $this->repository->delete($block2);
+
+        $this->assertNull($this->repository->getById($block->id));
+        $this->assertNull($this->repository->getById($block2->id));
+
+        $this->repository->forceDelete($block);
+        $this->assertNull($this->repository->getDeletedById($block->id));
+
+        // block2 should exist
+        $this->assertNotNull($this->repository->getDeletedById($block2->id));
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_retrive_non_trashed_block() {
+        $block = $this->repository->create(
+            [
+                'type'         => 'menu',
+                'region'       => 'test',
+                'weight'       => 1,
+                'filter'       => ['+' => ['1/2/3']],
+                'options'      => ['test' => 'value'],
+                'isActive'     => true,
+                'isCacheable'  => true,
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'Example block title'
+                ]
+            ]
+        );
+        $newBlock = $this->repository->getByIdWithTrashed($block->id);
+        $this->assertEquals($block->id, $newBlock->id);
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_retrive_trashed_block() {
+        $block = $this->repository->create(
+            [
+                'type'         => 'menu',
+                'region'       => 'test',
+                'weight'       => 1,
+                'filter'       => ['+' => ['1/2/3']],
+                'options'      => ['test' => 'value'],
+                'isActive'     => true,
+                'isCacheable'  => true,
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'Example block title'
+                ]
+            ]
+        );
+        $this->repository->delete($block);
+        $trashedBlock = $this->repository->getByIdWithTrashed($block->id);
+        $this->assertEquals($block->id, $trashedBlock->id);
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_not_retrive_force_deleted_block() {
+        $block = $this->repository->create(
+            [
+                'type'         => 'menu',
+                'region'       => 'test',
+                'weight'       => 1,
+                'filter'       => ['+' => ['1/2/3']],
+                'options'      => ['test' => 'value'],
+                'isActive'     => true,
+                'isCacheable'  => true,
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'Example block title'
+                ]
+            ]
+        );
+        $this->repository->forcedelete($block);
+        $this->assertNull($this->repository->getByIdWithTrashed($block->id));
     }
 
     /*

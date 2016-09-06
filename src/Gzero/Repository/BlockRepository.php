@@ -60,27 +60,26 @@ class BlockRepository extends BaseRepository {
         $block = $this->newQuery()->transaction(
             function () use ($data, $author) {
                 $translations = array_get($data, 'translations'); // Nested relation fields
-                if (!empty($translations) && array_key_exists('type', $data)) {
-                    /** @TODO get registered types */
-                    $this->validateType($data['type'], ['basic', 'menu', 'slider', 'widget', 'content']);
-                    $block = new Block();
-                    $block->fill($data);
-                    $this->events->fire('block.creating', [$block, $author]);
-                    /** @TODO How to set blockable polymorphic relation here, based on type ? */
-                    if ($data['type'] === 'widget') {
-                        $this->createWidget($block, $data);
-                    }
-                    if ($author) {
-                        $block->author()->associate($author);
-                    }
-                    $block->save();
-                    // Block translations
-                    $this->createTranslation($block, $translations);
-                    $this->events->fire('block.created', [$block]);
-                    return $this->getById($block->id);
-                } else {
-                    throw new RepositoryException("Block type and translation is required");
+                if (empty($translations) || !array_key_exists('type', $data)) {
+                    throw new RepositoryValidationException("Block type and translation is required");
                 }
+                /** @TODO get registered types */
+                $this->validateType($data['type'], ['basic', 'menu', 'slider', 'widget', 'content']);
+                $block = new Block();
+                $block->fill($data);
+                $this->events->fire('block.creating', [$block, $author]);
+                /** @TODO How to set blockable polymorphic relation here, based on type ? */
+                if ($data['type'] === 'widget') {
+                    $this->createWidget($block, $data);
+                }
+                if ($author) {
+                    $block->author()->associate($author);
+                }
+                $block->save();
+                // Block translations
+                $this->createTranslation($block, $translations);
+                $this->events->fire('block.created', [$block]);
+                return $this->getById($block->id);
             }
         );
         return $block;
@@ -93,30 +92,29 @@ class BlockRepository extends BaseRepository {
      * @param array $data  new data to save
      *
      * @return BlockTranslation
-     * @throws RepositoryException
+     * @throws RepositoryValidationException
      */
     public function createTranslation(Block $block, Array $data)
     {
-        if (array_key_exists('langCode', $data) && array_key_exists('title', $data)) {
-            // New translation query
-            $translation = $this->newQuery()->transaction(
-                function () use ($block, $data) {
-                    // Set all translation of this block as inactive
-                    $this->disableActiveTranslations($block->id, $data['langCode']);
-                    $translation = new BlockTranslation();
-                    $translation->fill($data);
-                    $this->events->fire('block.translation.creating', [$block, $translation]);
-                    $translation->isActive = 1; // Because only recent translation is active
-                    $block->translations()->save($translation);
-                    $this->events->fire('block.translation.created', [$block, $translation]);
-                    $this->clearBlocksCache();
-                    return $this->getBlockTranslationById($block, $translation->id);
-                }
-            );
-            return $translation;
-        } else {
-            throw new RepositoryException("Language code and title of translation is required");
+        if (!array_key_exists('langCode', $data) || !array_key_exists('title', $data)) {
+            throw new RepositoryValidationException("Language code and title of translation is required");
         }
+        // New translation query
+        $translation = $this->newQuery()->transaction(
+            function () use ($block, $data) {
+                // Set all translation of this block as inactive
+                $this->disableActiveTranslations($block->id, $data['langCode']);
+                $translation = new BlockTranslation();
+                $translation->fill($data);
+                $this->events->fire('block.translation.creating', [$block, $translation]);
+                $translation->isActive = 1; // Because only recent translation is active
+                $block->translations()->save($translation);
+                $this->events->fire('block.translation.created', [$block, $translation]);
+                $this->clearBlocksCache();
+                return $this->getBlockTranslationById($block, $translation->id);
+            }
+        );
+        return $translation;
     }
 
     /**
@@ -177,7 +175,8 @@ class BlockRepository extends BaseRepository {
             function () use ($block) {
                 $this->events->fire('block.forceDeleting', [$block]);
                 /** @TODO handling delete other stuff like a menu etc. */
-                $block->forceDelete();
+                $this->getByIdWithTrashed($block->id)->forceDelete();
+                //$block->forceDelete();
                 $this->events->fire('block.forceDeleted', [$block]);
                 $this->clearBlocksCache();
                 return true;
@@ -191,13 +190,13 @@ class BlockRepository extends BaseRepository {
      * @param BlockTranslation $translation entity to delete
      *
      * @return bool
-     * @throws RepositoryException
+     * @throws RepositoryValidationException
      * @throws \Exception
      */
     public function deleteTranslation(BlockTranslation $translation)
     {
         if ($translation->isActive) {
-            throw new RepositoryException('Cannot delete active translation');
+            throw new RepositoryValidationException('Cannot delete active translation');
         }
         return $this->newQuery()->transaction(
             function () use ($translation) {
@@ -330,7 +329,7 @@ class BlockRepository extends BaseRepository {
      * @param array $parsedOrderBy  Array with orderBy
      * @param mixed $query          Eloquent query object
      *
-     * @throws RepositoryException
+     * @throws RepositoryValidationException
      * @return array
      */
     private function handleTranslationsJoin(array &$parsedCriteria, array $parsedOrderBy, $query)
@@ -347,7 +346,7 @@ class BlockRepository extends BaseRepository {
             unset($parsedCriteria['lang']);
         } else {
             if ($this->orderByTranslation($parsedOrderBy)) {
-                throw new RepositoryException('Repository Validation Error: \'lang\' criteria is required');
+                throw new RepositoryValidationException('Error: \'lang\' criteria is required');
             }
         }
     }
@@ -360,14 +359,14 @@ class BlockRepository extends BaseRepository {
      * @param string $message exception message
      *
      * @return string
-     * @throws RepositoryException
+     * @throws RepositoryValidationException
      */
     private function validateType($type, $types, $message = "Block type doesn't exist")
     {
         if (in_array($type, $types)) {
             return $type;
         } else {
-            throw new RepositoryException($message);
+            throw new RepositoryValidationException($message);
         }
     }
 
@@ -377,13 +376,13 @@ class BlockRepository extends BaseRepository {
      * @param array $parsedOrderBy OrderBy array
      *
      * @return bool
-     * @throws RepositoryException
+     * @throws RepositoryValidationException
      */
     private function orderByTranslation($parsedOrderBy)
     {
         foreach ($parsedOrderBy as $order) {
             if (!array_key_exists('relation', $order)) {
-                throw new RepositoryException('OrderBy should always have relation property');
+                throw new RepositoryValidationException('OrderBy should always have relation property');
             }
             if ($order['relation'] !== null) {
                 return true;
@@ -399,7 +398,7 @@ class BlockRepository extends BaseRepository {
      * @param array $data  input data
      *
      * @return string
-     * @throws RepositoryException
+     * @throws RepositoryValidationException
      *
      */
     private function createWidget(Block $block, array $data)
@@ -407,7 +406,7 @@ class BlockRepository extends BaseRepository {
         if (array_key_exists('widget', $data) && is_array($data['widget'])) {
             $block->blockable()->associate(Widget::create($data['widget']));
         } else {
-            throw new RepositoryException("Widget is required");
+            throw new RepositoryValidationException("Widget is required");
         }
     }
 

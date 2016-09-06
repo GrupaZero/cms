@@ -1,15 +1,9 @@
 <?php namespace functional;
 
 use Gzero\Entity\Content;
-use Gzero\Entity\File;
-use Gzero\Entity\FileType;
 use Gzero\Entity\User;
 use Gzero\Repository\ContentRepository;
-use Gzero\Repository\FileRepository;
-use Gzero\Repository\RepositoryException;
 use Illuminate\Events\Dispatcher;
-use Illuminate\Support\Facades\Storage;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 require_once(__DIR__ . '/../stub/TestSeeder.php');
 require_once(__DIR__ . '/../stub/TestTreeSeeder.php');
@@ -33,31 +27,11 @@ class ContentRepositoryTest extends \EloquentTestCase {
      */
     protected $repository;
 
-    /**
-     * @var FileRepository
-     */
-    protected $fileRepository;
-
-    /**
-     * files directory
-     */
-    protected $filesDir;
-
     public function setUp()
     {
         parent::setUp();
-        $this->repository     = new ContentRepository(new Content(), new Dispatcher());
-        $this->fileRepository = new FileRepository(new File(), new FileType(), new Dispatcher());
-        $this->filesDir       = __DIR__ . '/../resources';
+        $this->repository = new ContentRepository(new Content(), new Dispatcher());
         $this->seed('TestSeeder'); // Relative to tests/app/
-    }
-
-    public function tearDown()
-    {
-        $dirName = config('gzero.upload.directory');
-        if ($dirName) {
-            Storage::deleteDirectory($dirName);
-        }
     }
 
     /*
@@ -239,8 +213,6 @@ class ContentRepositoryTest extends \EloquentTestCase {
 
     /**
      * @test
-     * @expectedException \Gzero\Core\Exception
-     * @expectedExceptionMessage Content with url: 'example-title' in language 'en' doesn't exist
      */
     public function can_force_delete_content()
     {
@@ -288,8 +260,6 @@ class ContentRepositoryTest extends \EloquentTestCase {
 
     /**
      * @test
-     * @expectedException \Gzero\Core\Exception
-     * @expectedExceptionMessage Content with url: 'example-title' in language 'en' doesn't exist
      */
     public function can_force_delete_soft_deleted_content()
     {
@@ -354,7 +324,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
         $newContent = $this->repository->getById($content->id);
         $this->assertNotSame($content, $newContent);
 
-        $translation = $this->repository->createTranslation(
+        $this->repository->createTranslation(
             $content,
             [
                 'langCode' => 'en',
@@ -408,7 +378,8 @@ class ContentRepositoryTest extends \EloquentTestCase {
 
     /**
      * @test
-     * @expectedException \Gzero\Core\Exception
+     * @expectedException \Gzero\Repository\RepositoryValidationException
+     * @expectedExceptionMessage Content type doesn't exist
      */
     public function it_checks_existence_of_content_type()
     {
@@ -425,16 +396,16 @@ class ContentRepositoryTest extends \EloquentTestCase {
 
     /**
      * @test
-     * @expectedException \Gzero\Core\Exception
      */
     public function it_checks_existence_of_content_url()
     {
-        $this->repository->getByUrl('example-title', 'en');
+        $this->assertNull($this->repository->getByUrl('example-title', 'en'));
     }
 
     /**
      * @test
-     * @expectedException \Gzero\Core\Exception
+     * @expectedException \Gzero\Repository\RepositoryValidationException
+     * @expectedExceptionMessage Content type and translation is required
      */
     public function it_checks_existence_of_content_translation()
     {
@@ -443,7 +414,8 @@ class ContentRepositoryTest extends \EloquentTestCase {
 
     /**
      * @test
-     * @expectedException \Gzero\Core\Exception
+     * @expectedException \Gzero\Repository\RepositoryValidationException
+     * @expectedExceptionMessage Parent has not been translated in this language, translate it first!
      */
     public function it_checks_existence_of_parent_route_translation()
     {
@@ -471,7 +443,8 @@ class ContentRepositoryTest extends \EloquentTestCase {
 
     /**
      * @test
-     * @expectedException \Gzero\Core\Exception
+     * @expectedException \Gzero\Repository\RepositoryValidationException
+     * @expectedExceptionMessage Parent node id: 1 doesn't exist
      */
     public function it_checks_existence_of_parent()
     {
@@ -489,7 +462,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
 
     /**
      * @test
-     * @expectedException \Gzero\Core\Exception
+     * @expectedException \Gzero\Repository\RepositoryValidationException
      * @expectedExceptionMessage Content type 'content' is not allowed for the parent type
      */
     public function it_checks_if_parent_is_proper_type()
@@ -514,6 +487,128 @@ class ContentRepositoryTest extends \EloquentTestCase {
                 ]
             ]
         );
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_force_delete_one_content()
+    {
+        $author  = User::find(1);
+        $content = $this->repository->create(
+            [
+                'type'             => 'content',
+                'isOnHome'         => true,
+                'isCommentAllowed' => true,
+                'isPromoted'       => true,
+                'isSticky'         => true,
+                'isActive'         => true,
+                'publishedAt'      => date('Y-m-d H:i:s'),
+                'translations'     => [
+                    'langCode' => 'en',
+                    'title'    => 'Example title'
+                ]
+            ],
+            $author
+        );
+        $content2 = $this->repository->create(
+            [
+                'type'             => 'content',
+                'isOnHome'         => true,
+                'isCommentAllowed' => true,
+                'isPromoted'       => true,
+                'isSticky'         => true,
+                'isActive'         => true,
+                'publishedAt'      => date('Y-m-d H:i:s'),
+                'translations'     => [
+                    'langCode' => 'en',
+                    'title'    => 'Example title'
+                ]
+            ],
+            $author
+        );
+
+        $this->repository->delete($content);
+        $this->repository->delete($content2);
+
+        $this->assertNull($this->repository->getById($content->id));
+        $this->assertNull($this->repository->getById($content2->id));
+
+        $this->repository->forceDelete($content);
+        $this->assertNull($this->repository->getDeletedById($content->id));
+
+        // content2 should exist
+        $this->assertNotNull($this->repository->getDeletedById($content2->id));
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_retrive_non_trashed_content() {
+        $content = $this->repository->create(
+            [
+                'type'         => 'content',
+                'isActive'     => 1,
+                'translations' => [
+                    'langCode'       => 'en',
+                    'title'          => 'Fake title',
+                    'teaser'         => '<p>Super fake...</p>',
+                    'body'           => '<p>Super fake body of some post!</p>',
+                    'seoTitle'       => 'fake-title',
+                    'seoDescription' => 'desc-demonstrate-fake',
+                    'isActive'       => 1
+                ]
+            ]
+        );
+        $newContent = $this->repository->getByIdWithTrashed($content->id);
+        $this->assertEquals($content->id, $newContent->id);
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_retrive_trashed_content() {
+        $content = $this->repository->create(
+            [
+                'type'         => 'content',
+                'isActive'     => 1,
+                'translations' => [
+                    'langCode'       => 'en',
+                    'title'          => 'Fake title',
+                    'teaser'         => '<p>Super fake...</p>',
+                    'body'           => '<p>Super fake body of some post!</p>',
+                    'seoTitle'       => 'fake-title',
+                    'seoDescription' => 'desc-demonstrate-fake',
+                    'isActive'       => 1
+                ]
+            ]
+        );
+        $this->repository->delete($content);
+        $trashedContent = $this->repository->getByIdWithTrashed($content->id);
+        $this->assertEquals($content->id, $trashedContent->id);
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_not_retrive_force_deleted_content() {
+        $content = $this->repository->create(
+            [
+                'type'         => 'content',
+                'isActive'     => 1,
+                'translations' => [
+                    'langCode'       => 'en',
+                    'title'          => 'Fake title',
+                    'teaser'         => '<p>Super fake...</p>',
+                    'body'           => '<p>Super fake body of some post!</p>',
+                    'seoTitle'       => 'fake-title',
+                    'seoDescription' => 'desc-demonstrate-fake',
+                    'isActive'       => 1
+                ]
+            ]
+        );
+        $this->repository->forceDelete($content);
+        $this->assertNull($this->repository->getByIdWithTrashed($content->id));
     }
 
     /*
@@ -1176,25 +1271,22 @@ class ContentRepositoryTest extends \EloquentTestCase {
     */
 
     /**
-     * @test Change tree seeder to seeder
-     * @expectedException \Gzero\Core\Exception
+     * @test                     Change tree seeder to seeder
+     * @expectedException \Gzero\Repository\RepositoryException
+     * @expectedExceptionMessage Error: 'lang' criteria is required
      */
     public function it_checks_existence_of_lang_code_on_translations_join()
     {
         // Tree seeds
         $this->seed('TestSeeder');
 
-        $this->repository->getContents(
-            [],
-            [['translations.title', 'DESC']],
-            null
-        );
-
+        $this->repository->getContents([], [['translations.title', 'DESC']], null);
     }
 
     /**
      * @test
-     * @expectedException \Gzero\Core\Exception
+     * @expectedException \Gzero\Repository\RepositoryException
+     * @expectedExceptionMessage Error: 'lang' criteria is required
      */
     public function it_checks_existence_of_lang_code_on_translations_join_tree()
     {
@@ -1403,68 +1495,4 @@ class ContentRepositoryTest extends \EloquentTestCase {
     | END Translations tests
     |--------------------------------------------------------------------------
     */
-
-    /*
-    |--------------------------------------------------------------------------
-    | START Files tests
-    |--------------------------------------------------------------------------
-    */
-
-    /**
-     * @test
-     */
-    public function can_add_files()
-    {
-        $fileIds = [];
-
-        // Create new content with first translation
-        $content = $this->repository->create(
-            [
-                'type'         => 'content',
-                'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Example title',
-                ]
-            ]
-        );
-
-        // Create files
-        $uploadedFile = $this->getExampleImage();
-        $author       = User::find(1);
-        for ($i = 0; $i < 3; $i++) {
-            $file = $this->fileRepository->create(
-                [
-                    'type'         => 'image',
-                    'isActive'     => true,
-                    'info'         => ['key' => 'value'],
-                    'translations' => [
-                        'langCode'    => 'en',
-                        'title'       => 'Example file title',
-                        'description' => 'Example file description'
-                    ]
-                ],
-                $uploadedFile,
-                $author
-            );
-
-            $fileIds[] = $file->id;
-        }
-
-        // Assign files
-        $content = $this->repository->addFiles($content, $fileIds);
-        $files = $content->files()->get();
-        dd($files);
-
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | END Files tests
-    |--------------------------------------------------------------------------
-    */
-
-    private function getExampleImage()
-    {
-        return new UploadedFile($this->filesDir . '/example.png', 'example.png', 'image/jpeg', null, null, true);
-    }
 }
