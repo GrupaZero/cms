@@ -597,25 +597,25 @@ class ContentRepository extends BaseRepository {
      * @param array   $filesIds files id's to attach
      *
      * @return Content
-     * @throws RepositoryException
+     * @throws RepositoryValidationException
      */
     public function addFiles(Content $content, Array $filesIds)
     {
-        if (!empty($filesIds)) {
-
-            // New content query
-            $content = $this->newQuery()->transaction(
-                function () use ($content, $filesIds) {
-                    $this->events->fire('content.files.adding', [$content, $filesIds]);
-                    $content->files()->attach($filesIds);
-                    $this->events->fire('content.files.added', [$content, $filesIds]);
-                    return $content;
-                }
-            );
-            return $this->getById($content->id);
-        } else {
-            throw new RepositoryException('You must provide the files in order to add them to the content');
+        if (empty($filesIds)) {
+            throw new RepositoryValidationException('You must provide the files in order to add them to the content');
         }
+
+        // New content query
+        $content = $this->newQuery()->transaction(
+            function () use ($content, $filesIds) {
+                $this->events->fire('content.files.adding', [$content, $filesIds]);
+                $content->files()->attach($filesIds);
+                $this->events->fire('content.files.added', [$content, $filesIds]);
+                return $content;
+            }
+        );
+
+        return $this->getById($content->id);
     }
 
     /**
@@ -724,25 +724,24 @@ class ContentRepository extends BaseRepository {
      * @param array   $filesIds files id's to detach
      *
      * @return Content
-     * @throws RepositoryException
+     * @throws RepositoryValidationException
      */
     public function removeFiles(Content $content, Array $filesIds)
     {
-        if (!empty($filesIds)) {
-
-            // New content query
-            $content = $this->newQuery()->transaction(
-                function () use ($content, $filesIds) {
-                    $this->events->fire('content.files.removing', [$content, $filesIds]);
-                    $content->files()->detach($filesIds);
-                    $this->events->fire('content.files.removed', [$content, $filesIds]);
-                    return $content;
-                }
-            );
-            return $this->getById($content->id);
-        } else {
-            throw new RepositoryException('You must provide the files in order to remove them from the content');
+        if (empty($filesIds)) {
+            throw new RepositoryValidationException('You must provide the files in order to remove them from the content');
         }
+
+        // New content query
+        $content = $this->newQuery()->transaction(
+            function () use ($content, $filesIds) {
+                $this->events->fire('content.files.removing', [$content, $filesIds]);
+                $content->files()->detach($filesIds);
+                $this->events->fire('content.files.removed', [$content, $filesIds]);
+                return $content;
+            }
+        );
+        return $this->getById($content->id);
     }
 
     /**
