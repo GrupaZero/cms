@@ -2,10 +2,15 @@
 
 use Gzero\Entity\Block;
 use Gzero\Entity\User;
+use Gzero\Entity\File;
+use Gzero\Entity\FileType;
 use Gzero\Repository\BlockRepository;
+use Gzero\Repository\FileRepository;
 use Illuminate\Cache\CacheManager;
 use Illuminate\Events\Dispatcher;
 use Gzero\Core\BlockFinder;
+use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 
 require_once(__DIR__ . '/../stub/TestSeeder.php');
@@ -35,12 +40,32 @@ class BlockRepositoryTest extends \EloquentTestCase {
      */
     protected $finder;
 
+    /**
+     * @var FileRepository
+     */
+    protected $fileRepository;
+
+    /**
+     * files directory
+     */
+    protected $filesDir;
+
     public function setUp()
     {
         parent::setUp();
         $this->repository = new BlockRepository(new Block(), new Dispatcher());
         $this->finder     = new BlockFinder($this->repository, new CacheManager($this->app));
+        $this->fileRepository = new FileRepository(new File(), new FileType(), new Dispatcher());
+        $this->filesDir       = __DIR__ . '/../resources';
         $this->seed('TestSeeder'); // Relative to tests/app/
+    }
+
+    public function tearDown()
+    {
+        $dirName = config('gzero.upload.directory');
+        if ($dirName) {
+            Storage::deleteDirectory($dirName);
+        }
     }
 
     /*
@@ -757,5 +782,213 @@ class BlockRepositoryTest extends \EloquentTestCase {
     | END List tests
     |--------------------------------------------------------------------------
     */
+
+    /*
+   |--------------------------------------------------------------------------
+   | START Files tests
+   |--------------------------------------------------------------------------
+   */
+
+    /**
+     * @test
+     * @expectedException \Gzero\Repository\RepositoryValidationException
+     * @expectedExceptionMessage File (id: 1) does not exist
+     */
+    public function it_checks_existence_of_files_to_add()
+    {
+        // Create new block with first translation
+        $block = $this->repository->create(
+            [
+                'type'         => 'basic',
+                'weight'       => 0,
+                'isActive'     => 1,
+                'region'       => 'header',
+                'filter'       => ['+' => ['1/*']],
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'First block title'
+                ]
+            ]
+        );
+
+        $this->repository->addFiles($block, [1]);
+    }
+
+    /**
+     * @test
+     * @expectedException \Gzero\Repository\RepositoryValidationException
+     * @expectedExceptionMessage You must provide the files in order to add them to the block
+     */
+    public function it_checks_for_empty_array_of_files_to_add()
+    {
+        // Create new block with first translation
+        $block = $this->repository->create(
+            [
+                'type'         => 'basic',
+                'weight'       => 0,
+                'isActive'     => 1,
+                'region'       => 'header',
+                'filter'       => ['+' => ['1/*']],
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'First block title'
+                ]
+            ]
+        );
+
+        $this->repository->addFiles($block, []);
+    }
+
+    /**
+     * @test
+     */
+    public function can_add_files()
+    {
+        $fileIds = [];
+
+        // Create new block with first translation
+        $block = $this->repository->create(
+            [
+                'type'         => 'basic',
+                'weight'       => 0,
+                'isActive'     => 1,
+                'region'       => 'header',
+                'filter'       => ['+' => ['1/*']],
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'First block title'
+                ]
+            ]
+        );
+
+        // Create files
+        $uploadedFile = $this->getExampleImage();
+        $author       = User::find(1);
+        for ($i = 0; $i < 3; $i++) {
+            $file = $this->fileRepository->create(
+                [
+                    'type'         => 'image',
+                    'isActive'     => true,
+                    'info'         => ['key' => 'value'],
+                    'translations' => [
+                        'langCode'    => 'en',
+                        'title'       => 'Example file title',
+                        'description' => 'Example file description'
+                    ]
+                ],
+                $uploadedFile,
+                $author
+            );
+
+            $fileIds[] = $file->id;
+        }
+
+        // Assign files
+        $this->repository->addFiles($block, $fileIds);
+        $files = $block->files()->get();
+
+        $this->assertNotEmpty($files);
+        $this->assertEquals('example', $files[0]->name);
+        $this->assertEquals('example-1', $files[1]->name);
+        $this->assertEquals('example-2', $files[2]->name);
+
+        foreach ($files as $index => $file) {
+            $this->assertEquals($fileIds[$index], $file->id);
+            $this->assertEquals('image', $file->type);
+            $this->assertEquals(true, $file->isActive);
+            $this->assertEquals('png', $file->extension);
+            $this->assertEquals('image/png', $file->mimeType);
+            $this->assertEquals(['key' => 'value'], $file->info);
+            $this->assertEquals('en', $file->translations[0]->langCode);
+            $this->assertEquals('Example file title', $file->translations[0]->title);
+            $this->assertEquals('Example file description', $file->translations[0]->description);
+        }
+    }
+
+    /**
+     * @test
+     * @expectedException \Gzero\Repository\RepositoryValidationException
+     * @expectedExceptionMessage You must provide the files in order to remove them from the block
+     */
+    public function it_checks_for_empty_array_of_files_to_remove()
+    {
+        // Create new block with first translation
+        $block = $this->repository->create(
+            [
+                'type'         => 'basic',
+                'weight'       => 0,
+                'isActive'     => 1,
+                'region'       => 'header',
+                'filter'       => ['+' => ['1/*']],
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'First block title'
+                ]
+            ]
+        );
+
+        $this->repository->removeFiles($block, []);
+    }
+
+    /**
+     * @test
+     */
+    public function can_remove_files()
+    {
+        $fileIds = [];
+
+        // Create new block with first translation
+        $block = $this->repository->create(
+            [
+                'type'         => 'basic',
+                'weight'       => 0,
+                'isActive'     => 1,
+                'region'       => 'header',
+                'filter'       => ['+' => ['1/*']],
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'First block title'
+                ]
+            ]
+        );
+        // Create files
+        $uploadedFile = $this->getExampleImage();
+        $author       = User::find(1);
+        for ($i = 0; $i < 3; $i++) {
+            $file = $this->fileRepository->create(
+                [
+                    'type'         => 'image',
+                    'isActive'     => true,
+                    'info'         => ['key' => 'value'],
+                    'translations' => [
+                        'langCode'    => 'en',
+                        'title'       => 'Example file title',
+                        'description' => 'Example file description'
+                    ]
+                ],
+                $uploadedFile,
+                $author
+            );
+
+            $fileIds[] = $file->id;
+        }
+
+        $this->repository->addFiles($block, $fileIds);
+        $this->repository->removeFiles($block, $fileIds);
+        $files = $block->files()->get();
+
+        $this->assertEmpty($files);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | END Files tests
+    |--------------------------------------------------------------------------
+    */
+
+    private function getExampleImage()
+    {
+        return new UploadedFile($this->filesDir . '/example.png', 'example.png', 'image/jpeg', null, null, true);
+    }
 
 }

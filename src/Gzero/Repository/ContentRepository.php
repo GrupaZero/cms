@@ -5,6 +5,7 @@ use Gzero\EloquentTree\Model\Tree;
 use Gzero\Entity\ContentTranslation;
 use Gzero\Entity\ContentType;
 use Gzero\Entity\Content;
+use Gzero\Entity\File;
 use Gzero\Entity\Route;
 use Gzero\Entity\RouteTranslation;
 use Gzero\Entity\User;
@@ -565,7 +566,7 @@ class ContentRepository extends BaseRepository {
                             $url = $parent->getUrl($langCode) . '/';
                         } catch (Exception $e) {
                             throw new RepositoryValidationException(
-                                "Parent has not been translated in this language, translate it first!"
+                                'Parent has not been translated in this language, translate it first!'
                             );
                         }
                     }
@@ -591,6 +592,36 @@ class ContentRepository extends BaseRepository {
     }
 
     /**
+     * Adds related file for specified content entity
+     *
+     * @param Content $content Content entity
+     * @param integer $fileId  file id to attach
+     *
+     * @return Content
+     * @throws RepositoryValidationException
+     */
+    public function addRelatedFile(Content $content, $fileId)
+    {
+        if (!File::checkIfExists($fileId)) {
+            throw new RepositoryValidationException('File does not exist');
+        }
+
+        // New content query
+        $content = $this->newQuery()->transaction(
+            function () use ($content, $fileId) {
+                $this->events->fire('content.related.file.adding', [$content, $fileId]);
+                $content->fileId = $fileId;
+                $content->files()->attach($fileId);
+                $content->save();
+                $this->events->fire('content.related.file.added', [$content, $fileId]);
+                return $content;
+            }
+        );
+
+        return $this->getById($content->id);
+    }
+
+    /**
      * Adds files for specified content entity
      *
      * @param Content $content  Content entity
@@ -604,6 +635,8 @@ class ContentRepository extends BaseRepository {
         if (empty($filesIds)) {
             throw new RepositoryValidationException('You must provide the files in order to add them to the content');
         }
+
+        $this->checkIfFilesExists($filesIds);
 
         // New content query
         $content = $this->newQuery()->transaction(
@@ -738,6 +771,15 @@ class ContentRepository extends BaseRepository {
                 $this->events->fire('content.files.removing', [$content, $filesIds]);
                 $content->files()->detach($filesIds);
                 $this->events->fire('content.files.removed', [$content, $filesIds]);
+
+                // Remove related file
+                if (!empty($content->fileId) && in_array($content->fileId, $filesIds)) {
+                    $this->events->fire('content.related.file.removing', [$content]);
+                    $content->fileId = null;
+                    $content->save();
+                    $this->events->fire('content.related.file.removed', [$content]);
+                }
+
                 return $content;
             }
         );

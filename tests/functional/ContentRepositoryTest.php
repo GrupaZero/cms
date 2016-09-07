@@ -1529,6 +1529,120 @@ class ContentRepositoryTest extends \EloquentTestCase {
 
     /**
      * @test
+     * @expectedException \Gzero\Repository\RepositoryValidationException
+     * @expectedExceptionMessage File does not exist
+     */
+    public function it_checks_existence_of_related_file()
+    {
+        // Create new content with first translation
+        $content = $this->repository->create(
+            [
+                'type'         => 'content',
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'Example title',
+                ]
+            ]
+        );
+
+        $this->repository->addRelatedFile($content, 1);
+    }
+
+    /**
+     * @test
+     * @expectedException \Gzero\Repository\RepositoryValidationException
+     * @expectedExceptionMessage File (id: 1) does not exist
+     */
+    public function it_checks_existence_of_files_to_add()
+    {
+        // Create new content with first translation
+        $content = $this->repository->create(
+            [
+                'type'         => 'content',
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'Example title',
+                ]
+            ]
+        );
+
+        $this->repository->addFiles($content, [1]);
+    }
+
+    /**
+     * @test
+     * @expectedException \Gzero\Repository\RepositoryValidationException
+     * @expectedExceptionMessage You must provide the files in order to add them to the content
+     */
+    public function it_checks_for_empty_array_of_files_to_add()
+    {
+        // Create new content with first translation
+        $content = $this->repository->create(
+            [
+                'type'         => 'content',
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'Example title',
+                ]
+            ]
+        );
+
+        $this->repository->addFiles($content, []);
+    }
+
+    /**
+     * @test
+     */
+    public function can_add_related_file()
+    {
+        // Create new content with first translation
+        $content = $this->repository->create(
+            [
+                'type'         => 'content',
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'Example title',
+                ]
+            ]
+        );
+
+        // Create files
+        $uploadedFile = $this->getExampleImage();
+        $author       = User::find(1);
+        $file         = $this->fileRepository->create(
+            [
+                'type'         => 'image',
+                'isActive'     => true,
+                'info'         => ['key' => 'value'],
+                'translations' => [
+                    'langCode'    => 'en',
+                    'title'       => 'Example file title',
+                    'description' => 'Example file description'
+                ]
+            ],
+            $uploadedFile,
+            $author
+        );
+
+        // Assign files
+        $content = $this->repository->addRelatedFile($content, $file->id);
+        $files   = $content->files()->get();
+
+        $this->assertNotEmpty($files);
+        $this->assertEquals($content->fileId, $file->id);
+        $this->assertEquals($file->name, $files[0]->name);
+        $this->assertEquals($file->type, $files[0]->type);
+        $this->assertEquals($file->isActive, $files[0]->isActive);
+        $this->assertEquals($file->extension, $files[0]->extension);
+        $this->assertEquals($file->mimeType, $files[0]->mimeType);
+        $this->assertEquals($file->info, $files[0]->info);
+        $this->assertEquals($file->translations[0]->langCode, $files[0]->translations[0]->langCode);
+        $this->assertEquals($file->translations[0]->title, $files[0]->translations[0]->title);
+        $this->assertEquals($file->translations[0]->description, $files[0]->translations[0]->description);
+    }
+
+    /**
+     * @test
      */
     public function can_add_files()
     {
@@ -1568,8 +1682,8 @@ class ContentRepositoryTest extends \EloquentTestCase {
         }
 
         // Assign files
-        $content = $this->repository->addFiles($content, $fileIds);
-        $files   = $content->files()->get();
+        $this->repository->addFiles($content, $fileIds);
+        $files = $content->files()->get();
 
         $this->assertNotEmpty($files);
         $this->assertEquals('example', $files[0]->name);
@@ -1587,7 +1701,140 @@ class ContentRepositoryTest extends \EloquentTestCase {
             $this->assertEquals('Example file title', $file->translations[0]->title);
             $this->assertEquals('Example file description', $file->translations[0]->description);
         }
+    }
 
+    /**
+     * @test
+     * @expectedException \Gzero\Repository\RepositoryValidationException
+     * @expectedExceptionMessage You must provide the files in order to remove them from the content
+     */
+    public function it_checks_for_empty_array_of_files_to_remove()
+    {
+        // Create new content with first translation
+        $content = $this->repository->create(
+            [
+                'type'         => 'content',
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'Example title',
+                ]
+            ]
+        );
+
+        $this->repository->removeFiles($content, []);
+    }
+
+    /**
+     * @test
+     */
+    public function can_remove_files()
+    {
+        $fileIds = [];
+
+        // Create new content with first translation
+        $content = $this->repository->create(
+            [
+                'type'         => 'content',
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'Example title',
+                ]
+            ]
+        );
+
+        // Create files
+        $uploadedFile = $this->getExampleImage();
+        $author       = User::find(1);
+        for ($i = 0; $i < 3; $i++) {
+            $file = $this->fileRepository->create(
+                [
+                    'type'         => 'image',
+                    'isActive'     => true,
+                    'info'         => ['key' => 'value'],
+                    'translations' => [
+                        'langCode'    => 'en',
+                        'title'       => 'Example file title',
+                        'description' => 'Example file description'
+                    ]
+                ],
+                $uploadedFile,
+                $author
+            );
+
+            $fileIds[] = $file->id;
+        }
+
+        $this->repository->addFiles($content, $fileIds);
+        $this->repository->removeFiles($content, $fileIds);
+        $files = $content->files()->get();
+
+        $this->assertEmpty($files);
+    }
+
+    /**
+     * @test
+     */
+    public function can_remove_related_file_when_removing_files()
+    {
+
+        // Create new content with first translation
+        $content = $this->repository->create(
+            [
+                'type'         => 'content',
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'Example title',
+                ]
+            ]
+        );
+
+        // Create files
+        $uploadedFile = $this->getExampleImage();
+        $author       = User::find(1);
+        $relatedFile  = $this->fileRepository->create(
+            [
+                'type'         => 'image',
+                'isActive'     => true,
+                'info'         => ['key' => 'value'],
+                'translations' => [
+                    'langCode'    => 'en',
+                    'title'       => 'Example file title',
+                    'description' => 'Example file description'
+                ]
+            ],
+            $uploadedFile,
+            $author
+        );
+
+        $fileIds = [$relatedFile->id];
+
+        for ($i = 0; $i < 3; $i++) {
+            $file = $this->fileRepository->create(
+                [
+                    'type'         => 'image',
+                    'isActive'     => true,
+                    'info'         => ['key' => 'value'],
+                    'translations' => [
+                        'langCode'    => 'en',
+                        'title'       => 'Example file title',
+                        'description' => 'Example file description'
+                    ]
+                ],
+                $uploadedFile,
+                $author
+            );
+
+            $fileIds[] = $file->id;
+        }
+
+        $this->repository->addFiles($content, $fileIds);
+
+        $this->repository->addRelatedFile($content, $relatedFile->id);
+        $content = $this->repository->removeFiles($content, $fileIds);
+        $files   = $content->files()->get();
+
+        $this->assertEmpty($files);
+        $this->assertNull($content->fileId);
     }
 
     /*

@@ -151,4 +151,16 @@ class File extends Base {
     {
         return ($value) ? json_decode($value, true) : $value;
     }
+
+    /**
+     * Check if file exists
+     *
+     * @param int $fileId file id
+     *
+     * @return boolean
+     */
+    public static function checkIfExists($fileId)
+    {
+        return File::where('id', $fileId)->exists();
+    }
 }

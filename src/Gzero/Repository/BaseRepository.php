@@ -2,6 +2,7 @@
 
 use BadMethodCallException;
 use Gzero\Entity\Base;
+use Gzero\Entity\File;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Connection;
 use Illuminate\Database\Eloquent\Builder;
@@ -308,6 +309,22 @@ abstract class BaseRepository {
             'filter'  => $this->parseCriteria($criteria),
             'orderBy' => $this->parseOrderBy($orderBy)
         ];
+    }
+
+    /**
+     * This functions checks if files exists in database
+     *
+     * @param array $filesIds
+     *
+     * @throws RepositoryValidationException
+     */
+    protected function checkIfFilesExists(Array $filesIds)
+    {
+        foreach ($filesIds as $fileId) {
+            if (!File::checkIfExists($fileId)) {
+                throw new RepositoryValidationException("File (id: $fileId) does not exist");
+            }
+        }
     }
 
     /**

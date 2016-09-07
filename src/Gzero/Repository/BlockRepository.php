@@ -118,6 +118,36 @@ class BlockRepository extends BaseRepository {
     }
 
     /**
+     * Adds files for specified block entity
+     *
+     * @param Block $block    Block entity
+     * @param array $filesIds files id's to attach
+     *
+     * @return Block
+     * @throws RepositoryValidationException
+     */
+    public function addFiles(Block $block, Array $filesIds)
+    {
+        if (empty($filesIds)) {
+            throw new RepositoryValidationException('You must provide the files in order to add them to the block');
+        }
+
+        $this->checkIfFilesExists($filesIds);
+
+        // New block query
+        $block = $this->newQuery()->transaction(
+            function () use ($block, $filesIds) {
+                $this->events->fire('block.files.adding', [$block, $filesIds]);
+                $block->files()->attach($filesIds);
+                $this->events->fire('block.files.added', [$block, $filesIds]);
+                return $block;
+            }
+        );
+
+        return $this->getById($block->id);
+    }
+
+    /**
      * Update specific block entity
      *
      * @param Block     $block    Block entity
@@ -203,6 +233,33 @@ class BlockRepository extends BaseRepository {
                 return $translation->delete();
             }
         );
+    }
+
+    /**
+     * Removes files for specified block entity
+     *
+     * @param Block $block    Block entity
+     * @param array $filesIds files id's to detach
+     *
+     * @return Block
+     * @throws RepositoryValidationException
+     */
+    public function removeFiles(Block $block, Array $filesIds)
+    {
+        if (empty($filesIds)) {
+            throw new RepositoryValidationException('You must provide the files in order to remove them from the block');
+        }
+
+        // New block query
+        $block = $this->newQuery()->transaction(
+            function () use ($block, $filesIds) {
+                $this->events->fire('block.files.removing', [$block, $filesIds]);
+                $block->files()->detach($filesIds);
+                $this->events->fire('block.files.removed', [$block, $filesIds]);
+                return $block;
+            }
+        );
+        return $this->getById($block->id);
     }
 
     /**
