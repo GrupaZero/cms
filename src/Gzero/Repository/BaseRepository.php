@@ -314,8 +314,9 @@ abstract class BaseRepository {
     /**
      * This functions checks if files exists in database
      *
-     * @param array $filesIds
+     * @param array $filesIds array of file id's to check for
      *
+     * @return array $filesIds array of file id's
      * @throws RepositoryValidationException
      */
     protected function checkIfFilesExists(Array $filesIds)
@@ -325,6 +326,8 @@ abstract class BaseRepository {
                 throw new RepositoryValidationException("File (id: $fileId) does not exist");
             }
         }
+
+        return $filesIds;
     }
 
     /**

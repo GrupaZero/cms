@@ -161,6 +161,6 @@ class File extends Base {
      */
     public static function checkIfExists($fileId)
     {
-        return File::where('id', $fileId)->exists();
+        return self::where('id', $fileId)->exists();
     }
 }
