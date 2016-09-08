@@ -45,8 +45,8 @@ class ContentRepositoryTest extends \EloquentTestCase {
     public function setUp()
     {
         parent::setUp();
-        $this->repository     = new ContentRepository(new Content(), new Dispatcher());
         $this->fileRepository = new FileRepository(new File(), new FileType(), new Dispatcher());
+        $this->repository     = new ContentRepository(new Content(), new Dispatcher(), $this->fileRepository);
         $this->filesDir       = __DIR__ . '/../resources';
         $this->seed('TestSeeder'); // Relative to tests/app/
     }
@@ -1593,6 +1593,57 @@ class ContentRepositoryTest extends \EloquentTestCase {
     /**
      * @test
      */
+    public function can_get_single_file()
+    {
+        // Create new content with first translation
+        $content = $this->repository->create(
+            [
+                'type'         => 'content',
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'Example title',
+                ]
+            ]
+        );
+
+        // Create files
+        $uploadedFile = $this->getExampleImage();
+        $author       = User::find(1);
+        $file         = $this->fileRepository->create(
+            [
+                'type'         => 'image',
+                'isActive'     => true,
+                'info'         => ['key' => 'value'],
+                'translations' => [
+                    'langCode'    => 'en',
+                    'title'       => 'Example file title',
+                    'description' => 'Example file description'
+                ]
+            ],
+            $uploadedFile,
+            $author
+        );
+
+        // Assign files
+        $content = $this->repository->addRelatedFile($content, $file->id);
+        $relatedFile   = $this->repository->getFileById($content->fileId);
+
+        $this->assertNotEmpty($relatedFile);
+        $this->assertEquals($content->fileId, $file->id);
+        $this->assertEquals($file->name, $relatedFile->name);
+        $this->assertEquals($file->type, $relatedFile->type);
+        $this->assertEquals($file->isActive, $relatedFile->isActive);
+        $this->assertEquals($file->extension, $relatedFile->extension);
+        $this->assertEquals($file->mimeType, $relatedFile->mimeType);
+        $this->assertEquals($file->info, $relatedFile->info);
+        $this->assertEquals($file->translations[0]->langCode, $relatedFile->translations[0]->langCode);
+        $this->assertEquals($file->translations[0]->title, $relatedFile->translations[0]->title);
+        $this->assertEquals($file->translations[0]->description, $relatedFile->translations[0]->description);
+    }
+
+    /**
+     * @test
+     */
     public function can_add_related_file()
     {
         // Create new content with first translation
@@ -1701,6 +1752,109 @@ class ContentRepositoryTest extends \EloquentTestCase {
             $this->assertEquals('Example file title', $file->translations[0]->title);
             $this->assertEquals('Example file description', $file->translations[0]->description);
         }
+    }
+
+    /**
+     * @test
+     */
+    public function can_sort_files_list()
+    {
+        $fileIds = [];
+
+        // Create new content with first translation
+        $content = $this->repository->create(
+            [
+                'type'         => 'content',
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'Example title',
+                ]
+            ]
+        );
+
+        // Create files
+        $uploadedFile = $this->getExampleImage();
+        $author       = User::find(1);
+        for ($i = 0; $i < 3; $i++) {
+            $file = $this->fileRepository->create(
+                [
+                    'type'         => 'image',
+                    'isActive'     => true,
+                    'info'         => ['key' => 'value'],
+                    'translations' => [
+                        'langCode'    => 'en',
+                        'title'       => 'Example file title ' . $i,
+                        'description' => 'Example file description'
+                    ]
+                ],
+                $uploadedFile,
+                $author
+            );
+
+            $fileIds[] = $file->id;
+        }
+
+        // Assign files
+        $this->repository->addFiles($content, $fileIds);
+        $files = $this->repository->getFiles(
+            $content,
+            [['translations.lang', '=', 'en']],
+            [['translations.title', 'ASC']]
+        );
+
+        $this->assertNotEmpty($files);
+        $this->assertEquals('example', $files[0]->name);
+        $this->assertEquals('Example file title 0', $files[0]->translations[0]->title);
+        $this->assertEquals('example-1', $files[1]->name);
+        $this->assertEquals('Example file title 1', $files[1]->translations[0]->title);
+        $this->assertEquals('example-2', $files[2]->name);
+        $this->assertEquals('Example file title 2', $files[2]->translations[0]->title);
+    }
+
+    /**
+     * @test
+     */
+    public function can_filter_files_list()
+    {
+
+        // Create new content with first translation
+        $content = $this->repository->create(
+            [
+                'type'         => 'content',
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'Example title',
+                ]
+            ]
+        );
+
+        // Create files
+        $uploadedFile = $this->getExampleImage();
+        $author       = User::find(1);
+        $file = $this->fileRepository->create(
+            [
+                'type'         => 'image',
+                'isActive'     => false,
+                'info'         => ['key' => 'value'],
+                'translations' => [
+                    'langCode'    => 'en',
+                    'title'       => 'Example file title',
+                    'description' => 'Example file description'
+                ]
+            ],
+            $uploadedFile,
+            $author
+        );
+
+        // Assign files
+        $this->repository->addFiles($content, [$file->id]);
+        $files = $this->repository->getFiles(
+            $content,
+            [['isActive', '=', true]],
+            []
+        );
+
+        $this->assertEmpty($files);
     }
 
     /**

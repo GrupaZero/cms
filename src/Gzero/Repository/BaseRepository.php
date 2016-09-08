@@ -250,6 +250,20 @@ abstract class BaseRepository {
     }
 
     /**
+     * Returns files model table name
+     *
+     * @throws RepositoryException
+     * @return string
+     */
+    protected function getFilesTableName()
+    {
+        if (method_exists($this->model, 'files')) {
+            return $this->model->files()->getModel()->getTable();
+        }
+        throw new RepositoryException("Entity '" . get_class($this->model) . "' doesn't have files relation");
+    }
+
+    /**
      * Function sets all translation of provided entity as inactive
      *
      * @param int    $id       entity id

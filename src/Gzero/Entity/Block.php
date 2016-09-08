@@ -73,10 +73,15 @@ class Block extends Base {
     /**
      * Get all of the files for the content.
      *
+     * @param bool $active Only active file
+     *
      * @return \Illuminate\Database\Eloquent\Relations\morphToMany
      */
-    public function files()
+    public function files($active = true)
     {
+        if ($active) {
+            return $this->morphToMany(File::class, 'uploadable')->where('isActive', '=', 1)->withTimestamps();
+        }
         return $this->morphToMany(File::class, 'uploadable')->withTimestamps();
     }
 

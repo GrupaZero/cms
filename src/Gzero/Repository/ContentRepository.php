@@ -40,15 +40,24 @@ class ContentRepository extends BaseRepository {
     protected $events;
 
     /**
+     * File repository
+     *
+     * @var FileRepository
+     */
+    protected $fileRepository;
+
+    /**
      * Content repository constructor
      *
-     * @param Content    $content Content model
-     * @param Dispatcher $events  Events dispatcher
+     * @param Content        $content        Content model
+     * @param Dispatcher     $events         Events dispatcher
+     * @param FileRepository $fileRepository File repository
      */
-    public function __construct(Content $content, Dispatcher $events)
+    public function __construct(Content $content, Dispatcher $events, FileRepository $fileRepository)
     {
-        $this->model  = $content;
-        $this->events = $events;
+        $this->model          = $content;
+        $this->events         = $events;
+        $this->fileRepository = $fileRepository;
     }
 
     /**
@@ -85,6 +94,18 @@ class ContentRepository extends BaseRepository {
     public function getRouteById($id)
     {
         return $this->newORMQuery()->getRelation('route')->getQuery()->find($id);
+    }
+
+    /**
+     * Get content file by id.
+     *
+     * @param int $id Content File id
+     *
+     * @return File
+     */
+    public function getFileById($id)
+    {
+        return $this->newORMQuery()->getRelation('files')->getQuery()->find($id);
     }
 
     /**
@@ -148,6 +169,40 @@ class ContentRepository extends BaseRepository {
             }
         );
         return $this->handlePagination($this->getTranslationsTableName(), $query, $page, $pageSize);
+    }
+
+    /**
+     * Get all files to specific content
+     *
+     * @param Content  $content  Content content
+     * @param array    $criteria Filter criteria
+     * @param array    $orderBy  Array of columns
+     * @param int|null $page     Page number (if null == disabled pagination)
+     * @param int|null $pageSize Limit results
+     *
+     * @throws RepositoryException
+     * @return EloquentCollection
+     */
+    public function getFiles(
+        Content $content,
+        array $criteria = [],
+        array $orderBy = [],
+        $page = 1,
+        $pageSize = self::ITEMS_PER_PAGE
+    ) {
+        $query  = $content->files(false);
+        $parsed = $this->parseArgs($criteria, $orderBy);
+        $this->fileRepository->handleTranslationsJoin($parsed['filter'], $parsed['orderBy'], $query);
+        $this->handleFilterCriteria($this->getFilesTableName(), $query, $parsed['filter']);
+        $this->handleOrderBy(
+            $this->getFilesTableName(),
+            $parsed['orderBy'],
+            $query,
+            function ($query) { // default order by
+                $query->orderBy('Uploadables.weight', 'ASC');
+            }
+        );
+        return $this->handlePagination($this->getFilesTableName(), $query, $page, $pageSize);
     }
 
     /*

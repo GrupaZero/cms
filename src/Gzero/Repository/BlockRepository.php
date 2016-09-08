@@ -2,6 +2,7 @@
 
 use Gzero\Entity\Block;
 use Gzero\Entity\BlockTranslation;
+use Gzero\Entity\File;
 use Gzero\Entity\User;
 use Gzero\Entity\Widget;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
@@ -36,15 +37,24 @@ class BlockRepository extends BaseRepository {
     protected $events;
 
     /**
+     * File repository
+     *
+     * @var FileRepository
+     */
+    protected $fileRepository;
+
+    /**
      * Block repository constructor
      *
      * @param Block      $block  Block model
      * @param Dispatcher $events Events dispatcher
+     * @param FileRepository $fileRepository File repository
      */
-    public function __construct(Block $block, Dispatcher $events)
+    public function __construct(Block $block, Dispatcher $events, FileRepository $fileRepository)
     {
         $this->model  = $block;
         $this->events = $events;
+        $this->fileRepository = $fileRepository;
     }
 
     /**
@@ -273,6 +283,52 @@ class BlockRepository extends BaseRepository {
     public function getBlockTranslationById(Block $block, $id)
     {
         return $block->translations(false)->where('id', '=', $id)->first();
+    }
+
+    /**
+     * Get block file by id.
+     *
+     * @param int $id Content File id
+     *
+     * @return File
+     */
+    public function getFileById($id)
+    {
+        return $this->newORMQuery()->getRelation('files')->getQuery()->find($id);
+    }
+
+    /**
+     * Get all files to specific block
+     *
+     * @param Block    $block    Block block
+     * @param array    $criteria Filter criteria
+     * @param array    $orderBy  Array of columns
+     * @param int|null $page     Page number (if null == disabled pagination)
+     * @param int|null $pageSize Limit results
+     *
+     * @throws RepositoryException
+     * @return EloquentCollection
+     */
+    public function getFiles(
+        Block $block,
+        array $criteria = [],
+        array $orderBy = [],
+        $page = 1,
+        $pageSize = self::ITEMS_PER_PAGE
+    ) {
+        $query  = $block->files(false);
+        $parsed = $this->parseArgs($criteria, $orderBy);
+        $this->fileRepository->handleTranslationsJoin($parsed['filter'], $parsed['orderBy'], $query);
+        $this->handleFilterCriteria($this->getFilesTableName(), $query, $parsed['filter']);
+        $this->handleOrderBy(
+            $this->getFilesTableName(),
+            $parsed['orderBy'],
+            $query,
+            function ($query) { // default order by
+                $query->orderBy('Uploadables.weight', 'ASC');
+            }
+        );
+        return $this->handlePagination($this->getFilesTableName(), $query, $page, $pageSize);
     }
 
     /**
