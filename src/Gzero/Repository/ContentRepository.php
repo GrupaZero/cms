@@ -97,18 +97,6 @@ class ContentRepository extends BaseRepository {
     }
 
     /**
-     * Get content file by id.
-     *
-     * @param int $id Content File id
-     *
-     * @return File
-     */
-    public function getFileById($id)
-    {
-        return $this->newORMQuery()->getRelation('files')->getQuery()->find($id);
-    }
-
-    /**
      * Get content entity by url address
      *
      * @param string $url      Url address
@@ -505,6 +493,19 @@ class ContentRepository extends BaseRepository {
         return $content->translations(false)->where('id', '=', $id)->first();
     }
 
+    /**
+     * Get content file by id.
+     *
+     * @param Content $content Content entity
+     * @param int $id Content File id
+     *
+     * @return File
+     */
+    public function getContentFileById(Content $content, $id)
+    {
+        return $content->files(false)->where('id', '=', $id)->withPivot('weight')->first();
+    }
+
     /*
     |--------------------------------------------------------------------------
     | END TreeRepository
@@ -673,11 +674,11 @@ class ContentRepository extends BaseRepository {
             }
         );
 
-        return $this->getById($content->id);
+        return $this->getContentFileById($content, $content->fileId);
     }
 
     /**
-     * Adds files for specified content entity
+     * Attaches selected files to specified content entity in database
      *
      * @param Content $content  Content entity
      * @param array   $filesIds files id's to attach
@@ -697,13 +698,13 @@ class ContentRepository extends BaseRepository {
         $content = $this->newQuery()->transaction(
             function () use ($content, $filesIds) {
                 $this->events->fire('content.files.adding', [$content, $filesIds]);
-                $content->files()->attach($filesIds);
+                $content->files()->sync($filesIds, false);
                 $this->events->fire('content.files.added', [$content, $filesIds]);
                 return $content;
             }
         );
 
-        return $this->getById($content->id);
+        return $this->getFiles($content);
     }
 
     /**
@@ -732,6 +733,35 @@ class ContentRepository extends BaseRepository {
             }
         );
         return $content;
+    }
+
+    /**
+     * Updates file of specified content entity
+     *
+     * @param Content $content    Content entity
+     * @param integer $fileId     file id to update
+     * @param array   $attributes files attributes to update
+     *
+     * @return File
+     * @throws RepositoryValidationException
+     */
+    public function updateFile(Content $content, $fileId, Array $attributes)
+    {
+        if (!$fileId) {
+            throw new RepositoryValidationException('You must provide the file in order to update it');
+        }
+
+        // New content query
+        $file = $this->newQuery()->transaction(
+            function () use ($content, $fileId, $attributes) {
+                $this->events->fire('content.files.updating', [$content, $fileId, $attributes]);
+                $content->files()->updateExistingPivot($fileId, $attributes);
+                $this->events->fire('content.files.updated', [$content, $fileId, $attributes]);
+                return $this->getContentFileById($content, $fileId);
+            }
+        );
+
+        return $file;
     }
 
     /**
@@ -806,7 +836,7 @@ class ContentRepository extends BaseRepository {
     }
 
     /**
-     * Removes files for specified content entity
+     * Detaches selected files from specified content entity in database
      *
      * @param Content $content  Content entity
      * @param array   $filesIds files id's to detach
@@ -838,7 +868,7 @@ class ContentRepository extends BaseRepository {
                 return $content;
             }
         );
-        return $this->getById($content->id);
+        return $this->getFiles($content);
     }
 
     /**

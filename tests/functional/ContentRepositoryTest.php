@@ -1625,8 +1625,8 @@ class ContentRepositoryTest extends \EloquentTestCase {
         );
 
         // Assign files
-        $content = $this->repository->addRelatedFile($content, $file->id);
-        $relatedFile   = $this->repository->getFileById($content->fileId);
+        $this->repository->addRelatedFile($content, $file->id);
+        $relatedFile = $this->repository->getContentFileById($content, $content->fileId);
 
         $this->assertNotEmpty($relatedFile);
         $this->assertEquals($content->fileId, $file->id);
@@ -1644,7 +1644,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
     /**
      * @test
      */
-    public function can_add_related_file()
+    public function can_add_content_related_file()
     {
         // Create new content with first translation
         $content = $this->repository->create(
@@ -1676,8 +1676,8 @@ class ContentRepositoryTest extends \EloquentTestCase {
         );
 
         // Assign files
-        $content = $this->repository->addRelatedFile($content, $file->id);
-        $files   = $content->files()->get();
+        $this->repository->addRelatedFile($content, $file->id);
+        $files = $content->files()->get();
 
         $this->assertNotEmpty($files);
         $this->assertEquals($content->fileId, $file->id);
@@ -1695,7 +1695,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
     /**
      * @test
      */
-    public function can_add_files()
+    public function can_add_content_files()
     {
         $fileIds = [];
 
@@ -1757,7 +1757,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
     /**
      * @test
      */
-    public function can_sort_files_list()
+    public function can_sort_content_files_list()
     {
         $fileIds = [];
 
@@ -1814,7 +1814,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
     /**
      * @test
      */
-    public function can_filter_files_list()
+    public function can_filter_content_files_list()
     {
 
         // Create new content with first translation
@@ -1860,6 +1860,69 @@ class ContentRepositoryTest extends \EloquentTestCase {
     /**
      * @test
      * @expectedException \Gzero\Repository\RepositoryValidationException
+     * @expectedExceptionMessage You must provide the file in order to update it
+     */
+    public function it_checks_for_empty_file_id_to_update()
+    {
+        // Create new content with first translation
+        $content = $this->repository->create(
+            [
+                'type'         => 'content',
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'Example title',
+                ]
+            ]
+        );
+
+        $this->repository->updateFile($content, null, []);
+    }
+
+    /**
+     * @test
+     */
+    public function can_update_content_file()
+    {
+        // Create new content with first translation
+        $content = $this->repository->create(
+            [
+                'type'         => 'content',
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'Example title',
+                ]
+            ]
+        );
+
+        // Create files
+        $uploadedFile = $this->getExampleImage();
+        $author       = User::find(1);
+        $file = $this->fileRepository->create(
+            [
+                'type'         => 'image',
+                'isActive'     => true,
+                'info'         => ['key' => 'value'],
+                'translations' => [
+                    'langCode'    => 'en',
+                    'title'       => 'Example file title',
+                    'description' => 'Example file description'
+                ]
+            ],
+            $uploadedFile,
+            $author
+        );
+
+        $this->repository->addFiles($content, [$file->id]);
+        $this->repository->updateFile($content, $file->id, ['weight' => 2]);
+        $files = $this->repository->getFiles($content, [], []);
+
+        $this->assertNotEmpty($files);
+        $this->assertEquals(2, $files[0]->pivot->weight);
+    }
+
+    /**
+     * @test
+     * @expectedException \Gzero\Repository\RepositoryValidationException
      * @expectedExceptionMessage You must provide the files in order to remove them from the content
      */
     public function it_checks_for_empty_array_of_files_to_remove()
@@ -1881,7 +1944,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
     /**
      * @test
      */
-    public function can_remove_files()
+    public function can_remove_content_files()
     {
         $fileIds = [];
 
@@ -1928,7 +1991,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
     /**
      * @test
      */
-    public function can_remove_related_file_when_removing_files()
+    public function can_remove_content_related_file_when_removing_files()
     {
 
         // Create new content with first translation
@@ -1984,7 +2047,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
         $this->repository->addFiles($content, $fileIds);
 
         $this->repository->addRelatedFile($content, $relatedFile->id);
-        $content = $this->repository->removeFiles($content, $fileIds);
+        $this->repository->removeFiles($content, $fileIds);
         $files   = $content->files()->get();
 
         $this->assertEmpty($files);

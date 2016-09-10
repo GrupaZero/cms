@@ -842,7 +842,7 @@ class BlockRepositoryTest extends \EloquentTestCase {
     /**
      * @test
      */
-    public function can_get_single_file()
+    public function can_get_single_block_file()
     {
         // Create new block with first translation
         $block = $this->repository->create(
@@ -879,7 +879,7 @@ class BlockRepositoryTest extends \EloquentTestCase {
 
         // Assign files
         $this->repository->addFiles($block, [$file->id]);
-        $relatedFile   = $this->repository->getFileById($file->id);
+        $relatedFile   = $this->repository->getBlockFileById($block, $file->id);
 
         $this->assertNotEmpty($relatedFile);
         $this->assertEquals($file->id, $relatedFile->id);
@@ -897,7 +897,7 @@ class BlockRepositoryTest extends \EloquentTestCase {
     /**
      * @test
      */
-    public function can_add_files()
+    public function can_add_block_files()
     {
         $fileIds = [];
 
@@ -964,7 +964,7 @@ class BlockRepositoryTest extends \EloquentTestCase {
     /**
      * @test
      */
-    public function can_sort_files_list()
+    public function can_sort_block_files_list()
     {
         $fileIds = [];
 
@@ -1025,7 +1025,7 @@ class BlockRepositoryTest extends \EloquentTestCase {
     /**
      * @test
      */
-    public function can_filter_files_list()
+    public function can_filter_block_files_list()
     {
 
         // Create new block with first translation
@@ -1072,6 +1072,77 @@ class BlockRepositoryTest extends \EloquentTestCase {
         $this->assertEmpty($files);
     }
 
+    /**
+     * @test
+     * @expectedException \Gzero\Repository\RepositoryValidationException
+     * @expectedExceptionMessage You must provide the file in order to update it
+     */
+    public function it_checks_for_empty_file_id_to_update()
+    {
+        // Create new block with first translation
+        $block = $this->repository->create(
+            [
+                'type'         => 'basic',
+                'weight'       => 0,
+                'isActive'     => 1,
+                'region'       => 'header',
+                'filter'       => ['+' => ['1/*']],
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'First block title'
+                ]
+            ]
+        );
+
+        $this->repository->updateFile($block, null, []);
+    }
+
+    /**
+     * @test
+     */
+    public function can_update_block_file()
+    {
+        // Create new block with first translation
+        $block = $this->repository->create(
+            [
+                'type'         => 'basic',
+                'weight'       => 0,
+                'isActive'     => 1,
+                'region'       => 'header',
+                'filter'       => ['+' => ['1/*']],
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'First block title'
+                ]
+            ]
+        );
+
+        // Create files
+        $uploadedFile = $this->getExampleImage();
+        $author       = User::find(1);
+        $file = $this->fileRepository->create(
+            [
+                'type'         => 'image',
+                'isActive'     => true,
+                'info'         => ['key' => 'value'],
+                'translations' => [
+                    'langCode'    => 'en',
+                    'title'       => 'Example file title',
+                    'description' => 'Example file description'
+                ]
+            ],
+            $uploadedFile,
+            $author
+        );
+
+        $this->repository->addFiles($block, [$file->id]);
+        $this->repository->updateFile($block, $file->id, ['weight' => 2]);
+        $files = $this->repository->getFiles($block, [], []);
+
+        $this->assertNotEmpty($files);
+        $this->assertEquals(2, $files[0]->pivot->weight);
+    }
+
 
     /**
      * @test
@@ -1101,7 +1172,7 @@ class BlockRepositoryTest extends \EloquentTestCase {
     /**
      * @test
      */
-    public function can_remove_files()
+    public function can_remove_block_files()
     {
         $fileIds = [];
 

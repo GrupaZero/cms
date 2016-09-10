@@ -80,9 +80,9 @@ class Block extends Base {
     public function files($active = true)
     {
         if ($active) {
-            return $this->morphToMany(File::class, 'uploadable')->where('isActive', '=', 1)->withTimestamps();
+            return $this->morphToMany(File::class, 'uploadable')->where('isActive', '=', 1)->withPivot('weight')->withTimestamps();
         }
-        return $this->morphToMany(File::class, 'uploadable')->withTimestamps();
+        return $this->morphToMany(File::class, 'uploadable')->withPivot('weight')->withTimestamps();
     }
 
     /**

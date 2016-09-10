@@ -128,7 +128,7 @@ class BlockRepository extends BaseRepository {
     }
 
     /**
-     * Adds files for specified block entity
+     * Attaches selected files to specified block entity in database
      *
      * @param Block $block    Block entity
      * @param array $filesIds files id's to attach
@@ -148,13 +148,13 @@ class BlockRepository extends BaseRepository {
         $block = $this->newQuery()->transaction(
             function () use ($block, $filesIds) {
                 $this->events->fire('block.files.adding', [$block, $filesIds]);
-                $block->files()->attach($filesIds);
+                $block->files()->sync($filesIds, false);
                 $this->events->fire('block.files.added', [$block, $filesIds]);
                 return $block;
             }
         );
 
-        return $this->getById($block->id);
+        return $this->getFiles($block);
     }
 
     /**
@@ -179,6 +179,35 @@ class BlockRepository extends BaseRepository {
                 return $this->getById($block->id);
             }
         );
+        return $block;
+    }
+
+    /**
+     * Updates file of specified block entity
+     *
+     * @param Block   $block      Block entity
+     * @param integer $fileId     file id to update
+     * @param array   $attributes files attributes to update
+     *
+     * @return Block
+     * @throws RepositoryValidationException
+     */
+    public function updateFile(Block $block, $fileId, Array $attributes)
+    {
+        if (!$fileId) {
+            throw new RepositoryValidationException('You must provide the file in order to update it');
+        }
+
+        // New block query
+        $block = $this->newQuery()->transaction(
+            function () use ($block, $fileId, $attributes) {
+                $this->events->fire('block.files.updating', [$block, $fileId, $attributes]);
+                $block->files()->updateExistingPivot($fileId, $attributes);
+                $this->events->fire('block.files.updated', [$block, $fileId, $attributes]);
+                return $this->getBlockFileById($block, $fileId);
+            }
+        );
+
         return $block;
     }
 
@@ -246,7 +275,7 @@ class BlockRepository extends BaseRepository {
     }
 
     /**
-     * Removes files for specified block entity
+     * Detaches selected files from specified block entity in database
      *
      * @param Block $block    Block entity
      * @param array $filesIds files id's to detach
@@ -269,7 +298,7 @@ class BlockRepository extends BaseRepository {
                 return $block;
             }
         );
-        return $this->getById($block->id);
+        return $this->getFiles($block);
     }
 
     /**
@@ -288,13 +317,14 @@ class BlockRepository extends BaseRepository {
     /**
      * Get block file by id.
      *
-     * @param int $id Content File id
+     * @param Block $block Block entity
+     * @param int   $id    Block File id
      *
      * @return File
      */
-    public function getFileById($id)
+    public function getBlockFileById(Block $block, $id)
     {
-        return $this->newORMQuery()->getRelation('files')->getQuery()->find($id);
+        return $block->files(false)->where('id', '=', $id)->withPivot('weight')->first();
     }
 
     /**
@@ -436,7 +466,7 @@ class BlockRepository extends BaseRepository {
     }
 
     /**
-     * Handle joining content translations table based on provided criteria
+     * Handle joining block translations table based on provided criteria
      *
      * @param array $parsedCriteria Array with filter criteria
      * @param array $parsedOrderBy  Array with orderBy
