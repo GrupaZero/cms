@@ -28,6 +28,7 @@ class Content extends BaseTree implements PresentableInterface {
     protected $fillable = [
         'type',
         'theme',
+        'fileId',
         'authorId',
         'path',
         'weight',

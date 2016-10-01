@@ -519,8 +519,8 @@ class ContentRepositoryTest extends \EloquentTestCase {
      */
     public function it_should_force_delete_one_content()
     {
-        $author  = User::find(1);
-        $content = $this->repository->create(
+        $author   = User::find(1);
+        $content  = $this->repository->create(
             [
                 'type'             => 'content',
                 'isOnHome'         => true,
@@ -569,8 +569,9 @@ class ContentRepositoryTest extends \EloquentTestCase {
     /**
      * @test
      */
-    public function it_should_retrive_non_trashed_content() {
-        $content = $this->repository->create(
+    public function it_should_retrive_non_trashed_content()
+    {
+        $content    = $this->repository->create(
             [
                 'type'         => 'content',
                 'isActive'     => 1,
@@ -592,7 +593,8 @@ class ContentRepositoryTest extends \EloquentTestCase {
     /**
      * @test
      */
-    public function it_should_retrive_trashed_content() {
+    public function it_should_retrive_trashed_content()
+    {
         $content = $this->repository->create(
             [
                 'type'         => 'content',
@@ -616,7 +618,8 @@ class ContentRepositoryTest extends \EloquentTestCase {
     /**
      * @test
      */
-    public function it_should_not_retrive_force_deleted_content() {
+    public function it_should_not_retrive_force_deleted_content()
+    {
         $content = $this->repository->create(
             [
                 'type'         => 'content',
@@ -1530,9 +1533,9 @@ class ContentRepositoryTest extends \EloquentTestCase {
     /**
      * @test
      * @expectedException \Gzero\Repository\RepositoryValidationException
-     * @expectedExceptionMessage File does not exist
+     * @expectedExceptionMessage Please provide content related file id
      */
-    public function it_checks_existence_of_related_file()
+    public function it_checks_relation_of_related_file()
     {
         // Create new content with first translation
         $content = $this->repository->create(
@@ -1545,7 +1548,25 @@ class ContentRepositoryTest extends \EloquentTestCase {
             ]
         );
 
-        $this->repository->addRelatedFile($content, 1);
+        // Create files
+        $uploadedFile = $this->getExampleImage();
+        $author       = User::find(1);
+        $file         = $this->fileRepository->create(
+            [
+                'type'         => 'image',
+                'isActive'     => true,
+                'info'         => ['key' => 'value'],
+                'translations' => [
+                    'langCode'    => 'en',
+                    'title'       => 'Example file title',
+                    'description' => 'Example file description'
+                ]
+            ],
+            $uploadedFile,
+            $author
+        );
+
+        $this->repository->update($content, ['fileId' => $file->id]);
     }
 
     /**
@@ -1625,7 +1646,8 @@ class ContentRepositoryTest extends \EloquentTestCase {
         );
 
         // Assign files
-        $this->repository->addRelatedFile($content, $file->id);
+        $this->repository->addFiles($content, [$file->id]);
+        $this->repository->update($content, ['fileId' => $file->id]);
         $relatedFile = $this->repository->getContentFileById($content, $content->fileId);
 
         $this->assertNotEmpty($relatedFile);
@@ -1676,7 +1698,8 @@ class ContentRepositoryTest extends \EloquentTestCase {
         );
 
         // Assign files
-        $this->repository->addRelatedFile($content, $file->id);
+        $this->repository->addFiles($content, [$file->id]);
+        $this->repository->update($content, ['fileId' => $file->id]);
         $files = $content->files()->get();
 
         $this->assertNotEmpty($files);
@@ -1740,6 +1763,73 @@ class ContentRepositoryTest extends \EloquentTestCase {
         $this->assertEquals('example', $files[0]->name);
         $this->assertEquals('example-1', $files[1]->name);
         $this->assertEquals('example-2', $files[2]->name);
+
+        foreach ($files as $index => $file) {
+            $this->assertEquals($fileIds[$index], $file->id);
+            $this->assertEquals('image', $file->type);
+            $this->assertEquals(true, $file->isActive);
+            $this->assertEquals('png', $file->extension);
+            $this->assertEquals('image/png', $file->mimeType);
+            $this->assertEquals(['key' => 'value'], $file->info);
+            $this->assertEquals('en', $file->translations[0]->langCode);
+            $this->assertEquals('Example file title', $file->translations[0]->title);
+            $this->assertEquals('Example file description', $file->translations[0]->description);
+        }
+    }
+
+    /**
+     * @test
+     */
+    public function can_add_content_files_without_removing_already_added()
+    {
+        $fileIds = [];
+
+        // Create new content with first translation
+        $content = $this->repository->create(
+            [
+                'type'         => 'content',
+                'translations' => [
+                    'langCode' => 'en',
+                    'title'    => 'Example title',
+                ]
+            ]
+        );
+
+        // Create files
+        $uploadedFile = $this->getExampleImage();
+        $author       = User::find(1);
+        for ($i = 0; $i < 6; $i++) {
+            $file = $this->fileRepository->create(
+                [
+                    'type'         => 'image',
+                    'isActive'     => true,
+                    'info'         => ['key' => 'value'],
+                    'translations' => [
+                        'langCode'    => 'en',
+                        'title'       => 'Example file title',
+                        'description' => 'Example file description'
+                    ]
+                ],
+                $uploadedFile,
+                $author
+            );
+
+            $fileIds[] = $file->id;
+        }
+
+        // Assign first 3 files
+        $this->repository->addFiles($content, [$fileIds[0], $fileIds[1], $fileIds[2]]);
+        // Assign next 3 files
+        $this->repository->addFiles($content, [$fileIds[3], $fileIds[4], $fileIds[5]]);
+        $files = $content->files()->get();
+
+        $this->assertNotEmpty($files);
+        $this->assertEquals('example', $files[0]->name);
+        $this->assertEquals('example-1', $files[1]->name);
+        $this->assertEquals('example-2', $files[2]->name);
+        $this->assertEquals('example-3', $files[3]->name);
+        $this->assertEquals('example-4', $files[4]->name);
+        $this->assertEquals('example-5', $files[5]->name);
 
         foreach ($files as $index => $file) {
             $this->assertEquals($fileIds[$index], $file->id);
@@ -1831,7 +1921,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
         // Create files
         $uploadedFile = $this->getExampleImage();
         $author       = User::find(1);
-        $file = $this->fileRepository->create(
+        $file         = $this->fileRepository->create(
             [
                 'type'         => 'image',
                 'isActive'     => false,
@@ -1897,7 +1987,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
         // Create files
         $uploadedFile = $this->getExampleImage();
         $author       = User::find(1);
-        $file = $this->fileRepository->create(
+        $file         = $this->fileRepository->create(
             [
                 'type'         => 'image',
                 'isActive'     => true,
@@ -2046,9 +2136,9 @@ class ContentRepositoryTest extends \EloquentTestCase {
 
         $this->repository->addFiles($content, $fileIds);
 
-        $this->repository->addRelatedFile($content, $relatedFile->id);
+        $this->repository->update($content, ['fileId' => $relatedFile->id]);
         $this->repository->removeFiles($content, $fileIds);
-        $files   = $content->files()->get();
+        $files = $content->files()->get();
 
         $this->assertEmpty($files);
         $this->assertNull($content->fileId);
