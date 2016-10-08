@@ -213,6 +213,11 @@ abstract class BaseRepository {
             if (!empty($relationString)) {
                 $lastRelation = $query;
                 foreach (explode('.', $relationString) as $relationName) {
+                    // handle pivot table columns
+                    if($relationName === 'pivot'){
+                        return $lastRelation->getTable() . '.';
+                    }
+
                     $lastRelation = $lastRelation->getRelation($relationName);
                 }
                 return $lastRelation->getModel()->getTable() . '.';

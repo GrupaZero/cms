@@ -1889,7 +1889,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
         $files = $this->repository->getFiles(
             $content,
             [['translations.lang', '=', 'en']],
-            [['translations.title', 'ASC']]
+            [['translations.title', 'ASC'], ['pivot.weight', 'DESC']]
         );
 
         $this->assertNotEmpty($files);
