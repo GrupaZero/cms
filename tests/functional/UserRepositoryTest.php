@@ -1,9 +1,9 @@
-<?php
+<?php namespace functional;
 
-//require_once "/home/mateusz/Projekty/gzero/platform/app/models/User.php";
 use Gzero\Entity\User;
 use Gzero\Repository\UserRepository;
 use Illuminate\Events\Dispatcher;
+use Illuminate\Support\Facades\Hash;
 
 require_once(__DIR__ . '/../stub/TestSeeder.php');
 require_once(__DIR__ . '/../stub/TestTreeSeeder.php');

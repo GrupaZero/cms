@@ -267,34 +267,8 @@ class FileRepository extends BaseRepository {
         return $this->handlePagination($this->getTableName(), $query, $page, $pageSize);
     }
 
-
     /**
-     * Eager load relations for eloquent collection.
-     * We use this function in handlePagination method!
-     *
-     * @param EloquentCollection $results Eloquent collection
-     *
-     * @return void
-     */
-    protected function listEagerLoad($results)
-    {
-        $results->load('translations', 'author', 'contents', 'blocks');
-    }
-
-    /**
-     * Default order for user query
-     *
-     * @return callable
-     */
-    protected function fileDefaultOrderBy()
-    {
-        return function ($query) {
-            $query->orderBy('Files.createdAt', 'DESC');
-        };
-    }
-
-    /**
-     * Handle joining content translations table based on provided criteria
+     * Handle joining file translations table based on provided criteria
      *
      * @param array $parsedCriteria Array with filter criteria
      * @param array $parsedOrderBy  Array with orderBy
@@ -303,7 +277,7 @@ class FileRepository extends BaseRepository {
      * @throws RepositoryException
      * @return array
      */
-    private function handleTranslationsJoin(array &$parsedCriteria, array $parsedOrderBy, $query)
+    public function handleTranslationsJoin(array &$parsedCriteria, array $parsedOrderBy, $query)
     {
         if (!empty($parsedCriteria['lang'])) {
             $query->leftJoin(
@@ -319,6 +293,31 @@ class FileRepository extends BaseRepository {
                 throw new RepositoryValidationException('Error: \'lang\' criteria is required');
             }
         }
+    }
+
+    /**
+     * Eager load relations for eloquent collection.
+     * We use this function in handlePagination method!
+     *
+     * @param EloquentCollection $results Eloquent collection
+     *
+     * @return void
+     */
+    protected function listEagerLoad($results)
+    {
+        $results->load('translations', 'author', 'contents', 'blocks');
+    }
+
+    /**
+     * Default order for files query
+     *
+     * @return callable
+     */
+    protected function fileDefaultOrderBy()
+    {
+        return function ($query) {
+            $query->orderBy('Files.createdAt', 'DESC');
+        };
     }
 
 

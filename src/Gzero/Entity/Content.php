@@ -28,6 +28,7 @@ class Content extends BaseTree implements PresentableInterface {
     protected $fillable = [
         'type',
         'theme',
+        'fileId',
         'authorId',
         'path',
         'weight',
@@ -101,11 +102,17 @@ class Content extends BaseTree implements PresentableInterface {
     /**
      * Get all of the files for the content.
      *
+     * @param bool $active Only active file
+     *
      * @return \Illuminate\Database\Eloquent\Relations\morphToMany
      */
-    public function files()
+    public function files($active = true)
     {
-        return $this->morphToMany(File::class, 'uploadable')->withTimestamps();
+        if ($active) {
+            return $this->morphToMany(File::class, 'uploadable')->where('isActive', '=', 1)->withPivot('weight')
+                ->withTimestamps();
+        }
+        return $this->morphToMany(File::class, 'uploadable')->withPivot('weight')->withTimestamps();
     }
 
     /**

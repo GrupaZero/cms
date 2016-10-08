@@ -5,6 +5,7 @@ use Gzero\EloquentTree\Model\Tree;
 use Gzero\Entity\ContentTranslation;
 use Gzero\Entity\ContentType;
 use Gzero\Entity\Content;
+use Gzero\Entity\File;
 use Gzero\Entity\Route;
 use Gzero\Entity\RouteTranslation;
 use Gzero\Entity\User;
@@ -39,15 +40,24 @@ class ContentRepository extends BaseRepository {
     protected $events;
 
     /**
+     * File repository
+     *
+     * @var FileRepository
+     */
+    protected $fileRepository;
+
+    /**
      * Content repository constructor
      *
-     * @param Content    $content Content model
-     * @param Dispatcher $events  Events dispatcher
+     * @param Content        $content        Content model
+     * @param Dispatcher     $events         Events dispatcher
+     * @param FileRepository $fileRepository File repository
      */
-    public function __construct(Content $content, Dispatcher $events)
+    public function __construct(Content $content, Dispatcher $events, FileRepository $fileRepository)
     {
-        $this->model  = $content;
-        $this->events = $events;
+        $this->model          = $content;
+        $this->events         = $events;
+        $this->fileRepository = $fileRepository;
     }
 
     /**
@@ -147,6 +157,40 @@ class ContentRepository extends BaseRepository {
             }
         );
         return $this->handlePagination($this->getTranslationsTableName(), $query, $page, $pageSize);
+    }
+
+    /**
+     * Get all files to specific content
+     *
+     * @param Content  $content  Content content
+     * @param array    $criteria Filter criteria
+     * @param array    $orderBy  Array of columns
+     * @param int|null $page     Page number (if null == disabled pagination)
+     * @param int|null $pageSize Limit results
+     *
+     * @throws RepositoryException
+     * @return EloquentCollection
+     */
+    public function getFiles(
+        Content $content,
+        array $criteria = [],
+        array $orderBy = [],
+        $page = 1,
+        $pageSize = self::ITEMS_PER_PAGE
+    ) {
+        $query  = $content->files(false);
+        $parsed = $this->parseArgs($criteria, $orderBy);
+        $this->fileRepository->handleTranslationsJoin($parsed['filter'], $parsed['orderBy'], $query);
+        $this->handleFilterCriteria($this->getFilesTableName(), $query, $parsed['filter']);
+        $this->handleOrderBy(
+            $this->getFilesTableName(),
+            $parsed['orderBy'],
+            $query,
+            function ($query) { // default order by
+                $query->orderBy('Uploadables.weight', 'ASC');
+            }
+        );
+        return $this->handlePagination($this->getFilesTableName(), $query, $page, $pageSize);
     }
 
     /*
@@ -288,8 +332,12 @@ class ContentRepository extends BaseRepository {
      * @throws RepositoryException
      * @return EloquentCollection
      */
-    public function getContentsByLevel(array $criteria = [], array $orderBy = [], $page = 1, $pageSize = self::ITEMS_PER_PAGE)
-    {
+    public function getContentsByLevel(
+        array $criteria = [],
+        array $orderBy = [],
+        $page = 1,
+        $pageSize = self::ITEMS_PER_PAGE
+    ) {
         $query  = $this->newORMTreeQuery();
         $parsed = $this->parseArgs($criteria, $orderBy);
         $this->handleTranslationsJoin($parsed['filter'], $parsed['orderBy'], $query);
@@ -324,8 +372,12 @@ class ContentRepository extends BaseRepository {
      * @throws RepositoryException
      * @return EloquentCollection
      */
-    public function getDeletedContents(array $criteria = [], array $orderBy = [], $page = 1, $pageSize = self::ITEMS_PER_PAGE)
-    {
+    public function getDeletedContents(
+        array $criteria = [],
+        array $orderBy = [],
+        $page = 1,
+        $pageSize = self::ITEMS_PER_PAGE
+    ) {
         $query  = $this->newORMQuery()->onlyTrashed();
         $parsed = $this->parseArgs($criteria, $orderBy);
         $this->handleTranslationsJoin($parsed['filter'], $parsed['orderBy'], $query);
@@ -449,6 +501,32 @@ class ContentRepository extends BaseRepository {
         return $content->translations(false)->where('id', '=', $id)->first();
     }
 
+    /**
+     * Get content file by id.
+     *
+     * @param Content $content Content entity
+     * @param int     $id      Content File id
+     *
+     * @return File
+     */
+    public function getContentFileById(Content $content, $id)
+    {
+        return $content->files(false)->where('id', '=', $id)->withPivot('weight')->first();
+    }
+
+    /**
+     * Checks if content file exists.
+     *
+     * @param Content $content Content entity
+     * @param int     $id      Content File id
+     *
+     * @return boolean
+     */
+    public function checkIfContentFileExists(Content $content, $id)
+    {
+        return $content->files(false)->where('id', '=', $id)->exists();
+    }
+
     /*
     |--------------------------------------------------------------------------
     | END TreeRepository
@@ -483,7 +561,9 @@ class ContentRepository extends BaseRepository {
                 if (!empty($data['parentId'])) {
                     $parent = $this->getById($data['parentId']);
                     if (empty($parent)) {
-                        throw new RepositoryValidationException('Parent node id: ' . $data['parentId'] . ' doesn\'t exist');
+                        throw new RepositoryValidationException(
+                            'Parent node id: ' . $data['parentId'] . ' doesn\'t exist'
+                        );
                     }
                     // Check if parent is one of allowed type
                     /** @TODO get registered types */
@@ -565,7 +645,7 @@ class ContentRepository extends BaseRepository {
                             $url = $parent->getUrl($langCode) . '/';
                         } catch (Exception $e) {
                             throw new RepositoryValidationException(
-                                "Parent has not been translated in this language, translate it first!"
+                                'Parent has not been translated in this language, translate it first!'
                             );
                         }
                     }
@@ -591,6 +671,36 @@ class ContentRepository extends BaseRepository {
     }
 
     /**
+     * Attaches selected files to specified content entity in database
+     *
+     * @param Content $content  Content entity
+     * @param array   $filesIds files id's to attach
+     *
+     * @return Content
+     * @throws RepositoryValidationException
+     */
+    public function addFiles(Content $content, Array $filesIds)
+    {
+        if (empty($filesIds)) {
+            throw new RepositoryValidationException('You must provide the files in order to add them to the content');
+        }
+
+        $this->checkIfFilesExists($filesIds);
+
+        // New content query
+        $content = $this->newQuery()->transaction(
+            function () use ($content, $filesIds) {
+                $this->events->fire('content.files.adding', [$content, $filesIds]);
+                $content->files()->sync($filesIds, false);
+                $this->events->fire('content.files.added', [$content, $filesIds]);
+                return $content;
+            }
+        );
+
+        return $this->getFiles($content);
+    }
+
+    /**
      * Update specific content entity
      *
      * @param Content   $content  Content entity
@@ -604,6 +714,9 @@ class ContentRepository extends BaseRepository {
     {
         $content = $this->newQuery()->transaction(
             function () use ($content, $data, $modifier) {
+                if (!empty($data['fileId']) && !$this->checkIfContentFileExists($content, $data['fileId'])) {
+                    throw new RepositoryValidationException('Please provide content related file id');
+                }
                 $content->fill($data);
                 $this->events->fire('content.updating', [$content]);
                 if (!empty($data['parentId'])) {
@@ -616,6 +729,35 @@ class ContentRepository extends BaseRepository {
             }
         );
         return $content;
+    }
+
+    /**
+     * Updates file of specified content entity
+     *
+     * @param Content $content    Content entity
+     * @param integer $fileId     file id to update
+     * @param array   $attributes files attributes to update
+     *
+     * @return File
+     * @throws RepositoryValidationException
+     */
+    public function updateFile(Content $content, $fileId, Array $attributes)
+    {
+        if (!$fileId) {
+            throw new RepositoryValidationException('You must provide the file in order to update it');
+        }
+
+        // New content query
+        $file = $this->newQuery()->transaction(
+            function () use ($content, $fileId, $attributes) {
+                $this->events->fire('content.files.updating', [$content, $fileId, $attributes]);
+                $content->files()->updateExistingPivot($fileId, $attributes);
+                $this->events->fire('content.files.updated', [$content, $fileId, $attributes]);
+                return $this->getContentFileById($content, $fileId);
+            }
+        );
+
+        return $file;
     }
 
     /**
@@ -687,6 +829,44 @@ class ContentRepository extends BaseRepository {
                 return $translation->delete();
             }
         );
+    }
+
+    /**
+     * Detaches selected files from specified content entity in database
+     *
+     * @param Content $content  Content entity
+     * @param array   $filesIds files id's to detach
+     *
+     * @return Content
+     * @throws RepositoryValidationException
+     */
+    public function removeFiles(Content $content, Array $filesIds)
+    {
+        if (empty($filesIds)) {
+            throw new RepositoryValidationException(
+                'You must provide the files in order to remove them from the content'
+            );
+        }
+
+        // New content query
+        $content = $this->newQuery()->transaction(
+            function () use ($content, $filesIds) {
+                $this->events->fire('content.files.removing', [$content, $filesIds]);
+                $content->files()->detach($filesIds);
+                $this->events->fire('content.files.removed', [$content, $filesIds]);
+
+                // Remove related file
+                if (!empty($content->fileId) && in_array($content->fileId, $filesIds)) {
+                    $this->events->fire('content.related.file.removing', [$content]);
+                    $content->fileId = null;
+                    $content->save();
+                    $this->events->fire('content.related.file.removed', [$content]);
+                }
+
+                return $content;
+            }
+        );
+        return $this->getFiles($content);
     }
 
     /**

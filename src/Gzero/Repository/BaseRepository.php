@@ -2,6 +2,7 @@
 
 use BadMethodCallException;
 use Gzero\Entity\Base;
+use Gzero\Entity\File;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Connection;
 use Illuminate\Database\Eloquent\Builder;
@@ -180,14 +181,20 @@ abstract class BaseRepository {
     protected function handlePagination($defaultTable, $query, $page, $pageSize)
     {
         if (!empty($page)) { // If we want to paginate result
-            $count   = clone $query->getQuery(); // clone the underlying query builder instance, needed for objects with relations
+            // clone the underlying query builder instance, needed for objects with relations
+            $count   = clone $query->getQuery();
             $results = $query
                 ->offset($pageSize * ($page - 1))
                 ->limit($pageSize)
                 ->get([$defaultTable . '.*']);
             // We only eager load for entry entity
             ($defaultTable === $this->getTableName()) ? $this->listEagerLoad($results) : null;
-            return new LengthAwarePaginator($results->all(), $count->select($defaultTable . '.id')->count(), $pageSize, $page);
+            return new LengthAwarePaginator(
+                $results->all(),
+                $count->select($defaultTable . '.id')->count(),
+                $pageSize,
+                $page
+            );
         } else {
             $results = $query->get([$defaultTable . '.*']);
             // We only eager load for entry entity
@@ -212,6 +219,11 @@ abstract class BaseRepository {
             if (!empty($relationString)) {
                 $lastRelation = $query;
                 foreach (explode('.', $relationString) as $relationName) {
+                    // handle pivot table columns
+                    if ($relationName === 'pivot') {
+                        return $lastRelation->getTable() . '.';
+                    }
+
                     $lastRelation = $lastRelation->getRelation($relationName);
                 }
                 return $lastRelation->getModel()->getTable() . '.';
@@ -246,6 +258,20 @@ abstract class BaseRepository {
             return $this->model->translations()->getModel()->getTable();
         }
         throw new RepositoryException("Entity '" . get_class($this->model) . "' doesn't have translations relation");
+    }
+
+    /**
+     * Returns files model table name
+     *
+     * @throws RepositoryException
+     * @return string
+     */
+    protected function getFilesTableName()
+    {
+        if (method_exists($this->model, 'files')) {
+            return $this->model->files()->getModel()->getTable();
+        }
+        throw new RepositoryException("Entity '" . get_class($this->model) . "' doesn't have files relation");
     }
 
     /**
@@ -308,6 +334,25 @@ abstract class BaseRepository {
             'filter'  => $this->parseCriteria($criteria),
             'orderBy' => $this->parseOrderBy($orderBy)
         ];
+    }
+
+    /**
+     * This functions checks if files exists in database
+     *
+     * @param array $filesIds array of file id's to check for
+     *
+     * @return array $filesIds array of file id's
+     * @throws RepositoryValidationException
+     */
+    protected function checkIfFilesExists(Array $filesIds)
+    {
+        foreach ($filesIds as $fileId) {
+            if (!File::checkIfExists($fileId)) {
+                throw new RepositoryValidationException("File (id: $fileId) does not exist");
+            }
+        }
+
+        return $filesIds;
     }
 
     /**

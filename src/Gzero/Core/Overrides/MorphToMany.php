@@ -4,6 +4,7 @@ namespace Gzero\Core\Overrides;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class MorphToMany extends \Illuminate\Database\Eloquent\Relations\MorphToMany {
 
@@ -31,16 +32,10 @@ class MorphToMany extends \Illuminate\Database\Eloquent\Relations\MorphToMany {
         $relationName = null,
         $inverse = false
     ) {
-        parent::__construct(
-            $query,
-            $parent,
-            $name,
-            $table,
-            $foreignKey,
-            $otherKey,
-            $relationName = null,
-            $inverse = false
-        );
+        $this->inverse = $inverse;
         $this->morphType = $name . 'Type';
+        $this->morphClass = $inverse ? $query->getModel()->getMorphClass() : $parent->getMorphClass();
+
+        BelongsToMany::__construct($query, $parent, $table, $foreignKey, $otherKey, $relationName);
     }
 }

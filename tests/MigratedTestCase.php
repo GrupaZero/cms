@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Support\Facades\DB;
+
 /**
  * This is simple laravel application test
  */
@@ -44,5 +46,17 @@ class MigratedTestCase extends Illuminate\Foundation\Testing\TestCase {
         }
 
         return $this->app;
+    }
+
+    /**
+     * Queue up a database disconnect to be performed during a tear down.
+     */
+    public function tearDown()
+    {
+        $this->beforeApplicationDestroyed(function () {
+            DB::disconnect();
+        });
+
+        parent::tearDown();
     }
 }
