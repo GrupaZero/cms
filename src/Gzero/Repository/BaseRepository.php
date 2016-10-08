@@ -181,14 +181,20 @@ abstract class BaseRepository {
     protected function handlePagination($defaultTable, $query, $page, $pageSize)
     {
         if (!empty($page)) { // If we want to paginate result
-            $count   = clone $query->getQuery(); // clone the underlying query builder instance, needed for objects with relations
+            // clone the underlying query builder instance, needed for objects with relations
+            $count   = clone $query->getQuery();
             $results = $query
                 ->offset($pageSize * ($page - 1))
                 ->limit($pageSize)
                 ->get([$defaultTable . '.*']);
             // We only eager load for entry entity
             ($defaultTable === $this->getTableName()) ? $this->listEagerLoad($results) : null;
-            return new LengthAwarePaginator($results->all(), $count->select($defaultTable . '.id')->count(), $pageSize, $page);
+            return new LengthAwarePaginator(
+                $results->all(),
+                $count->select($defaultTable . '.id')->count(),
+                $pageSize,
+                $page
+            );
         } else {
             $results = $query->get([$defaultTable . '.*']);
             // We only eager load for entry entity
@@ -214,7 +220,7 @@ abstract class BaseRepository {
                 $lastRelation = $query;
                 foreach (explode('.', $relationString) as $relationName) {
                     // handle pivot table columns
-                    if($relationName === 'pivot'){
+                    if ($relationName === 'pivot') {
                         return $lastRelation->getTable() . '.';
                     }
 

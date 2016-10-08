@@ -46,14 +46,14 @@ class BlockRepository extends BaseRepository {
     /**
      * Block repository constructor
      *
-     * @param Block      $block  Block model
-     * @param Dispatcher $events Events dispatcher
+     * @param Block          $block          Block model
+     * @param Dispatcher     $events         Events dispatcher
      * @param FileRepository $fileRepository File repository
      */
     public function __construct(Block $block, Dispatcher $events, FileRepository $fileRepository)
     {
-        $this->model  = $block;
-        $this->events = $events;
+        $this->model          = $block;
+        $this->events         = $events;
         $this->fileRepository = $fileRepository;
     }
 
@@ -286,7 +286,9 @@ class BlockRepository extends BaseRepository {
     public function removeFiles(Block $block, Array $filesIds)
     {
         if (empty($filesIds)) {
-            throw new RepositoryValidationException('You must provide the files in order to remove them from the block');
+            throw new RepositoryValidationException(
+                'You must provide the files in order to remove them from the block'
+            );
         }
 
         // New block query
@@ -426,8 +428,12 @@ class BlockRepository extends BaseRepository {
      * @throws RepositoryException
      * @return Collection
      */
-    public function getDeletedBlocks(array $criteria = [], array $orderBy = [], $page = 1, $pageSize = self::ITEMS_PER_PAGE)
-    {
+    public function getDeletedBlocks(
+        array $criteria = [],
+        array $orderBy = [],
+        $page = 1,
+        $pageSize = self::ITEMS_PER_PAGE
+    ) {
         $query  = $this->newORMQuery()->onlyTrashed();
         $parsed = $this->parseArgs($criteria, $orderBy);
         $this->handleFilterCriteria($this->getTableName(), $query, $parsed['filter']);
