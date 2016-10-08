@@ -31,4 +31,16 @@ class TestCase extends Illuminate\Foundation\Testing\TestCase {
 
         return $this->app;
     }
+
+    /**
+     * Queue up a database disconnect to be performed during a tear down.
+     */
+    public function tearDown()
+    {
+        $this->beforeApplicationDestroyed(function () {
+            DB::disconnect();
+        });
+
+        parent::tearDown();
+    }
 }
