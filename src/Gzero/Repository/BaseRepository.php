@@ -191,7 +191,7 @@ abstract class BaseRepository {
             ($defaultTable === $this->getTableName()) ? $this->listEagerLoad($results) : null;
             return new LengthAwarePaginator(
                 $results->all(),
-                $count->select($defaultTable . '.id')->count(),
+                $count->select($defaultTable . '.id')->groupBy($defaultTable . '.id')->count(),
                 $pageSize,
                 $page
             );
