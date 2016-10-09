@@ -59,33 +59,6 @@ class MigratedTestCase extends Orchestra\Testbench\TestCase {
 
     protected function getPackageProviders($app)
     {
-        $app['config']->set(
-            'gzero.file_type',
-            [
-                'image'    => 'Gzero\Core\Handler\File\Image',
-                'document' => 'Gzero\Core\Handler\File\Document',
-                'video'    => 'Gzero\Core\Handler\File\Video',
-                'music'    => 'Gzero\Core\Handler\File\Music'
-            ]
-        );
-        $app['config']->set(
-            'gzero.block_type',
-            [
-                'basic'   => 'Gzero\Core\Handler\Block\Basic',
-                'content' => 'Gzero\Core\Handler\Block\Content',
-                'menu'    => 'Gzero\Core\Handler\Block\Menu',
-                'slider'  => 'Gzero\Core\Handler\Block\Slider',
-                'widget'  => 'Gzero\Core\Handler\Block\Widget'
-            ]
-        );
-
-        $app['config']->set(
-            'gzero.content_type',
-            [
-                'content'  => 'Gzero\Core\Handler\Content\Content',
-                'category' => 'Gzero\Core\Handler\Content\Category'
-            ]
-        );
         return [Gzero\Core\ServiceProvider::class];
     }
 }

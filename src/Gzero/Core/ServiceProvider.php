@@ -72,6 +72,10 @@ class ServiceProvider extends AbstractServiceProvider {
     public function register()
     {
         parent::register();
+        $this->mergeConfigFrom(
+            __DIR__ . '/../../../config/gzero.php',
+            'gzero'
+        );
         $this->registerHelpers();
         $this->registerFilters();
         $this->bindRepositories();

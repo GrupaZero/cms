@@ -28,6 +28,7 @@ class TestTreeSeeder extends Seeder {
     {
         $this->faker      = Factory::create();
         $this->repository = $content;
+        Content::reguard();
     }
 
     /**
