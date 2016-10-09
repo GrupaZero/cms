@@ -25,6 +25,12 @@ class MigratedTestCase extends Orchestra\Testbench\TestCase {
         }
     }
 
+    protected function tearDown()
+    {
+        parent::tearDown();
+        \DB::disconnect('testbench');
+    }
+
     /**
      * Define environment setup.
      *
