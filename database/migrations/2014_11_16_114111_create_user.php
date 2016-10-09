@@ -22,10 +22,10 @@ class CreateUser extends Migration {
                 $table->string('nickName')->unique()->nullable();
                 $table->string('firstName')->nullable();
                 $table->string('lastName')->nullable();
-                $table->string('rememberToken');
+                $table->string('rememberToken')->nullable();
                 $table->boolean('isAdmin')->default(0);
-                $table->timestamp('createdAt');
-                $table->timestamp('updatedAt');
+                $table->timestamp('createdAt')->useCurrent();
+                $table->timestamp('updatedAt')->useCurrent();
             }
         );
 
@@ -34,7 +34,7 @@ class CreateUser extends Migration {
             function (Blueprint $table) {
                 $table->string('email')->index();
                 $table->string('token')->index();
-                $table->timestamp('created_at');
+                $table->timestamp('created_at')->useCurrent();
             }
         );
 
@@ -68,7 +68,6 @@ class CreateUser extends Migration {
                 'firstName' => 'John',
                 'lastName'  => 'Doe',
                 'password'  => Hash::make('test')
-
             ]
         );
 

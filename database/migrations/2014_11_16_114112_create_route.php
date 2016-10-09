@@ -19,8 +19,8 @@ class CreateRoute extends Migration {
                 $table->integer('routableId')->unsigned()->nullable();
                 $table->string('routableType')->nullable();
                 $table->boolean('isActive');
-                $table->timestamp('createdAt');
-                $table->timestamp('updatedAt');
+                $table->timestamp('createdAt')->useCurrent();
+                $table->timestamp('updatedAt')->useCurrent();
             }
         );
 
@@ -32,8 +32,8 @@ class CreateRoute extends Migration {
                 $table->integer('routeId')->unsigned();
                 $table->string('url')->index();
                 $table->boolean('isActive');
-                $table->timestamp('createdAt');
-                $table->timestamp('updatedAt');
+                $table->timestamp('createdAt')->useCurrent();
+                $table->timestamp('updatedAt')->useCurrent();
                 $table->foreign('routeId')->references('id')->on('Routes')->onDelete('CASCADE');
                 $table->foreign('langCode')->references('code')->on('Langs')->onDelete('CASCADE');
                 $table->unique(['langCode', 'routeId']); // Only one translation in specific language

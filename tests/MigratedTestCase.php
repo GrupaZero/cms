@@ -1,62 +1,91 @@
 <?php
 
-use Illuminate\Support\Facades\DB;
-
 /**
  * This is simple laravel application test
  */
-class MigratedTestCase extends Illuminate\Foundation\Testing\TestCase {
+class MigratedTestCase extends Orchestra\Testbench\TestCase {
 
     /**
      * @var bool
      */
     static $initialSetup = false;
 
-    /**
-     * Creates the application.
-     *
-     * @return \Symfony\Component\HttpKernel\HttpKernelInterface
-     */
-    public function createApplication()
+    protected function setUp()
     {
-
-        $this->app = new Illuminate\Foundation\Application(
-            realpath(__DIR__ . '/app')
-        );
-
-        $this->app->singleton(
-            'Illuminate\Contracts\Console\Kernel',
-            'App\Console\Kernel'
-        );
-
-        $this->app->singleton(
-            'Illuminate\Contracts\Debug\ExceptionHandler',
-            'Illuminate\Foundation\Exceptions\Handler'
-        );
-
-        $this->app->make('Illuminate\Contracts\Console\Kernel')->bootstrap();
-
-        if (!self::$initialSetup) {
-            try {
-                $this->artisan('migrate:reset');
-            } catch (Exception $e) {
-            }
-            $this->artisan('migrate', ['--path' => '/../../src/migrations']);  // Relative to tests/app/
+        parent::setUp();
+        if (!self::$initialSetup) { // We only want to migrate once at the beginning of tests
             self::$initialSetup = true;
+            echo 'Migrate';
+            $this->artisan(
+                'migrate',
+                [
+                    '--database' => 'testbench',
+                    '--realpath' => realpath(__DIR__ . '/../database/migrations'),
+                ]
+            );
         }
-
-        return $this->app;
     }
 
     /**
-     * Queue up a database disconnect to be performed during a tear down.
+     * Define environment setup.
+     *
+     * @param  \Illuminate\Foundation\Application $app
+     *
+     * @return void
      */
-    public function tearDown()
+    protected function getEnvironmentSetUp($app)
     {
-        $this->beforeApplicationDestroyed(function () {
-            DB::disconnect();
-        });
+        // Setup default database to use sqlite :memory:
+        $app['config']->set('database.default', 'testbench');
+        $app['config']->set(
+            'database.connections.testbench',
+            [
+                'driver'    => 'mysql',
+                'host'      => 'localhost',
+                'port'      => 3306,
+                'database'  => 'gzero-tests',
+                'username'  => 'gzero-tests',
+                'password'  => 'test',
+                'charset'   => 'utf8',
+                'collation' => 'utf8_unicode_ci',
+                'prefix'    => '',
+                'strict'    => false,
+                'engine'    => null,
+            ]
+        );
 
-        parent::tearDown();
+
+    }
+
+    protected function getPackageProviders($app)
+    {
+        $app['config']->set(
+            'gzero.file_type',
+            [
+                'image'    => 'Gzero\Core\Handler\File\Image',
+                'document' => 'Gzero\Core\Handler\File\Document',
+                'video'    => 'Gzero\Core\Handler\File\Video',
+                'music'    => 'Gzero\Core\Handler\File\Music'
+            ]
+        );
+        $app['config']->set(
+            'gzero.block_type',
+            [
+                'basic'   => 'Gzero\Core\Handler\Block\Basic',
+                'content' => 'Gzero\Core\Handler\Block\Content',
+                'menu'    => 'Gzero\Core\Handler\Block\Menu',
+                'slider'  => 'Gzero\Core\Handler\Block\Slider',
+                'widget'  => 'Gzero\Core\Handler\Block\Widget'
+            ]
+        );
+
+        $app['config']->set(
+            'gzero.content_type',
+            [
+                'content'  => 'Gzero\Core\Handler\Content\Content',
+                'category' => 'Gzero\Core\Handler\Content\Category'
+            ]
+        );
+        return [Gzero\Core\ServiceProvider::class];
     }
 }

@@ -132,22 +132,24 @@ class TestSeeder extends Seeder {
         // Create users
         $users[] = User::firstOrCreate(
             [
-                'email'     => 'a@a.pl',
-                'nickName'  => 'Example user',
-                'firstName' => 'John',
-                'lastName'  => 'Doe',
-                'password'  => Hash::make('test')
+                'email'         => 'a@a.pl',
+                'nickName'      => 'Example user',
+                'firstName'     => 'John',
+                'lastName'      => 'Doe',
+                'password'      => Hash::make('test'),
+                'rememberToken' => true
 
             ]
         );
 
         $users[] = User::firstOrCreate(
             [
-                'email'     => 'b@b.pl',
-                'nickName'  => 'Test user',
-                'firstName' => 'John',
-                'lastName'  => 'Doe',
-                'password'  => Hash::make('test123')
+                'email'         => 'b@b.pl',
+                'nickName'      => 'Test user',
+                'firstName'     => 'John',
+                'lastName'      => 'Doe',
+                'password'      => Hash::make('test123'),
+                'rememberToken' => true
 
             ]
         );
@@ -179,10 +181,10 @@ class TestSeeder extends Seeder {
     {
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         $tables           = DB::select('SHOW TABLES');
-        $tablesInDatabase = "Tables_in_" . config('database.connections.mysql.database');
+        $tablesInDatabase = "Tables_in_" . config('database.connections.testbench.database');
         foreach ($tables as $table) {
-            if ($table[$tablesInDatabase] !== 'migrations') {
-                DB::table($table[$tablesInDatabase])->truncate();
+            if ($table->$tablesInDatabase !== 'migrations') {
+                DB::table($table->$tablesInDatabase)->truncate();
             }
         }
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');

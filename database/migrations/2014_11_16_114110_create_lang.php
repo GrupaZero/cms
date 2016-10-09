@@ -18,10 +18,10 @@ class CreateLang extends Migration {
             function (Blueprint $table) {
                 $table->string('code', 2)->index();
                 $table->string('i18n', 5);
-                $table->boolean('isEnabled');
-                $table->boolean('isDefault');
-                $table->timestamp('createdAt');
-                $table->timestamp('updatedAt');
+                $table->boolean('isEnabled')->default(false);
+                $table->boolean('isDefault')->default(false);
+                $table->timestamp('createdAt')->useCurrent();
+                $table->timestamp('updatedAt')->useCurrent();
             }
         );
 

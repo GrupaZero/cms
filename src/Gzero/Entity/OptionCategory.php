@@ -15,6 +15,11 @@
 class OptionCategory extends Base {
 
     /**
+     * @var bool
+     */
+    public $incrementing = false;
+
+    /**
      * @var string
      */
     protected $primaryKey = 'key';

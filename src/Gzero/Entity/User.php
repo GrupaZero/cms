@@ -34,7 +34,8 @@ class User extends Base implements AuthenticatableContract, AuthorizableContract
         'firstName',
         'lastName',
         'password',
-        'hasSocialIntegrations'
+        'hasSocialIntegrations',
+        'rememberToken'
     ];
 
     /**

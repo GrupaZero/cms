@@ -18,8 +18,8 @@ class CreateContent extends Migration {
             function (Blueprint $table) {
                 $table->string('name')->index()->unique();
                 $table->boolean('isActive');
-                $table->timestamp('createdAt');
-                $table->timestamp('updatedAt');
+                $table->timestamp('createdAt')->useCurrent();
+                $table->timestamp('updatedAt')->useCurrent();
             }
         );
 
@@ -33,17 +33,17 @@ class CreateContent extends Migration {
                 $table->string('path', 255)->nullable();
                 $table->integer('parentId')->unsigned()->nullable();
                 $table->integer('level')->default(0);
-                $table->integer('weight');
-                $table->integer('rating');
-                $table->integer('visits');
-                $table->boolean('isOnHome');
-                $table->boolean('isCommentAllowed');
-                $table->boolean('isPromoted');
-                $table->boolean('isSticky');
-                $table->boolean('isActive');
-                $table->timestamp('publishedAt');
-                $table->timestamp('createdAt');
-                $table->timestamp('updatedAt');
+                $table->integer('weight')->default(0);
+                $table->integer('rating')->default(0);
+                $table->integer('visits')->default(0);
+                $table->boolean('isOnHome')->default(false);
+                $table->boolean('isCommentAllowed')->default(false);
+                $table->boolean('isPromoted')->default(false);
+                $table->boolean('isSticky')->default(false);
+                $table->boolean('isActive')->default(false);
+                $table->timestamp('publishedAt')->useCurrent();
+                $table->timestamp('createdAt')->useCurrent();
+                $table->timestamp('updatedAt')->useCurrent();
                 $table->index(['type', 'path', 'parentId', 'level']);
                 $table->foreign('authorId')->references('id')->on('Users')->onDelete('SET NULL');
                 $table->foreign('parentId')->references('id')->on('Contents')->onDelete('CASCADE');
@@ -64,8 +64,8 @@ class CreateContent extends Migration {
                 $table->string('seoTitle');
                 $table->string('seoDescription');
                 $table->boolean('isActive');
-                $table->timestamp('createdAt');
-                $table->timestamp('updatedAt');
+                $table->timestamp('createdAt')->useCurrent();
+                $table->timestamp('updatedAt')->useCurrent();
                 $table->foreign('contentId')->references('id')->on('Contents')->onDelete('CASCADE');
                 $table->foreign('langCode')->references('code')->on('Langs')->onDelete('CASCADE');
             }

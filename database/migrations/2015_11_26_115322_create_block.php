@@ -18,8 +18,8 @@ class CreateBlock extends Migration {
             function (Blueprint $table) {
                 $table->string('name')->index()->unique();
                 $table->boolean('isActive');
-                $table->timestamp('createdAt');
-                $table->timestamp('updatedAt');
+                $table->timestamp('createdAt')->useCurrent();
+                $table->timestamp('updatedAt')->useCurrent();
             }
         );
 
@@ -33,13 +33,13 @@ class CreateBlock extends Migration {
                 $table->integer("blockableId")->unsigned()->nullable();
                 $table->string("blockableType")->nullable();
                 $table->integer('authorId')->unsigned()->nullable();
-                $table->json('filter')->nullable();
-                $table->json('options')->nullable();
-                $table->integer('weight');
-                $table->boolean('isActive');
-                $table->boolean('isCacheable');
-                $table->timestamp('createdAt');
-                $table->timestamp('updatedAt');
+                $table->text('filter')->nullable();
+                $table->text('options')->nullable();
+                $table->integer('weight')->default(0);
+                $table->boolean('isActive')->default(0);
+                $table->boolean('isCacheable')->default(0);
+                $table->timestamp('createdAt')->useCurrent();
+                $table->timestamp('updatedAt')->useCurrent();
                 $table->timestamp('deletedAt')->nullable();
                 $table->index(['blockableId', 'blockableType']);
                 $table->foreign('authorId')->references('id')->on('Users')->onDelete('SET NULL');
@@ -54,11 +54,11 @@ class CreateBlock extends Migration {
                 $table->string('langCode', 2);
                 $table->integer('blockId')->unsigned();
                 $table->string('title');
-                $table->text('body');
-                $table->json('customFields')->nullable();
+                $table->text('body')->nullable();
+                $table->text('customFields')->nullable();
                 $table->boolean('isActive');
-                $table->timestamp('createdAt');
-                $table->timestamp('updatedAt');
+                $table->timestamp('createdAt')->useCurrent();
+                $table->timestamp('updatedAt')->useCurrent();
                 $table->foreign('blockId')->references('id')->on('Blocks')->onDelete('CASCADE');
                 $table->foreign('langCode')->references('code')->on('Langs')->onDelete('CASCADE');
             }
@@ -69,11 +69,11 @@ class CreateBlock extends Migration {
             function (Blueprint $table) {
                 $table->increments('id');
                 $table->string('name')->unique();
-                $table->json('args')->nullable();
+                $table->text('args')->nullable();
                 $table->boolean('isActive');
                 $table->boolean('isCacheable');
-                $table->timestamp('createdAt');
-                $table->timestamp('updatedAt');
+                $table->timestamp('createdAt')->useCurrent();
+                $table->timestamp('updatedAt')->useCurrent();
             }
         );
 

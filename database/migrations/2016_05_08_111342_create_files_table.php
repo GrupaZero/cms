@@ -17,10 +17,10 @@ class CreateFilesTable extends Migration
             'FileTypes',
             function (Blueprint $table) {
                 $table->string('name')->index()->unique();
-                $table->json('extensions');
+                $table->text('extensions')->nullable();
                 $table->boolean('isActive');
-                $table->timestamp('createdAt');
-                $table->timestamp('updatedAt');
+                $table->timestamp('createdAt')->useCurrent();
+                $table->timestamp('updatedAt')->useCurrent();
             }
         );
 
@@ -33,11 +33,11 @@ class CreateFilesTable extends Migration
                 $table->string('extension');
                 $table->integer('size')->nullable();
                 $table->string('mimeType');
-                $table->json('info')->nullable();
+                $table->text('info')->nullable();
                 $table->integer('createdBy')->unsigned()->nullable();
                 $table->boolean('isActive');
-                $table->timestamp('createdAt');
-                $table->timestamp('updatedAt');
+                $table->timestamp('createdAt')->useCurrent();
+                $table->timestamp('updatedAt')->useCurrent();
                 $table->foreign('createdBy')->references('id')->on('Users')->onDelete('SET NULL');
                 $table->foreign('type')->references('name')->on('FileTypes')->onDelete('CASCADE');
             }
@@ -51,8 +51,8 @@ class CreateFilesTable extends Migration
                 $table->integer('fileId')->unsigned();
                 $table->string('title');
                 $table->text('description');
-                $table->timestamp('createdAt');
-                $table->timestamp('updatedAt');
+                $table->timestamp('createdAt')->useCurrent();
+                $table->timestamp('updatedAt')->useCurrent();
                 $table->unique(['fileId', 'langCode']);
                 $table->foreign('fileId')->references('id')->on('Files')->onDelete('CASCADE');
                 $table->foreign('langCode')->references('code')->on('Langs')->onDelete('CASCADE');
@@ -66,8 +66,8 @@ class CreateFilesTable extends Migration
                 $table->integer('uploadableId')->unsigned()->nullable();
                 $table->string('uploadableType')->nullable();
                 $table->integer('weight');
-                $table->timestamp('createdAt');
-                $table->timestamp('updatedAt');
+                $table->timestamp('createdAt')->useCurrent();
+                $table->timestamp('updatedAt')->useCurrent();
                 $table->foreign('fileId')->references('id')->on('Files')->onDelete('CASCADE');
             }
         );

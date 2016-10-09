@@ -18,8 +18,8 @@ class CreateOptions extends Migration {
             'OptionCategories',
             function (Blueprint $table) {
                 $table->string('key')->index();
-                $table->timestamp('createdAt');
-                $table->timestamp('updatedAt');
+                $table->timestamp('createdAt')->useCurrent();
+                $table->timestamp('updatedAt')->useCurrent();
                 $table->primary('key');
             }
         );
@@ -31,8 +31,8 @@ class CreateOptions extends Migration {
                 $table->string('key');
                 $table->string('categoryKey');
                 $table->text('value');
-                $table->timestamp('createdAt');
-                $table->timestamp('updatedAt');
+                $table->timestamp('createdAt')->useCurrent();
+                $table->timestamp('updatedAt')->useCurrent();
                 $table->foreign('categoryKey')->references('key')->on('OptionCategories')->onDelete('CASCADE');
                 $table->index(['categoryKey', 'key']);
             }

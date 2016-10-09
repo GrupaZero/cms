@@ -34,4 +34,12 @@ class Lang extends Base {
         'isDefault'
     ];
 
+    /**
+     * @var array
+     */
+    protected $attributes = [
+        'isEnabled' => false,
+        'isDefault' => false
+    ];
+
 }

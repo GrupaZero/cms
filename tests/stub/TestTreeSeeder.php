@@ -152,11 +152,11 @@ class TestTreeSeeder extends Seeder {
         // Create user
         $user = User::firstOrCreate(
             [
-                'email'     => 'a@a.pl',
-                'firstName' => 'John',
-                'lastName'  => 'Doe',
-                'password'  => Hash::make('test')
-
+                'email'         => 'a@a.pl',
+                'firstName'     => 'John',
+                'lastName'      => 'Doe',
+                'password'      => Hash::make('test'),
+                'rememberToken' => true
             ]
         );
         return $user;
@@ -170,10 +170,10 @@ class TestTreeSeeder extends Seeder {
     {
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         $tables             = DB::select('SHOW TABLES');
-        $tables_in_database = "Tables_in_" . Config::get('database.connections.mysql.database');
+        $tables_in_database = "Tables_in_" . Config::get('database.connections.testbench.database');
         foreach ($tables as $table) {
-            if ($table[$tables_in_database] !== 'migrations') {
-                DB::table($table[$tables_in_database])->truncate();
+            if ($table->$tables_in_database !== 'migrations') {
+                DB::table($table->$tables_in_database)->truncate();
             }
         }
         DB::statement('SET FOREIGN_KEY_CHECKS=1;');

@@ -19,8 +19,8 @@ class CreateRolesAndPermissionsTable extends Migration {
             function (Blueprint $table) {
                 $table->increments('id');
                 $table->string('name')->unique();
-                $table->timestamp('createdAt');
-                $table->timestamp('updatedAt');
+                $table->timestamp('createdAt')->useCurrent();
+                $table->timestamp('updatedAt')->useCurrent();
             }
         );
 
@@ -38,8 +38,8 @@ class CreateRolesAndPermissionsTable extends Migration {
             function (Blueprint $table) {
                 $table->integer('permissionId')->unsigned()->index();
                 $table->integer('roleId')->unsigned()->index();
-                $table->timestamp('createdAt');
-                $table->timestamp('updatedAt');
+                $table->timestamp('createdAt')->useCurrent();
+                $table->timestamp('updatedAt')->useCurrent();
                 $table->foreign('permissionId')->references('id')->on('ACLPermissions')->onDelete('CASCADE');
                 $table->foreign('roleId')->references('id')->on('ACLRoles')->onDelete('CASCADE');
 
@@ -51,8 +51,8 @@ class CreateRolesAndPermissionsTable extends Migration {
             function (Blueprint $table) {
                 $table->integer('userId')->unsigned()->index();
                 $table->integer('roleId')->unsigned()->index();
-                $table->timestamp('createdAt');
-                $table->timestamp('updatedAt');
+                $table->timestamp('createdAt')->useCurrent();
+                $table->timestamp('updatedAt')->useCurrent();
                 $table->foreign('userId')->references('id')->on('Users')->onDelete('CASCADE');
                 $table->foreign('roleId')->references('id')->on('ACLRoles')->onDelete('CASCADE');
 

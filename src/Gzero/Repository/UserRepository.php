@@ -19,7 +19,7 @@ use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2014, Adrian Skierniewski
  */
-class UserRepository extends BaseRepository implements AuthenticatableContract, CanResetPasswordContract {
+class UserRepository extends BaseRepository implements AuthenticatableContract {
 
     /**
      * @var User
@@ -175,9 +175,19 @@ class UserRepository extends BaseRepository implements AuthenticatableContract, 
 
     /*
     |--------------------------------------------------------------------------
-    | START AuthenticatableContract AND CanResetPasswordContract
+    | START AuthenticatableContract
     |--------------------------------------------------------------------------
     */
+
+    /**
+     * Get the name of the unique identifier for the user.
+     *
+     * @return string
+     */
+    public function getAuthIdentifierName()
+    {
+        return $this->model->getKeyName();
+    }
 
     /**
      * Get the unique identifier for the user.
@@ -229,16 +239,6 @@ class UserRepository extends BaseRepository implements AuthenticatableContract, 
     public function getRememberTokenName()
     {
         return 'rememberToken';
-    }
-
-    /**
-     * Get the e-mail address where password reset links are sent.
-     *
-     * @return string
-     */
-    public function getEmailForPasswordReset()
-    {
-        return $this->email;
     }
 
     /*
