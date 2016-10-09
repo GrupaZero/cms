@@ -13,8 +13,8 @@ use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 
-require_once(__DIR__ . '/../stub/TestSeeder.php');
-require_once(__DIR__ . '/../stub/TestTreeSeeder.php');
+require_once(__DIR__ . '/../../stub/TestSeeder.php');
+require_once(__DIR__ . '/../../stub/TestTreeSeeder.php');
 
 /**
  * This file is part of the GZERO CMS package.
@@ -28,7 +28,7 @@ require_once(__DIR__ . '/../stub/TestTreeSeeder.php');
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2015, Adrian Skierniewski
  */
-class BlockRepositoryTest extends \EloquentTestCase {
+class BlockRepositoryTest extends \TestCase  {
 
     /**
      * @var BlockRepository
@@ -50,23 +50,25 @@ class BlockRepositoryTest extends \EloquentTestCase {
      */
     protected $filesDir;
 
-    public function setUp()
+    protected function _before()
     {
-        parent::setUp();
+        // Start the Laravel application
+        $this->startApplication();
         $this->fileRepository = new FileRepository(new File(), new FileType(), new Dispatcher());
         $this->repository     = new BlockRepository(new Block(), new Dispatcher(), $this->fileRepository);
         $this->finder         = new BlockFinder($this->repository, new CacheManager($this->app));
-        $this->filesDir       = __DIR__ . '/../resources';
+        $this->filesDir       = __DIR__ . '/../../resources';
         $this->seed('TestSeeder'); // Relative to tests/app/
     }
 
-    protected function tearDown()
+    public function _after()
     {
         $dirName = config('gzero.upload.directory');
         if ($dirName) {
             Storage::deleteDirectory($dirName);
         }
-        parent::tearDown();
+        // Stop the Laravel application
+        $this->stopApplication();
     }
 
     /*

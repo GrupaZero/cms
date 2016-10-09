@@ -7,3 +7,5 @@ Thumbs.db
 .vagrant
 .sass-cache
 tests/app/.env
+
+tests/_output/*

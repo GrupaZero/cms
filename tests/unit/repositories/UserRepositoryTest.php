@@ -5,8 +5,8 @@ use Gzero\Repository\UserRepository;
 use Illuminate\Events\Dispatcher;
 use Illuminate\Support\Facades\Hash;
 
-require_once(__DIR__ . '/../stub/TestSeeder.php');
-require_once(__DIR__ . '/../stub/TestTreeSeeder.php');
+require_once(__DIR__ . '/../../stub/TestSeeder.php');
+require_once(__DIR__ . '/../../stub/TestTreeSeeder.php');
 
 /**
  * This file is part of the GZERO CMS package.
@@ -19,18 +19,30 @@ require_once(__DIR__ . '/../stub/TestTreeSeeder.php');
  * @author     Mateusz Urbanowicz <urbanowiczmateusz89@gmail.com>
  * @copyright  Copyright (c) 2015, Mateusz Urbanowicz
  */
-class UserRepositoryTest extends \EloquentTestCase {
+class UserRepositoryTest extends \TestCase  {
+
+    /**
+     * @var \UnitTester
+     */
+    protected $tester;
 
     /**
      * @var UserRepository
      */
     protected $repository;
 
-    public function setUp()
+    protected function _before()
     {
-        parent::setUp();
+        // Start the Laravel application
+        $this->startApplication();
         $this->repository = new UserRepository(new User(), new Dispatcher());
         $this->seed('TestSeeder'); // Relative to tests/app/
+    }
+
+    public function _after()
+    {
+        // Stop the Laravel application
+        $this->stopApplication();
     }
 
     /**

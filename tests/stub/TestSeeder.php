@@ -5,8 +5,6 @@ use Gzero\Entity\BlockType;
 use Gzero\Entity\ContentType;
 use Gzero\Entity\FileType;
 use Gzero\Entity\Lang;
-use Gzero\Entity\User;
-use Gzero\Entity\OptionCategory;
 use Illuminate\Database\Seeder;
 use Gzero\Repository\UserRepository;
 

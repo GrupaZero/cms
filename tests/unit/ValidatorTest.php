@@ -3,6 +3,8 @@
 require_once(__DIR__ . '/../TestCase.php');
 require_once(__DIR__ . '/../stub/DummyValidator.php');
 
+use Aedart\Testing\Laravel\Traits\TestHelperTrait;
+
 /**
  * This file is part of the GZERO CMS package.
  *
@@ -14,7 +16,9 @@ require_once(__DIR__ . '/../stub/DummyValidator.php');
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2014, Adrian Skierniewski
  */
-class ValidatorTest extends \TestCase {
+class ValidatorTest extends \Codeception\Test\Unit {
+
+    use TestHelperTrait;
 
     /**
      * @var Array
@@ -26,11 +30,19 @@ class ValidatorTest extends \TestCase {
      */
     protected $validator;
 
-    public function setUp()
+    protected function _before()
     {
-        parent::setUp();
+        // Start the Laravel application
+        $this->startApplication();
         $this->input     = $this->initData();
         $this->validator = new \DummyValidator(\App::make('validator'));
+    }
+
+
+    protected function _after()
+    {
+        // Stop the Laravel application
+        $this->stopApplication();
     }
 
     /**

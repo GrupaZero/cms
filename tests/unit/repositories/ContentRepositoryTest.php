@@ -10,8 +10,8 @@ use Illuminate\Events\Dispatcher;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-require_once(__DIR__ . '/../stub/TestSeeder.php');
-require_once(__DIR__ . '/../stub/TestTreeSeeder.php');
+require_once(__DIR__ . '/../../stub/TestSeeder.php');
+require_once(__DIR__ . '/../../stub/TestTreeSeeder.php');
 
 /**
  * This file is part of the GZERO CMS package.
@@ -25,7 +25,7 @@ require_once(__DIR__ . '/../stub/TestTreeSeeder.php');
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2015, Adrian Skierniewski
  */
-class ContentRepositoryTest extends \EloquentTestCase {
+class ContentRepositoryTest extends \TestCase {
 
     /**
      * @var ContentRepository
@@ -42,22 +42,23 @@ class ContentRepositoryTest extends \EloquentTestCase {
      */
     protected $filesDir;
 
-    public function setUp()
+    protected function _before()
     {
-        parent::setUp();
+        // Start the Laravel application
+        $this->startApplication();
         $this->fileRepository = new FileRepository(new File(), new FileType(), new Dispatcher());
         $this->repository     = new ContentRepository(new Content(), new Dispatcher(), $this->fileRepository);
-        $this->filesDir       = __DIR__ . '/../resources';
-        $this->seed('TestSeeder'); // Relative to tests/app/
+        $this->filesDir       = __DIR__ . '/../../resources';
     }
 
-    protected function tearDown()
+    public function _after()
     {
         $dirName = config('gzero.upload.directory');
         if ($dirName) {
             Storage::deleteDirectory($dirName);
         }
-        parent::tearDown();
+        // Stop the Laravel application
+        $this->stopApplication();
     }
 
     /*
@@ -221,6 +222,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
      */
     public function can_delete_content()
     {
+        $this->seed('TestSeeder');
         $content    = $this->repository->create(
             [
                 'type'         => 'content',
@@ -242,6 +244,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
      */
     public function can_force_delete_content()
     {
+        $this->seed('TestSeeder');
         $content = $this->repository->create(
             [
                 'type'         => 'content',
@@ -289,6 +292,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
      */
     public function can_force_delete_soft_deleted_content()
     {
+        $this->seed('TestSeeder');
         $content = $this->repository->create(
             [
                 'type'         => 'content',
@@ -336,6 +340,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
      */
     public function can_delete_content_translation()
     {
+        $this->seed('TestSeeder');
         $withActive = false;
         $content    = $this->repository->create(
             [
@@ -369,6 +374,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
      */
     public function can_create_content_with_same_title_as_one_of_soft_deleted_contents()
     {
+        $this->seed('TestSeeder');
         $content1 = $this->repository->create(
             [
                 'type'         => 'content',
@@ -409,6 +415,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
      */
     public function it_checks_existence_of_content_type()
     {
+        $this->seed('TestSeeder');
         $this->repository->create(
             [
                 'type'         => 'fakeType',
@@ -425,6 +432,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
      */
     public function it_checks_existence_of_content_url()
     {
+        $this->seed('TestSeeder');
         $this->assertNull($this->repository->getByUrl('example-title', 'en'));
     }
 
@@ -435,6 +443,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
      */
     public function it_checks_existence_of_content_translation()
     {
+        $this->seed('TestSeeder');
         $this->repository->create(['type' => 'category']);
     }
 
@@ -445,6 +454,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
      */
     public function it_checks_existence_of_parent_route_translation()
     {
+        $this->seed('TestSeeder');
         $category    = $this->repository->create(
             [
                 'type'         => 'category',
@@ -474,6 +484,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
      */
     public function it_checks_existence_of_parent()
     {
+        $this->seed('TestSeeder');
         $this->repository->create(
             [
                 'type'         => 'content',
@@ -493,6 +504,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
      */
     public function it_checks_if_parent_is_proper_type()
     {
+        $this->seed('TestSeeder');
         $content     = $this->repository->create(
             [
                 'type'         => 'content',
@@ -520,6 +532,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
      */
     public function it_should_force_delete_one_content()
     {
+        $this->seed('TestSeeder');
         $author   = User::find(1);
         $content  = $this->repository->create(
             [
@@ -572,6 +585,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
      */
     public function it_should_retrive_non_trashed_content()
     {
+        $this->seed('TestSeeder');
         $content    = $this->repository->create(
             [
                 'type'         => 'content',
@@ -596,6 +610,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
      */
     public function it_should_retrive_trashed_content()
     {
+        $this->seed('TestSeeder');
         $content = $this->repository->create(
             [
                 'type'         => 'content',
@@ -621,6 +636,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
      */
     public function it_should_not_retrive_force_deleted_content()
     {
+        $this->seed('TestSeeder');
         $content = $this->repository->create(
             [
                 'type'         => 'content',
@@ -658,6 +674,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
     public function can_get_roots()
     {
         // Tree seeds
+        $this->seed('TestSeeder');
         $this->seed('TestTreeSeeder');
 
         $roots = $this->repository->getRoots(
@@ -677,6 +694,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
     public function can_get_tree()
     {
         // Tree seeds
+        $this->seed('TestSeeder');
         $this->seed('TestTreeSeeder');
 
         $category = $this->repository->getById(1);
@@ -705,6 +723,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
     public function can_create_content_as_child()
     {
         // Tree seeds
+        $this->seed('TestSeeder');
         $this->seed('TestTreeSeeder');
 
         $category        = $this->repository->getById(1);
@@ -738,6 +757,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
     public function can_update_content_parent()
     {
         // Tree seeds
+        $this->seed('TestSeeder');
         $this->seed('TestTreeSeeder');
 
         $category       = $this->repository->getById(1);
@@ -763,6 +783,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
     public function can_update_parent_for_category_without_children()
     {
         // Tree seeds
+        $this->seed('TestSeeder');
         $this->seed('TestTreeSeeder');
 
         // Create new category without children
@@ -1538,6 +1559,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
      */
     public function it_checks_relation_of_related_file()
     {
+        $this->seed('TestSeeder');
         // Create new content with first translation
         $content = $this->repository->create(
             [
@@ -1577,6 +1599,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
      */
     public function it_checks_existence_of_files_to_add()
     {
+        $this->seed('TestSeeder');
         // Create new content with first translation
         $content = $this->repository->create(
             [
@@ -1598,6 +1621,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
      */
     public function it_checks_for_empty_array_of_files_to_add()
     {
+        $this->seed('TestSeeder');
         // Create new content with first translation
         $content = $this->repository->create(
             [
@@ -1617,6 +1641,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
      */
     public function can_get_single_file()
     {
+        $this->seed('TestSeeder');
         // Create new content with first translation
         $content = $this->repository->create(
             [
@@ -1669,6 +1694,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
      */
     public function can_add_content_related_file()
     {
+        $this->seed('TestSeeder');
         // Create new content with first translation
         $content = $this->repository->create(
             [
@@ -1721,6 +1747,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
      */
     public function can_add_content_files()
     {
+        $this->seed('TestSeeder');
         $fileIds = [];
 
         // Create new content with first translation
@@ -1783,6 +1810,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
      */
     public function can_add_content_files_without_removing_already_added()
     {
+        $this->seed('TestSeeder');
         $fileIds = [];
 
         // Create new content with first translation
@@ -1850,6 +1878,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
      */
     public function can_sort_content_files_list()
     {
+        $this->seed('TestSeeder');
         $fileIds = [];
 
         // Create new content with first translation
@@ -1907,7 +1936,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
      */
     public function can_filter_content_files_list()
     {
-
+        $this->seed('TestSeeder');
         // Create new content with first translation
         $content = $this->repository->create(
             [
@@ -1955,6 +1984,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
      */
     public function it_checks_for_empty_file_id_to_update()
     {
+        $this->seed('TestSeeder');
         // Create new content with first translation
         $content = $this->repository->create(
             [
@@ -1974,6 +2004,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
      */
     public function can_update_content_file()
     {
+        $this->seed('TestSeeder');
         // Create new content with first translation
         $content = $this->repository->create(
             [
@@ -2018,6 +2049,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
      */
     public function it_checks_for_empty_array_of_files_to_remove()
     {
+        $this->seed('TestSeeder');
         // Create new content with first translation
         $content = $this->repository->create(
             [
@@ -2037,6 +2069,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
      */
     public function can_remove_content_files()
     {
+        $this->seed('TestSeeder');
         $fileIds = [];
 
         // Create new content with first translation
@@ -2084,7 +2117,7 @@ class ContentRepositoryTest extends \EloquentTestCase {
      */
     public function can_remove_content_related_file_when_removing_files()
     {
-
+        $this->seed('TestSeeder');
         // Create new content with first translation
         $content = $this->repository->create(
             [

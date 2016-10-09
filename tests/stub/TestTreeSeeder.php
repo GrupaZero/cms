@@ -146,20 +146,23 @@ class TestTreeSeeder extends Seeder {
     /**
      * Seed users
      *
-     * @return array
+     * @return User
      */
     private function seedUsers()
     {
         // Create user
-        $user = User::firstOrCreate(
-            [
-                'email'         => 'a@a.pl',
-                'firstName'     => 'John',
-                'lastName'      => 'Doe',
-                'password'      => Hash::make('test'),
-                'rememberToken' => true
-            ]
-        );
+        $user = User::where('email', '=', 'a@a.pl')->first();
+        if (!$user) {
+            $user = User::create(
+                [
+                    'email'         => 'a@a.pl',
+                    'firstName'     => 'John',
+                    'lastName'      => 'Doe',
+                    'password'      => 'test',
+                    'rememberToken' => true
+                ]
+            );
+        }
         return $user;
     }
 

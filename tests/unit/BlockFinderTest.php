@@ -3,6 +3,7 @@
 use Gzero\Core\BlockFinder;
 use Gzero\Entity\Block;
 use Illuminate\Cache\CacheManager;
+use Aedart\Testing\Laravel\Traits\TestHelperTrait;
 use Mockery as m;
 
 /**
@@ -16,7 +17,9 @@ use Mockery as m;
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2015, Adrian Skierniewski
  */
-class BlockFinderTest extends \TestCase {
+class BlockFinderTest extends \Codeception\Test\Unit {
+
+    use TestHelperTrait;
 
     /**
      * @var \Gzero\Core\BlockFinder
@@ -28,15 +31,18 @@ class BlockFinderTest extends \TestCase {
      */
     protected $repo;
 
-    public function setUp()
+    protected function _before()
     {
-        parent::setUp();
+        // Start the Laravel application
+        $this->startApplication();
         $this->repo   = m::mock('Gzero\Repository\BlockRepository');
         $this->finder = new BlockFinder($this->repo, new CacheManager($this->app));
     }
 
-    public function tearDown()
+    public function after()
     {
+        // Stop the Laravel application
+        $this->stopApplication();
         m::close();
     }
 

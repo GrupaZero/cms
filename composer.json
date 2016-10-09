@@ -35,7 +35,8 @@
         "orchestra/testbench": "3.3.*",
         "squizlabs/php_codesniffer": "1.*",
         "satooshi/php-coveralls": "dev-master",
-        "doctrine/dbal": "^2.5"
+        "codeception/codeception": "2.2.*",
+        "aedart/testing-laravel": "1.8.*"
     },
     "autoload": {
         "psr-4": {
@@ -43,6 +44,11 @@
         },
         "classmap": [
             "database/migrations"
+        ]
+    },
+    "autoload-dev": {
+        "classmap": [
+            "tests/TestCase.php"
         ]
     },
     "minimum-stability": "stable"

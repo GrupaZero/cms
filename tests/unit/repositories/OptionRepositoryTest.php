@@ -5,9 +5,8 @@ use Gzero\Entity\Option;
 use Gzero\Entity\OptionCategory;
 use Gzero\Repository\OptionRepository;
 
-
-require_once(__DIR__ . '/../stub/TestSeeder.php');
-require_once(__DIR__ . '/../stub/TestTreeSeeder.php');
+require_once(__DIR__ . '/../../stub/TestSeeder.php');
+require_once(__DIR__ . '/../../stub/TestTreeSeeder.php');
 
 /**
  * This file is part of the GZERO CMS package.
@@ -21,7 +20,7 @@ require_once(__DIR__ . '/../stub/TestTreeSeeder.php');
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2015, Adrian Skierniewski
  */
-class OptionRepositoryTest extends \EloquentTestCase {
+class OptionRepositoryTest extends \TestCase {
 
     /**
      * @var OptionRepository
@@ -30,12 +29,18 @@ class OptionRepositoryTest extends \EloquentTestCase {
 
     protected $expectedOptions;
 
-    public function setUp()
+    protected function _before()
     {
-        parent::setUp();
-
+        // Start the Laravel application
+        $this->startApplication();
         $this->recreateRepository();
         $this->setExpectedOptions();
+    }
+
+    public function _after()
+    {
+        // Stop the Laravel application
+        $this->stopApplication();
     }
 
     /**
