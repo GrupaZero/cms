@@ -17,7 +17,7 @@ class CreateBlock extends Migration {
             'BlockTypes',
             function (Blueprint $table) {
                 $table->string('name')->index()->unique();
-                $table->boolean('isActive');
+                $table->boolean('isActive')->default(false);
                 $table->timestamp('createdAt')->useCurrent();
                 $table->timestamp('updatedAt')->useCurrent();
             }
@@ -36,8 +36,8 @@ class CreateBlock extends Migration {
                 $table->text('filter')->nullable();
                 $table->text('options')->nullable();
                 $table->integer('weight')->default(0);
-                $table->boolean('isActive')->default(0);
-                $table->boolean('isCacheable')->default(0);
+                $table->boolean('isActive')->default(false);
+                $table->boolean('isCacheable')->default(false);
                 $table->timestamp('createdAt')->useCurrent();
                 $table->timestamp('updatedAt')->useCurrent();
                 $table->timestamp('deletedAt')->nullable();
@@ -56,7 +56,7 @@ class CreateBlock extends Migration {
                 $table->string('title');
                 $table->text('body')->nullable();
                 $table->text('customFields')->nullable();
-                $table->boolean('isActive');
+                $table->boolean('isActive')->default(false);
                 $table->timestamp('createdAt')->useCurrent();
                 $table->timestamp('updatedAt')->useCurrent();
                 $table->foreign('blockId')->references('id')->on('Blocks')->onDelete('CASCADE');
@@ -70,8 +70,8 @@ class CreateBlock extends Migration {
                 $table->increments('id');
                 $table->string('name')->unique();
                 $table->text('args')->nullable();
-                $table->boolean('isActive');
-                $table->boolean('isCacheable');
+                $table->boolean('isActive')->default(false);
+                $table->boolean('isCacheable')->default(false);
                 $table->timestamp('createdAt')->useCurrent();
                 $table->timestamp('updatedAt')->useCurrent();
             }

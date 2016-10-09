@@ -23,7 +23,7 @@ class CreateUser extends Migration {
                 $table->string('firstName')->nullable();
                 $table->string('lastName')->nullable();
                 $table->string('rememberToken')->nullable();
-                $table->boolean('isAdmin')->default(0);
+                $table->boolean('isAdmin')->default(false);
                 $table->timestamp('createdAt')->useCurrent();
                 $table->timestamp('updatedAt')->useCurrent();
             }

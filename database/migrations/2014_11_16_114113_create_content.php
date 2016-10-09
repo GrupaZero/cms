@@ -17,7 +17,7 @@ class CreateContent extends Migration {
             'ContentTypes',
             function (Blueprint $table) {
                 $table->string('name')->index()->unique();
-                $table->boolean('isActive');
+                $table->boolean('isActive')->default(false);
                 $table->timestamp('createdAt')->useCurrent();
                 $table->timestamp('updatedAt')->useCurrent();
             }
@@ -58,12 +58,12 @@ class CreateContent extends Migration {
                 $table->increments('id');
                 $table->string('langCode', 2);
                 $table->integer('contentId')->unsigned();
-                $table->string('title');
-                $table->text('teaser');
-                $table->text('body');
-                $table->string('seoTitle');
-                $table->string('seoDescription');
-                $table->boolean('isActive');
+                $table->string('title')->nullable();
+                $table->text('teaser')->nullable();
+                $table->text('body')->nullable();
+                $table->string('seoTitle')->nullable();
+                $table->string('seoDescription')->nullable();
+                $table->boolean('isActive')->default(false);
                 $table->timestamp('createdAt')->useCurrent();
                 $table->timestamp('updatedAt')->useCurrent();
                 $table->foreign('contentId')->references('id')->on('Contents')->onDelete('CASCADE');

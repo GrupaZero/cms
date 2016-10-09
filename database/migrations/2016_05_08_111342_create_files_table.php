@@ -18,7 +18,7 @@ class CreateFilesTable extends Migration
             function (Blueprint $table) {
                 $table->string('name')->index()->unique();
                 $table->text('extensions')->nullable();
-                $table->boolean('isActive');
+                $table->boolean('isActive')->default(false);
                 $table->timestamp('createdAt')->useCurrent();
                 $table->timestamp('updatedAt')->useCurrent();
             }
@@ -35,7 +35,7 @@ class CreateFilesTable extends Migration
                 $table->string('mimeType');
                 $table->text('info')->nullable();
                 $table->integer('createdBy')->unsigned()->nullable();
-                $table->boolean('isActive');
+                $table->boolean('isActive')->default(false);
                 $table->timestamp('createdAt')->useCurrent();
                 $table->timestamp('updatedAt')->useCurrent();
                 $table->foreign('createdBy')->references('id')->on('Users')->onDelete('SET NULL');
@@ -65,7 +65,7 @@ class CreateFilesTable extends Migration
                 $table->integer('fileId')->unsigned()->index();
                 $table->integer('uploadableId')->unsigned()->nullable();
                 $table->string('uploadableType')->nullable();
-                $table->integer('weight');
+                $table->integer('weight')->default(0);
                 $table->timestamp('createdAt')->useCurrent();
                 $table->timestamp('updatedAt')->useCurrent();
                 $table->foreign('fileId')->references('id')->on('Files')->onDelete('CASCADE');
