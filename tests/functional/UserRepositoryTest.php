@@ -40,11 +40,11 @@ class UserRepositoryTest extends \EloquentTestCase {
     {
         $user = $this->repository->create(
             [
-                'email'     => 'test_user@phpunit.com',
+                'email'     => 'test_user@user.com',
                 'password'  => 'test',
                 'nickName'  => 'Nickname',
-                'firstName' => 'Jan',
-                'lastName'  => 'Kowalski',
+                'firstName' => 'John',
+                'lastName'  => 'Doe',
             ]
         );
 
@@ -75,25 +75,25 @@ class UserRepositoryTest extends \EloquentTestCase {
     {
         $firstUser = $this->repository->create(
             [
-                'email'     => 'first_user@phpunit.com',
+                'email'     => 'first_user@user.com',
                 'password'  => 'test',
                 'nickName'  => '',
-                'firstName' => 'Jan',
-                'lastName'  => 'Kowalski',
+                'firstName' => 'John',
+                'lastName'  => 'Doe',
             ]
         );
 
         $secondUser = $this->repository->create(
             [
-                'email'     => 'second_user@phpunit.com',
+                'email'     => 'second_user@user.com',
                 'password'  => 'test',
                 'nickName'  => '',
-                'firstName' => 'Jan',
-                'lastName'  => 'Kowalski',
+                'firstName' => 'John',
+                'lastName'  => 'Doe',
             ]
         );
 
-        $firstUserFromDb = $this->repository->getById($firstUser->id);
+        $firstUserFromDb  = $this->repository->getById($firstUser->id);
         $secondUserFromDb = $this->repository->getById($secondUser->id);
 
         $this->assertEquals(
@@ -138,10 +138,10 @@ class UserRepositoryTest extends \EloquentTestCase {
     {
         $user = $this->repository->create(
             [
-                'email'     => 'test_user@phpunit.com',
-                'password'  => 'abc',
-                'firstName' => 'Jan',
-                'lastName'  => 'Kowalski',
+                'email'     => 'test_user@user.com',
+                'password'  => 'password',
+                'firstName' => 'John',
+                'lastName'  => 'Doe',
             ]
         );
 
@@ -157,10 +157,10 @@ class UserRepositoryTest extends \EloquentTestCase {
     {
         $user = $this->repository->create(
             [
-                'email'     => 'delete@phpunit.com',
-                'password'  => 'abc',
-                'firstName' => 'Jan',
-                'lastName'  => 'Kowalski',
+                'email'     => 'delete@user.com',
+                'password'  => 'password',
+                'firstName' => 'John',
+                'lastName'  => 'Doe',
             ]
         );
 
@@ -182,19 +182,38 @@ class UserRepositoryTest extends \EloquentTestCase {
      */
     public function can_sort_users_list()
     {
+
+        $user = $this->repository->create(
+            [
+                'email'     => 'alpha@user.com',
+                'password'  => 'password',
+                'firstName' => 'John',
+                'lastName'  => 'Doe'
+            ]
+        );
+
+        $user1 = $this->repository->create(
+            [
+                'email'     => 'beta@user.com',
+                'password'  => 'password',
+                'firstName' => 'Steve',
+                'lastName'  => 'Doe'
+            ]
+        );
+
         // ASC
         $result = $this->repository->getUsers([], [['email', 'ASC']], null);
 
-        $this->assertEquals($result[0]->email, 'a@a.pl');
+        $this->assertEquals($result[0]->email, 'admin@gzero.pl');
+        $this->assertEquals($result[1]->email, $user->email);
+        $this->assertEquals($result[2]->email, $user1->email);
 
-        $last = $result->toArray();
-        $last = array_pop($last);
         // DESC
         $result = $this->repository->getUsers([], [['email', 'DESC']], null);
 
-        $this->assertEquals($result[0]->email, $last['email']);
+        $this->assertEquals($result[0]->email, $user1->email);
+        $this->assertEquals($result[1]->email, $user->email);
+        $this->assertEquals($result[2]->email, 'admin@gzero.pl');
     }
-
-
 }
 

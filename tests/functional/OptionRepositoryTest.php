@@ -1,6 +1,6 @@
 <?php namespace functional;
 
-use TestSeeder;
+use Gzero\Entity\Lang;
 use Gzero\Entity\Option;
 use Gzero\Entity\OptionCategory;
 use Gzero\Repository\OptionRepository;
@@ -28,12 +28,14 @@ class OptionRepositoryTest extends \EloquentTestCase {
      */
     protected $repository;
 
+    protected $expectedOptions;
+
     public function setUp()
     {
         parent::setUp();
 
-        $this->seed('TestSeeder');
         $this->recreateRepository();
+        $this->setExpectedOptions();
     }
 
     /**
@@ -59,11 +61,11 @@ class OptionRepositoryTest extends \EloquentTestCase {
     /**
      * @test
      * @expectedException \Gzero\Repository\RepositoryException
-     * @expectedExceptionMessage Option nonexistent option in category main does not exist
+     * @expectedExceptionMessage Option nonexistent option in category general does not exist
      */
     public function it_checks_existence_of_option_when_getting_an_option()
     {
-        $this->repository->getOption(TestSeeder::CATEGORY_MAIN, 'nonexistent option');
+        $this->repository->getOption('general', 'nonexistent option');
     }
 
     /**
@@ -89,44 +91,33 @@ class OptionRepositoryTest extends \EloquentTestCase {
     /**
      * @test
      * @expectedException \Gzero\Repository\RepositoryException
-     * @expectedExceptionMessage Option nonexistent option in category main does not exist
+     * @expectedExceptionMessage Option nonexistent option in category general does not exist
      */
     public function it_checks_existence_of_option_when_deleting_an_option()
     {
-        $this->repository->deleteOption(TestSeeder::CATEGORY_MAIN, 'nonexistent option');
+        $this->repository->deleteOption('general', 'nonexistent option');
     }
 
     /**
      * @test
      */
-    public function it_gets_standard_option()
+    public function it_gets_general_option()
     {
         self::assertEquals(
-            TestSeeder::OPTION_VALUE_STANDARD,
-            $this->repository->getOption(TestSeeder::CATEGORY_MAIN, TestSeeder::OPTION_STANDARD)
+            $this->expectedOptions['general']['siteName']['en'],
+            $this->repository->getOption('general', 'siteName')['en']
         );
     }
 
     /**
      * @test
      */
-    public function it_gets_standard_options()
+    public function it_gets_general_options()
     {
-        $retrievedOptions = $this->repository->getOptions(TestSeeder::CATEGORY_MAIN);
 
-        $expectedOptions             = [
-            TestSeeder::OPTION_STANDARD  => TestSeeder::OPTION_VALUE_STANDARD,
-            TestSeeder::OPTION_STANDARD2 => TestSeeder::OPTION_VALUE_STANDARD2
-        ];
-        $retrievedNonexistentOptions = array_diff($retrievedOptions, $expectedOptions);
-        self::assertEmpty(
-            $retrievedNonexistentOptions,
-            "retrieved nonexistent options: " . http_build_query($retrievedNonexistentOptions, '', ',')
-        );
-        $nonRetrievedOptions = array_diff($expectedOptions, $retrievedOptions);
-        self::assertEmpty(
-            $nonRetrievedOptions,
-            "non retrieved options: " . http_build_query($nonRetrievedOptions, '', ',')
+        self::assertEquals(
+            $this->expectedOptions['general'],
+            $this->repository->getOptions('general')
         );
 
     }
@@ -147,7 +138,7 @@ class OptionRepositoryTest extends \EloquentTestCase {
      */
     public function can_create_option()
     {
-        $mainCategory = TestSeeder::CATEGORY_MAIN;
+        $mainCategory = 'general';
         $newOptionKey = 'some option';
         $value        = ['en' => 'new option value'];
 
@@ -167,8 +158,8 @@ class OptionRepositoryTest extends \EloquentTestCase {
      */
     public function can_delete_category()
     {
-        $this->repository->deleteCategory(TestSeeder::CATEGORY_MAIN);
-        self::assertNull(OptionCategory::find(TestSeeder::CATEGORY_MAIN));
+        $this->repository->deleteCategory('general');
+        self::assertNull(OptionCategory::find('general'));
     }
 
     /**
@@ -176,10 +167,10 @@ class OptionRepositoryTest extends \EloquentTestCase {
      */
     public function can_delete_option()
     {
-        $this->repository->deleteOption(TestSeeder::CATEGORY_MAIN, TestSeeder::OPTION_STANDARD);
+        $this->repository->deleteOption('general', 'siteName');
         self::assertFalse(
-            OptionCategory::find(TestSeeder::CATEGORY_MAIN)->options()->
-            where(['key' => TestSeeder::OPTION_STANDARD])->exists()
+            OptionCategory::find('general')->options()->
+            where(['key' => 'siteName'])->exists()
         );
     }
     
@@ -188,4 +179,28 @@ class OptionRepositoryTest extends \EloquentTestCase {
         $this->repository = new OptionRepository(new OptionCategory(), new Option(), new \Illuminate\Cache\CacheManager($this->app));
     }
 
+    private function setExpectedOptions()
+    {
+        $this->expectedOptions = [
+            'general' => [
+                'siteName'         => [],
+                'siteDesc'         => [],
+                'defaultPageSize'  => [],
+                'cookiesPolicyUrl' => [],
+            ],
+            'seo'     => [
+                'seoDescLength'     => [],
+                'googleAnalyticsId' => [],
+            ]
+        ];
+
+        // Propagate Lang options based on gzero config
+        foreach ($this->expectedOptions as $categoryKey => $category) {
+            foreach ($this->expectedOptions[$categoryKey] as $key => $option) {
+                foreach (Lang::all()->toArray() as $lang) {
+                    $this->expectedOptions[$categoryKey][$key][$lang['code']] = config('gzero.' . $key);
+                }
+            }
+        }
+    }
 }

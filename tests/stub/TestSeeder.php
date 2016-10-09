@@ -46,8 +46,6 @@ class TestSeeder extends Seeder {
         $this->seedLangs();
         $this->seedContentTypes();
         $this->seedBlockTypes();
-        $this->seedUsers();
-        $this->seedOptions();
         $this->seedFileTypes();
     }
 
@@ -115,60 +113,6 @@ class TestSeeder extends Seeder {
     {
         foreach (['image', 'document', 'video', 'music'] as $type) {
             FileType::firstOrCreate(['name' => $type, 'isActive' => true]);
-        }
-    }
-
-    /**
-     * Seed users
-     *
-     * @return array
-     */
-    private function seedUsers()
-    {
-        $users = [];
-
-        $users[] = (User::find(['email' => 'a@a.pl'])) ?: User::create(
-            [
-                'email'         => 'a@a.pl',
-                'nickName'      => 'Example user',
-                'firstName'     => 'John',
-                'lastName'      => 'Doe',
-                'password'      => 'test',
-                'rememberToken' => true
-            ]
-        );
-
-        $users[] = (User::find(['email' => 'b@b.pl'])) ?: User::create(
-            [
-                'email'         => 'b@b.pl',
-                'nickName'      => 'Test user',
-                'firstName'     => 'John',
-                'lastName'      => 'Doe',
-                'password'      => 'test123',
-                'rememberToken' => true
-
-            ]
-        );
-
-        return $users;
-    }
-
-    const CATEGORY_MAIN = 'main';
-    const OPTION_STANDARD = 'standard';
-    const OPTION_STANDARD2 = 'standard2';
-    const OPTION_VALUE_STANDARD = 'cisco';
-    const OPTION_VALUE_STANDARD2 = 'microsoft';
-
-    private function seedOptions()
-    {
-        if (!OptionCategory::find(['key' => self::CATEGORY_MAIN])) {
-            OptionCategory::create(['key' => self::CATEGORY_MAIN]);
-            OptionCategory::find(self::CATEGORY_MAIN)->options()->create(
-                ['key' => self::OPTION_STANDARD, 'value' => self::OPTION_VALUE_STANDARD]
-            );
-            OptionCategory::find(self::CATEGORY_MAIN)->options()->create(
-                ['key' => self::OPTION_STANDARD2, 'value' => self::OPTION_VALUE_STANDARD2]
-            );
         }
     }
 

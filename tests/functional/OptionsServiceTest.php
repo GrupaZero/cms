@@ -1,6 +1,6 @@
 <?php namespace functional;
 
-use TestSeeder;
+use Gzero\Entity\Lang;
 use Gzero\Entity\Option;
 use Gzero\Entity\OptionCategory;
 use Gzero\Repository\OptionRepository;
@@ -21,13 +21,15 @@ class OptionsServiceTest extends \EloquentTestCase {
      */
     protected $service;
 
+    protected $expectedOptions;
+
     public function setUp()
     {
         parent::setUp();
 
-        $this->seed('TestSeeder');
         $this->recreateRepository();
         $this->service = new OptionsService($this->repository);
+        $this->setExpectedOptions();
     }
 
     /**
@@ -39,7 +41,9 @@ class OptionsServiceTest extends \EloquentTestCase {
 
         $this->assertEquals(
             [
-                0 => 'main'
+                0 => 'general',
+                1 => 'seo'
+
             ],
             $categories
         );
@@ -50,15 +54,9 @@ class OptionsServiceTest extends \EloquentTestCase {
      */
     public function can_get_options_from_given_category()
     {
-        $options = $this->service->getOptions('main');
+        $options = $this->service->getOptions('general');
 
-        $this->assertEquals(
-            [
-                'standard'  => 'cisco',
-                'standard2' => 'microsoft'
-            ],
-            $options
-        );
+        $this->assertEquals($this->expectedOptions['general'], $options);
     }
 
     /**
@@ -66,9 +64,9 @@ class OptionsServiceTest extends \EloquentTestCase {
      */
     public function can_get_single_option()
     {
-        $option = $this->service->getOption('main', 'standard');
+        $option = $this->service->getOption('general', 'siteName')['en'];
 
-        $this->assertEquals('cisco', $option);
+        $this->assertEquals($this->expectedOptions['general']['siteName']['en'], $option);
     }
 
     private function recreateRepository()
@@ -80,4 +78,28 @@ class OptionsServiceTest extends \EloquentTestCase {
         );
     }
 
+    private function setExpectedOptions()
+    {
+        $this->expectedOptions = [
+            'general' => [
+                'siteName'         => [],
+                'siteDesc'         => [],
+                'defaultPageSize'  => [],
+                'cookiesPolicyUrl' => [],
+            ],
+            'seo'     => [
+                'seoDescLength'     => [],
+                'googleAnalyticsId' => [],
+            ]
+        ];
+
+        // Propagate Lang options based on gzero config
+        foreach ($this->expectedOptions as $categoryKey => $category) {
+            foreach ($this->expectedOptions[$categoryKey] as $key => $option) {
+                foreach (Lang::all()->toArray() as $lang) {
+                    $this->expectedOptions[$categoryKey][$key][$lang['code']] = config('gzero.' . $key);
+                }
+            }
+        }
+    }
 }
