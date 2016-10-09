@@ -15,7 +15,6 @@ class MigratedTestCase extends Orchestra\Testbench\TestCase {
         parent::setUp();
         if (!self::$initialSetup) { // We only want to migrate once at the beginning of tests
             self::$initialSetup = true;
-            echo 'Migrate';
             $this->artisan(
                 'migrate',
                 [
