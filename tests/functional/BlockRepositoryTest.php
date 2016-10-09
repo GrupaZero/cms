@@ -60,12 +60,13 @@ class BlockRepositoryTest extends \EloquentTestCase {
         $this->seed('TestSeeder'); // Relative to tests/app/
     }
 
-    public function tearDown()
+    protected function tearDown()
     {
         $dirName = config('gzero.upload.directory');
         if ($dirName) {
             Storage::deleteDirectory($dirName);
         }
+        parent::tearDown();
     }
 
     /*

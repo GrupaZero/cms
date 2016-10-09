@@ -10,7 +10,7 @@ class EloquentTestCase extends MigratedTestCase {
     public function setUp()
     {
         parent::setUp();
-        $this->restartEloquentEvents();
+        //$this->restartEloquentEvents();
     }
 
     protected function restartEloquentEvents()

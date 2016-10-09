@@ -34,7 +34,8 @@
         "phpmd/phpmd": "2.*",
         "orchestra/testbench": "3.3.*",
         "squizlabs/php_codesniffer": "1.*",
-        "satooshi/php-coveralls": "dev-master"
+        "satooshi/php-coveralls": "dev-master",
+        "doctrine/dbal": "^2.5"
     },
     "autoload": {
         "psr-4": {

@@ -316,7 +316,8 @@ abstract class BaseRepository {
         $count = $this->newQuery()
             ->table('RouteTranslations')
             ->where('langCode', $langCode)
-            ->whereRaw("url REGEXP '^$url($|-[0-9]+$)'")
+            ->where("url", "LIKE", "$url-%")
+            //->whereRaw("url REGEXP '^$url($|-[0-9]+$)'")
             ->count();
         return ($count) ? $url . '-' . $count : $url;
     }

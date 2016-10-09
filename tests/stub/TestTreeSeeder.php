@@ -39,7 +39,7 @@ class TestTreeSeeder extends Seeder {
      */
     public function run()
     {
-        $this->truncate();
+        //$this->truncate();
         $this->seedUsers();
         $this->seedLangs();
         $contentTypes = $this->seedContentTypes();

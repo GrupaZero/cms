@@ -6,10 +6,8 @@ use Gzero\Entity\ContentType;
 use Gzero\Entity\FileType;
 use Gzero\Entity\Lang;
 use Gzero\Entity\User;
-use Gzero\Entity\Option;
 use Gzero\Entity\OptionCategory;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
 use Gzero\Repository\UserRepository;
 
 /**
@@ -44,7 +42,7 @@ class TestSeeder extends Seeder {
      */
     public function run()
     {
-        $this->truncate();
+        //$this->truncate();
         $this->seedLangs();
         $this->seedContentTypes();
         $this->seedBlockTypes();
@@ -129,26 +127,24 @@ class TestSeeder extends Seeder {
     {
         $users = [];
 
-        // Create users
-        $users[] = User::firstOrCreate(
+        $users[] = (User::find(['email' => 'a@a.pl'])) ?: User::create(
             [
                 'email'         => 'a@a.pl',
                 'nickName'      => 'Example user',
                 'firstName'     => 'John',
                 'lastName'      => 'Doe',
-                'password'      => Hash::make('test'),
+                'password'      => 'test',
                 'rememberToken' => true
-
             ]
         );
 
-        $users[] = User::firstOrCreate(
+        $users[] = (User::find(['email' => 'b@b.pl'])) ?: User::create(
             [
                 'email'         => 'b@b.pl',
                 'nickName'      => 'Test user',
                 'firstName'     => 'John',
                 'lastName'      => 'Doe',
-                'password'      => Hash::make('test123'),
+                'password'      => 'test123',
                 'rememberToken' => true
 
             ]
@@ -165,13 +161,15 @@ class TestSeeder extends Seeder {
 
     private function seedOptions()
     {
-        OptionCategory::create(['key' => self::CATEGORY_MAIN]);
-        OptionCategory::find(self::CATEGORY_MAIN)->options()->create(
-            ['key' => self::OPTION_STANDARD, 'value' => self::OPTION_VALUE_STANDARD]
-        );
-        OptionCategory::find(self::CATEGORY_MAIN)->options()->create(
-            ['key' => self::OPTION_STANDARD2, 'value' => self::OPTION_VALUE_STANDARD2]
-        );
+        if (!OptionCategory::find(['key' => self::CATEGORY_MAIN])) {
+            OptionCategory::create(['key' => self::CATEGORY_MAIN]);
+            OptionCategory::find(self::CATEGORY_MAIN)->options()->create(
+                ['key' => self::OPTION_STANDARD, 'value' => self::OPTION_VALUE_STANDARD]
+            );
+            OptionCategory::find(self::CATEGORY_MAIN)->options()->create(
+                ['key' => self::OPTION_STANDARD2, 'value' => self::OPTION_VALUE_STANDARD2]
+            );
+        }
     }
 
     /**
