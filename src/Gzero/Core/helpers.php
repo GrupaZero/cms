@@ -5,23 +5,37 @@ if (!function_exists('setMultilangRouting')) {
     /**
      * Returns routing array with lang prefix
      *
+     * @param array $routingOptions Additional routing options
+     *
      * @return array
      */
-    function setMultilangRouting()
+    function setMultilangRouting(Array $routingOptions = [])
     {
-        if (Config::get('gzero.multilang.enabled')) {
-            if (Config::get('gzero.multilang.subdomain')) {
-                if (Config::get('gzero.multilang.detected')) {
-                    return ['domain' => Request::getHost()];
+        if (config('gzero.multilang.enabled')) {
+            if (config('gzero.multilang.subdomain')) {
+                if (config('gzero.multilang.detected')) {
+                    return array_merge(
+                        $routingOptions,
+                        ['domain' => request()->getHost()]
+                    );
                 } else {
-                    return ['domain' => App::getLocale() . '.' . Config::get('gzero.domain')];
+                    return array_merge(
+                        $routingOptions,
+                        ['domain' => app()->getLocale() . '.' . config('gzero.domain')]
+                    );
                 }
             } else {
-                return ['domain' => Config::get('gzero.domain'), 'prefix' => App::getLocale()];
+                return array_merge(
+                    $routingOptions,
+                    ['domain' => config('gzero.domain'), 'prefix' => app()->getLocale()]
+                );
             }
         } else {
             // Set domain for static pages block finder
-            return ['domain' => Config::get('gzero.domain')];
+            return array_merge(
+                $routingOptions,
+                ['domain' => config('gzero.domain')]
+            );
         }
     }
 }

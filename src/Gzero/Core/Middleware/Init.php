@@ -18,14 +18,6 @@ use Illuminate\Http\RedirectResponse;
 class Init {
 
     /**
-     * Constructor
-     *
-     */
-    public function __construct()
-    {
-    }
-
-    /**
      * Handle an incoming request.
      *
      * @param \Illuminate\Http\Request $request Request object
