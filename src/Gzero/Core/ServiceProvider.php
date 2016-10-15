@@ -93,6 +93,7 @@ class ServiceProvider extends AbstractServiceProvider {
         $this->detectLanguage();
         $this->registerCommands();
         $this->registerPolicies();
+        $this->registerMigrations();
     }
 
     /**
@@ -248,6 +249,16 @@ class ServiceProvider extends AbstractServiceProvider {
             __DIR__ . '/../../../config/gzero.php',
             'gzero'
         );
+    }
+
+    /**
+     * It registers db migrations
+     *
+     * @return void
+     */
+    protected function registerMigrations()
+    {
+        $this->loadMigrationsFrom(__DIR__ . '/../../../database/migrations');
     }
 
 }
