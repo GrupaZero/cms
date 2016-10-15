@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "624efc28ba00388e0cbbc5f1a4f2be9a",
-    "content-hash": "a7b3d2a68ac1d57c3ddb7f7afbc67340",
+    "hash": "5db99414d99321f31e47fa4f3f7aa755",
+    "content-hash": "0eed98757fa278687c1838aee16ea957",
     "packages": [
         {
             "name": "classpreloader/classpreloader",
@@ -2647,6 +2647,34 @@
                 "uri"
             ],
             "time": "2016-06-24 23:00:38"
+        },
+        {
+            "name": "gzero/testing-db",
+            "version": "v0.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/GrupaZero/testing-db.git",
+                "reference": "7d01b0d7c4fcd228c4fdd0a26b0dc437d14f2fc6"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/GrupaZero/testing-db/zipball/7d01b0d7c4fcd228c4fdd0a26b0dc437d14f2fc6",
+                "reference": "7d01b0d7c4fcd228c4fdd0a26b0dc437d14f2fc6",
+                "shasum": ""
+            },
+            "type": "library",
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Adrian Skierniewski",
+                    "email": "adrian.skierniewski@gmail.com"
+                }
+            ],
+            "description": "Package that helps testing DB across our packages",
+            "time": "2016-10-15 14:16:37"
         },
         {
             "name": "hamcrest/hamcrest-php",
