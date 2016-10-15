@@ -13,7 +13,7 @@ before_script:
   - mysql -e 'create database `gzero-tests`;'
 
 script:
-  - ./vendor/bin/phpmd src/ text phpmd.xml
+  - ./vendor/bin/phpmd src/ text phpmd.xml --exclude src/Gzero/Core/laravel_helpers.php
   - ./vendor/bin/phpcs --standard=ruleset.xml src/ -n # -n no warnings
   - php vendor/bin/codecept run -c codeception.yml --coverage --coverage-xml
   - mkdir -p build/logs
