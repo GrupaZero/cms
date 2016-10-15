@@ -18,7 +18,6 @@ class TestCase extends \Codeception\Test\Unit {
      */
     protected function getEnvironmentSetUp($app)
     {
-        // Setup default database to use sqlite :memory:
         $app['config']->set('database.default', 'testbench');
         $app['config']->set(
             'database.connections.testbench',
@@ -35,6 +34,12 @@ class TestCase extends \Codeception\Test\Unit {
                 'strict'    => true,
                 'engine'    => null,
             ]
+        );
+
+        $this->beforeApplicationDestroyed(
+            function () {
+                \DB::disconnect('testbench');
+            }
         );
     }
 
