@@ -24,6 +24,13 @@ class RouteTranslation extends Base {
     ];
 
     /**
+     * @var array
+     */
+    protected $attributes = [
+        'isActive' => false
+    ];
+
+    /**
      * Lang reverse relation
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo

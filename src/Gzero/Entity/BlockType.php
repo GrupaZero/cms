@@ -31,4 +31,11 @@ class BlockType extends Base {
         'name',
         'isActive'
     ];
+
+    /**
+     * @var array
+     */
+    protected $attributes = [
+        'isActive' => false
+    ];
 }

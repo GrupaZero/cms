@@ -19,7 +19,7 @@ require_once(__DIR__ . '/../../stub/TestTreeSeeder.php');
  * @author     Mateusz Urbanowicz <urbanowiczmateusz89@gmail.com>
  * @copyright  Copyright (c) 2015, Mateusz Urbanowicz
  */
-class UserRepositoryTest extends \TestCase  {
+class UserRepositoryTest extends \TestCase {
 
     /**
      * @var \UnitTester
@@ -36,7 +36,6 @@ class UserRepositoryTest extends \TestCase  {
         // Start the Laravel application
         $this->startApplication();
         $this->repository = new UserRepository(new User(), new Dispatcher());
-        $this->seed('TestSeeder'); // Relative to tests/app/
     }
 
     public function _after()
@@ -48,19 +47,18 @@ class UserRepositoryTest extends \TestCase  {
     /**
      * @test
      */
-    public function can_create_user_and_get_user_by_id()
+    public function can_create_user_and_get_it_by_id()
     {
-        $user = $this->repository->create(
-            [
-                'email'     => 'test_user@user.com',
-                'password'  => 'test',
-                'nickName'  => 'Nickname',
-                'firstName' => 'John',
-                'lastName'  => 'Doe',
-            ]
-        );
+        $userData = [
+            'email'     => 'john.doe@example.com',
+            'password'  => 'secret',
+            'nickName'  => 'Nickname',
+            'firstName' => 'John',
+            'lastName'  => 'Doe',
+        ];
 
-        $created = $this->repository->getById($user->id);
+        $user       = $this->repository->create($userData);
+        $userFromDb = $this->repository->getById($user->id);
 
         $this->assertEquals(
             [
@@ -71,11 +69,11 @@ class UserRepositoryTest extends \TestCase  {
                 $user->lastName
             ],
             [
-                $created->email,
-                $created->id,
-                $created->nickName,
-                $created->firstName,
-                $created->lastName
+                $userFromDb->email,
+                $userFromDb->id,
+                $userFromDb->nickName,
+                $userFromDb->firstName,
+                $userFromDb->lastName
             ]
         );
     }
@@ -85,25 +83,25 @@ class UserRepositoryTest extends \TestCase  {
      */
     public function can_create_user_with_empty_nickname_as_anonymous()
     {
-        $firstUser = $this->repository->create(
-            [
-                'email'     => 'first_user@user.com',
-                'password'  => 'test',
-                'nickName'  => '',
-                'firstName' => 'John',
-                'lastName'  => 'Doe',
-            ]
-        );
 
-        $secondUser = $this->repository->create(
-            [
-                'email'     => 'second_user@user.com',
-                'password'  => 'test',
-                'nickName'  => '',
-                'firstName' => 'John',
-                'lastName'  => 'Doe',
-            ]
-        );
+        $firstUserData = [
+            'email'     => 'john.doe@example.com',
+            'password'  => 'secret',
+            'nickName'  => '',
+            'firstName' => 'John',
+            'lastName'  => 'Doe',
+        ];
+
+        $secondUserData = [
+            'email'     => 'jane.doe@example.com',
+            'password'  => 'secret',
+            'nickName'  => '',
+            'firstName' => 'Jane',
+            'lastName'  => 'Doe',
+        ];
+
+        $firstUser  = $this->repository->create($firstUserData);
+        $secondUser = $this->repository->create($secondUserData);
 
         $firstUserFromDb  = $this->repository->getById($firstUser->id);
         $secondUserFromDb = $this->repository->getById($secondUser->id);
@@ -146,20 +144,20 @@ class UserRepositoryTest extends \TestCase  {
     /**
      * @test
      */
-    public function password_is_hashed_after_user_update()
+    public function it_hashes_user_password_when_updating_user()
     {
         $user = $this->repository->create(
             [
-                'email'     => 'test_user@user.com',
+                'email'     => 'john.doe@example.com',
                 'password'  => 'password',
                 'firstName' => 'John',
                 'lastName'  => 'Doe',
             ]
         );
 
-        $this->repository->update($user, ['password' => 'test']);
+        $this->repository->update($user, ['password' => 'secret']);
 
-        $this->assertTrue(Hash::check('test', $user->password));
+        $this->assertTrue(Hash::check('secret', $user->password));
     }
 
     /**
@@ -167,26 +165,25 @@ class UserRepositoryTest extends \TestCase  {
      */
     public function can_delete_user()
     {
-        $user = $this->repository->create(
-            [
-                'email'     => 'delete@user.com',
-                'password'  => 'password',
-                'firstName' => 'John',
-                'lastName'  => 'Doe',
-            ]
-        );
+        $userData = [
+            'email'     => 'john.doe@example.com',
+            'password'  => 'secret',
+            'nickName'  => 'Nickname',
+            'firstName' => 'John',
+            'lastName'  => 'Doe',
+        ];
 
-        $user_id = $user->id;
+        $user       = $this->repository->create($userData);
+        $userFromDb = $this->repository->getById($user->id);
 
-        $found = $this->repository->getById($user_id);
-
-        $this->assertNotNull($found);
+        $this->assertNotNull($userFromDb);
+        $this->tester->seeInDatabase('Users', $userData);
 
         $this->repository->delete($user);
 
-        $found = $this->repository->getById($user_id);
+        $userFromDb = $this->repository->getById($user->id);
 
-        $this->assertNull($found);
+        $this->assertNull($userFromDb);
     }
 
     /**
@@ -195,20 +192,20 @@ class UserRepositoryTest extends \TestCase  {
     public function can_sort_users_list()
     {
 
-        $user = $this->repository->create(
+        $firstUser = $this->repository->create(
             [
-                'email'     => 'alpha@user.com',
-                'password'  => 'password',
+                'email'     => 'john.doe@example.com',
+                'password'  => 'secret',
                 'firstName' => 'John',
                 'lastName'  => 'Doe'
             ]
         );
 
-        $user1 = $this->repository->create(
+        $secondUser = $this->repository->create(
             [
-                'email'     => 'beta@user.com',
-                'password'  => 'password',
-                'firstName' => 'Steve',
+                'email'     => 'zoe.doe@example.com',
+                'password'  => 'secret',
+                'firstName' => 'Zoe',
                 'lastName'  => 'Doe'
             ]
         );
@@ -217,14 +214,14 @@ class UserRepositoryTest extends \TestCase  {
         $result = $this->repository->getUsers([], [['email', 'ASC']], null);
 
         $this->assertEquals($result[0]->email, 'admin@gzero.pl');
-        $this->assertEquals($result[1]->email, $user->email);
-        $this->assertEquals($result[2]->email, $user1->email);
+        $this->assertEquals($result[1]->email, $firstUser->email);
+        $this->assertEquals($result[2]->email, $secondUser->email);
 
         // DESC
         $result = $this->repository->getUsers([], [['email', 'DESC']], null);
 
-        $this->assertEquals($result[0]->email, $user1->email);
-        $this->assertEquals($result[1]->email, $user->email);
+        $this->assertEquals($result[0]->email, $secondUser->email);
+        $this->assertEquals($result[1]->email, $firstUser->email);
         $this->assertEquals($result[2]->email, 'admin@gzero.pl');
     }
 }

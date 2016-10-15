@@ -40,7 +40,6 @@ class TestSeeder extends Seeder {
      */
     public function run()
     {
-        //$this->truncate();
         $this->seedLangs();
         $this->seedContentTypes();
         $this->seedBlockTypes();
@@ -112,21 +111,5 @@ class TestSeeder extends Seeder {
         foreach (['image', 'document', 'video', 'music'] as $type) {
             FileType::firstOrCreate(['name' => $type, 'isActive' => true]);
         }
-    }
-
-    /**
-     * Truncate database
-     */
-    private function truncate()
-    {
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-        $tables           = DB::select('SHOW TABLES');
-        $tablesInDatabase = "Tables_in_" . config('database.connections.testbench.database');
-        foreach ($tables as $table) {
-            if ($table->$tablesInDatabase !== 'migrations') {
-                DB::table($table->$tablesInDatabase)->truncate();
-            }
-        }
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
     }
 }

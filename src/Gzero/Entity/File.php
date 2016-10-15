@@ -32,6 +32,13 @@ class File extends Base {
     ];
 
     /**
+     * @var array
+     */
+    protected $attributes = [
+        'isActive' => false
+    ];
+
+    /**
      * File type relation
      *
      * @return \Illuminate\Database\Eloquent\Relations\belongsTo

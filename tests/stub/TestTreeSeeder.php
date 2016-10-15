@@ -39,7 +39,6 @@ class TestTreeSeeder extends Seeder {
      */
     public function run()
     {
-        //$this->truncate();
         $this->seedUsers();
         $this->seedLangs();
         $contentTypes = $this->seedContentTypes();
@@ -164,22 +163,5 @@ class TestTreeSeeder extends Seeder {
             );
         }
         return $user;
-    }
-
-
-    /**
-     * Truncate database
-     */
-    private function truncate()
-    {
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-        $tables             = DB::select('SHOW TABLES');
-        $tables_in_database = "Tables_in_" . Config::get('database.connections.testbench.database');
-        foreach ($tables as $table) {
-            if ($table->$tables_in_database !== 'migrations') {
-                DB::table($table->$tables_in_database)->truncate();
-            }
-        }
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
     }
 }

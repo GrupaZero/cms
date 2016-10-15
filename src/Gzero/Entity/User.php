@@ -39,6 +39,13 @@ class User extends Base implements AuthenticatableContract, AuthorizableContract
     ];
 
     /**
+     * @var array
+     */
+    protected $attributes = [
+        'isAdmin' => false
+    ];
+
+    /**
      * Permission map
      *
      * @var array

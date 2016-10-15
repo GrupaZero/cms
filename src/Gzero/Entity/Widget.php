@@ -25,6 +25,14 @@ class Widget extends Base {
     ];
 
     /**
+     * @var array
+     */
+    protected $attributes = [
+        'isActive' => false,
+        'isCacheable' => false
+    ];
+
+    /**
      * Block polymorphic  relation
      *
      * @return \Illuminate\Database\Eloquent\Relations\MorphMany

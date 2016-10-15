@@ -8,19 +8,12 @@ use Gzero\Repository\OptionRepository;
 require_once(__DIR__ . '/../../stub/TestSeeder.php');
 require_once(__DIR__ . '/../../stub/TestTreeSeeder.php');
 
-/**
- * This file is part of the GZERO CMS package.
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- *
- * Class ContentRepositoryTest
- *
- * @package    functional
- * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
- * @copyright  Copyright (c) 2015, Adrian Skierniewski
- */
 class OptionRepositoryTest extends \TestCase {
+
+    /**
+     * @var \UnitTester
+     */
+    protected $tester;
 
     /**
      * @var OptionRepository
@@ -50,7 +43,11 @@ class OptionRepositoryTest extends \TestCase {
      */
     public function it_checks_existence_of_category_when_getting_an_option()
     {
-        $this->repository->getOptions('nonexistent category');
+        $categoryName = 'nonexistent category';
+
+        $this->repository->getOptions($categoryName);
+
+        $this->tester->dontSeeInDatabase('OptionCategories', ['key' => $categoryName]);
     }
 
     /**
@@ -60,7 +57,13 @@ class OptionRepositoryTest extends \TestCase {
      */
     public function it_checks_existence_of_category_and_option_when_getting_an_non_existing_option()
     {
-        $this->repository->getOption('nonexistent category', 'nonexistent option');
+        $optionName   = 'nonexistent option';
+        $categoryName = 'nonexistent category';
+
+        $this->repository->getOption($categoryName, $optionName);
+
+        $this->tester->dontSeeInDatabase('Options', ['key' => $optionName]);
+        $this->tester->dontSeeInDatabase('OptionCategories', ['key' => $categoryName]);
     }
 
     /**
@@ -68,9 +71,15 @@ class OptionRepositoryTest extends \TestCase {
      * @expectedException \Gzero\Repository\RepositoryException
      * @expectedExceptionMessage Option nonexistent option in category general does not exist
      */
-    public function it_checks_existence_of_option_when_getting_an_option()
+    public function it_checks_existence_of_option_when_getting_an_option_from_existing_category()
     {
-        $this->repository->getOption('general', 'nonexistent option');
+        $optionName   = 'nonexistent option';
+        $categoryName = 'general';
+
+        $this->repository->getOption($categoryName, $optionName);
+
+        $this->tester->dontSeeInDatabase('Options', ['key' => $optionName]);
+        $this->tester->seeInDatabase('OptionCategories', ['key' => $categoryName]);
     }
 
     /**
@@ -80,7 +89,11 @@ class OptionRepositoryTest extends \TestCase {
      */
     public function it_checks_existence_of_category_when_deleting_an_option()
     {
-        $this->repository->deleteCategory('nonexistent category');
+        $categoryName = 'nonexistent category';
+
+        $this->repository->deleteCategory($categoryName);
+
+        $this->tester->dontSeeInDatabase('OptionCategories', ['key' => $categoryName]);
     }
 
     /**
@@ -90,7 +103,13 @@ class OptionRepositoryTest extends \TestCase {
      */
     public function it_checks_existence_of_category_and_option_when_deleting_an_non_existing_option()
     {
-        $this->repository->deleteOption('nonexistent category', 'nonexistent option');
+        $optionName   = 'nonexistent option';
+        $categoryName = 'nonexistent category';
+
+        $this->repository->deleteOption($categoryName, $optionName);
+
+        $this->tester->dontSeeInDatabase('Options', ['key' => $categoryName]);
+        $this->tester->dontSeeInDatabase('OptionCategories', ['key' => $categoryName]);
     }
 
     /**
@@ -100,31 +119,45 @@ class OptionRepositoryTest extends \TestCase {
      */
     public function it_checks_existence_of_option_when_deleting_an_option()
     {
-        $this->repository->deleteOption('general', 'nonexistent option');
+        $optionName   = 'nonexistent option';
+        $categoryName = 'general';
+
+        $this->repository->deleteOption($categoryName, $optionName);
+
+        $this->tester->dontSeeInDatabase('Options', ['key' => $optionName]);
+        $this->tester->seeInDatabase('OptionCategories', ['key' => $categoryName]);
     }
 
     /**
      * @test
      */
-    public function it_gets_general_option()
+    public function it_gets_option_from_general_category()
     {
-        self::assertEquals(
-            $this->expectedOptions['general']['siteName']['en'],
-            $this->repository->getOption('general', 'siteName')['en']
+        $optionName   = 'siteName';
+        $categoryName = 'general';
+
+        $this->assertEquals(
+            $this->expectedOptions[$categoryName][$optionName]['en'],
+            $this->repository->getOption($categoryName, $optionName)['en']
         );
+
+        $this->tester->seeInDatabase('Options', ['key' => $optionName]);
+        $this->tester->seeInDatabase('OptionCategories', ['key' => $categoryName]);
     }
 
     /**
      * @test
      */
-    public function it_gets_general_options()
+    public function it_gets_all_options_from_general_category()
     {
+        $categoryName = 'general';
 
-        self::assertEquals(
-            $this->expectedOptions['general'],
-            $this->repository->getOptions('general')
+        $this->assertEquals(
+            $this->expectedOptions[$categoryName],
+            $this->repository->getOptions($categoryName)
         );
 
+        $this->tester->seeInDatabase('OptionCategories', ['key' => $categoryName]);
     }
 
     /**
@@ -132,10 +165,13 @@ class OptionRepositoryTest extends \TestCase {
      */
     public function can_create_category()
     {
-        $categoryKey = 'another category';
+        $categoryName = 'New category';
 
-        $this->repository->createCategory($categoryKey);
-        self::assertNotNull(OptionCategory::find($categoryKey));
+        $this->repository->createCategory($categoryName);
+
+        $this->assertNotNull(OptionCategory::find($categoryName));
+
+        $this->tester->seeInDatabase('OptionCategories', ['key' => $categoryName]);
     }
 
     /**
@@ -143,18 +179,21 @@ class OptionRepositoryTest extends \TestCase {
      */
     public function can_create_option()
     {
-        $mainCategory = 'general';
-        $newOptionKey = 'some option';
+        $categoryName = 'general';
+        $optionName   = 'some option';
         $value        = ['en' => 'new option value'];
 
-        $this->repository->updateOrCreateOption($mainCategory, $newOptionKey, $value);
+        $this->repository->updateOrCreateOption($categoryName, $optionName, $value);
 
-        $savedOption = OptionCategory::find($mainCategory)->options()->where(['key' => $newOptionKey])->first();
-        self::assertNotNull($savedOption);
-        self::assertEquals($value, $savedOption->value);
+        $savedOption = OptionCategory::find($categoryName)->options()->where(['key' => $optionName])->first();
+        $this->assertNotNull($savedOption);
+        $this->assertEquals($value, $savedOption->value);
 
         $this->recreateRepository();
-        self::assertEquals($value, $this->repository->getOption($mainCategory, $newOptionKey));
+        $this->assertEquals($value, $this->repository->getOption($categoryName, $optionName));
+
+        $this->tester->seeInDatabase('Options', ['key' => $optionName]);
+        $this->tester->seeInDatabase('OptionCategories', ['key' => $categoryName]);
     }
 
 
@@ -163,8 +202,12 @@ class OptionRepositoryTest extends \TestCase {
      */
     public function can_delete_category()
     {
-        $this->repository->deleteCategory('general');
-        self::assertNull(OptionCategory::find('general'));
+        $categoryName = 'general';
+
+        $this->repository->deleteCategory($categoryName);
+        $this->assertNull(OptionCategory::find($categoryName));
+
+        $this->tester->dontSeeInDatabase('OptionCategories', ['key' => $categoryName]);
     }
 
     /**
@@ -172,16 +215,25 @@ class OptionRepositoryTest extends \TestCase {
      */
     public function can_delete_option()
     {
-        $this->repository->deleteOption('general', 'siteName');
-        self::assertFalse(
-            OptionCategory::find('general')->options()->
-            where(['key' => 'siteName'])->exists()
+        $categoryName = 'general';
+        $optionName   = 'siteName';
+
+        $this->repository->deleteOption('general', $optionName);
+        $this->assertFalse(
+            OptionCategory::find($categoryName)->options()->
+            where(['key' => $optionName])->exists()
         );
+
+        $this->tester->dontSeeInDatabase('Options', ['key' => $optionName]);
     }
-    
+
     private function recreateRepository()
     {
-        $this->repository = new OptionRepository(new OptionCategory(), new Option(), new \Illuminate\Cache\CacheManager($this->app));
+        $this->repository = new OptionRepository(
+            new OptionCategory(),
+            new Option(),
+            new \Illuminate\Cache\CacheManager($this->app)
+        );
     }
 
     private function setExpectedOptions()

@@ -31,6 +31,11 @@ require_once(__DIR__ . '/../../stub/TestTreeSeeder.php');
 class BlockRepositoryTest extends \TestCase  {
 
     /**
+     * @var \UnitTester
+     */
+    protected $tester;
+
+    /**
      * @var BlockRepository
      */
     protected $repository;
@@ -321,7 +326,7 @@ class BlockRepositoryTest extends \TestCase  {
         $this->repository->forceDelete($block);
         $this->assertNull($this->repository->getDeletedById($block->id));
 
-        // block2 should exist
+        // Block2 should exist
         $this->assertNotNull($this->repository->getDeletedById($block2->id));
     }
 
@@ -548,9 +553,9 @@ class BlockRepositoryTest extends \TestCase  {
                 ['translations.title', 'ASC'],
             ]
         );
-        // weight
+        // Weight
         $this->assertEquals(0, $blocks[0]['weight']);
-        // translations title
+        // Translations title
         $this->assertEquals('A title', $blocks[0]['translations'][0]['title']);
 
         // Descending
@@ -608,7 +613,7 @@ class BlockRepositoryTest extends \TestCase  {
             [
                 ['weight', 'ASC'],
             ],
-            1, // page
+            1, // Page
             1 // Items per page
         );
 
@@ -625,7 +630,7 @@ class BlockRepositoryTest extends \TestCase  {
             [
                 ['weight', 'ASC'],
             ],
-            2, // page
+            2, // Page
             1 // Items per page
         );
         // Second block

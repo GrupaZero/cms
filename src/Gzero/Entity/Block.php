@@ -40,6 +40,14 @@ class Block extends Base {
     protected $dates = [self::DELETED_AT];
 
     /**
+     * @var array
+     */
+    protected $attributes = [
+        'isActive' => false,
+        'isCacheable' => false
+    ];
+
+    /**
      * Block type relation
      *
      * @return \Illuminate\Database\Eloquent\Relations\belongsTo

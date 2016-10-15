@@ -12,6 +12,11 @@ require_once(__DIR__ . '/../../stub/TestTreeSeeder.php');
 class OptionsServiceTest extends \TestCase {
 
     /**
+     * @var \UnitTester
+     */
+    protected $tester;
+
+    /**
      * @var OptionRepository
      */
     protected $repository;
@@ -53,6 +58,9 @@ class OptionsServiceTest extends \TestCase {
             ],
             $categories
         );
+
+        $this->tester->seeInDatabase('OptionCategories', ['key' => 'seo']);
+        $this->tester->seeInDatabase('OptionCategories', ['key' => 'general']);
     }
 
     /**

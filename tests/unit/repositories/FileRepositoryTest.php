@@ -27,6 +27,11 @@ require_once(__DIR__ . '/../../stub/TestTreeSeeder.php');
 class FileRepositoryTest extends \TestCase {
 
     /**
+     * @var \UnitTester
+     */
+    protected $tester;
+
+    /**
      * @var FileRepository
      */
     protected $repository;
@@ -179,7 +184,7 @@ class FileRepositoryTest extends \TestCase {
             ],
             $uploadedFile
         );
-        // delete second file
+        // Delete second file
         $this->repository->delete($secondFile);
         $fourthFile = $this->repository->create(
             [
@@ -188,9 +193,9 @@ class FileRepositoryTest extends \TestCase {
             ],
             $uploadedFile
         );
-        // delete first file
+        // Delete first file
         $this->repository->delete($file);
-        // re upload first file
+        // Re upload first file
         $fifthFile = $this->repository->create(
             [
                 'type'     => 'image',
@@ -236,7 +241,7 @@ class FileRepositoryTest extends \TestCase {
         );
         $newFile          = $this->repository->getById($file->id);
         $firstTranslation = $newFile->translations[0];
-        // update english translation
+        // Update english translation
         $translationEn = $this->repository->createTranslation(
             $newFile,
             [
@@ -245,7 +250,7 @@ class FileRepositoryTest extends \TestCase {
                 'description' => 'Updated example body',
             ]
         );
-        // add new polish translation
+        // Add new polish translation
         $translationPl    = $this->repository->createTranslation(
             $newFile,
             [
@@ -259,10 +264,11 @@ class FileRepositoryTest extends \TestCase {
         $this->assertNotSame($file, $newFile);
         $this->assertNotSame($translationEn, $newTranslationEn);
         $this->assertNotSame($translationPl, $newTranslationPl);
-        // check if first english translation has been removed
-        // file translation
+
+        // Check if first english translation has been removed
         $foundTranslation = $this->repository->getFileTranslationById($newFile, $firstTranslation->id);
         $this->assertNull($foundTranslation);
+
         // Check if a new translations has been added
         // English
         $this->assertEquals($translationEn->langCode, $newTranslationEn->langCode);
@@ -328,7 +334,7 @@ class FileRepositoryTest extends \TestCase {
         $newFile        = $this->repository->getById($file->id);
         $newTranslation = $newFile->translations[0];
 
-        // add new polish translation
+        // Add new polish translation
         $translationPl = $this->repository->createTranslation(
             $newFile,
             [
@@ -338,17 +344,17 @@ class FileRepositoryTest extends \TestCase {
             ]
         );
 
-        // delete file and all related translations
+        // Delete file and all related translations
         $this->repository->delete($newFile);
-        // file
+        // File
         $found = $this->repository->getById($newFile->id);
         $this->assertNull($found);
-        // file translations
+        // File translations
         $foundTranslation = $this->repository->getFileTranslationById($newFile, $newTranslation->id);
         $this->assertNull($foundTranslation);
         $foundTranslationPl = $this->repository->getFileTranslationById($newFile, $translationPl->id);
         $this->assertNull($foundTranslationPl);
-        // file itself
+        // File itself
         $this->assertFalse(Storage::exists($newFile->getUploadPath() . $newFile->getFileName()));
     }
 
@@ -373,9 +379,9 @@ class FileRepositoryTest extends \TestCase {
         $newFile        = $this->repository->getById($file->id);
         $newTranslation = $newFile->translations[0];
 
-        // delete file translation
+        // Delete file translation
         $this->repository->deleteTranslation($newTranslation);
-        // file translations
+        // File translations
         $foundTranslation = $this->repository->getFileTranslationById($newFile, $newTranslation->id);
         $this->assertNull($foundTranslation);
     }
@@ -450,7 +456,6 @@ class FileRepositoryTest extends \TestCase {
             $uploadedFile
         );
 
-
         // Document file
         $secondFile = $this->repository->create(
             [
@@ -521,9 +526,9 @@ class FileRepositoryTest extends \TestCase {
                 ['translations.title', 'ASC'],
             ]
         );
-        // created at
+        // Created at
         $this->assertEquals($firstFile->createdAt, $files[0]['createdAt']);
-        // translations title
+        // Translations title
         $this->assertEquals('A file title', $files[0]['translations'][0]['title']);
 
         // Descending
@@ -536,9 +541,9 @@ class FileRepositoryTest extends \TestCase {
                 ['translations.title', 'DESC'],
             ]
         );
-        // created at
+        // Created at
         $this->assertEquals($secondFile->createdAt, $files[0]['createdAt']);
-        // translations title
+        // Translations title
         $this->assertEquals('B file title', $files[0]['translations'][0]['title']);
     }
 
@@ -578,7 +583,7 @@ class FileRepositoryTest extends \TestCase {
             [
                 ['createdAt', 'ASC'],
             ],
-            1, // page
+            1, // Page
             1 // Items per page
         );
 
@@ -594,7 +599,7 @@ class FileRepositoryTest extends \TestCase {
             [
                 ['createdAt', 'ASC'],
             ],
-            2, // page
+            2, // Page
             1 // Items per page
         );
         // Second file
