@@ -16,7 +16,7 @@ use Gzero\Entity\File;
 use Gzero\Entity\Option;
 use Gzero\Entity\User;
 use Gzero\Repository\LangRepository;
-use Gzero\Repository\OptionRepository;
+use Illuminate\Foundation\Application;
 use Robbo\Presenter\PresenterServiceProvider;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -127,7 +127,7 @@ class ServiceProvider extends AbstractServiceProvider {
     {
         $this->app->singleton(
             'user.menu',
-            function ($app) {
+            function (Application $app) {
                 return new Register();
             }
         );
@@ -135,8 +135,8 @@ class ServiceProvider extends AbstractServiceProvider {
         // We need only one LangRepository
         $this->app->singleton(
             'Gzero\Repository\LangRepository',
-            function ($app) {
-                return new LangRepository(app()->make('cache'));
+            function (Application $app) {
+                return new LangRepository($app->make('cache'));
             }
         );
     }
@@ -222,8 +222,8 @@ class ServiceProvider extends AbstractServiceProvider {
     {
         app()->singleton(
             'Gzero\Core\OptionsService',
-            function (OptionRepository $repo) {
-                return new OptionsService($repo);
+            function (Application $app) {
+                return new OptionsService($app->make('Gzero\Repository\OptionRepository'));
             }
         );
     }
