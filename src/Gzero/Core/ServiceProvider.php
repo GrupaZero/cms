@@ -1,5 +1,7 @@
 <?php namespace Gzero\Core;
 
+use DaveJamesMiller\Breadcrumbs\Facade;
+use DaveJamesMiller\Breadcrumbs\ServiceProvider as BreadcrumbServiceProvider;
 use Gzero\Core\Commands\MysqlDump;
 use Gzero\Core\Commands\MysqlRestore;
 use Gzero\Core\Menu\Register;
@@ -15,6 +17,7 @@ use Gzero\Entity\Option;
 use Gzero\Entity\User;
 use Gzero\Repository\LangRepository;
 use Gzero\Repository\OptionRepository;
+use Robbo\Presenter\PresenterServiceProvider;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -37,8 +40,8 @@ class ServiceProvider extends AbstractServiceProvider {
      * @var array
      */
     protected $providers = [
-        \Robbo\Presenter\PresenterServiceProvider::class,
-        \DaveJamesMiller\Breadcrumbs\ServiceProvider::class
+        PresenterServiceProvider::class,
+        BreadcrumbServiceProvider::class
     ];
 
     /**
@@ -47,8 +50,8 @@ class ServiceProvider extends AbstractServiceProvider {
      * @var array
      */
     protected $aliases = [
-        'Breadcrumbs' => \DaveJamesMiller\Breadcrumbs\Facade::class,
-        'options'     => \Gzero\Core\OptionsService::class
+        'Breadcrumbs' => Facade::class,
+        'options'     => OptionsService::class
     ];
 
     /**
@@ -72,12 +75,8 @@ class ServiceProvider extends AbstractServiceProvider {
     public function register()
     {
         parent::register();
-        $this->mergeConfigFrom(
-            __DIR__ . '/../../../config/gzero.php',
-            'gzero'
-        );
+        $this->registerConfig();
         $this->registerHelpers();
-        $this->registerFilters();
         $this->bindRepositories();
         $this->bindTypes();
         $this->bindOtherStuff();
@@ -229,16 +228,6 @@ class ServiceProvider extends AbstractServiceProvider {
     }
 
     /**
-     * Add additional file to store filters
-     *
-     * @return void
-     */
-    protected function registerFilters()
-    {
-        require __DIR__ . '/filters.php';
-    }
-
-    /**
      * Add additional file to store helpers
      *
      * @return void
@@ -246,6 +235,19 @@ class ServiceProvider extends AbstractServiceProvider {
     protected function registerHelpers()
     {
         require_once __DIR__ . '/helpers.php';
+    }
+
+    /**
+     * It registers gzero config
+     *
+     * @return void
+     */
+    protected function registerConfig()
+    {
+        $this->mergeConfigFrom(
+            __DIR__ . '/../../../config/gzero.php',
+            'gzero'
+        );
     }
 
 }

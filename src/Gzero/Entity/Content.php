@@ -43,6 +43,11 @@ class Content extends BaseTree implements PresentableInterface {
     ];
 
     /**
+     * @var array
+     */
+    protected $dates = ['publishedAt', self::DELETED_AT];
+
+    /**
      * Get Content url in specified language.
      * WARNING: This function use LAZY LOADING to get this information
      *

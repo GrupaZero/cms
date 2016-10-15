@@ -35,6 +35,11 @@ class Block extends Base {
     ];
 
     /**
+     * @var array
+     */
+    protected $dates = [self::DELETED_AT];
+
+    /**
      * Block type relation
      *
      * @return \Illuminate\Database\Eloquent\Relations\belongsTo

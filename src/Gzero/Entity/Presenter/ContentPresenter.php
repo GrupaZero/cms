@@ -1,6 +1,5 @@
 <?php namespace Gzero\Entity\Presenter;
 
-use Carbon\Carbon;
 use Robbo\Presenter\Presenter;
 
 /**
@@ -9,7 +8,7 @@ use Robbo\Presenter\Presenter;
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  *
- * Class Content
+ * Class ContentPresenter
  *
  * @package    Gzero\Entity\Presenter
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
@@ -93,11 +92,9 @@ class ContentPresenter extends Presenter {
     public function publishDate()
     {
         if (!empty($this->publishedAt)) {
-            $dt = new Carbon();
-            return $dt->parse($this->publishedAt)->format('d-m-Y - H:s');
-        } else {
-            return trans('common.unknown');
+            return $this->publishedAt;
         }
+        return trans('common.unknown');
     }
 
     /**
@@ -109,9 +106,8 @@ class ContentPresenter extends Presenter {
     {
         if (!empty($this->author)) {
             return $this->author->getPresenter()->displayName();
-        } else {
-            return trans('common.anonymous');
         }
+        return trans('common.anonymous');
     }
 
     /**
@@ -131,9 +127,8 @@ class ContentPresenter extends Presenter {
                 }
             }
             return implode('', $html);
-        } else {
-            return trans('common.noRatings');
         }
+        return trans('common.noRatings');
     }
 
     /**
