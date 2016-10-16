@@ -2650,16 +2650,16 @@
         },
         {
             "name": "gzero/testing-db",
-            "version": "v0.0.1",
+            "version": "v0.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/GrupaZero/testing-db.git",
-                "reference": "7d01b0d7c4fcd228c4fdd0a26b0dc437d14f2fc6"
+                "reference": "8642fe57acb689d60cce8bf7898e3501418f7f39"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/GrupaZero/testing-db/zipball/7d01b0d7c4fcd228c4fdd0a26b0dc437d14f2fc6",
-                "reference": "7d01b0d7c4fcd228c4fdd0a26b0dc437d14f2fc6",
+                "url": "https://api.github.com/repos/GrupaZero/testing-db/zipball/8642fe57acb689d60cce8bf7898e3501418f7f39",
+                "reference": "8642fe57acb689d60cce8bf7898e3501418f7f39",
                 "shasum": ""
             },
             "type": "library",
@@ -2674,7 +2674,7 @@
                 }
             ],
             "description": "Package that helps testing DB across our packages",
-            "time": "2016-10-15 14:16:37"
+            "time": "2016-10-16 11:50:28"
         },
         {
             "name": "hamcrest/hamcrest-php",
