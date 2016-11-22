@@ -37,7 +37,7 @@
         "satooshi/php-coveralls": "dev-master",
         "codeception/codeception": "2.2.*",
         "aedart/testing-laravel": "1.8.*",
-        "gzero/testing-db": "0.0.*"
+        "gzero/testing-db": "0.*"
     },
     "autoload": {
         "psr-4": {
@@ -51,6 +51,9 @@
         "classmap": [
             "tests/TestCase.php"
         ]
+    },
+    "scripts": {
+        "test": "./vendor/bin/codecept run"
     },
     "minimum-stability": "stable"
 }
