@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "aeb8c0ce01129cdc9a23a18218962cd8",
-    "content-hash": "76df9e0910533875f6167896c8acbbf8",
+    "hash": "ec053615076af47c50dbf049b2d6120f",
+    "content-hash": "602026a95847c1f7970bb3107360b303",
     "packages": [
         {
             "name": "classpreloader/classpreloader",
@@ -1063,16 +1063,16 @@
         },
         {
             "name": "ramsey/uuid",
-            "version": "3.5.1",
+            "version": "3.5.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/ramsey/uuid.git",
-                "reference": "a07797b986671b0dc823885a81d5e3516b931599"
+                "reference": "5677cfe02397dd6b58c861870dfaa5d9007d3954"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/ramsey/uuid/zipball/a07797b986671b0dc823885a81d5e3516b931599",
-                "reference": "a07797b986671b0dc823885a81d5e3516b931599",
+                "url": "https://api.github.com/repos/ramsey/uuid/zipball/5677cfe02397dd6b58c861870dfaa5d9007d3954",
+                "reference": "5677cfe02397dd6b58c861870dfaa5d9007d3954",
                 "shasum": ""
             },
             "require": {
@@ -1085,11 +1085,13 @@
             "require-dev": {
                 "apigen/apigen": "^4.1",
                 "codeception/aspect-mock": "1.0.0",
+                "doctrine/annotations": "~1.2.0",
                 "goaop/framework": "1.0.0-alpha.2",
                 "ircmaxell/random-lib": "^1.1",
                 "jakub-onderka/php-parallel-lint": "^0.9.0",
                 "mockery/mockery": "^0.9.4",
                 "moontoast/math": "^1.1",
+                "php-mock/php-mock-phpunit": "^0.3|^1.1",
                 "phpunit/phpunit": "^4.7|>=5.0 <5.4",
                 "satooshi/php-coveralls": "^0.6.1",
                 "squizlabs/php_codesniffer": "^2.3"
@@ -1139,7 +1141,7 @@
                 "identifier",
                 "uuid"
             ],
-            "time": "2016-10-02 15:51:17"
+            "time": "2016-11-22 19:21:44"
         },
         {
             "name": "robclancy/presenter",
@@ -2948,16 +2950,16 @@
         },
         {
             "name": "pdepend/pdepend",
-            "version": "2.2.6",
+            "version": "2.3.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/pdepend/pdepend.git",
-                "reference": "ea3cae1f7abb1141be94ad0a35970169a122df54"
+                "reference": "132c0a58dae0a92c4e091857515f4afcd5d27413"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/pdepend/pdepend/zipball/ea3cae1f7abb1141be94ad0a35970169a122df54",
-                "reference": "ea3cae1f7abb1141be94ad0a35970169a122df54",
+                "url": "https://api.github.com/repos/pdepend/pdepend/zipball/132c0a58dae0a92c4e091857515f4afcd5d27413",
+                "reference": "132c0a58dae0a92c4e091857515f4afcd5d27413",
                 "shasum": ""
             },
             "require": {
@@ -2984,7 +2986,7 @@
                 "BSD-3-Clause"
             ],
             "description": "Official version of pdepend to be handled with Composer",
-            "time": "2016-11-21 20:32:18"
+            "time": "2016-11-23 12:21:10"
         },
         {
             "name": "phpdocumentor/reflection-common",
