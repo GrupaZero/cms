@@ -246,7 +246,7 @@ class ServiceProvider extends AbstractServiceProvider {
     protected function registerConfig()
     {
         $this->mergeConfigFrom(
-            __DIR__ . '/../../../config/gzero.php',
+            __DIR__ . '/config/gzero.php',
             'gzero'
         );
     }
@@ -258,7 +258,7 @@ class ServiceProvider extends AbstractServiceProvider {
      */
     protected function registerMigrations()
     {
-        $this->loadMigrationsFrom(__DIR__ . '/../../../database/migrations');
+        $this->loadMigrationsFrom(__DIR__ . '/database/migrations');
     }
 
 }
