@@ -42,7 +42,7 @@
             "Gzero\\": "src/Gzero"
         },
         "classmap": [
-            "database/migrations"
+            "src/Gzero/Core/database/migrations"
         ]
     },
     "autoload-dev": {
