@@ -9,11 +9,13 @@
     ],
     "require": {
         "php": ">=7.0.0",
+        "davejamesmiller/laravel-breadcrumbs": "3.0.*",
+        "filp/whoops": "2.1.*",
         "illuminate/database": "5.3.*",
         "illuminate/http": "5.3.*",
         "illuminate/routing": "5.3.*",
         "illuminate/support": "5.3.*",
-        "filp/whoops": "2.1.*"
+        "laravel/passport": "^1.0"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.6"

@@ -107,7 +107,6 @@ class Handler extends ExceptionHandler {
         }
     }
 
-
     /**
      * Error response wrapper
      *
@@ -118,20 +117,14 @@ class Handler extends ExceptionHandler {
      */
     protected function errorResponse($request, $errorResponse)
     {
-        // @TODO Use this code & and check for existance of CORS
-        //$response = parent::render($request, $e);
-        //
-        //if ($request->is('api/*')) {
-        //    app('Barryvdh\Cors\Stack\CorsService')->addActualRequestHeaders($response, $request);
-        //}
-        //
-        //return $respons
-        /** @var $cors \Asm89\Stack\CorsService */
-        $cors = app()->make('Asm89\Stack\CorsService');
-        return $cors->addActualRequestHeaders(
-            response()->json($errorResponse, !empty($errorResponse['code']) ? $errorResponse['code'] : self::SERVER_ERROR),
-            $request
-        );
+        // @TODO Improve this part
+        $response = response()
+            ->json(
+                $errorResponse,
+                !empty($errorResponse['code']) ? $errorResponse['code'] : self::SERVER_ERROR
+            );
+        app('Barryvdh\Cors\Stack\CorsService')->addActualRequestHeaders($response, $request);
+        return $response;
     }
 
     /**
