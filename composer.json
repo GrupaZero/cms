@@ -36,7 +36,7 @@
         "satooshi/php-coveralls": "dev-master",
         "codeception/codeception": "2.2.*",
         "aedart/testing-laravel": "1.8.*",
-        "gzero/testing-db": "0.*"
+        "gzero/testing": "1.*"
     },
     "autoload": {
         "psr-4": {
