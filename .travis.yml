@@ -12,7 +12,7 @@ before_script:
   - mkdir -p build/logs
   - mv /home/travis/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini ~/xdebug.ini #disable xdebug
   - composer self-update
-  - composer install --prefer-source --no-interaction --dev
+  - composer install --prefer-source --no-interaction
   - mv ~/xdebug.ini /home/travis/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini #enable xdebug
   - mysql -e 'create database `gzero-tests`;'
 
