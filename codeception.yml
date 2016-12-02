@@ -5,8 +5,19 @@ paths:
     data: tests/_data
     support: tests/_support
     envs: tests/_envs
+coverage:
+    enabled: true
+    include:
+        - src/*
+    exclude:
+        - src/Gzero/Core/database/migrations/*
+        - src/Gzero/Core/config/gzero.php
+        - src/Gzero/Core/helpers.php
+        - src/Gzero/Core/laravel_helpers.php
 settings:
     bootstrap: _bootstrap.php
+    lint: true
+    shuffle: true
     colors: true
     memory_limit: 1024M
 extensions:
