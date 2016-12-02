@@ -24,7 +24,7 @@ script:
   - cp tests/_output/coverage.xml build/logs/clover.xml
 
 after_script:
-  - php vendor/bin/coveralls -v
+  - travis_retry php vendor/bin/coveralls -v -r src
 
 matrix:
   fast_finish: true
