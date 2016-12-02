@@ -24,7 +24,7 @@ script:
   - cp tests/_output/coverage.xml build/logs/clover.xml
 
 after_success:
-  - travis_retry php vendor/bin/coveralls -v -r .
+  - travis_retry php vendor/bin/coveralls -v -r /home/travis/build/GrupaZero/cms/
 
 matrix:
   fast_finish: true
