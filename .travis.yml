@@ -23,8 +23,8 @@ script:
   - mkdir -p build/logs
   - cp tests/_output/coverage.xml build/logs/clover.xml
 
-after_script:
-  - travis_retry php vendor/bin/coveralls -v -r src
+after_success:
+  - travis_retry php vendor/bin/coveralls -v -r .
 
 matrix:
   fast_finish: true
