@@ -8,6 +8,7 @@ addons:
   mariadb: '10.1'
 
 before_script:
+  - pwd
   - cp .env.example .env.testing
   - mkdir -p build/logs
   - mv /home/travis/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini ~/xdebug.ini #disable xdebug
