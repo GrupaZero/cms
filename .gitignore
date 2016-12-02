@@ -6,6 +6,6 @@ Thumbs.db
 .idea
 .vagrant
 .sass-cache
-tests/app/.env
+.env.testing
 
 tests/_output/*

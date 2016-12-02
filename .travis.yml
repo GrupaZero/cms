@@ -8,9 +8,12 @@ addons:
   mariadb: '10.1'
 
 before_script:
+  - cp .env.example .env.testing
   - mkdir -p build/logs
+  - mv /home/travis/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini ~/xdebug.ini #disable xdebug
   - composer self-update
   - composer install --prefer-source --no-interaction --dev
+  - mv ~/xdebug.ini /home/travis/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini #enable xdebug
   - mysql -e 'create database `gzero-tests`;'
 
 script:

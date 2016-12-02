@@ -2,6 +2,10 @@
 
 use Aedart\Testing\Laravel\Traits\TestHelperTrait;
 
+if (file_exists(dirname(__DIR__) . '/.env.testing')) {
+    (new \Dotenv\Dotenv(dirname(__DIR__), '.env.testing'))->load();
+}
+
 /**
  * This is simple laravel application test
  */
@@ -18,36 +22,22 @@ class TestCase extends \Codeception\Test\Unit {
      */
     protected function getEnvironmentSetUp($app)
     {
-        $app['config']->set('database.default', 'testbench');
         $app['config']->set(
-            'database.connections.testbench',
+            'database.connections.mysql.modes',
             [
-                'driver'    => 'mysql',
-                'host'      => 'localhost',
-                'port'      => 3306,
-                'database'  => 'gzero-tests',
-                'username'  => 'root',
-                'password'  => '',
-                'charset'   => 'utf8',
-                'collation' => 'utf8_unicode_ci',
-                'prefix'    => '',
-                'modes' => [
-                    'ONLY_FULL_GROUP_BY',
-                    'STRICT_TRANS_TABLES',
-                    'NO_ZERO_IN_DATE',
-                    'NO_ZERO_DATE',
-                    'ERROR_FOR_DIVISION_BY_ZERO',
-                    'NO_AUTO_CREATE_USER',
-                    'NO_ENGINE_SUBSTITUTION'
-                ],
-                'strict'    => true, // Not used when modes specified
-                'engine'    => null,
+                'ONLY_FULL_GROUP_BY',
+                'STRICT_TRANS_TABLES',
+                'NO_ZERO_IN_DATE',
+                'NO_ZERO_DATE',
+                'ERROR_FOR_DIVISION_BY_ZERO',
+                'NO_AUTO_CREATE_USER',
+                'NO_ENGINE_SUBSTITUTION'
             ]
         );
 
         $this->beforeApplicationDestroyed(
             function () {
-                \DB::disconnect('testbench');
+                \DB::disconnect('mysql');
             }
         );
     }
