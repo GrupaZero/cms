@@ -117,13 +117,14 @@ class Handler extends ExceptionHandler {
      */
     protected function errorResponse($request, $errorResponse)
     {
-        // @TODO Improve this part
         $response = response()
             ->json(
                 $errorResponse,
                 !empty($errorResponse['code']) ? $errorResponse['code'] : self::SERVER_ERROR
             );
-        app('Barryvdh\Cors\Stack\CorsService')->addActualRequestHeaders($response, $request);
+        if (class_exists('Barryvdh\Cors\Stack\CorsService')) {
+            app('Barryvdh\Cors\Stack\CorsService')->addActualRequestHeaders($response, $request);
+        }
         return $response;
     }
 

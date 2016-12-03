@@ -3,7 +3,7 @@ GZERO CMS [![Build Status](https://travis-ci.org/GrupaZero/cms.svg?branch=master
 
 ###Testing
 
-To run tests, copy .env file to .env.testing and put your database credentials into it.
+To run tests, copy .env.example file to .env.testing and put your database credentials into it.
 
 To run tests you can use one of those commands:
 
