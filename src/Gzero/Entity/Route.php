@@ -22,6 +22,13 @@ class Route extends Base {
     ];
 
     /**
+     * @var array
+     */
+    protected $attributes = [
+        'isActive' => false
+    ];
+
+    /**
      * Polymorphic relation to entities that could have route
      *
      * @return \Illuminate\Database\Eloquent\Relations\MorphTo

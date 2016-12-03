@@ -1,5 +1,6 @@
 <?php namespace Gzero\Entity;
 
+use Laravel\Passport\HasApiTokens;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Auth\Passwords\CanResetPassword;
 use Gzero\Entity\Presenter\UserPresenter;
@@ -22,7 +23,7 @@ use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
  */
 class User extends Base implements AuthenticatableContract, AuthorizableContract, CanResetPasswordContract {
 
-    use Authenticatable, Authorizable, CanResetPassword;
+    use Authenticatable, Authorizable, CanResetPassword, HasApiTokens;
 
     /**@TODO proper method for adding new fillable fields from package with migrations */
     /**
@@ -34,7 +35,15 @@ class User extends Base implements AuthenticatableContract, AuthorizableContract
         'firstName',
         'lastName',
         'password',
-        'hasSocialIntegrations'
+        'hasSocialIntegrations',
+        'rememberToken'
+    ];
+
+    /**
+     * @var array
+     */
+    protected $attributes = [
+        'isAdmin' => false
     ];
 
     /**

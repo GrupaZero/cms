@@ -795,7 +795,7 @@ class ContentRepository extends BaseRepository {
         return $this->newQuery()->transaction(
             function () use ($content) {
                 $routeRelation  = $content->route();
-                $descendantsIds = $content->findDescendantsWithTrashed()->lists('id');
+                $descendantsIds = $content->findDescendantsWithTrashed()->pluck('id');
                 // First we need to delete all routes because it's polymorphic relation
                 $this->newQuery()
                     ->table($routeRelation->getModel()->getTable())

@@ -5,11 +5,7 @@ use Gzero\Entity\BlockType;
 use Gzero\Entity\ContentType;
 use Gzero\Entity\FileType;
 use Gzero\Entity\Lang;
-use Gzero\Entity\User;
-use Gzero\Entity\Option;
-use Gzero\Entity\OptionCategory;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
 use Gzero\Repository\UserRepository;
 
 /**
@@ -44,12 +40,9 @@ class TestSeeder extends Seeder {
      */
     public function run()
     {
-        $this->truncate();
         $this->seedLangs();
         $this->seedContentTypes();
         $this->seedBlockTypes();
-        $this->seedUsers();
-        $this->seedOptions();
         $this->seedFileTypes();
     }
 
@@ -118,73 +111,5 @@ class TestSeeder extends Seeder {
         foreach (['image', 'document', 'video', 'music'] as $type) {
             FileType::firstOrCreate(['name' => $type, 'isActive' => true]);
         }
-    }
-
-    /**
-     * Seed users
-     *
-     * @return array
-     */
-    private function seedUsers()
-    {
-        $users = [];
-
-        // Create users
-        $users[] = User::firstOrCreate(
-            [
-                'email'     => 'a@a.pl',
-                'nickName'  => 'Example user',
-                'firstName' => 'John',
-                'lastName'  => 'Doe',
-                'password'  => Hash::make('test')
-
-            ]
-        );
-
-        $users[] = User::firstOrCreate(
-            [
-                'email'     => 'b@b.pl',
-                'nickName'  => 'Test user',
-                'firstName' => 'John',
-                'lastName'  => 'Doe',
-                'password'  => Hash::make('test123')
-
-            ]
-        );
-
-        return $users;
-    }
-
-    const CATEGORY_MAIN = 'main';
-    const OPTION_STANDARD = 'standard';
-    const OPTION_STANDARD2 = 'standard2';
-    const OPTION_VALUE_STANDARD = 'cisco';
-    const OPTION_VALUE_STANDARD2 = 'microsoft';
-
-    private function seedOptions()
-    {
-        OptionCategory::create(['key' => self::CATEGORY_MAIN]);
-        OptionCategory::find(self::CATEGORY_MAIN)->options()->create(
-            ['key' => self::OPTION_STANDARD, 'value' => self::OPTION_VALUE_STANDARD]
-        );
-        OptionCategory::find(self::CATEGORY_MAIN)->options()->create(
-            ['key' => self::OPTION_STANDARD2, 'value' => self::OPTION_VALUE_STANDARD2]
-        );
-    }
-
-    /**
-     * Truncate database
-     */
-    private function truncate()
-    {
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-        $tables           = DB::select('SHOW TABLES');
-        $tablesInDatabase = "Tables_in_" . config('database.connections.mysql.database');
-        foreach ($tables as $table) {
-            if ($table[$tablesInDatabase] !== 'migrations') {
-                DB::table($table[$tablesInDatabase])->truncate();
-            }
-        }
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
     }
 }

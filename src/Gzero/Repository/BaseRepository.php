@@ -189,6 +189,7 @@ abstract class BaseRepository {
                 ->get([$defaultTable . '.*']);
             // We only eager load for entry entity
             ($defaultTable === $this->getTableName()) ? $this->listEagerLoad($results) : null;
+            $this->removeOrderByPart($count);
             return new LengthAwarePaginator(
                 $results->all(),
                 $count->select($defaultTable . '.id')->count(),
@@ -411,5 +412,24 @@ abstract class BaseRepository {
             }
         }
         return $result;
+    }
+
+    /**
+     * It removes order by part to comply with MariaDB strict mode
+     *
+     * @param mixed $query Query builder instance
+     *
+     * @return void
+     */
+    private function removeOrderByPart($query)
+    {
+        if ($query instanceof Builder) {
+            $temp              = $query->getQuery();
+            $temp->orders      = null;
+            $temp->unionOrders = null;
+        } else {
+            $query->orders      = null;
+            $query->unionOrders = null;
+        }
     }
 }

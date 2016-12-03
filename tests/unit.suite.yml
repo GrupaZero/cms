@@ -1,0 +1,6 @@
+class_name: UnitTester
+modules:
+    enabled:
+        - Db
+        - Asserts
+        - \Helper\Unit

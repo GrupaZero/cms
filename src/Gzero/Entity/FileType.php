@@ -37,6 +37,13 @@ class FileType extends Base {
     ];
 
     /**
+     * @var array
+     */
+    protected $attributes = [
+        'isActive' => false
+    ];
+
+    /**
      * Return list of active types.
      *
      * @return array

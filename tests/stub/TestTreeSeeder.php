@@ -28,6 +28,7 @@ class TestTreeSeeder extends Seeder {
     {
         $this->faker      = Factory::create();
         $this->repository = $content;
+        Content::reguard();
     }
 
     /**
@@ -38,7 +39,6 @@ class TestTreeSeeder extends Seeder {
      */
     public function run()
     {
-        $this->truncate();
         $this->seedUsers();
         $this->seedLangs();
         $contentTypes = $this->seedContentTypes();
@@ -145,37 +145,23 @@ class TestTreeSeeder extends Seeder {
     /**
      * Seed users
      *
-     * @return array
+     * @return User
      */
     private function seedUsers()
     {
         // Create user
-        $user = User::firstOrCreate(
-            [
-                'email'     => 'a@a.pl',
-                'firstName' => 'John',
-                'lastName'  => 'Doe',
-                'password'  => Hash::make('test')
-
-            ]
-        );
-        return $user;
-    }
-
-
-    /**
-     * Truncate database
-     */
-    private function truncate()
-    {
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-        $tables             = DB::select('SHOW TABLES');
-        $tables_in_database = "Tables_in_" . Config::get('database.connections.mysql.database');
-        foreach ($tables as $table) {
-            if ($table[$tables_in_database] !== 'migrations') {
-                DB::table($table[$tables_in_database])->truncate();
-            }
+        $user = User::where('email', '=', 'a@a.pl')->first();
+        if (!$user) {
+            $user = User::create(
+                [
+                    'email'         => 'a@a.pl',
+                    'firstName'     => 'John',
+                    'lastName'      => 'Doe',
+                    'password'      => 'test',
+                    'rememberToken' => true
+                ]
+            );
         }
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+        return $user;
     }
 }

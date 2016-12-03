@@ -29,9 +29,8 @@ class UserPresenter extends Presenter {
 
         if ($this->firstName || $this->lastName) {
             return $this->firstName . ' ' . $this->lastName;
-        } else {
-            return trans('common.anonymous');
         }
+        return trans('common.anonymous');
     }
 
 }

@@ -2,7 +2,6 @@
 
 use Gzero\Core\Overrides\MorphToMany;
 use Gzero\EloquentTree\Model\Tree;
-use Carbon\Carbon;
 use Illuminate\Support\Str;
 
 /**
@@ -40,12 +39,17 @@ abstract class BaseTree extends Tree {
      */
     const DELETED_AT = 'deletedAt';
 
-    // @codingStandardsIgnoreStart
+    /**
+     * The storage format of the model's date columns.
+     *
+     * @var string
+     */
+    protected $dateFormat = 'Y-m-d H:i:s';
 
     /**
      * Database mapping tree fields
      *
-     * @var Array
+     * @var array
      */
     protected static $treeColumns = [
         'path'   => 'path',
@@ -53,7 +57,6 @@ abstract class BaseTree extends Tree {
         'level'  => 'level'
     ];
 
-    // @codingStandardsIgnoreEnd
 
     /**
      * Get the table associated with the model.
@@ -77,30 +80,6 @@ abstract class BaseTree extends Tree {
     public function getForeignKey()
     {
         return snake_case(class_basename($this)) . 'Id';
-    }
-
-    /**
-     * Default accessor do createdAt
-     *
-     * @param string $date Date string
-     *
-     * @return string
-     */
-    public function getCreatedAtAttribute($date)
-    {
-        return Carbon::createFromFormat('Y-m-d H:i:s', $date)->toIso8601String();
-    }
-
-    /**
-     * Default accessor do updatedAt
-     *
-     * @param string $date Date string
-     *
-     * @return string
-     */
-    public function getUpdatedAtAttribute($date)
-    {
-        return Carbon::createFromFormat('Y-m-d H:i:s', $date)->toIso8601String();
     }
 
     /**

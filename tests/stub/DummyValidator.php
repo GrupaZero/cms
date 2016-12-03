@@ -16,7 +16,7 @@ class DummyValidator extends AbstractValidator {
             'page'              => 'numeric',
             'perPage'           => 'numeric',
             'type'              => 'in:content,category',
-            'parentId'          => 'numeric',
+            'parentId'          => 'numeric|nullable',
             'level'             => '',
             'title'             => '',
             'translation.test1' => 'required',

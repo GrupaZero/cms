@@ -30,6 +30,13 @@ class BlockTranslation extends Base implements PresentableInterface {
     ];
 
     /**
+     * @var array
+     */
+    protected $attributes = [
+        'isActive' => false
+    ];
+
+    /**
      * Lang reverse relation
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo

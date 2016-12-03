@@ -18,7 +18,12 @@ class Handler extends ExceptionHandler {
      * @var array
      */
     protected $dontReport = [
-        \Symfony\Component\HttpKernel\Exception\HttpException::class
+        \Illuminate\Auth\AuthenticationException::class,
+        \Illuminate\Auth\Access\AuthorizationException::class,
+        \Symfony\Component\HttpKernel\Exception\HttpException::class,
+        \Illuminate\Database\Eloquent\ModelNotFoundException::class,
+        \Illuminate\Session\TokenMismatchException::class,
+        \Illuminate\Validation\ValidationException::class
     ];
 
     // @codingStandardsIgnoreStart
@@ -102,7 +107,6 @@ class Handler extends ExceptionHandler {
         }
     }
 
-
     /**
      * Error response wrapper
      *
@@ -113,12 +117,15 @@ class Handler extends ExceptionHandler {
      */
     protected function errorResponse($request, $errorResponse)
     {
-        /** @var $cors \Asm89\Stack\CorsService */
-        $cors = app()->make('Asm89\Stack\CorsService');
-        return $cors->addActualRequestHeaders(
-            response()->json($errorResponse, !empty($errorResponse['code']) ? $errorResponse['code'] : self::SERVER_ERROR),
-            $request
-        );
+        $response = response()
+            ->json(
+                $errorResponse,
+                !empty($errorResponse['code']) ? $errorResponse['code'] : self::SERVER_ERROR
+            );
+        if (class_exists('Barryvdh\Cors\Stack\CorsService')) {
+            app('Barryvdh\Cors\Stack\CorsService')->addActualRequestHeaders($response, $request);
+        }
+        return $response;
     }
 
     /**

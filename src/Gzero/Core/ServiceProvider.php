@@ -1,5 +1,7 @@
 <?php namespace Gzero\Core;
 
+use DaveJamesMiller\Breadcrumbs\Facade;
+use DaveJamesMiller\Breadcrumbs\ServiceProvider as BreadcrumbServiceProvider;
 use Gzero\Core\Commands\MysqlDump;
 use Gzero\Core\Commands\MysqlRestore;
 use Gzero\Core\Menu\Register;
@@ -14,7 +16,8 @@ use Gzero\Entity\File;
 use Gzero\Entity\Option;
 use Gzero\Entity\User;
 use Gzero\Repository\LangRepository;
-use Gzero\Repository\OptionRepository;
+use Illuminate\Foundation\Application;
+use Robbo\Presenter\PresenterServiceProvider;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -37,8 +40,8 @@ class ServiceProvider extends AbstractServiceProvider {
      * @var array
      */
     protected $providers = [
-        \Robbo\Presenter\PresenterServiceProvider::class,
-        \DaveJamesMiller\Breadcrumbs\ServiceProvider::class
+        PresenterServiceProvider::class,
+        BreadcrumbServiceProvider::class
     ];
 
     /**
@@ -47,8 +50,8 @@ class ServiceProvider extends AbstractServiceProvider {
      * @var array
      */
     protected $aliases = [
-        'Breadcrumbs' => \DaveJamesMiller\Breadcrumbs\Facade::class,
-        'options'     => \Gzero\Core\OptionsService::class
+        'Breadcrumbs' => Facade::class,
+        'options'     => OptionsService::class
     ];
 
     /**
@@ -72,8 +75,8 @@ class ServiceProvider extends AbstractServiceProvider {
     public function register()
     {
         parent::register();
+        $this->registerConfig();
         $this->registerHelpers();
-        $this->registerFilters();
         $this->bindRepositories();
         $this->bindTypes();
         $this->bindOtherStuff();
@@ -90,6 +93,7 @@ class ServiceProvider extends AbstractServiceProvider {
         $this->detectLanguage();
         $this->registerCommands();
         $this->registerPolicies();
+        $this->registerMigrations();
     }
 
     /**
@@ -123,7 +127,7 @@ class ServiceProvider extends AbstractServiceProvider {
     {
         $this->app->singleton(
             'user.menu',
-            function ($app) {
+            function (Application $app) {
                 return new Register();
             }
         );
@@ -131,8 +135,8 @@ class ServiceProvider extends AbstractServiceProvider {
         // We need only one LangRepository
         $this->app->singleton(
             'Gzero\Repository\LangRepository',
-            function ($app) {
-                return new LangRepository(app()->make('cache'));
+            function (Application $app) {
+                return new LangRepository($app->make('cache'));
             }
         );
     }
@@ -218,20 +222,10 @@ class ServiceProvider extends AbstractServiceProvider {
     {
         app()->singleton(
             'Gzero\Core\OptionsService',
-            function (OptionRepository $repo) {
-                return new OptionsService($repo);
+            function (Application $app) {
+                return new OptionsService($app->make('Gzero\Repository\OptionRepository'));
             }
         );
-    }
-
-    /**
-     * Add additional file to store filters
-     *
-     * @return void
-     */
-    protected function registerFilters()
-    {
-        require __DIR__ . '/filters.php';
     }
 
     /**
@@ -242,6 +236,29 @@ class ServiceProvider extends AbstractServiceProvider {
     protected function registerHelpers()
     {
         require_once __DIR__ . '/helpers.php';
+    }
+
+    /**
+     * It registers gzero config
+     *
+     * @return void
+     */
+    protected function registerConfig()
+    {
+        $this->mergeConfigFrom(
+            __DIR__ . '/config/gzero.php',
+            'gzero'
+        );
+    }
+
+    /**
+     * It registers db migrations
+     *
+     * @return void
+     */
+    protected function registerMigrations()
+    {
+        $this->loadMigrationsFrom(__DIR__ . '/database/migrations');
     }
 
 }

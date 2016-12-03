@@ -1,48 +1,50 @@
 <?php
 
-use Illuminate\Support\Facades\DB;
+use Aedart\Testing\Laravel\Traits\TestHelperTrait;
+
+if (file_exists(dirname(__DIR__) . '/.env.testing')) {
+    (new \Dotenv\Dotenv(dirname(__DIR__), '.env.testing'))->load();
+}
 
 /**
  * This is simple laravel application test
  */
-class TestCase extends Illuminate\Foundation\Testing\TestCase {
+class TestCase extends \Codeception\Test\Unit {
+
+    use TestHelperTrait;
 
     /**
-     * Creates the application.
+     * Define environment setup.
      *
-     * @return \Symfony\Component\HttpKernel\HttpKernelInterface
+     * @param  \Illuminate\Foundation\Application $app
+     *
+     * @return void
      */
-    public function createApplication()
+    protected function getEnvironmentSetUp($app)
     {
-
-        $this->app = new Illuminate\Foundation\Application(
-            realpath(__DIR__ . '/app')
+        $app['config']->set(
+            'database.connections.mysql.modes',
+            [
+                'ONLY_FULL_GROUP_BY',
+                'STRICT_TRANS_TABLES',
+                'NO_ZERO_IN_DATE',
+                'NO_ZERO_DATE',
+                'ERROR_FOR_DIVISION_BY_ZERO',
+                'NO_AUTO_CREATE_USER',
+                'NO_ENGINE_SUBSTITUTION'
+            ]
         );
 
-        $this->app->singleton(
-            'Illuminate\Contracts\Console\Kernel',
-            'App\Console\Kernel'
+        $this->beforeApplicationDestroyed(
+            function () {
+                \DB::disconnect('mysql');
+            }
         );
-
-        $this->app->singleton(
-            'Illuminate\Contracts\Debug\ExceptionHandler',
-            'Illuminate\Foundation\Exceptions\Handler'
-        );
-
-        $this->app->make('Illuminate\Contracts\Console\Kernel')->bootstrap();
-
-        return $this->app;
     }
 
-    /**
-     * Queue up a database disconnect to be performed during a tear down.
-     */
-    public function tearDown()
+    protected function getPackageProviders($app)
     {
-        $this->beforeApplicationDestroyed(function () {
-            DB::disconnect();
-        });
-
-        parent::tearDown();
+        return [Gzero\Core\ServiceProvider::class];
     }
+
 }
