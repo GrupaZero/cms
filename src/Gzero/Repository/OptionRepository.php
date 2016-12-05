@@ -150,7 +150,7 @@ class OptionRepository {
 
         $this->requireCategoryExists($categoryKey);
 
-        $this->optionModel->updateOrCreate(['categoryKey' => $categoryKey, 'key' => $optionKey], ['value' => $value]);
+        $this->optionModel->updateOrCreate(['category_key' => $categoryKey, 'key' => $optionKey], ['value' => $value]);
         $this->refresh();
         $this->options[$categoryKey][$optionKey] = $value;
     }
@@ -185,7 +185,7 @@ class OptionRepository {
     {
         $this->requireOptionExists($categoryKey, $optionKey);
 
-        $this->optionModel->where(['categoryKey' => $categoryKey, 'key' => $optionKey])->delete();
+        $this->optionModel->where(['category_key' => $categoryKey, 'key' => $optionKey])->delete();
         $this->refresh();
         unset($this->options[$categoryKey][$optionKey]);
     }
@@ -202,7 +202,7 @@ class OptionRepository {
         } else {
             $this->extractCategoriesFromModel($this->optionCategoryModel->newQuery()->get(['key'])->sortBy('key'));
             $this->extractOptionsFromModel(
-                $this->optionModel->newQuery()->get(['id', 'categoryKey', 'key', 'value'])->sortBy('id')
+                $this->optionModel->newQuery()->get(['id', 'category_key', 'key', 'value'])->sortBy('id')
             );
             $this->cache->forever('options', $this->options);
         }
@@ -236,7 +236,7 @@ class OptionRepository {
     {
         $optionModels->each(
             function ($optionModel) {
-                $this->options[$optionModel->categoryKey][$optionModel->key] = $optionModel->value;
+                $this->options[$optionModel->category_key][$optionModel->key] = $optionModel->value;
             }
         );
     }

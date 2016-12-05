@@ -23,12 +23,12 @@ class UserPresenter extends Presenter {
      */
     public function displayName()
     {
-        if ($this->nickName && config('gzero.useUsersNickNames')) {
-            return $this->nickName;
+        if ($this->nick && config('gzero.use_users_nicks')) {
+            return $this->nick;
         }
 
-        if ($this->firstName || $this->lastName) {
-            return $this->firstName . ' ' . $this->lastName;
+        if ($this->first_name || $this->last_name) {
+            return $this->first_name . ' ' . $this->last_name;
         }
         return trans('common.anonymous');
     }

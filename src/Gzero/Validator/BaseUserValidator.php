@@ -23,11 +23,11 @@ class BaseUserValidator extends AbstractValidator {
             'password' => 'required'
         ],
         'register' => [
-            'email'                 => 'required|email|unique:Users',
-            'nickName'              => 'required|min:3|unique:Users',
-            'password'              => 'required|min:6',
-            'firstName'             => 'min:2|regex:/^([^0-9]*)$/', // without numbers
-            'lastName'              => 'min:2|regex:/^([^0-9]*)$/' // without numbers
+            'email'      => 'required|email|unique:Users',
+            'nick'       => 'required|min:3|unique:Users',
+            'password'   => 'required|min:6',
+            'first_name' => 'min:2|regex:/^([^0-9]*)$/', // without numbers
+            'last_name'  => 'min:2|regex:/^([^0-9]*)$/' // without numbers
         ],
         'remind'   => [
             'email' => 'required|email',
@@ -40,9 +40,9 @@ class BaseUserValidator extends AbstractValidator {
         ],
         'update'   => [
             'email'                 => 'required|email|unique:Users,email,@userId',
-            'nickName'              => 'required|min:3|unique:Users,nickName,@userId',
-            'firstName'             => 'min:2|regex:/^([^0-9]*)$/', // without numbers
-            'lastName'              => 'min:2|regex:/^([^0-9]*)$/', // without numbers
+            'nick'                  => 'required|min:3|unique:Users,nick,@userId',
+            'first_name'            => 'min:2|regex:/^([^0-9]*)$/', // without numbers
+            'last_name'             => 'min:2|regex:/^([^0-9]*)$/', // without numbers
             'password'              => 'sometimes|min:6|same:password_confirmation|required_with:password_confirmation',
             'password_confirmation' => 'sometimes|min:6|same:password|required_with:password',
         ],
@@ -51,6 +51,5 @@ class BaseUserValidator extends AbstractValidator {
     /**
      * @var array
      */
-    protected $filters = [
-    ];
+    protected $filters = [];
 }

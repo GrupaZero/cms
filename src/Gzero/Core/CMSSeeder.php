@@ -95,34 +95,34 @@ class CMSSeeder extends Seeder {
         $langs       = [];
         $langs['en'] = Lang::firstOrCreate(
             [
-                'code'      => 'en',
-                'i18n'      => 'en_US',
-                'isEnabled' => true,
-                'isDefault' => true
+                'code'       => 'en',
+                'i18n'       => 'en_US',
+                'is_enabled' => true,
+                'is_default' => true
             ]
         );
 
         $langs['pl'] = Lang::firstOrCreate(
             [
-                'code'      => 'pl',
-                'i18n'      => 'pl_PL',
-                'isEnabled' => true
+                'code'       => 'pl',
+                'i18n'       => 'pl_PL',
+                'is_enabled' => true
             ]
         );
 
         $langs['de'] = Lang::firstOrCreate(
             [
-                'code'      => 'de',
-                'i18n'      => 'de_DE',
-                'isEnabled' => false
+                'code'       => 'de',
+                'i18n'       => 'de_DE',
+                'is_enabled' => false
             ]
         );
 
         $langs['fr'] = Lang::firstOrCreate(
             [
-                'code'      => 'fr',
-                'i18n'      => 'fr_FR',
-                'isEnabled' => false
+                'code'       => 'fr',
+                'i18n'       => 'fr_FR',
+                'is_enabled' => false
             ]
         );
 
@@ -138,7 +138,7 @@ class CMSSeeder extends Seeder {
     {
         $contentTypes = [];
         foreach (['content', 'category'] as $type) {
-            $contentTypes[$type] = ContentType::firstOrCreate(['name' => $type, 'isActive' => true]);
+            $contentTypes[$type] = ContentType::firstOrCreate(['name' => $type, 'is_active' => true]);
         }
         return $contentTypes;
     }
@@ -160,40 +160,40 @@ class CMSSeeder extends Seeder {
             [
                 'type'              => 'category',
                 'weight'            => rand(0, 10),
-                'isActive'          => 1,
-                'publishedAt'       => date('Y-m-d H:i:s'),
+                'is_active'         => 1,
+                'published_at'      => date('Y-m-d H:i:s'),
                 'translations'      => [
-                    'langCode' => 'en',
-                    'title'    => 'News',
-                    'isActive' => 1
+                    'lang_code' => 'en',
+                    'title'     => 'News',
+                    'is_active' => 1
                 ],
                 'polishTranslation' => [
-                    'langCode' => 'pl',
-                    'title'    => 'Aktualności',
-                    'isActive' => 1
+                    'lang_code' => 'pl',
+                    'title'     => 'Aktualności',
+                    'is_active' => 1
                 ],
             ],
             [
                 'type'              => 'category',
                 'weight'            => rand(0, 10),
-                'isActive'          => 1,
-                'publishedAt'       => date('Y-m-d H:i:s'),
+                'is_active'         => 1,
+                'published_at'      => date('Y-m-d H:i:s'),
                 'translations'      => [
-                    'langCode' => 'en',
-                    'title'    => 'Offer',
-                    'isActive' => 1
+                    'lang_code' => 'en',
+                    'title'     => 'Offer',
+                    'is_active' => 1
                 ],
                 'polishTranslation' => [
-                    'langCode' => 'pl',
-                    'title'    => 'Oferta',
-                    'isActive' => 1
+                    'lang_code' => 'pl',
+                    'title'     => 'Oferta',
+                    'is_active' => 1
                 ]
             ],
             [
                 'type'              => 'content',
                 'weight'            => rand(0, 10),
-                'isActive'          => 1,
-                'publishedAt'       => date('Y-m-d H:i:s'),
+                'is_active'         => 1,
+                'published_at'      => date('Y-m-d H:i:s'),
                 'translations'      => $this->prepareContentTranslation($langs['en'], 'About us', 1),
                 'polishTranslation' => $this->prepareContentTranslation($langs['pl'], 'O nas', 1)
             ]
@@ -233,20 +233,20 @@ class CMSSeeder extends Seeder {
     private function seedRandomContent(ContentType $type, $parent, $langs, $users)
     {
         $input = [
-            'type'             => $type->name,
-            'weight'           => rand(0, 10),
-            'rating'           => rand(0, 5),
-            'visits'           => rand(0, 150),
-            'isOnHome'         => (bool) rand(0, 1),
-            'isCommentAllowed' => (bool) rand(0, 1),
-            'isPromoted'       => (bool) rand(0, 1),
-            'isSticky'         => (bool) rand(0, 1),
-            'isActive'         => (bool) rand(0, 1),
-            'publishedAt'      => date('Y-m-d H:i:s'),
-            'translations'     => $this->prepareContentTranslation($langs['en'])
+            'type'               => $type->name,
+            'weight'             => rand(0, 10),
+            'rating'             => rand(0, 5),
+            'visits'             => rand(0, 150),
+            'is_on_home'         => (bool) rand(0, 1),
+            'is_comment_allowed' => (bool) rand(0, 1),
+            'is_promoted'        => (bool) rand(0, 1),
+            'is_sticky'          => (bool) rand(0, 1),
+            'is_active'          => (bool) rand(0, 1),
+            'published_at'       => date('Y-m-d H:i:s'),
+            'translations'       => $this->prepareContentTranslation($langs['en'])
         ];
         if (!empty($parent)) {
-            $input['parentId'] = $parent->id;
+            $input['parent_id'] = $parent->id;
         }
         $content = $this->contentRepository->create($input, $users[array_rand($users)]);
         $this->contentRepository->createTranslation($content, $this->prepareContentTranslation($langs['pl']));
@@ -263,15 +263,15 @@ class CMSSeeder extends Seeder {
         // Create user
         $user = User::firstOrCreate(
             [
-                'email'     => 'admin@gzero.pl',
-                'firstName' => 'John',
-                'lastName'  => 'Doe',
-                'password'  => Hash::make('test')
+                'email'      => 'admin@gzero.pl',
+                'first_name' => 'John',
+                'last_name'  => 'Doe',
+                'password'   => Hash::make('test')
 
             ]
         );
 
-        $user->isAdmin = 1;
+        $user->is_admin = 1;
 
         $user->save();
 
@@ -279,10 +279,10 @@ class CMSSeeder extends Seeder {
         for ($x = 0; $x < self::RANDOM_USERS; $x++) {
             $user    = User::firstOrCreate(
                 [
-                    'email'     => $this->faker->email,
-                    'firstName' => $this->faker->firstName,
-                    'lastName'  => $this->faker->lastName,
-                    'password'  => Hash::make($this->faker->word)
+                    'email'      => $this->faker->email,
+                    'first_name' => $this->faker->firstName,
+                    'last_name'  => $this->faker->lastName,
+                    'password'   => Hash::make($this->faker->word)
                 ]
             );
             $users[] = $user;
@@ -303,14 +303,14 @@ class CMSSeeder extends Seeder {
         // gzero config options
         $options = [
             'general' => [
-                'siteName'         => [],
-                'siteDesc'         => [],
-                'defaultPageSize'  => [],
-                'cookiesPolicyUrl' => [],
+                'site_name'           => [],
+                'site_desc'          => [],
+                'default_page_size'  => [],
+                'cookies_policy_url' => [],
             ],
             'seo'     => [
-                'seoDescLength'     => [],
-                'googleAnalyticsId' => [],
+                'desc_length'         => [],
+                'google_analytics_id' => [],
             ]
         ];
 
@@ -343,7 +343,7 @@ class CMSSeeder extends Seeder {
     {
         $blockTypes = [];
         foreach (['basic', 'menu', 'slider', 'content', 'widget'] as $type) {
-            $blockTypes[$type] = BlockType::firstOrCreate(['name' => $type, 'isActive' => true]);
+            $blockTypes[$type] = BlockType::firstOrCreate(['name' => $type, 'is_active' => true]);
         }
         return $blockTypes;
     }
@@ -388,7 +388,7 @@ class CMSSeeder extends Seeder {
      */
     private function seedRandomBlock(BlockType $type, $langs, $users, $contents)
     {
-        $isActive    = (bool) rand(0, 1);
+        $is_active   = (bool) rand(0, 1);
         $isCacheable = (bool) rand(0, 1);
         $filter      = (rand(0, 1)) ? [
             '+' => [$this->getRandomBlockFilter($contents)],
@@ -400,14 +400,14 @@ class CMSSeeder extends Seeder {
             'weight'       => rand(0, 12),
             'filter'       => $filter,
             'options'      => array_combine($this->faker->words(), $this->faker->words()),
-            'isActive'     => $isActive,
-            'isCacheable'  => $isCacheable,
+            'is_active'    => $is_active,
+            'is_cacheable'  => $isCacheable,
             'translations' => $this->prepareBlockTranslation($langs['en']),
             'widget'       => [
                 'name'        => $this->faker->unique()->word,
                 'args'        => array_combine($this->faker->words(), $this->faker->words()),
-                'isActive'    => $isActive,
-                'isCacheable' => $isCacheable,
+                'is_active'   => $is_active,
+                'is_cacheable' => $isCacheable,
             ],
         ];
 
@@ -425,7 +425,7 @@ class CMSSeeder extends Seeder {
     {
         $fileTypes = [];
         foreach (['image', 'document', 'video', 'music'] as $type) {
-            $fileTypes[$type] = FileType::firstOrCreate(['name' => $type, 'isActive' => true]);
+            $fileTypes[$type] = FileType::firstOrCreate(['name' => $type, 'is_active' => true]);
         }
         return $fileTypes;
     }
@@ -480,19 +480,19 @@ class CMSSeeder extends Seeder {
      */
     private function seedRandomFiles(FileType $type, $langs, $users, $entity)
     {
-        $isActive = (bool) rand(0, 1);
-        $faker    = Factory::create($langs['en']->i18n);
-        $user     = $users[array_rand($users)];
-        $entity   = $entity[array_rand($entity)];
-        $input    = [
+        $is_active = (bool) rand(0, 1);
+        $faker     = Factory::create($langs['en']->i18n);
+        $user      = $users[array_rand($users)];
+        $entity    = $entity[array_rand($entity)];
+        $input     = [
             'type'      => $type->name,
             'name'      => $faker->word,
             'extension' => $faker->fileExtension,
             'size'      => $faker->randomNumber,
-            'mimeType'  => $faker->mimeType,
+            'mime_type' => $faker->mimeType,
             'info'      => array_combine($this->faker->words(), $this->faker->words()),
-            'isActive'  => $isActive,
-            'createdBy' => $user->id,
+            'is_active' => $is_active,
+            'created_by' => $user->id,
         ];
         // create file record in db
         $file = File::firstOrCreate($input);
@@ -530,25 +530,25 @@ class CMSSeeder extends Seeder {
     /**
      * Function generates translation for specified language
      *
-     * @param Lang $lang     language of translation
-     * @param null $title    optional title value
-     * @param null $isActive optional isActive value
+     * @param Lang $lang      language of translation
+     * @param null $title     optional title value
+     * @param null $is_active optional is_active value
      *
      * @return array
      * @throws Exception
      */
-    private function prepareContentTranslation(Lang $lang, $title = null, $isActive = null)
+    private function prepareContentTranslation(Lang $lang, $title = null, $is_active = null)
     {
         if ($lang) {
             $faker = Factory::create($lang->i18n);
             return [
-                'langCode'       => $lang->code,
-                'title'          => ($title) ? $title : $faker->realText(38, 1),
-                'teaser'         => '<p>' . $faker->realText(300) . '</p>',
-                'body'           => $this->generateBodyHTML($faker),
-                'seoTitle'       => $faker->realText(60, 1),
-                'seoDescription' => $faker->realText(160, 1),
-                'isActive'       => (bool) ($title) ? $isActive : rand(0, 1)
+                'lang_code'       => $lang->code,
+                'title'           => ($title) ? $title : $faker->realText(38, 1),
+                'teaser'          => '<p>' . $faker->realText(300) . '</p>',
+                'body'            => $this->generateBodyHTML($faker),
+                'seo_title'       => $faker->realText(60, 1),
+                'seo_description' => $faker->realText(160, 1),
+                'is_active'       => (bool) ($title) ? $is_active : rand(0, 1)
             ];
         }
         throw new Exception("Translation language is required!");
@@ -557,23 +557,23 @@ class CMSSeeder extends Seeder {
     /**
      * Function generates translation for specified language
      *
-     * @param Lang $lang     language of translation
-     * @param null $title    optional title value
-     * @param null $isActive optional isActive value
+     * @param Lang $lang      language of translation
+     * @param null $title     optional title value
+     * @param null $is_active optional is_active value
      *
      * @return array
      * @throws Exception
      */
-    private function prepareBlockTranslation(Lang $lang, $title = null, $isActive = null)
+    private function prepareBlockTranslation(Lang $lang, $title = null, $is_active = null)
     {
         if ($lang) {
             $faker = Factory::create($lang->i18n);
             return [
-                'langCode'     => $lang->code,
+                'lang_code'    => $lang->code,
                 'title'        => ($title) ? $title : $faker->realText(38, 1),
                 'body'         => $faker->realText(300),
-                'customFields' => array_combine($this->faker->words(), $this->faker->words()),
-                'isActive'     => (bool) ($title) ? $isActive : rand(0, 1)
+                'custom_fields' => array_combine($this->faker->words(), $this->faker->words()),
+                'is_active'    => (bool) ($title) ? $is_active : rand(0, 1)
             ];
         }
         throw new Exception("Translation language is required!");
@@ -593,7 +593,7 @@ class CMSSeeder extends Seeder {
         if ($lang) {
             $faker = Factory::create($lang->i18n);
             return [
-                'langCode'    => $lang->code,
+                'lang_code'   => $lang->code,
                 'title'       => ($title) ? $title : $faker->realText(38, 1),
                 'description' => $faker->realText(300)
             ];

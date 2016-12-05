@@ -81,8 +81,8 @@ class ContentRepositoryTest extends \TestCase {
             [
                 'type'         => 'content',
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Example title'
+                    'lang_code' => 'en',
+                    'title'     => 'Example title'
                 ]
             ]
         );
@@ -99,16 +99,16 @@ class ContentRepositoryTest extends \TestCase {
         $author  = User::find(1);
         $content = $this->repository->create(
             [
-                'type'             => 'content',
-                'isOnHome'         => true,
-                'isCommentAllowed' => true,
-                'isPromoted'       => true,
-                'isSticky'         => true,
-                'isActive'         => true,
-                'publishedAt'      => date('Y-m-d H:i:s'),
-                'translations'     => [
-                    'langCode' => 'en',
-                    'title'    => 'Example title'
+                'type'               => 'content',
+                'is_on_home'         => true,
+                'is_comment_allowed' => true,
+                'is_promoted'        => true,
+                'is_sticky'          => true,
+                'is_active'          => true,
+                'published_at'       => date('Y-m-d H:i:s'),
+                'translations'       => [
+                    'lang_code' => 'en',
+                    'title'     => 'Example title'
                 ]
             ],
             $author
@@ -121,17 +121,17 @@ class ContentRepositoryTest extends \TestCase {
         $this->assertNotSame($content, $newContent);
         $this->assertEquals($content->id, $newContent->id);
         $this->assertEquals($content->type, $newContent->type);
-        $this->assertEquals($content->isOnHome, $newContent->isOnHome);
-        $this->assertEquals($content->isCommentAllowed, $newContent->isCommentAllowed);
-        $this->assertEquals($content->isPromoted, $newContent->isPromoted);
-        $this->assertEquals($content->isSticky, $newContent->isSticky);
-        $this->assertEquals($content->isActive, $newContent->isActive);
-        $this->assertEquals($content->publishedAt, $newContent->publishedAt);
+        $this->assertEquals($content->is_on_home, $newContent->is_on_home);
+        $this->assertEquals($content->is_comment_allowed, $newContent->is_comment_allowed);
+        $this->assertEquals($content->is_promoted, $newContent->is_promoted);
+        $this->assertEquals($content->is_sticky, $newContent->is_sticky);
+        $this->assertEquals($content->is_active, $newContent->is_active);
+        $this->assertEquals($content->published_at, $newContent->published_at);
         // Author
-        $this->assertEquals($author->id, $newContent->authorId);
+        $this->assertEquals($author->id, $newContent->author_id);
         $this->assertEquals($author->email, $newContentAuthor['email']);
         // Route
-        $this->assertEquals('en', $newContentRoute['langCode']);
+        $this->assertEquals('en', $newContentRoute['lang_code']);
         $this->assertEquals('example-title', $newContentRoute['url']);
     }
 
@@ -144,8 +144,8 @@ class ContentRepositoryTest extends \TestCase {
             [
                 'type'         => 'content',
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Example title'
+                    'lang_code' => 'en',
+                    'title'     => 'Example title'
                 ]
             ]
         );
@@ -163,8 +163,8 @@ class ContentRepositoryTest extends \TestCase {
             [
                 'type'         => 'content',
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Example title'
+                    'lang_code' => 'en',
+                    'title'     => 'Example title'
                 ]
             ]
         );
@@ -172,11 +172,11 @@ class ContentRepositoryTest extends \TestCase {
         $translation      = $this->repository->createTranslation(
             $newContent,
             [
-                'langCode'       => 'en',
+                'lang_code'      => 'en',
                 'title'          => 'New example title',
                 'body'           => 'New example body',
-                'seoTitle'       => 'New example seoTitle',
-                'seoDescription' => 'New example seoDescription'
+                'seo_title'       => 'New example seo_title',
+                'seo_description' => 'New example seo_description'
             ]
         );
         $firstTranslation = $this->repository->getContentTranslationById($newContent, 1);
@@ -184,14 +184,14 @@ class ContentRepositoryTest extends \TestCase {
         $this->assertNotSame($content, $newContent);
         $this->assertNotSame($translation, $firstTranslation);
         // Check if previous translation are inactive
-        $this->assertFalse((bool) $firstTranslation->isActive);
+        $this->assertFalse((bool) $firstTranslation->is_active);
         // Check if a new translation has been added
-        $this->assertEquals('en', $newTranslation->langCode);
+        $this->assertEquals('en', $newTranslation->lang_code);
         $this->assertEquals('New example title', $newTranslation->title);
         $this->assertEquals('New example body', $newTranslation->body);
-        $this->assertEquals('New example seoTitle', $newTranslation->seoTitle);
-        $this->assertEquals('New example seoDescription', $newTranslation->seoDescription);
-        $this->assertEquals($newContent->id, $newTranslation->contentId);
+        $this->assertEquals('New example seo_title', $newTranslation->seo_title);
+        $this->assertEquals('New example seo_description', $newTranslation->seo_description);
+        $this->assertEquals($newContent->id, $newTranslation->content_id);
     }
 
     /**
@@ -202,10 +202,10 @@ class ContentRepositoryTest extends \TestCase {
         $content    = $this->repository->create(
             [
                 'type'         => 'content',
-                'isOnHome'     => false,
+                'is_on_home'   => false,
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Example title'
+                    'lang_code' => 'en',
+                    'title'     => 'Example title'
                 ]
             ]
         );
@@ -213,13 +213,13 @@ class ContentRepositoryTest extends \TestCase {
         $this->repository->update(
             $newContent,
             [
-                'isOnHome' => true,
+                'is_on_home' => true,
             ]
         );
         $updatedContent = $this->repository->getById($newContent->id);
         $this->assertNotSame($content, $newContent);
         $this->assertNotSame($newContent, $updatedContent);
-        $this->assertEquals(true, $updatedContent->isOnHome);
+        $this->assertEquals(true, $updatedContent->is_on_home);
     }
 
     /**
@@ -232,8 +232,8 @@ class ContentRepositoryTest extends \TestCase {
             [
                 'type'         => 'content',
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Example title'
+                    'lang_code' => 'en',
+                    'title'     => 'Example title'
                 ]
             ]
         );
@@ -254,8 +254,8 @@ class ContentRepositoryTest extends \TestCase {
             [
                 'type'         => 'content',
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Example title'
+                    'lang_code' => 'en',
+                    'title'     => 'Example title'
                 ]
             ]
         );
@@ -264,8 +264,8 @@ class ContentRepositoryTest extends \TestCase {
             [
                 'type'         => 'content',
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Other title'
+                    'lang_code' => 'en',
+                    'title'     => 'Other title'
                 ]
             ]
         );
@@ -302,8 +302,8 @@ class ContentRepositoryTest extends \TestCase {
             [
                 'type'         => 'content',
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Example title'
+                    'lang_code' => 'en',
+                    'title'     => 'Example title'
                 ]
             ]
         );
@@ -312,8 +312,8 @@ class ContentRepositoryTest extends \TestCase {
             [
                 'type'         => 'content',
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Other title'
+                    'lang_code' => 'en',
+                    'title'     => 'Other title'
                 ]
             ]
         );
@@ -351,9 +351,9 @@ class ContentRepositoryTest extends \TestCase {
             [
                 'type'         => 'content',
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Example title',
-                    'body'     => 'Example body'
+                    'lang_code' => 'en',
+                    'title'     => 'Example title',
+                    'body'      => 'Example body'
                 ]
             ]
         );
@@ -363,8 +363,8 @@ class ContentRepositoryTest extends \TestCase {
         $this->repository->createTranslation(
             $content,
             [
-                'langCode' => 'en',
-                'title'    => 'English translation 2'
+                'lang_code' => 'en',
+                'title'     => 'English translation 2'
             ]
         );
         $this->assertEquals($content->translations($withActive)->count(), 2);
@@ -384,9 +384,9 @@ class ContentRepositoryTest extends \TestCase {
             [
                 'type'         => 'content',
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Example title',
-                    'body'     => 'Example body'
+                    'lang_code' => 'en',
+                    'title'     => 'Example title',
+                    'body'      => 'Example body'
                 ]
             ]
         );
@@ -399,9 +399,9 @@ class ContentRepositoryTest extends \TestCase {
             [
                 'type'         => 'content',
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Example title',
-                    'body'     => 'Example body'
+                    'lang_code' => 'en',
+                    'title'     => 'Example title',
+                    'body'      => 'Example body'
                 ]
             ]
         );
@@ -425,8 +425,8 @@ class ContentRepositoryTest extends \TestCase {
             [
                 'type'         => 'fakeType',
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Example category title'
+                    'lang_code' => 'en',
+                    'title'     => 'Example category title'
                 ]
             ]
         );
@@ -464,8 +464,8 @@ class ContentRepositoryTest extends \TestCase {
             [
                 'type'         => 'category',
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Example category title'
+                    'lang_code' => 'en',
+                    'title'     => 'Example category title'
                 ]
             ]
         );
@@ -473,10 +473,10 @@ class ContentRepositoryTest extends \TestCase {
         $this->repository->create(
             [
                 'type'         => 'content',
-                'parentId'     => $newCategory->id,
+                'parent_id'    => $newCategory->id,
                 'translations' => [
-                    'langCode' => 'pl',
-                    'title'    => 'Example content title'
+                    'lang_code' => 'pl',
+                    'title'     => 'Example content title'
                 ]
             ]
         );
@@ -493,10 +493,10 @@ class ContentRepositoryTest extends \TestCase {
         $this->repository->create(
             [
                 'type'         => 'content',
-                'parentId'     => 1,
+                'parent_id'    => 1,
                 'translations' => [
-                    'langCode' => 'pl',
-                    'title'    => 'Example content title'
+                    'lang_code' => 'pl',
+                    'title'     => 'Example content title'
                 ]
             ]
         );
@@ -514,8 +514,8 @@ class ContentRepositoryTest extends \TestCase {
             [
                 'type'         => 'content',
                 'translations' => [
-                    'langCode' => 'pl',
-                    'title'    => 'Example category title'
+                    'lang_code' => 'pl',
+                    'title'     => 'Example category title'
                 ]
             ]
         );
@@ -523,10 +523,10 @@ class ContentRepositoryTest extends \TestCase {
         $this->repository->create(
             [
                 'type'         => 'content',
-                'parentId'     => $newCategory->id,
+                'parent_id'    => $newCategory->id,
                 'translations' => [
-                    'langCode' => 'pl',
-                    'title'    => 'Example content title'
+                    'lang_code' => 'pl',
+                    'title'     => 'Example content title'
                 ]
             ]
         );
@@ -541,32 +541,32 @@ class ContentRepositoryTest extends \TestCase {
         $author   = User::find(1);
         $content  = $this->repository->create(
             [
-                'type'             => 'content',
-                'isOnHome'         => true,
-                'isCommentAllowed' => true,
-                'isPromoted'       => true,
-                'isSticky'         => true,
-                'isActive'         => true,
-                'publishedAt'      => date('Y-m-d H:i:s'),
-                'translations'     => [
-                    'langCode' => 'en',
-                    'title'    => 'Example title'
+                'type'               => 'content',
+                'is_on_home'         => true,
+                'is_comment_allowed' => true,
+                'is_promoted'        => true,
+                'is_sticky'          => true,
+                'is_active'          => true,
+                'published_at'       => date('Y-m-d H:i:s'),
+                'translations'       => [
+                    'lang_code' => 'en',
+                    'title'     => 'Example title'
                 ]
             ],
             $author
         );
         $content2 = $this->repository->create(
             [
-                'type'             => 'content',
-                'isOnHome'         => true,
-                'isCommentAllowed' => true,
-                'isPromoted'       => true,
-                'isSticky'         => true,
-                'isActive'         => true,
-                'publishedAt'      => date('Y-m-d H:i:s'),
-                'translations'     => [
-                    'langCode' => 'en',
-                    'title'    => 'Example title'
+                'type'               => 'content',
+                'is_on_home'         => true,
+                'is_comment_allowed' => true,
+                'is_promoted'        => true,
+                'is_sticky'          => true,
+                'is_active'          => true,
+                'published_at'       => date('Y-m-d H:i:s'),
+                'translations'       => [
+                    'lang_code' => 'en',
+                    'title'     => 'Example title'
                 ]
             ],
             $author
@@ -594,15 +594,15 @@ class ContentRepositoryTest extends \TestCase {
         $content    = $this->repository->create(
             [
                 'type'         => 'content',
-                'isActive'     => 1,
+                'is_active'    => 1,
                 'translations' => [
-                    'langCode'       => 'en',
+                    'lang_code'      => 'en',
                     'title'          => 'Fake title',
                     'teaser'         => '<p>Super fake...</p>',
                     'body'           => '<p>Super fake body of some post!</p>',
-                    'seoTitle'       => 'fake-title',
-                    'seoDescription' => 'desc-demonstrate-fake',
-                    'isActive'       => 1
+                    'seo_title'       => 'fake-title',
+                    'seo_description' => 'desc-demonstrate-fake',
+                    'is_active'      => 1
                 ]
             ]
         );
@@ -619,15 +619,15 @@ class ContentRepositoryTest extends \TestCase {
         $content = $this->repository->create(
             [
                 'type'         => 'content',
-                'isActive'     => 1,
+                'is_active'    => 1,
                 'translations' => [
-                    'langCode'       => 'en',
+                    'lang_code'      => 'en',
                     'title'          => 'Fake title',
                     'teaser'         => '<p>Super fake...</p>',
                     'body'           => '<p>Super fake body of some post!</p>',
-                    'seoTitle'       => 'fake-title',
-                    'seoDescription' => 'desc-demonstrate-fake',
-                    'isActive'       => 1
+                    'seo_title'       => 'fake-title',
+                    'seo_description' => 'desc-demonstrate-fake',
+                    'is_active'      => 1
                 ]
             ]
         );
@@ -645,15 +645,15 @@ class ContentRepositoryTest extends \TestCase {
         $content = $this->repository->create(
             [
                 'type'         => 'content',
-                'isActive'     => 1,
+                'is_active'    => 1,
                 'translations' => [
-                    'langCode'       => 'en',
+                    'lang_code'      => 'en',
                     'title'          => 'Fake title',
                     'teaser'         => '<p>Super fake...</p>',
                     'body'           => '<p>Super fake body of some post!</p>',
-                    'seoTitle'       => 'fake-title',
-                    'seoDescription' => 'desc-demonstrate-fake',
-                    'isActive'       => 1
+                    'seo_title'       => 'fake-title',
+                    'seo_description' => 'desc-demonstrate-fake',
+                    'is_active'      => 1
                 ]
             ]
         );
@@ -688,7 +688,7 @@ class ContentRepositoryTest extends \TestCase {
             null
         );
         foreach ($roots as $node) {
-            $this->assertNull($node->parentId);
+            $this->assertNull($node->parent_id);
             $this->assertEquals(0, $node->level);
         }
     }
@@ -712,11 +712,11 @@ class ContentRepositoryTest extends \TestCase {
 
         // First level
         foreach ($tree['children'] as $node) {
-            $this->assertEquals($category->id, $node->parentId);
+            $this->assertEquals($category->id, $node->parent_id);
             // nested level
             if (array_key_exists('children', $node)) {
                 foreach ($node['children'] as $subnode) {
-                    $this->assertEquals($node->id, $subnode->parentId);
+                    $this->assertEquals($node->id, $subnode->parent_id);
                 }
             }
         }
@@ -736,23 +736,23 @@ class ContentRepositoryTest extends \TestCase {
         $content         = $this->repository->create(
             [
                 'type'         => 'content',
-                'parentId'     => $category->id,
+                'parent_id'    => $category->id,
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Example content title'
+                    'lang_code' => 'en',
+                    'title'     => 'Example content title'
                 ]
             ]
         );
         $newContent      = $this->repository->getById($content->id);
         $newContentRoute = $newContent->route->translations()->first();
-        // parentId
-        $this->assertEquals($category->id, $newContent->parentId);
+        // parent_id
+        $this->assertEquals($category->id, $newContent->parent_id);
         // level
         $this->assertEquals($category->level + 1, $newContent->level);
         // path
         $this->assertEquals($category->path . $newContent->id . '/', $newContent->path);
         // route
-        $this->assertEquals('en', $newContentRoute['langCode']);
+        $this->assertEquals('en', $newContentRoute['lang_code']);
         $this->assertEquals($categoryRoute->url . '/' . 'example-content-title', $newContentRoute['url']);
     }
 
@@ -771,14 +771,14 @@ class ContentRepositoryTest extends \TestCase {
         $this->repository->update(
             $content,
             [
-                'parentId' => $category->id, // set parent id
+                'parent_id' => $category->id, // set parent id
             ]
         );
         $updatedContent = $this->repository->getById($content->id);
-        $newCategory    = $this->repository->getById($updatedContent->parentId);
+        $newCategory    = $this->repository->getById($updatedContent->parent_id);
         $this->assertNotEmpty($newCategory);
         $this->assertNotEquals($oldContentPath, $updatedContent->path);
-        $this->assertEquals($newCategory->id, $updatedContent->parentId);
+        $this->assertEquals($newCategory->id, $updatedContent->parent_id);
         $this->assertEquals($newCategory->path . $updatedContent->id . '/', $updatedContent->path);
     }
 
@@ -796,8 +796,8 @@ class ContentRepositoryTest extends \TestCase {
             [
                 'type'         => 'category',
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Example title'
+                    'lang_code' => 'en',
+                    'title'     => 'Example title'
                 ]
             ]
         );
@@ -807,14 +807,14 @@ class ContentRepositoryTest extends \TestCase {
         $this->repository->update(
             $category,
             [
-                'parentId' => $parent->id, // set parent id
+                'parent_id' => $parent->id, // set parent id
             ]
         );
         $updatedCategory = $this->repository->getById($category->id);
-        $parentCategory  = $this->repository->getById($updatedCategory->parentId);
+        $parentCategory  = $this->repository->getById($updatedCategory->parent_id);
         $this->assertNotEmpty($parentCategory);
         $this->assertNotEquals($oldCategoryPath, $updatedCategory->path);
-        $this->assertEquals($parentCategory->id, $updatedCategory->parentId);
+        $this->assertEquals($parentCategory->id, $updatedCategory->parent_id);
         $this->assertEquals($parentCategory->path . $updatedCategory->id . '/', $updatedCategory->path);
     }
 
@@ -835,7 +835,7 @@ class ContentRepositoryTest extends \TestCase {
         $updatedContentRoute = $updatedContent->route->translations()->first();
 
         // Check single route
-        $this->assertEquals('en', $updatedContentRoute['langCode']);
+        $this->assertEquals('en', $updatedContentRoute['lang_code']);
         $this->assertEquals('single-content-url', $updatedContentRoute['url']);
 
         // Nested content
@@ -844,10 +844,10 @@ class ContentRepositoryTest extends \TestCase {
         $nestedContent = $this->repository->create(
             [
                 'type'         => 'content',
-                'parentId'     => $category->id,
+                'parent_id'    => $category->id,
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Example content title'
+                    'lang_code' => 'en',
+                    'title'     => 'Example content title'
                 ]
             ]
         );
@@ -859,7 +859,7 @@ class ContentRepositoryTest extends \TestCase {
         $updatedContentRoute = $updatedContent->route->translations()->first();
 
         // Check nested route
-        $this->assertEquals('en', $updatedContentRoute['langCode']);
+        $this->assertEquals('en', $updatedContentRoute['lang_code']);
         $this->assertEquals($categoryRoute->url . '/' . 'nested-content-url', $updatedContentRoute['url']);
 
         // Crate unique route
@@ -868,7 +868,7 @@ class ContentRepositoryTest extends \TestCase {
         $updatedContentRoute = $updatedContent->route->translations()->first();
 
         // Check unique route
-        $this->assertEquals('en', $updatedContentRoute['langCode']);
+        $this->assertEquals('en', $updatedContentRoute['lang_code']);
         $this->assertEquals($categoryRoute->url . '/' . 'nested-content-url-1', $updatedContentRoute['url']);
     }
 
@@ -882,8 +882,8 @@ class ContentRepositoryTest extends \TestCase {
                 'type'         => 'category',
                 'weight'       => 3,
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'A title'
+                    'lang_code' => 'en',
+                    'title'     => 'A title'
                 ]
             ]
         );
@@ -891,11 +891,11 @@ class ContentRepositoryTest extends \TestCase {
         $content1 = $this->repository->create(
             [
                 'type'         => 'content',
-                'parentId'     => $category->id,
+                'parent_id'    => $category->id,
                 'weight'       => 2,
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'A title'
+                    'lang_code' => 'en',
+                    'title'     => 'A title'
                 ]
             ]
         );
@@ -903,11 +903,11 @@ class ContentRepositoryTest extends \TestCase {
         $content2 = $this->repository->create(
             [
                 'type'         => 'content',
-                'parentId'     => $category->id,
+                'parent_id'    => $category->id,
                 'weight'       => 0,
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'B title'
+                    'lang_code' => 'en',
+                    'title'     => 'B title'
                 ]
             ]
         );
@@ -952,8 +952,8 @@ class ContentRepositoryTest extends \TestCase {
                 'type'         => 'category',
                 'weight'       => 3,
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'A title'
+                    'lang_code' => 'en',
+                    'title'     => 'A title'
                 ]
             ]
         );
@@ -961,11 +961,11 @@ class ContentRepositoryTest extends \TestCase {
         $content1 = $this->repository->create(
             [
                 'type'         => 'content',
-                'parentId'     => $category->id,
+                'parent_id'    => $category->id,
                 'weight'       => 2,
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'A title'
+                    'lang_code' => 'en',
+                    'title'     => 'A title'
                 ]
             ]
         );
@@ -973,11 +973,11 @@ class ContentRepositoryTest extends \TestCase {
         $content2 = $this->repository->create(
             [
                 'type'         => 'content',
-                'parentId'     => $category->id,
+                'parent_id'    => $category->id,
                 'weight'       => 0,
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'B title'
+                    'lang_code' => 'en',
+                    'title'     => 'B title'
                 ]
             ]
         );
@@ -1074,7 +1074,7 @@ class ContentRepositoryTest extends \TestCase {
         $this->repository->update(
             $category,
             [
-                'parentId' => $parent->id,
+                'parent_id' => $parent->id,
             ]
         );
     }
@@ -1107,9 +1107,9 @@ class ContentRepositoryTest extends \TestCase {
             null
         );
 
-        // parentId
+        // parent_id
         foreach ($contents as $content) {
-            $this->assertEquals($category->id, $content->parentId);
+            $this->assertEquals($category->id, $content->parent_id);
         }
     }
 
@@ -1126,9 +1126,9 @@ class ContentRepositoryTest extends \TestCase {
             $this->repository->createTranslation(
                 $category,
                 [
-                    'langCode' => 'pl',
-                    'title'    => 'New example title',
-                    'body'     => 'New example body'
+                    'lang_code' => 'pl',
+                    'title'     => 'New example title',
+                    'body'      => 'New example body'
                 ]
             );
         }
@@ -1141,8 +1141,8 @@ class ContentRepositoryTest extends \TestCase {
         // Number of new translations plus one for first translation
         $this->assertCount($i + 1, $contents);
         foreach ($contents as $content) {
-            // parentId
-            $this->assertEquals($category->id, $content->contentId);
+            // parent_id
+            $this->assertEquals($category->id, $content->content_id);
         }
     }
 
@@ -1157,7 +1157,7 @@ class ContentRepositoryTest extends \TestCase {
         $contents = $this->repository->getContents(
             [
                 ['type', '=', 'category'],
-                ['isActive', '=', true]
+                ['is_active', '=', true]
             ],
             [],
             null
@@ -1165,13 +1165,13 @@ class ContentRepositoryTest extends \TestCase {
 
         foreach ($contents as $content) {
             $this->assertEquals('category', $content->type);
-            $this->assertEquals(true, $content->isActive);
+            $this->assertEquals(true, $content->is_active);
         }
 
         $contents = $this->repository->getContentsByLevel(
             [
                 ['type', '=', 'category'],
-                ['isActive', '=', true]
+                ['is_active', '=', true]
             ],
             [],
             null
@@ -1179,7 +1179,7 @@ class ContentRepositoryTest extends \TestCase {
 
         foreach ($contents as $content) {
             $this->assertEquals('category', $content->type);
-            $this->assertEquals(true, $content->isActive);
+            $this->assertEquals(true, $content->is_active);
         }
     }
 
@@ -1193,30 +1193,30 @@ class ContentRepositoryTest extends \TestCase {
                 'type'         => 'category',
                 'weight'       => 10,
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'C title'
+                    'lang_code' => 'en',
+                    'title'     => 'C title'
                 ]
             ]
         );
         $this->repository->create(
             [
                 'type'         => 'content',
-                'parentId'     => $category->id,
+                'parent_id'    => $category->id,
                 'weight'       => 0,
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'A title'
+                    'lang_code' => 'en',
+                    'title'     => 'A title'
                 ]
             ]
         );
         $this->repository->create(
             [
                 'type'         => 'content',
-                'parentId'     => $category->id,
+                'parent_id'    => $category->id,
                 'weight'       => 1,
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'B title'
+                    'lang_code' => 'en',
+                    'title'     => 'B title'
                 ]
             ]
         );
@@ -1388,8 +1388,8 @@ class ContentRepositoryTest extends \TestCase {
             [
                 'type'         => 'category',
                 'translations' => [
-                    'langCode' => 'pl',
-                    'title'    => 'Example content title'
+                    'lang_code' => 'pl',
+                    'title'     => 'Example content title'
                 ]
             ]
         );
@@ -1397,10 +1397,10 @@ class ContentRepositoryTest extends \TestCase {
         $category2 = $this->repository->create(
             [
                 'type'         => 'category',
-                'parentId'     => $category1->id,
+                'parent_id'    => $category1->id,
                 'translations' => [
-                    'langCode' => 'pl',
-                    'title'    => 'Example content title'
+                    'lang_code' => 'pl',
+                    'title'     => 'Example content title'
                 ]
             ]
         );
@@ -1408,10 +1408,10 @@ class ContentRepositoryTest extends \TestCase {
         $category3 = $this->repository->create(
             [
                 'type'         => 'category',
-                'parentId'     => $category2->id,
+                'parent_id'    => $category2->id,
                 'translations' => [
-                    'langCode' => 'pl',
-                    'title'    => 'Example content title'
+                    'lang_code' => 'pl',
+                    'title'     => 'Example content title'
                 ]
             ]
         );
@@ -1431,16 +1431,16 @@ class ContentRepositoryTest extends \TestCase {
         $author  = User::find(1);
         $content = $this->repository->create(
             [
-                'type'             => 'content',
-                'isOnHome'         => false,
-                'isCommentAllowed' => false,
-                'isPromoted'       => false,
-                'isSticky'         => false,
-                'isActive'         => true,
-                'publishedAt'      => date('Y-m-d H:i:s'),
-                'translations'     => [
-                    'langCode' => 'en',
-                    'title'    => 'English translation 1'
+                'type'               => 'content',
+                'is_on_home'         => false,
+                'is_comment_allowed' => false,
+                'is_promoted'        => false,
+                'is_sticky'          => false,
+                'is_active'          => true,
+                'published_at'       => date('Y-m-d H:i:s'),
+                'translations'       => [
+                    'lang_code' => 'en',
+                    'title'     => 'English translation 1'
                 ]
             ],
             $author
@@ -1450,8 +1450,8 @@ class ContentRepositoryTest extends \TestCase {
         $translation = $this->repository->createTranslation(
             $content,
             [
-                'langCode' => 'en',
-                'title'    => 'English translation 2'
+                'lang_code' => 'en',
+                'title'     => 'English translation 2'
             ]
         );
         $this->assertInstanceOf('Gzero\Entity\ContentTranslation', $translation);
@@ -1488,16 +1488,16 @@ class ContentRepositoryTest extends \TestCase {
         $author  = User::find(1);
         $content = $this->repository->create(
             [
-                'type'             => 'content',
-                'isOnHome'         => false,
-                'isCommentAllowed' => false,
-                'isPromoted'       => false,
-                'isSticky'         => false,
-                'isActive'         => true,
-                'publishedAt'      => date('Y-m-d H:i:s'),
-                'translations'     => [
-                    'langCode' => 'en',
-                    'title'    => 'English translation 1'
+                'type'               => 'content',
+                'is_on_home'         => false,
+                'is_comment_allowed' => false,
+                'is_promoted'        => false,
+                'is_sticky'          => false,
+                'is_active'          => true,
+                'published_at'       => date('Y-m-d H:i:s'),
+                'translations'       => [
+                    'lang_code' => 'en',
+                    'title'     => 'English translation 1'
                 ]
             ],
             $author
@@ -1507,7 +1507,7 @@ class ContentRepositoryTest extends \TestCase {
         $translations = $this->repository->getTranslations($content, []);
         $translation  = $translations->first();
         $this->assertInstanceOf('Gzero\Entity\ContentTranslation', $translation);
-        $this->assertEquals($translation->isActive, 1);
+        $this->assertEquals($translation->is_active, 1);
 
         $this->setExpectedException('Gzero\Repository\RepositoryException');
         $this->repository->deleteTranslation($translation);
@@ -1523,8 +1523,8 @@ class ContentRepositoryTest extends \TestCase {
             [
                 'type'         => 'content',
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Example title',
+                    'lang_code' => 'en',
+                    'title'     => 'Example title',
                 ]
             ]
         );
@@ -1533,15 +1533,15 @@ class ContentRepositoryTest extends \TestCase {
         $this->repository->createTranslation(
             $content,
             [
-                'langCode' => 'en',
-                'title'    => 'Modified example title',
+                'lang_code' => 'en',
+                'title'     => 'Modified example title',
             ]
         );
 
         $newContent      = $this->repository->getById($content->id);
         $newContentRoute = $newContent->route->translations()->first();
         // Route translation should not be changed
-        $this->assertEquals('en', $newContentRoute['langCode']);
+        $this->assertEquals('en', $newContentRoute['lang_code']);
         $this->assertEquals('example-title', $newContentRoute['url']);
     }
 
@@ -1570,8 +1570,8 @@ class ContentRepositoryTest extends \TestCase {
             [
                 'type'         => 'content',
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Example title',
+                    'lang_code' => 'en',
+                    'title'     => 'Example title',
                 ]
             ]
         );
@@ -1582,10 +1582,10 @@ class ContentRepositoryTest extends \TestCase {
         $file         = $this->fileRepository->create(
             [
                 'type'         => 'image',
-                'isActive'     => true,
+                'is_active'    => true,
                 'info'         => ['key' => 'value'],
                 'translations' => [
-                    'langCode'    => 'en',
+                    'lang_code'   => 'en',
                     'title'       => 'Example file title',
                     'description' => 'Example file description'
                 ]
@@ -1594,7 +1594,7 @@ class ContentRepositoryTest extends \TestCase {
             $author
         );
 
-        $this->repository->update($content, ['fileId' => $file->id]);
+        $this->repository->update($content, ['file_id' => $file->id]);
     }
 
     /**
@@ -1610,8 +1610,8 @@ class ContentRepositoryTest extends \TestCase {
             [
                 'type'         => 'content',
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Example title',
+                    'lang_code' => 'en',
+                    'title'     => 'Example title',
                 ]
             ]
         );
@@ -1632,8 +1632,8 @@ class ContentRepositoryTest extends \TestCase {
             [
                 'type'         => 'content',
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Example title',
+                    'lang_code' => 'en',
+                    'title'     => 'Example title',
                 ]
             ]
         );
@@ -1652,8 +1652,8 @@ class ContentRepositoryTest extends \TestCase {
             [
                 'type'         => 'content',
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Example title',
+                    'lang_code' => 'en',
+                    'title'     => 'Example title',
                 ]
             ]
         );
@@ -1664,10 +1664,10 @@ class ContentRepositoryTest extends \TestCase {
         $file         = $this->fileRepository->create(
             [
                 'type'         => 'image',
-                'isActive'     => true,
+                'is_active'    => true,
                 'info'         => ['key' => 'value'],
                 'translations' => [
-                    'langCode'    => 'en',
+                    'lang_code'   => 'en',
                     'title'       => 'Example file title',
                     'description' => 'Example file description'
                 ]
@@ -1678,18 +1678,18 @@ class ContentRepositoryTest extends \TestCase {
 
         // Assign files
         $this->repository->addFiles($content, [$file->id]);
-        $this->repository->update($content, ['fileId' => $file->id]);
-        $relatedFile = $this->repository->getContentFileById($content, $content->fileId);
+        $this->repository->update($content, ['file_id' => $file->id]);
+        $relatedFile = $this->repository->getContentFileById($content, $content->file_id);
 
         $this->assertNotEmpty($relatedFile);
-        $this->assertEquals($content->fileId, $file->id);
+        $this->assertEquals($content->file_id, $file->id);
         $this->assertEquals($file->name, $relatedFile->name);
         $this->assertEquals($file->type, $relatedFile->type);
-        $this->assertEquals($file->isActive, $relatedFile->isActive);
+        $this->assertEquals($file->is_active, $relatedFile->is_active);
         $this->assertEquals($file->extension, $relatedFile->extension);
-        $this->assertEquals($file->mimeType, $relatedFile->mimeType);
+        $this->assertEquals($file->mime_type, $relatedFile->mime_type);
         $this->assertEquals($file->info, $relatedFile->info);
-        $this->assertEquals($file->translations[0]->langCode, $relatedFile->translations[0]->langCode);
+        $this->assertEquals($file->translations[0]->lang_code, $relatedFile->translations[0]->lang_code);
         $this->assertEquals($file->translations[0]->title, $relatedFile->translations[0]->title);
         $this->assertEquals($file->translations[0]->description, $relatedFile->translations[0]->description);
     }
@@ -1705,8 +1705,8 @@ class ContentRepositoryTest extends \TestCase {
             [
                 'type'         => 'content',
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Example title',
+                    'lang_code' => 'en',
+                    'title'     => 'Example title',
                 ]
             ]
         );
@@ -1717,10 +1717,10 @@ class ContentRepositoryTest extends \TestCase {
         $file         = $this->fileRepository->create(
             [
                 'type'         => 'image',
-                'isActive'     => true,
+                'is_active'    => true,
                 'info'         => ['key' => 'value'],
                 'translations' => [
-                    'langCode'    => 'en',
+                    'lang_code'   => 'en',
                     'title'       => 'Example file title',
                     'description' => 'Example file description'
                 ]
@@ -1731,18 +1731,18 @@ class ContentRepositoryTest extends \TestCase {
 
         // Assign files
         $this->repository->addFiles($content, [$file->id]);
-        $this->repository->update($content, ['fileId' => $file->id]);
+        $this->repository->update($content, ['file_id' => $file->id]);
         $files = $content->files()->get();
 
         $this->assertNotEmpty($files);
-        $this->assertEquals($content->fileId, $file->id);
+        $this->assertEquals($content->file_id, $file->id);
         $this->assertEquals($file->name, $files[0]->name);
         $this->assertEquals($file->type, $files[0]->type);
-        $this->assertEquals($file->isActive, $files[0]->isActive);
+        $this->assertEquals($file->is_active, $files[0]->is_active);
         $this->assertEquals($file->extension, $files[0]->extension);
-        $this->assertEquals($file->mimeType, $files[0]->mimeType);
+        $this->assertEquals($file->mime_type, $files[0]->mime_type);
         $this->assertEquals($file->info, $files[0]->info);
-        $this->assertEquals($file->translations[0]->langCode, $files[0]->translations[0]->langCode);
+        $this->assertEquals($file->translations[0]->lang_code, $files[0]->translations[0]->lang_code);
         $this->assertEquals($file->translations[0]->title, $files[0]->translations[0]->title);
         $this->assertEquals($file->translations[0]->description, $files[0]->translations[0]->description);
     }
@@ -1760,8 +1760,8 @@ class ContentRepositoryTest extends \TestCase {
             [
                 'type'         => 'content',
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Example title',
+                    'lang_code' => 'en',
+                    'title'     => 'Example title',
                 ]
             ]
         );
@@ -1773,10 +1773,10 @@ class ContentRepositoryTest extends \TestCase {
             $file = $this->fileRepository->create(
                 [
                     'type'         => 'image',
-                    'isActive'     => true,
+                    'is_active'    => true,
                     'info'         => ['key' => 'value'],
                     'translations' => [
-                        'langCode'    => 'en',
+                        'lang_code'   => 'en',
                         'title'       => 'Example file title',
                         'description' => 'Example file description'
                     ]
@@ -1800,11 +1800,11 @@ class ContentRepositoryTest extends \TestCase {
         foreach ($files as $index => $file) {
             $this->assertEquals($fileIds[$index], $file->id);
             $this->assertEquals('image', $file->type);
-            $this->assertEquals(true, $file->isActive);
+            $this->assertEquals(true, $file->is_active);
             $this->assertEquals('png', $file->extension);
-            $this->assertEquals('image/png', $file->mimeType);
+            $this->assertEquals('image/png', $file->mime_type);
             $this->assertEquals(['key' => 'value'], $file->info);
-            $this->assertEquals('en', $file->translations[0]->langCode);
+            $this->assertEquals('en', $file->translations[0]->lang_code);
             $this->assertEquals('Example file title', $file->translations[0]->title);
             $this->assertEquals('Example file description', $file->translations[0]->description);
         }
@@ -1823,8 +1823,8 @@ class ContentRepositoryTest extends \TestCase {
             [
                 'type'         => 'content',
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Example title',
+                    'lang_code' => 'en',
+                    'title'     => 'Example title',
                 ]
             ]
         );
@@ -1836,10 +1836,10 @@ class ContentRepositoryTest extends \TestCase {
             $file = $this->fileRepository->create(
                 [
                     'type'         => 'image',
-                    'isActive'     => true,
+                    'is_active'    => true,
                     'info'         => ['key' => 'value'],
                     'translations' => [
-                        'langCode'    => 'en',
+                        'lang_code'   => 'en',
                         'title'       => 'Example file title',
                         'description' => 'Example file description'
                     ]
@@ -1868,11 +1868,11 @@ class ContentRepositoryTest extends \TestCase {
         foreach ($files as $index => $file) {
             $this->assertEquals($fileIds[$index], $file->id);
             $this->assertEquals('image', $file->type);
-            $this->assertEquals(true, $file->isActive);
+            $this->assertEquals(true, $file->is_active);
             $this->assertEquals('png', $file->extension);
-            $this->assertEquals('image/png', $file->mimeType);
+            $this->assertEquals('image/png', $file->mime_type);
             $this->assertEquals(['key' => 'value'], $file->info);
-            $this->assertEquals('en', $file->translations[0]->langCode);
+            $this->assertEquals('en', $file->translations[0]->lang_code);
             $this->assertEquals('Example file title', $file->translations[0]->title);
             $this->assertEquals('Example file description', $file->translations[0]->description);
         }
@@ -1891,8 +1891,8 @@ class ContentRepositoryTest extends \TestCase {
             [
                 'type'         => 'content',
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Example title',
+                    'lang_code' => 'en',
+                    'title'     => 'Example title',
                 ]
             ]
         );
@@ -1904,10 +1904,10 @@ class ContentRepositoryTest extends \TestCase {
             $file = $this->fileRepository->create(
                 [
                     'type'         => 'image',
-                    'isActive'     => true,
+                    'is_active'    => true,
                     'info'         => ['key' => 'value'],
                     'translations' => [
-                        'langCode'    => 'en',
+                        'lang_code'   => 'en',
                         'title'       => 'Example file title ' . $i,
                         'description' => 'Example file description'
                     ]
@@ -1947,8 +1947,8 @@ class ContentRepositoryTest extends \TestCase {
             [
                 'type'         => 'content',
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Example title',
+                    'lang_code' => 'en',
+                    'title'     => 'Example title',
                 ]
             ]
         );
@@ -1959,10 +1959,10 @@ class ContentRepositoryTest extends \TestCase {
         $file         = $this->fileRepository->create(
             [
                 'type'         => 'image',
-                'isActive'     => false,
+                'is_active'    => false,
                 'info'         => ['key' => 'value'],
                 'translations' => [
-                    'langCode'    => 'en',
+                    'lang_code'   => 'en',
                     'title'       => 'Example file title',
                     'description' => 'Example file description'
                 ]
@@ -1975,7 +1975,7 @@ class ContentRepositoryTest extends \TestCase {
         $this->repository->addFiles($content, [$file->id]);
         $files = $this->repository->getFiles(
             $content,
-            [['isActive', '=', true]],
+            [['is_active', '=', true]],
             []
         );
 
@@ -1995,8 +1995,8 @@ class ContentRepositoryTest extends \TestCase {
             [
                 'type'         => 'content',
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Example title',
+                    'lang_code' => 'en',
+                    'title'     => 'Example title',
                 ]
             ]
         );
@@ -2015,8 +2015,8 @@ class ContentRepositoryTest extends \TestCase {
             [
                 'type'         => 'content',
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Example title',
+                    'lang_code' => 'en',
+                    'title'     => 'Example title',
                 ]
             ]
         );
@@ -2027,10 +2027,10 @@ class ContentRepositoryTest extends \TestCase {
         $file         = $this->fileRepository->create(
             [
                 'type'         => 'image',
-                'isActive'     => true,
+                'is_active'    => true,
                 'info'         => ['key' => 'value'],
                 'translations' => [
-                    'langCode'    => 'en',
+                    'lang_code'   => 'en',
                     'title'       => 'Example file title',
                     'description' => 'Example file description'
                 ]
@@ -2060,8 +2060,8 @@ class ContentRepositoryTest extends \TestCase {
             [
                 'type'         => 'content',
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Example title',
+                    'lang_code' => 'en',
+                    'title'     => 'Example title',
                 ]
             ]
         );
@@ -2082,8 +2082,8 @@ class ContentRepositoryTest extends \TestCase {
             [
                 'type'         => 'content',
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Example title',
+                    'lang_code' => 'en',
+                    'title'     => 'Example title',
                 ]
             ]
         );
@@ -2095,10 +2095,10 @@ class ContentRepositoryTest extends \TestCase {
             $file = $this->fileRepository->create(
                 [
                     'type'         => 'image',
-                    'isActive'     => true,
+                    'is_active'    => true,
                     'info'         => ['key' => 'value'],
                     'translations' => [
-                        'langCode'    => 'en',
+                        'lang_code'   => 'en',
                         'title'       => 'Example file title',
                         'description' => 'Example file description'
                     ]
@@ -2128,8 +2128,8 @@ class ContentRepositoryTest extends \TestCase {
             [
                 'type'         => 'content',
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Example title',
+                    'lang_code' => 'en',
+                    'title'     => 'Example title',
                 ]
             ]
         );
@@ -2140,10 +2140,10 @@ class ContentRepositoryTest extends \TestCase {
         $relatedFile  = $this->fileRepository->create(
             [
                 'type'         => 'image',
-                'isActive'     => true,
+                'is_active'    => true,
                 'info'         => ['key' => 'value'],
                 'translations' => [
-                    'langCode'    => 'en',
+                    'lang_code'   => 'en',
                     'title'       => 'Example file title',
                     'description' => 'Example file description'
                 ]
@@ -2158,10 +2158,10 @@ class ContentRepositoryTest extends \TestCase {
             $file = $this->fileRepository->create(
                 [
                     'type'         => 'image',
-                    'isActive'     => true,
+                    'is_active'    => true,
                     'info'         => ['key' => 'value'],
                     'translations' => [
-                        'langCode'    => 'en',
+                        'lang_code'   => 'en',
                         'title'       => 'Example file title',
                         'description' => 'Example file description'
                     ]
@@ -2175,12 +2175,12 @@ class ContentRepositoryTest extends \TestCase {
 
         $this->repository->addFiles($content, $fileIds);
 
-        $this->repository->update($content, ['fileId' => $relatedFile->id]);
+        $this->repository->update($content, ['file_id' => $relatedFile->id]);
         $this->repository->removeFiles($content, $fileIds);
         $files = $content->files()->get();
 
         $this->assertEmpty($files);
-        $this->assertNull($content->fileId);
+        $this->assertNull($content->file_id);
     }
 
     /*

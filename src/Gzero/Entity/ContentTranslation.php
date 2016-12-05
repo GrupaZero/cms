@@ -22,20 +22,20 @@ class ContentTranslation extends Base implements PresentableInterface {
      * @var array
      */
     protected $fillable = [
-        'langCode',
+        'lang_code',
         'title',
         'teaser',
         'body',
-        'seoTitle',
-        'seoDescription',
-        'isActive'
+        'seo_title',
+        'seo_description',
+        'is_active'
     ];
 
     /**
      * @var array
      */
     protected $attributes = [
-        'isActive' => false
+        'is_active' => false
     ];
 
     /**

@@ -13,31 +13,29 @@ class CreateRoute extends Migration {
     public function up()
     {
         Schema::create(
-            'Routes',
+            'routes',
             function (Blueprint $table) {
                 $table->increments('id');
-                $table->integer('routableId')->unsigned()->nullable();
-                $table->string('routableType')->nullable();
-                $table->boolean('isActive')->default(false);
-                $table->timestamp('createdAt')->useCurrent();
-                $table->timestamp('updatedAt')->useCurrent();
+                $table->integer('routable_id')->unsigned()->nullable();
+                $table->string('routable_type')->nullable();
+                $table->boolean('is_active')->default(false);
+                $table->timestamps();
             }
         );
 
         Schema::create(
-            'RouteTranslations',
+            'route_translations',
             function (Blueprint $table) {
                 $table->increments('id');
-                $table->string('langCode', 2);
-                $table->integer('routeId')->unsigned();
+                $table->string('lang_code', 2);
+                $table->integer('route_id')->unsigned();
                 $table->string('url')->index();
-                $table->boolean('isActive')->default(false);
-                $table->timestamp('createdAt')->useCurrent();
-                $table->timestamp('updatedAt')->useCurrent();
-                $table->foreign('routeId')->references('id')->on('Routes')->onDelete('CASCADE');
-                $table->foreign('langCode')->references('code')->on('Langs')->onDelete('CASCADE');
-                $table->unique(['langCode', 'routeId']); // Only one translation in specific language
-                $table->unique(['langCode', 'url']); // Unique url in specific language
+                $table->boolean('is_active')->default(false);
+                $table->timestamps();
+                $table->foreign('route_id')->references('id')->on('routes')->onDelete('CASCADE');
+                $table->foreign('lang_code')->references('code')->on('langs')->onDelete('CASCADE');
+                $table->unique(['lang_code', 'route_id']); // Only one translation in specific language
+                $table->unique(['lang_code', 'url']); // Unique url in specific language
             }
         );
     }
@@ -49,8 +47,8 @@ class CreateRoute extends Migration {
      */
     public function down()
     {
-        Schema::dropIfExists('RouteTranslations');
-        Schema::dropIfExists('Routes');
+        Schema::dropIfExists('route_translations');
+        Schema::dropIfExists('routes');
     }
 
 }

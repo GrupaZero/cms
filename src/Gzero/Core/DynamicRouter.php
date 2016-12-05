@@ -64,7 +64,7 @@ class DynamicRouter {
             throw new NotFoundHttpException();
         }
 
-        if (!$content->isActive) {
+        if (!$content->is_active) {
             app('session')->flash(
                 'messages',
                 [

@@ -3,8 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddFileColumnToContentsTable extends Migration
-{
+class AddFileColumnToContentsTable extends Migration {
     /**
      * Run the migrations.
      *
@@ -12,10 +11,13 @@ class AddFileColumnToContentsTable extends Migration
      */
     public function up()
     {
-        Schema::table('Contents', function (Blueprint $table) {
-            $table->integer('fileId')->unsigned()->nullable()->after('parentId');
-            $table->foreign('fileId')->references('id')->on('Files')->onDelete('SET NULL');
-        });
+        Schema::table(
+            'contents',
+            function (Blueprint $table) {
+                $table->integer('file_id')->unsigned()->nullable()->after('parent_id');
+                $table->foreign('file_id')->references('id')->on('files')->onDelete('SET NULL');
+            }
+        );
     }
 
     /**
@@ -25,9 +27,12 @@ class AddFileColumnToContentsTable extends Migration
      */
     public function down()
     {
-        Schema::table('Contents', function (Blueprint $table) {
-            $table->dropForeign(['fileId']);
-            $table->dropColumn('fileId');
-        });
+        Schema::table(
+            'contents',
+            function (Blueprint $table) {
+                $table->dropForeign(['file_id']);
+                $table->dropColumn('file_id');
+            }
+        );
     }
 }

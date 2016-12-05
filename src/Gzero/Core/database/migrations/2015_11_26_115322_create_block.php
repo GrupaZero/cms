@@ -14,66 +14,62 @@ class CreateBlock extends Migration {
     public function up()
     {
         Schema::create(
-            'BlockTypes',
+            'block_types',
             function (Blueprint $table) {
                 $table->string('name')->index()->unique();
-                $table->boolean('isActive')->default(false);
-                $table->timestamp('createdAt')->useCurrent();
-                $table->timestamp('updatedAt')->useCurrent();
+                $table->boolean('is_active')->default(false);
+                $table->timestamps();
             }
         );
 
         Schema::create(
-            'Blocks',
+            'blocks',
             function (Blueprint $table) {
                 $table->increments('id');
                 $table->string('type');
                 $table->string('region')->nullable();
-                $table->string("theme")->nullable();
-                $table->integer("blockableId")->unsigned()->nullable();
-                $table->string("blockableType")->nullable();
-                $table->integer('authorId')->unsigned()->nullable();
+                $table->string('theme')->nullable();
+                $table->integer('blockable_id')->unsigned()->nullable();
+                $table->string('blockable_type')->nullable();
+                $table->integer('author_id')->unsigned()->nullable();
                 $table->text('filter')->nullable();
                 $table->text('options')->nullable();
                 $table->integer('weight')->default(0);
-                $table->boolean('isActive')->default(false);
-                $table->boolean('isCacheable')->default(false);
-                $table->timestamp('createdAt')->useCurrent();
-                $table->timestamp('updatedAt')->useCurrent();
-                $table->timestamp('deletedAt')->nullable();
-                $table->index(['blockableId', 'blockableType']);
-                $table->foreign('authorId')->references('id')->on('Users')->onDelete('SET NULL');
-                $table->foreign('type')->references('name')->on('BlockTypes')->onDelete('CASCADE');
+                $table->boolean('is_active')->default(false);
+                $table->boolean('is_cacheable')->default(false);
+                $table->timestamps();
+                $table->timestamp('deleted_at')->nullable();
+                $table->index(['blockable_id', 'blockable_type']);
+                $table->foreign('author_id')->references('id')->on('users')->onDelete('SET NULL');
+                $table->foreign('type')->references('name')->on('block_types')->onDelete('CASCADE');
             }
         );
 
         Schema::create(
-            'BlockTranslations',
+            'block_translations',
             function (Blueprint $table) {
                 $table->increments('id');
-                $table->string('langCode', 2);
-                $table->integer('blockId')->unsigned();
+                $table->string('lang_code', 2);
+                $table->integer('block_id')->unsigned();
                 $table->string('title');
                 $table->text('body')->nullable();
-                $table->text('customFields')->nullable();
-                $table->boolean('isActive')->default(false);
-                $table->timestamp('createdAt')->useCurrent();
-                $table->timestamp('updatedAt')->useCurrent();
-                $table->foreign('blockId')->references('id')->on('Blocks')->onDelete('CASCADE');
-                $table->foreign('langCode')->references('code')->on('Langs')->onDelete('CASCADE');
+                $table->text('custom_fields')->nullable();
+                $table->boolean('is_active')->default(false);
+                $table->timestamps();
+                $table->foreign('block_id')->references('id')->on('blocks')->onDelete('CASCADE');
+                $table->foreign('lang_code')->references('code')->on('langs')->onDelete('CASCADE');
             }
         );
 
         Schema::create(
-            'Widgets',
+            'widgets',
             function (Blueprint $table) {
                 $table->increments('id');
                 $table->string('name')->unique();
                 $table->text('args')->nullable();
-                $table->boolean('isActive')->default(false);
-                $table->boolean('isCacheable')->default(false);
-                $table->timestamp('createdAt')->useCurrent();
-                $table->timestamp('updatedAt')->useCurrent();
+                $table->boolean('is_active')->default(false);
+                $table->boolean('is_cacheable')->default(false);
+                $table->timestamps();
             }
         );
 
@@ -88,10 +84,10 @@ class CreateBlock extends Migration {
      */
     public function down()
     {
-        Schema::dropIfExists('BlockTranslations');
-        Schema::dropIfExists('Blocks');
-        Schema::dropIfExists('BlockTypes');
-        Schema::dropIfExists('Widgets');
+        Schema::dropIfExists('block_translations');
+        Schema::dropIfExists('blocks');
+        Schema::dropIfExists('block_types');
+        Schema::dropIfExists('widgets');
     }
 
     /**
@@ -102,7 +98,7 @@ class CreateBlock extends Migration {
     private function seedBlockTypes()
     {
         foreach (['basic', 'menu', 'slider', 'content', 'widget'] as $type) {
-            BlockType::firstOrCreate(['name' => $type, 'isActive' => true]);
+            BlockType::firstOrCreate(['name' => $type, 'is_active' => true]);
         }
     }
 

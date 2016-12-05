@@ -19,17 +19,17 @@ class BlockPresenter extends Presenter {
     /**
      * This function get single translation
      *
-     * @param string $langCode LangCode
+     * @param string $lang_code LangCode
      *
      * @return string
      */
-    public function translation($langCode)
+    public function translation($lang_code)
     {
         $translation = '';
-        if (!empty($this->translations) && !empty($langCode)) {
+        if (!empty($this->translations) && !empty($lang_code)) {
             $translation = $this->translations->filter(
-                function ($translation) use ($langCode) {
-                    return $translation->langCode === $langCode;
+                function ($translation) use ($lang_code) {
+                    return $translation->lang_code === $lang_code;
                 }
             )->first();
         }

@@ -59,8 +59,8 @@ class OptionsServiceTest extends \TestCase {
             $categories
         );
 
-        $this->tester->seeInDatabase('OptionCategories', ['key' => 'seo']);
-        $this->tester->seeInDatabase('OptionCategories', ['key' => 'general']);
+        $this->tester->seeInDatabase('option_categories', ['key' => 'seo']);
+        $this->tester->seeInDatabase('option_categories', ['key' => 'general']);
     }
 
     /**
@@ -78,9 +78,9 @@ class OptionsServiceTest extends \TestCase {
      */
     public function can_get_single_option()
     {
-        $option = $this->service->getOption('general', 'siteName')['en'];
+        $option = $this->service->getOption('general', 'site_name')['en'];
 
-        $this->assertEquals($this->expectedOptions['general']['siteName']['en'], $option);
+        $this->assertEquals($this->expectedOptions['general']['site_name']['en'], $option);
     }
 
     private function recreateRepository()
@@ -96,14 +96,14 @@ class OptionsServiceTest extends \TestCase {
     {
         $this->expectedOptions = [
             'general' => [
-                'siteName'         => [],
-                'siteDesc'         => [],
-                'defaultPageSize'  => [],
-                'cookiesPolicyUrl' => [],
+                'site_name'          => [],
+                'site_desc'          => [],
+                'default_page_size'  => [],
+                'cookies_policy_url' => [],
             ],
             'seo'     => [
-                'seoDescLength'     => [],
-                'googleAnalyticsId' => [],
+                'seo_desc_length'     => [],
+                'google_analytics_id' => [],
             ]
         ];
 

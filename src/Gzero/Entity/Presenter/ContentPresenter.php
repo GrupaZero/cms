@@ -29,7 +29,7 @@ class ContentPresenter extends Presenter {
         if (!empty($this->translations) && !empty($langCode)) {
             $translation = $this->translations->filter(
                 function ($translation) use ($langCode) {
-                    return $translation->langCode === $langCode;
+                    return $translation->lang_code === $langCode;
                 }
             )->first();
         }
@@ -49,7 +49,7 @@ class ContentPresenter extends Presenter {
         if (!empty($this->route) && !empty($langCode)) {
             $routeTranslation = $this->route->translations->filter(
                 function ($translation) use ($langCode) {
-                    return $translation->langCode === $langCode;
+                    return $translation->lang_code === $langCode;
                 }
             )->first();
         }
@@ -69,13 +69,13 @@ class ContentPresenter extends Presenter {
         if (!empty($this->route) && !empty($langCode)) {
             $route = $this->route->translations->filter(
                 function ($translation) use ($langCode) {
-                    return $translation->langCode === $langCode;
+                    return $translation->lang_code === $langCode;
                 }
             )->first();
 
             if (!empty($route)) {
                 if (config('gzero.multilang.enabled')) {
-                    $routeUrl = url('/') . '/' . $route->langCode . '/' . $route->url;
+                    $routeUrl = url('/') . '/' . $route->lang_code . '/' . $route->url;
                 } else {
                     $routeUrl = url('/') . '/' . $route->url;
                 }
@@ -91,8 +91,8 @@ class ContentPresenter extends Presenter {
      */
     public function publishDate()
     {
-        if (!empty($this->publishedAt)) {
-            return $this->publishedAt;
+        if (!empty($this->published_at)) {
+            return $this->published_at;
         }
         return trans('common.unknown');
     }
@@ -180,7 +180,7 @@ class ContentPresenter extends Presenter {
                     'publisher'        => [
                         '@type' => 'Brand',
                         'url'   => route('home'),
-                        'name'  => config('gzero.siteName'),
+                        'name'  => config('gzero.site_name'),
                         'logo'  => [
                             '@type' => 'ImageObject',
                             'url'   => asset('/images/logo.png')
@@ -195,8 +195,8 @@ class ContentPresenter extends Presenter {
                         '@type' => "Person",
                         'name'  => $this->authorName()
                     ],
-                    'datePublished'    => $this->createdAt,
-                    'dateModified'     => $this->updatedAt,
+                    'datePublished'    => $this->created_at,
+                    'dateModified'     => $this->updated_at,
                     'url'              => $this->routeUrl($langCode),
                 ];
 

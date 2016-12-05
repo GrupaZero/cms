@@ -14,14 +14,13 @@ class CreateLang extends Migration {
     public function up()
     {
         Schema::create(
-            'Langs',
+            'langs',
             function (Blueprint $table) {
                 $table->string('code', 2)->index();
                 $table->string('i18n', 5);
-                $table->boolean('isEnabled')->default(false);
-                $table->boolean('isDefault')->default(false);
-                $table->timestamp('createdAt')->useCurrent();
-                $table->timestamp('updatedAt')->useCurrent();
+                $table->boolean('is_enabled')->default(false);
+                $table->boolean('is_default')->default(false);
+                $table->timestamps();
             }
         );
 
@@ -36,7 +35,7 @@ class CreateLang extends Migration {
      */
     public function down()
     {
-        Schema::dropIfExists('Langs');
+        Schema::dropIfExists('langs');
     }
 
     /**
@@ -50,8 +49,8 @@ class CreateLang extends Migration {
             [
                 'code'      => 'en',
                 'i18n'      => 'en_US',
-                'isEnabled' => true,
-                'isDefault' => true
+                'is_enabled' => true,
+                'is_default' => true
             ]
         );
 
@@ -59,7 +58,7 @@ class CreateLang extends Migration {
             [
                 'code'      => 'pl',
                 'i18n'      => 'pl_PL',
-                'isEnabled' => true
+                'is_enabled' => true
             ]
         );
 
@@ -67,7 +66,7 @@ class CreateLang extends Migration {
             [
                 'code'      => 'de',
                 'i18n'      => 'de_DE',
-                'isEnabled' => false
+                'is_enabled' => false
             ]
         );
 
@@ -75,7 +74,7 @@ class CreateLang extends Migration {
             [
                 'code'      => 'fr',
                 'i18n'      => 'fr_FR',
-                'isEnabled' => false
+                'is_enabled' => false
             ]
         );
     }

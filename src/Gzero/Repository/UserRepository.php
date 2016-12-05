@@ -5,7 +5,6 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Events\Dispatcher;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
-use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -72,8 +71,8 @@ class UserRepository extends BaseRepository implements AuthenticatableContract {
     public function create(Array $data)
     {
         // handle empty nickname users
-        if (empty($data['nickName'])) {
-            $data['nickName'] = $this->buildUniqueNickname();
+        if (empty($data['nick'])) {
+            $data['nick'] = $this->buildUniqueNickname();
         }
         $user = $this->newQuery()->transaction(
             function () use ($data) {
@@ -238,7 +237,7 @@ class UserRepository extends BaseRepository implements AuthenticatableContract {
      */
     public function getRememberTokenName()
     {
-        return 'rememberToken';
+        return 'remember_token';
     }
 
     /*
@@ -258,8 +257,8 @@ class UserRepository extends BaseRepository implements AuthenticatableContract {
     {
         // search for duplicated url
         $count = $this->newQuery()
-            ->table('Users')
-            ->whereRaw("nickName REGEXP '^$replacement($|-[0-9]+$)'")
+            ->table('users')
+            ->whereRaw("nick REGEXP '^$replacement($|-[0-9]+$)'")
             ->count();
         return ($count) ? $replacement . '-' . $count : $replacement;
     }

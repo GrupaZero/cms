@@ -29,13 +29,13 @@ class BlockType extends Base {
      */
     protected $fillable = [
         'name',
-        'isActive'
+        'is_active'
     ];
 
     /**
      * @var array
      */
     protected $attributes = [
-        'isActive' => false
+        'is_active' => false
     ];
 }

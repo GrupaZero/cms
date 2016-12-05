@@ -26,25 +26,25 @@ class Block extends Base {
         'type',
         'region',
         'theme',
-        'authorId',
+        'author_id',
         'weight',
         'filter',
         'options',
-        'isActive',
-        'isCacheable',
+        'is_active',
+        'is_cacheable',
     ];
 
     /**
      * @var array
      */
-    protected $dates = [self::DELETED_AT];
+    protected $dates = ['deleted_at'];
 
     /**
      * @var array
      */
     protected $attributes = [
-        'isActive' => false,
-        'isCacheable' => false
+        'is_active'    => false,
+        'is_cacheable' => false
     ];
 
     /**
@@ -67,9 +67,9 @@ class Block extends Base {
     public function translations($active = true)
     {
         if ($active) {
-            return $this->hasMany(BlockTranslation::class, 'blockId')->where('isActive', '=', 1);
+            return $this->hasMany(BlockTranslation::class)->where('is_active', '=', 1);
         }
-        return $this->hasMany(BlockTranslation::class, 'blockId');
+        return $this->hasMany(BlockTranslation::class);
     }
 
     /**
@@ -93,7 +93,7 @@ class Block extends Base {
     public function files($active = true)
     {
         if ($active) {
-            return $this->morphToMany(File::class, 'uploadable')->where('isActive', '=', 1)->withPivot('weight')
+            return $this->morphToMany(File::class, 'uploadable')->where('is_active', '=', 1)->withPivot('weight')
                 ->withTimestamps();
         }
         return $this->morphToMany(File::class, 'uploadable')->withPivot('weight')->withTimestamps();
@@ -106,7 +106,7 @@ class Block extends Base {
      */
     public function author()
     {
-        return $this->belongsTo(User::class, 'authorId', 'id');
+        return $this->belongsTo(User::class, 'author_id', 'id');
     }
 
     /**

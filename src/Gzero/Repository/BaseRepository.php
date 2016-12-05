@@ -278,13 +278,13 @@ abstract class BaseRepository {
     /**
      * Function sets all translation of provided entity as inactive
      *
-     * @param int    $id       entity id
-     * @param string $langCode lang code
+     * @param int    $id        entity id
+     * @param string $lang_code lang code
      *
      * @throws RepositoryException
      * @return bool|int
      */
-    protected function disableActiveTranslations($id, $langCode)
+    protected function disableActiveTranslations($id, $lang_code)
     {
         if (method_exists($this->model, 'translations')) {
             $relation   = $this->model->translations();
@@ -292,8 +292,8 @@ abstract class BaseRepository {
             if (isset($foreignKey[1])) {
                 return $relation->getModel()
                     ->where($foreignKey[1], $id)
-                    ->where('langCode', $langCode)
-                    ->update(['isActive' => false]);
+                    ->where('lang_code', $lang_code)
+                    ->update(['is_active' => false]);
             } else {
                 throw new RepositoryException("Unable to find foreign key of related translations");
             }
@@ -314,8 +314,8 @@ abstract class BaseRepository {
     {
         // search for duplicated url
         $count = $this->newQuery()
-            ->table('RouteTranslations')
-            ->where('langCode', $langCode)
+            ->table('route_translations')
+            ->where('lang_code', $langCode)
             ->whereRaw("url REGEXP '^$url($|-[0-9]+$)'")
             ->count();
         return ($count) ? $url . '-' . $count : $url;
@@ -347,9 +347,9 @@ abstract class BaseRepository {
      */
     protected function checkIfFilesExists(Array $filesIds)
     {
-        foreach ($filesIds as $fileId) {
-            if (!File::checkIfExists($fileId)) {
-                throw new RepositoryValidationException("File (id: $fileId) does not exist");
+        foreach ($filesIds as $file_id) {
+            if (!File::checkIfExists($file_id)) {
+                throw new RepositoryValidationException("File (id: $file_id) does not exist");
             }
         }
 

@@ -28,54 +28,54 @@ class Content extends BaseTree implements PresentableInterface {
     protected $fillable = [
         'type',
         'theme',
-        'fileId',
-        'authorId',
+        'file_id',
+        'author_id',
         'path',
         'weight',
         'rating',
         'visits',
-        'isOnHome',
-        'isCommentAllowed',
-        'isPromoted',
-        'isSticky',
-        'isActive',
-        'publishedAt'
+        'is_on_home',
+        'is_comment_allowed',
+        'is_promoted',
+        'is_sticky',
+        'is_active',
+        'published_at'
     ];
 
     /**
      * @var array
      */
     protected $attributes = [
-        'isOnHome' => false,
-        'isCommentAllowed' => false,
-        'isPromoted' => false,
-        'isSticky' => false,
-        'isActive' => false
+        'is_on_home' => false,
+        'is_comment_allowed' => false,
+        'is_promoted' => false,
+        'is_sticky' => false,
+        'is_active' => false
     ];
 
     /**
      * @var array
      */
-    protected $dates = ['publishedAt', self::DELETED_AT];
+    protected $dates = ['published_at', 'deleted_at'];
 
     /**
      * Get Content url in specified language.
      * WARNING: This function use LAZY LOADING to get this information
      *
-     * @param string $langCode Lang code
+     * @param string $lang_code Lang code
      *
      * @return mixed
      * @throws Exception
      */
-    public function getUrl($langCode)
+    public function getUrl($lang_code)
     {
         $routeTranslation = $this->route->translations->filter(
-            function ($translation) use ($langCode) {
-                return $translation->langCode == $langCode;
+            function ($translation) use ($lang_code) {
+                return $translation->lang_code == $lang_code;
             }
         )->first();
         if (empty($routeTranslation->url)) {
-            throw new Exception("No route [$langCode] translation found for Content id: " . $this->getKey());
+            throw new Exception("No route [$lang_code] translation found for Content id: " . $this->getKey());
         }
         return $routeTranslation->url;
     }
@@ -110,9 +110,9 @@ class Content extends BaseTree implements PresentableInterface {
     public function translations($active = true)
     {
         if ($active) {
-            return $this->hasMany(ContentTranslation::class, 'contentId')->where('isActive', '=', 1);
+            return $this->hasMany(ContentTranslation::class)->where('is_active', '=', 1);
         }
-        return $this->hasMany(ContentTranslation::class, 'contentId');
+        return $this->hasMany(ContentTranslation::class);
     }
 
     /**
@@ -125,7 +125,7 @@ class Content extends BaseTree implements PresentableInterface {
     public function files($active = true)
     {
         if ($active) {
-            return $this->morphToMany(File::class, 'uploadable')->where('isActive', '=', 1)->withPivot('weight')
+            return $this->morphToMany(File::class, 'uploadable')->where('is_active', '=', 1)->withPivot('weight')
                 ->withTimestamps();
         }
         return $this->morphToMany(File::class, 'uploadable')->withPivot('weight')->withTimestamps();
@@ -138,7 +138,7 @@ class Content extends BaseTree implements PresentableInterface {
      */
     public function author()
     {
-        return $this->belongsTo(User::class, 'authorId', 'id');
+        return $this->belongsTo(User::class, 'author_id', 'id');
     }
 
     /**
@@ -158,10 +158,10 @@ class Content extends BaseTree implements PresentableInterface {
      */
     public function canBeShown()
     {
-        if (app('auth')->check() && app('auth')->user()->isAdmin) {
+        if (app('auth')->check() && app('auth')->user()->is_admin) {
             return true;
         } else {
-            return $this->isActive;
+            return $this->is_active;
         }
     }
 

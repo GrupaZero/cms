@@ -50,11 +50,11 @@ class UserRepositoryTest extends \TestCase {
     public function can_create_user_and_get_it_by_id()
     {
         $userData = [
-            'email'     => 'john.doe@example.com',
-            'password'  => 'secret',
-            'nickName'  => 'Nickname',
-            'firstName' => 'John',
-            'lastName'  => 'Doe',
+            'email'      => 'john.doe@example.com',
+            'password'   => 'secret',
+            'nick'       => 'Nickname',
+            'first_name' => 'John',
+            'last_name'  => 'Doe',
         ];
 
         $user       = $this->repository->create($userData);
@@ -64,16 +64,16 @@ class UserRepositoryTest extends \TestCase {
             [
                 $user->email,
                 $user->id,
-                $user->nickName,
-                $user->firstName,
-                $user->lastName
+                $user->nick,
+                $user->first_name,
+                $user->last_name
             ],
             [
                 $userFromDb->email,
                 $userFromDb->id,
-                $userFromDb->nickName,
-                $userFromDb->firstName,
-                $userFromDb->lastName
+                $userFromDb->nick,
+                $userFromDb->first_name,
+                $userFromDb->last_name
             ]
         );
     }
@@ -85,19 +85,19 @@ class UserRepositoryTest extends \TestCase {
     {
 
         $firstUserData = [
-            'email'     => 'john.doe@example.com',
-            'password'  => 'secret',
-            'nickName'  => '',
-            'firstName' => 'John',
-            'lastName'  => 'Doe',
+            'email'      => 'john.doe@example.com',
+            'password'   => 'secret',
+            'nick'       => '',
+            'first_name' => 'John',
+            'last_name'  => 'Doe',
         ];
 
         $secondUserData = [
-            'email'     => 'jane.doe@example.com',
-            'password'  => 'secret',
-            'nickName'  => '',
-            'firstName' => 'Jane',
-            'lastName'  => 'Doe',
+            'email'      => 'jane.doe@example.com',
+            'password'   => 'secret',
+            'nick'       => '',
+            'first_name' => 'Jane',
+            'last_name'  => 'Doe',
         ];
 
         $firstUser  = $this->repository->create($firstUserData);
@@ -111,15 +111,15 @@ class UserRepositoryTest extends \TestCase {
                 $firstUser->email,
                 $firstUser->id,
                 'anonymous',
-                $firstUser->firstName,
-                $firstUser->lastName
+                $firstUser->first_name,
+                $firstUser->last_name
             ],
             [
                 $firstUserFromDb->email,
                 $firstUserFromDb->id,
-                $firstUserFromDb->nickName,
-                $firstUserFromDb->firstName,
-                $firstUserFromDb->lastName
+                $firstUserFromDb->nick,
+                $firstUserFromDb->first_name,
+                $firstUserFromDb->last_name
             ]
         );
 
@@ -128,15 +128,15 @@ class UserRepositoryTest extends \TestCase {
                 $secondUser->email,
                 $secondUser->id,
                 'anonymous-1',
-                $secondUser->firstName,
-                $secondUser->lastName
+                $secondUser->first_name,
+                $secondUser->last_name
             ],
             [
                 $secondUserFromDb->email,
                 $secondUserFromDb->id,
-                $secondUserFromDb->nickName,
-                $secondUserFromDb->firstName,
-                $secondUserFromDb->lastName
+                $secondUserFromDb->nick,
+                $secondUserFromDb->first_name,
+                $secondUserFromDb->last_name
             ]
         );
     }
@@ -148,10 +148,10 @@ class UserRepositoryTest extends \TestCase {
     {
         $user = $this->repository->create(
             [
-                'email'     => 'john.doe@example.com',
-                'password'  => 'password',
-                'firstName' => 'John',
-                'lastName'  => 'Doe',
+                'email'      => 'john.doe@example.com',
+                'password'   => 'password',
+                'first_name' => 'John',
+                'last_name'  => 'Doe',
             ]
         );
 
@@ -166,18 +166,18 @@ class UserRepositoryTest extends \TestCase {
     public function can_delete_user()
     {
         $userData = [
-            'email'     => 'john.doe@example.com',
-            'password'  => 'secret',
-            'nickName'  => 'Nickname',
-            'firstName' => 'John',
-            'lastName'  => 'Doe',
+            'email'      => 'john.doe@example.com',
+            'password'   => 'secret',
+            'nick'       => 'Nickname',
+            'first_name' => 'John',
+            'last_name'  => 'Doe',
         ];
 
         $user       = $this->repository->create($userData);
         $userFromDb = $this->repository->getById($user->id);
 
         $this->assertNotNull($userFromDb);
-        $this->tester->seeInDatabase('Users', $userData);
+        $this->tester->seeInDatabase('users', $userData);
 
         $this->repository->delete($user);
 
@@ -194,19 +194,19 @@ class UserRepositoryTest extends \TestCase {
 
         $firstUser = $this->repository->create(
             [
-                'email'     => 'john.doe@example.com',
-                'password'  => 'secret',
-                'firstName' => 'John',
-                'lastName'  => 'Doe'
+                'email'      => 'john.doe@example.com',
+                'password'   => 'secret',
+                'first_name' => 'John',
+                'last_name'  => 'Doe'
             ]
         );
 
         $secondUser = $this->repository->create(
             [
-                'email'     => 'zoe.doe@example.com',
-                'password'  => 'secret',
-                'firstName' => 'Zoe',
-                'lastName'  => 'Doe'
+                'email'      => 'zoe.doe@example.com',
+                'password'   => 'secret',
+                'first_name' => 'Zoe',
+                'last_name'  => 'Doe'
             ]
         );
 

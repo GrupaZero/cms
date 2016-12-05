@@ -125,14 +125,14 @@ class FileRepository extends BaseRepository {
      */
     public function createTranslation(File $file, Array $data)
     {
-        if (!array_key_exists('langCode', $data) || !array_key_exists('title', $data)) {
+        if (!array_key_exists('lang_code', $data) || !array_key_exists('title', $data)) {
             throw new RepositoryValidationException("Language code and title of translation is required");
         }
         // New translation query
         $translation = $this->newQuery()->transaction(
             function () use ($file, $data) {
                 // Remove any existing translation in this language
-                $existingTranslation = $this->getFileTranslationByLangCode($file, $data['langCode']);
+                $existingTranslation = $this->getFileTranslationByLangCode($file, $data['lang_code']);
                 if ($existingTranslation) {
                     $existingTranslation->delete();
                 }
@@ -231,13 +231,13 @@ class FileRepository extends BaseRepository {
      * Get translation of specified file by id.
      *
      * @param File   $file     File entity
-     * @param string $langCode File Translation id
+     * @param string $lang_code File Translation id
      *
      * @return FileTranslation
      */
-    public function getFileTranslationByLangCode(File $file, $langCode)
+    public function getFileTranslationByLangCode(File $file, $lang_code)
     {
-        return $file->translations()->where('langCode', '=', $langCode)->first();
+        return $file->translations()->where('lang_code', '=', $lang_code)->first();
     }
 
 
@@ -281,10 +281,10 @@ class FileRepository extends BaseRepository {
     {
         if (!empty($parsedCriteria['lang'])) {
             $query->leftJoin(
-                'FileTranslations',
+                'file_translations',
                 function ($join) use ($parsedCriteria) {
-                    $join->on('Files.id', '=', 'FileTranslations.fileId')
-                        ->where('FileTranslations.langCode', '=', $parsedCriteria['lang']['value']);
+                    $join->on('files.id', '=', 'file_translations.file_id')
+                        ->where('file_translations.lang_code', '=', $parsedCriteria['lang']['value']);
                 }
             );
             unset($parsedCriteria['lang']);
@@ -316,7 +316,7 @@ class FileRepository extends BaseRepository {
     protected function fileDefaultOrderBy()
     {
         return function ($query) {
-            $query->orderBy('Files.createdAt', 'DESC');
+            $query->orderBy('files.created_at', 'DESC');
         };
     }
 
@@ -373,7 +373,7 @@ class FileRepository extends BaseRepository {
             'name'      => pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME),
             'extension' => $uploadedFile->getClientOriginalExtension(),
             'size'      => $uploadedFile->getSize(),
-            'mimeType'  => $uploadedFile->getMimeType(),
+            'mime_type'  => $uploadedFile->getMimeType(),
         ];
     }
 

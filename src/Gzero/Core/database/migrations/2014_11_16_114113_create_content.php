@@ -14,60 +14,57 @@ class CreateContent extends Migration {
     public function up()
     {
         Schema::create(
-            'ContentTypes',
+            'content_types',
             function (Blueprint $table) {
                 $table->string('name')->index()->unique();
-                $table->boolean('isActive')->default(false);
-                $table->timestamp('createdAt')->useCurrent();
-                $table->timestamp('updatedAt')->useCurrent();
+                $table->boolean('is_active')->default(false);
+                $table->timestamps();
             }
         );
 
         Schema::create(
-            'Contents',
+            'contents',
             function (Blueprint $table) {
                 $table->increments('id');
                 $table->string('type');
                 $table->string('theme')->nullable();
-                $table->integer('authorId')->unsigned()->nullable();
+                $table->integer('author_id')->unsigned()->nullable();
                 $table->string('path', 255)->nullable();
-                $table->integer('parentId')->unsigned()->nullable();
+                $table->integer('parent_id')->unsigned()->nullable();
                 $table->integer('level')->default(0);
                 $table->integer('weight')->default(0);
                 $table->integer('rating')->default(0);
                 $table->integer('visits')->default(0);
-                $table->boolean('isOnHome')->default(false);
-                $table->boolean('isCommentAllowed')->default(false);
-                $table->boolean('isPromoted')->default(false);
-                $table->boolean('isSticky')->default(false);
-                $table->boolean('isActive')->default(false);
-                $table->timestamp('publishedAt')->useCurrent();
-                $table->timestamp('createdAt')->useCurrent();
-                $table->timestamp('updatedAt')->useCurrent();
-                $table->index(['type', 'path', 'parentId', 'level']);
-                $table->foreign('authorId')->references('id')->on('Users')->onDelete('SET NULL');
-                $table->foreign('parentId')->references('id')->on('Contents')->onDelete('CASCADE');
-                $table->foreign('type')->references('name')->on('ContentTypes')->onDelete('CASCADE');
-                $table->timestamp('deletedAt')->nullable();
+                $table->boolean('is_on_home')->default(false);
+                $table->boolean('is_comment_allowed')->default(false);
+                $table->boolean('is_promoted')->default(false);
+                $table->boolean('is_sticky')->default(false);
+                $table->boolean('is_active')->default(false);
+                $table->timestamp('published_at')->nullable();
+                $table->timestamp('deleted_at')->nullable();
+                $table->timestamps();
+                $table->index(['type', 'path', 'parent_id', 'level']);
+                $table->foreign('author_id')->references('id')->on('users')->onDelete('SET NULL');
+                $table->foreign('parent_id')->references('id')->on('contents')->onDelete('CASCADE');
+                $table->foreign('type')->references('name')->on('content_types')->onDelete('CASCADE');
             }
         );
 
         Schema::create(
-            'ContentTranslations',
+            'content_translations',
             function (Blueprint $table) {
                 $table->increments('id');
-                $table->string('langCode', 2);
-                $table->integer('contentId')->unsigned();
+                $table->string('lang_code', 2);
+                $table->integer('content_id')->unsigned();
                 $table->string('title')->nullable();
                 $table->text('teaser')->nullable();
                 $table->text('body')->nullable();
-                $table->string('seoTitle')->nullable();
-                $table->string('seoDescription')->nullable();
-                $table->boolean('isActive')->default(false);
-                $table->timestamp('createdAt')->useCurrent();
-                $table->timestamp('updatedAt')->useCurrent();
-                $table->foreign('contentId')->references('id')->on('Contents')->onDelete('CASCADE');
-                $table->foreign('langCode')->references('code')->on('Langs')->onDelete('CASCADE');
+                $table->string('seo_title')->nullable();
+                $table->string('seo_description')->nullable();
+                $table->boolean('is_active')->default(false);
+                $table->timestamps();
+                $table->foreign('content_id')->references('id')->on('contents')->onDelete('CASCADE');
+                $table->foreign('lang_code')->references('code')->on('langs')->onDelete('CASCADE');
             }
         );
 
@@ -82,9 +79,9 @@ class CreateContent extends Migration {
      */
     public function down()
     {
-        Schema::dropIfExists('ContentTranslations');
-        Schema::dropIfExists('Contents');
-        Schema::dropIfExists('ContentTypes');
+        Schema::dropIfExists('content_translations');
+        Schema::dropIfExists('contents');
+        Schema::dropIfExists('content_types');
     }
 
     /**
@@ -95,7 +92,7 @@ class CreateContent extends Migration {
     private function seedContentTypes()
     {
         foreach (['content', 'category'] as $type) {
-            ContentType::firstOrCreate(['name' => $type, 'isActive' => true]);
+            ContentType::firstOrCreate(['name' => $type, 'is_active' => true]);
         }
     }
 

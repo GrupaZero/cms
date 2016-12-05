@@ -110,7 +110,7 @@ class BlockFinder {
         } else {
             if ($isPublic) {
                 $blocks = $this->blockRepository->getBlocks(
-                    [['filter', '!=', null], ['isActive', '=', true]],
+                    [['filter', '!=', null], ['is_active', '=', true]],
                     [['weight', 'ASC']],
                     null,
                     null

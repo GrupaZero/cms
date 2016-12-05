@@ -38,7 +38,7 @@ class OptionCategory extends Base {
      */
     public function options()
     {
-        return $this->hasMany(Option::class, 'categoryKey');
+        return $this->hasMany(Option::class, 'category_key');
     }
 
 }

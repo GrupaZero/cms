@@ -14,27 +14,17 @@ class CreateUser extends Migration {
     public function up()
     {
         Schema::create(
-            'Users',
+            'users',
             function (Blueprint $table) {
                 $table->increments('id');
                 $table->string('email')->unique();
                 $table->string('password');
-                $table->string('nickName')->unique()->nullable();
-                $table->string('firstName')->nullable();
-                $table->string('lastName')->nullable();
-                $table->string('rememberToken')->nullable();
-                $table->boolean('isAdmin')->default(false);
-                $table->timestamp('createdAt')->useCurrent();
-                $table->timestamp('updatedAt')->useCurrent();
-            }
-        );
-
-        Schema::create(
-            'PasswordReminders',
-            function (Blueprint $table) {
-                $table->string('email')->index();
-                $table->string('token')->index();
-                $table->timestamp('created_at')->useCurrent();
+                $table->string('nick')->unique()->nullable();
+                $table->string('first_name')->nullable();
+                $table->string('last_name')->nullable();
+                $table->boolean('is_admin')->default(false);
+                $table->rememberToken();
+                $table->timestamps();
             }
         );
 
@@ -49,8 +39,7 @@ class CreateUser extends Migration {
      */
     public function down()
     {
-        Schema::dropIfExists('PasswordReminders');
-        Schema::dropIfExists('Users');
+        Schema::dropIfExists('users');
     }
 
     /**
@@ -64,14 +53,14 @@ class CreateUser extends Migration {
         $user = User::create(
             [
                 'email'     => 'admin@gzero.pl',
-                'nickName'  => 'Admin',
-                'firstName' => 'John',
-                'lastName'  => 'Doe',
+                'nick'  => 'Admin',
+                'first_name' => 'John',
+                'last_name'  => 'Doe',
                 'password'  => Hash::make('test')
             ]
         );
 
-        $user->isAdmin = 1;
+        $user->is_admin = 1;
         $user->save();
     }
 }

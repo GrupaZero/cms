@@ -15,26 +15,24 @@ class CreateOptions extends Migration {
     public function up()
     {
         Schema::create(
-            'OptionCategories',
+            'option_categories',
             function (Blueprint $table) {
                 $table->string('key')->index();
-                $table->timestamp('createdAt')->useCurrent();
-                $table->timestamp('updatedAt')->useCurrent();
+                $table->timestamps();
                 $table->primary('key');
             }
         );
 
         Schema::create(
-            'Options',
+            'options',
             function (Blueprint $table) {
                 $table->increments('id');
                 $table->string('key');
-                $table->string('categoryKey');
+                $table->string('category_key');
                 $table->text('value');
-                $table->timestamp('createdAt')->useCurrent();
-                $table->timestamp('updatedAt')->useCurrent();
-                $table->foreign('categoryKey')->references('key')->on('OptionCategories')->onDelete('CASCADE');
-                $table->index(['categoryKey', 'key']);
+                $table->timestamps();
+                $table->foreign('category_key')->references('key')->on('option_categories')->onDelete('CASCADE');
+                $table->index(['category_key', 'key']);
             }
         );
 
@@ -49,8 +47,8 @@ class CreateOptions extends Migration {
      */
     public function down()
     {
-        Schema::dropIfExists('Options');
-        Schema::dropIfExists('OptionCategories');
+        Schema::dropIfExists('options');
+        Schema::dropIfExists('option_categories');
     }
 
     /**
@@ -63,14 +61,14 @@ class CreateOptions extends Migration {
         // gzero config options
         $options = [
             'general' => [
-                'siteName'         => [],
-                'siteDesc'         => [],
-                'defaultPageSize'  => [],
-                'cookiesPolicyUrl' => [],
+                'site_name'          => [],
+                'site_desc'          => [],
+                'default_page_size'  => [],
+                'cookies_policy_url' => [],
             ],
             'seo'     => [
-                'seoDescLength'     => [],
-                'googleAnalyticsId' => [],
+                'desc_length'         => [],
+                'google_analytics_id' => [],
             ]
         ];
 

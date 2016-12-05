@@ -33,14 +33,14 @@ class FileType extends Base {
     protected $fillable = [
         'name',
         'extensions',
-        'isActive'
+        'is_active'
     ];
 
     /**
      * @var array
      */
     protected $attributes = [
-        'isActive' => false
+        'is_active' => false
     ];
 
     /**
@@ -51,9 +51,9 @@ class FileType extends Base {
     public function getActiveTypes()
     {
         $types = Cache::rememberForever(
-            'fileTypes',
+            'file_types',
             function () {
-                return array_pluck($this->where('isActive', true)->get(['name'])->toArray(), 'name');
+                return array_pluck($this->where('is_active', true)->get(['name'])->toArray(), 'name');
             }
         );
 

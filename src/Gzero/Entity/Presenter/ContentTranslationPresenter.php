@@ -1,6 +1,5 @@
 <?php namespace Gzero\Entity\Presenter;
 
-use Carbon\Carbon;
 use Robbo\Presenter\Presenter;
 
 /**
@@ -28,15 +27,15 @@ class ContentTranslationPresenter extends Presenter {
     public function seoTitle($alternativeField = false)
     {
         if (!$alternativeField) {
-            $alternativeField = config('gzero.seoTitleAlternativeField', 'title');
+            $alternativeField = config('gzero.seo.alternative_title', 'title');
         }
         $text = $this->removeNewLinesAndWhitespace($this->$alternativeField);
         // if alternative field is not empty
         if ($text) {
-            return $this->seoTitle ? $this->removeNewLinesAndWhitespace($this->seoTitle) : $text;
+            return $this->seo_title ? $this->removeNewLinesAndWhitespace($this->seo_title) : $text;
         }
         // show site name as default
-        return option('general', 'siteName');
+        return option('general', 'site_name');
     }
 
     /**
@@ -49,21 +48,21 @@ class ContentTranslationPresenter extends Presenter {
      */
     public function seoDescription($alternativeField = false)
     {
-        $seoDescLength = option('seo', 'seoDescLength', 160);
+        $descLength = option('seo', 'desc_length', config('gzero.seo.desc_length', 160));
         if (!$alternativeField) {
-            $alternativeField = config('gzero.seoDescriptionAlternativeField', 'body');
+            $alternativeField = config('gzero.seo.alternative_desc', 'body');
         }
         // if SEO description is set
-        if ($this->seoDescription) {
-            return $this->removeNewLinesAndWhitespace($this->seoDescription);
+        if ($this->seo_description) {
+            return $this->removeNewLinesAndWhitespace($this->seo_description);
         } else {
             $text = $this->removeNewLinesAndWhitespace($this->$alternativeField);
             // if alternative field is not empty
             if ($text) {
-                return strlen($text) >= $seoDescLength ? substr($text, 0, strpos($text, ' ', $seoDescLength)) : $text;
+                return strlen($text) >= $descLength ? substr($text, 0, strpos($text, ' ', $descLength)) : $text;
             };
             // show site description as default
-            return option('general', 'siteDesc');
+            return option('general', 'site_desc');
         }
     }
 
