@@ -15,6 +15,7 @@ use Gzero\Entity\OptionCategory;
 use Gzero\Entity\User;
 use Gzero\Repository\BlockRepository;
 use Gzero\Repository\ContentRepository;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -64,6 +65,8 @@ class CMSSeeder extends Seeder {
         $this->faker             = Factory::create();
         $this->contentRepository = $contentRepository;
         $this->blockRepository   = $blockRepository;
+        // We don't want to allow to pass everything to Eloquent model
+        Model::reguard();
     }
 
     /**
@@ -303,7 +306,7 @@ class CMSSeeder extends Seeder {
         // gzero config options
         $options = [
             'general' => [
-                'site_name'           => [],
+                'site_name'          => [],
                 'site_desc'          => [],
                 'default_page_size'  => [],
                 'cookies_policy_url' => [],
@@ -401,12 +404,12 @@ class CMSSeeder extends Seeder {
             'filter'       => $filter,
             'options'      => array_combine($this->faker->words(), $this->faker->words()),
             'is_active'    => $is_active,
-            'is_cacheable'  => $isCacheable,
+            'is_cacheable' => $isCacheable,
             'translations' => $this->prepareBlockTranslation($langs['en']),
             'widget'       => [
-                'name'        => $this->faker->unique()->word,
-                'args'        => array_combine($this->faker->words(), $this->faker->words()),
-                'is_active'   => $is_active,
+                'name'         => $this->faker->unique()->word,
+                'args'         => array_combine($this->faker->words(), $this->faker->words()),
+                'is_active'    => $is_active,
                 'is_cacheable' => $isCacheable,
             ],
         ];
@@ -485,13 +488,13 @@ class CMSSeeder extends Seeder {
         $user      = $users[array_rand($users)];
         $entity    = $entity[array_rand($entity)];
         $input     = [
-            'type'      => $type->name,
-            'name'      => $faker->word,
-            'extension' => $faker->fileExtension,
-            'size'      => $faker->randomNumber,
-            'mime_type' => $faker->mimeType,
-            'info'      => array_combine($this->faker->words(), $this->faker->words()),
-            'is_active' => $is_active,
+            'type'       => $type->name,
+            'name'       => $faker->word,
+            'extension'  => $faker->fileExtension,
+            'size'       => $faker->randomNumber,
+            'mime_type'  => $faker->mimeType,
+            'info'       => array_combine($this->faker->words(), $this->faker->words()),
+            'is_active'  => $is_active,
             'created_by' => $user->id,
         ];
         // create file record in db
@@ -569,11 +572,11 @@ class CMSSeeder extends Seeder {
         if ($lang) {
             $faker = Factory::create($lang->i18n);
             return [
-                'lang_code'    => $lang->code,
-                'title'        => ($title) ? $title : $faker->realText(38, 1),
-                'body'         => $faker->realText(300),
+                'lang_code'     => $lang->code,
+                'title'         => ($title) ? $title : $faker->realText(38, 1),
+                'body'          => $faker->realText(300),
                 'custom_fields' => array_combine($this->faker->words(), $this->faker->words()),
-                'is_active'    => (bool) ($title) ? $is_active : rand(0, 1)
+                'is_active'     => (bool) ($title) ? $is_active : rand(0, 1)
             ];
         }
         throw new Exception("Translation language is required!");
