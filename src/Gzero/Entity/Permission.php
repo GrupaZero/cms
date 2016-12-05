@@ -1,6 +1,5 @@
 <?php namespace Gzero\Entity;
 
-
 /**
  * This file is part of the GZERO CMS package.
  *

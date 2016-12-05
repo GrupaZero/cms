@@ -19,7 +19,7 @@ before_script:
 
 script:
   - ./vendor/bin/phpmd src/ text phpmd.xml --exclude src/Gzero/Core/laravel_helpers.php
-  - ./vendor/bin/phpcs --standard=ruleset.xml src/ -n # -n no warnings
+  - ./vendor/bin/phpcs --standard=ruleset.xml src/ -n --colors # -n no warnings
   - "php vendor/bin/codecept run -c codeception.yml -o \"settings: lint: false\" --coverage --coverage-xml"
   - mkdir -p build/logs
   - cp tests/_output/coverage.xml build/logs/clover.xml

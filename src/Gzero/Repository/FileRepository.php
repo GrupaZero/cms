@@ -59,7 +59,7 @@ class FileRepository extends BaseRepository {
      * @return File
      * @throws RepositoryValidationException
      */
-    public function create(Array $data, UploadedFile $uploadedFile, User $author = null)
+    public function create(array $data, UploadedFile $uploadedFile, User $author = null)
     {
         if (!$uploadedFile->isValid()) {
             throw new RepositoryValidationException("Error occurred while uploading the file to the server");
@@ -123,7 +123,7 @@ class FileRepository extends BaseRepository {
      * @return FileTranslation
      * @throws RepositoryValidationException
      */
-    public function createTranslation(File $file, Array $data)
+    public function createTranslation(File $file, array $data)
     {
         if (!array_key_exists('lang_code', $data) || !array_key_exists('title', $data)) {
             throw new RepositoryValidationException("Language code and title of translation is required");
@@ -157,7 +157,7 @@ class FileRepository extends BaseRepository {
      * @return File
      * @SuppressWarnings("unused")
      */
-    public function update(File $file, Array $data, User $modifier = null)
+    public function update(File $file, array $data, User $modifier = null)
     {
         $file = $this->newQuery()->transaction(
             function () use ($file, $data, $modifier) {
@@ -231,13 +231,13 @@ class FileRepository extends BaseRepository {
      * Get translation of specified file by id.
      *
      * @param File   $file     File entity
-     * @param string $lang_code File Translation id
+     * @param string $langCode File Translation id
      *
      * @return FileTranslation
      */
-    public function getFileTranslationByLangCode(File $file, $lang_code)
+    public function getFileTranslationByLangCode(File $file, $langCode)
     {
-        return $file->translations()->where('lang_code', '=', $lang_code)->first();
+        return $file->translations()->where('lang_code', '=', $langCode)->first();
     }
 
 
@@ -274,7 +274,7 @@ class FileRepository extends BaseRepository {
      * @param array $parsedOrderBy  Array with orderBy
      * @param mixed $query          Eloquent query object
      *
-     * @throws RepositoryException
+     * @throws RepositoryValidationException
      * @return array
      */
     public function handleTranslationsJoin(array &$parsedCriteria, array $parsedOrderBy, $query)
@@ -373,7 +373,7 @@ class FileRepository extends BaseRepository {
             'name'      => pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME),
             'extension' => $uploadedFile->getClientOriginalExtension(),
             'size'      => $uploadedFile->getSize(),
-            'mime_type'  => $uploadedFile->getMimeType(),
+            'mime_type' => $uploadedFile->getMimeType(),
         ];
     }
 

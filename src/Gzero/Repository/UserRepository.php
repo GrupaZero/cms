@@ -68,7 +68,7 @@ class UserRepository extends BaseRepository implements AuthenticatableContract {
      *
      * @return User
      */
-    public function create(Array $data)
+    public function create(array $data)
     {
         // handle empty nickname users
         if (empty($data['nick'])) {
@@ -95,7 +95,7 @@ class UserRepository extends BaseRepository implements AuthenticatableContract {
      * @return User
      * @throws \Exception
      */
-    public function update(User $user, Array $data)
+    public function update(User $user, array $data)
     {
         $user = $this->newQuery()->transaction(
             function () use ($user, $data) {

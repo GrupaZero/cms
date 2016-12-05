@@ -178,7 +178,7 @@ class BlockFinder {
      *
      * @return void
      */
-    protected function extractFilter(Block $block, Array &$filter, Array &$excluded)
+    protected function extractFilter(Block $block, array &$filter, array &$excluded)
     {
         if (isset($block->filter['+'])) {
             foreach ($block->filter['+'] as $filterValue) {

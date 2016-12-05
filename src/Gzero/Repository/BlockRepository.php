@@ -65,7 +65,7 @@ class BlockRepository extends BaseRepository {
      *
      * @return Block
      */
-    public function create(Array $data, User $author = null)
+    public function create(array $data, User $author = null)
     {
         $block = $this->newQuery()->transaction(
             function () use ($data, $author) {
@@ -104,7 +104,7 @@ class BlockRepository extends BaseRepository {
      * @return BlockTranslation
      * @throws RepositoryValidationException
      */
-    public function createTranslation(Block $block, Array $data)
+    public function createTranslation(Block $block, array $data)
     {
         if (!array_key_exists('lang_code', $data) || !array_key_exists('title', $data)) {
             throw new RepositoryValidationException("Language code and title of translation is required");
@@ -136,7 +136,7 @@ class BlockRepository extends BaseRepository {
      * @return Block
      * @throws RepositoryValidationException
      */
-    public function addFiles(Block $block, Array $filesIds)
+    public function addFiles(Block $block, array $filesIds)
     {
         if (empty($filesIds)) {
             throw new RepositoryValidationException('You must provide the files in order to add them to the block');
@@ -167,7 +167,7 @@ class BlockRepository extends BaseRepository {
      * @return Block
      * @SuppressWarnings("unused")
      */
-    public function update(Block $block, Array $data, User $modifier = null)
+    public function update(Block $block, array $data, User $modifier = null)
     {
         $block = $this->newQuery()->transaction(
             function () use ($block, $data, $modifier) {
@@ -186,25 +186,25 @@ class BlockRepository extends BaseRepository {
      * Updates file of specified block entity
      *
      * @param Block   $block      Block entity
-     * @param integer $file_id     file id to update
+     * @param integer $fileId     file id to update
      * @param array   $attributes files attributes to update
      *
      * @return Block
      * @throws RepositoryValidationException
      */
-    public function updateFile(Block $block, $file_id, Array $attributes)
+    public function updateFile(Block $block, $fileId, array $attributes)
     {
-        if (!$file_id) {
+        if (!$fileId) {
             throw new RepositoryValidationException('You must provide the file in order to update it');
         }
 
         // New block query
         $block = $this->newQuery()->transaction(
-            function () use ($block, $file_id, $attributes) {
-                $this->events->fire('block.files.updating', [$block, $file_id, $attributes]);
-                $block->files()->updateExistingPivot($file_id, $attributes);
-                $this->events->fire('block.files.updated', [$block, $file_id, $attributes]);
-                return $this->getBlockFileById($block, $file_id);
+            function () use ($block, $fileId, $attributes) {
+                $this->events->fire('block.files.updating', [$block, $fileId, $attributes]);
+                $block->files()->updateExistingPivot($fileId, $attributes);
+                $this->events->fire('block.files.updated', [$block, $fileId, $attributes]);
+                return $this->getBlockFileById($block, $fileId);
             }
         );
 
@@ -260,7 +260,6 @@ class BlockRepository extends BaseRepository {
      *
      * @return bool
      * @throws RepositoryValidationException
-     * @throws \Exception
      */
     public function deleteTranslation(BlockTranslation $translation)
     {
@@ -283,7 +282,7 @@ class BlockRepository extends BaseRepository {
      * @return Block
      * @throws RepositoryValidationException
      */
-    public function removeFiles(Block $block, Array $filesIds)
+    public function removeFiles(Block $block, array $filesIds)
     {
         if (empty($filesIds)) {
             throw new RepositoryValidationException(
@@ -356,7 +355,8 @@ class BlockRepository extends BaseRepository {
             $this->getFilesTableName(),
             $parsed['orderBy'],
             $query,
-            function ($query) { // default order by
+            function ($query) {
+                // default order by
                 $query->orderBy('uploadables.weight', 'ASC');
             }
         );

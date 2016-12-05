@@ -120,7 +120,7 @@ class Handler extends ExceptionHandler {
         $response = response()
             ->json(
                 $errorResponse,
-                !empty($errorResponse['code']) ? $errorResponse['code'] : self::SERVER_ERROR
+                $this->isProperHTTPErrorCode($errorResponse['code']) ? $errorResponse['code'] : self::SERVER_ERROR
             );
         if (class_exists('Barryvdh\Cors\Stack\CorsService')) {
             app('Barryvdh\Cors\Stack\CorsService')->addActualRequestHeaders($response, $request);
@@ -150,5 +150,17 @@ class Handler extends ExceptionHandler {
         }
 
         return $code;
+    }
+
+    /**
+     * It checks if specific code is valid HTTP error code
+     *
+     * @param int $code Error code
+     *
+     * @return bool
+     */
+    protected function isProperHTTPErrorCode($code)
+    {
+        return (!empty($code) && (int) $code >= 400);
     }
 }

@@ -233,7 +233,6 @@ abstract class BaseRepository {
         } catch (BadMethodCallException $e) {
             throw new RepositoryException("Relation '" . $relationString . "' doesn't exist");
         }
-
     }
 
 
@@ -345,7 +344,7 @@ abstract class BaseRepository {
      * @return array $filesIds array of file id's
      * @throws RepositoryValidationException
      */
-    protected function checkIfFilesExists(Array $filesIds)
+    protected function checkIfFilesExists(array $filesIds)
     {
         foreach ($filesIds as $file_id) {
             if (!File::checkIfExists($file_id)) {

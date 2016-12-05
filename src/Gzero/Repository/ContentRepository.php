@@ -153,7 +153,8 @@ class ContentRepository extends BaseRepository {
             $this->getTranslationsTableName(),
             $parsed['orderBy'],
             $query,
-            function ($query) { // default order by
+            function ($query) {
+                // default order by
                 $query->orderBy('content_translations.is_active', 'DESC');
             }
         );
@@ -187,7 +188,8 @@ class ContentRepository extends BaseRepository {
             $this->getFilesTableName(),
             $parsed['orderBy'],
             $query,
-            function ($query) { // default order by
+            function ($query) {
+                // default order by
                 $query->orderBy('uploadables.weight', 'ASC');
             }
         );
@@ -542,7 +544,7 @@ class ContentRepository extends BaseRepository {
      *
      * @return Content
      */
-    public function create(Array $data, User $author = null)
+    public function create(array $data, User $author = null)
     {
         $content = $this->newQuery()->transaction(
             function () use ($data, $author) {
@@ -596,7 +598,7 @@ class ContentRepository extends BaseRepository {
      * @return ContentTranslation
      * @throws RepositoryValidationException
      */
-    public function createTranslation(Content $content, Array $data)
+    public function createTranslation(Content $content, array $data)
     {
         if (!array_key_exists('lang_code', $data) || !array_key_exists('title', $data)) {
             throw new RepositoryValidationException('Language code and title of translation is required');
@@ -680,7 +682,7 @@ class ContentRepository extends BaseRepository {
      * @return Content
      * @throws RepositoryValidationException
      */
-    public function addFiles(Content $content, Array $filesIds)
+    public function addFiles(Content $content, array $filesIds)
     {
         if (empty($filesIds)) {
             throw new RepositoryValidationException('You must provide the files in order to add them to the content');
@@ -711,7 +713,7 @@ class ContentRepository extends BaseRepository {
      * @return Content
      * @SuppressWarnings("unused")
      */
-    public function update(Content $content, Array $data, User $modifier = null)
+    public function update(Content $content, array $data, User $modifier = null)
     {
         $content = $this->newQuery()->transaction(
             function () use ($content, $data, $modifier) {
@@ -742,7 +744,7 @@ class ContentRepository extends BaseRepository {
      * @return File
      * @throws RepositoryValidationException
      */
-    public function updateFile(Content $content, $file_id, Array $attributes)
+    public function updateFile(Content $content, $file_id, array $attributes)
     {
         if (!$file_id) {
             throw new RepositoryValidationException('You must provide the file in order to update it');
@@ -818,7 +820,6 @@ class ContentRepository extends BaseRepository {
      *
      * @return bool
      * @throws RepositoryValidationException
-     * @throws \Exception
      */
     public function deleteTranslation(ContentTranslation $translation)
     {
@@ -841,7 +842,7 @@ class ContentRepository extends BaseRepository {
      * @return Content
      * @throws RepositoryValidationException
      */
-    public function removeFiles(Content $content, Array $filesIds)
+    public function removeFiles(Content $content, array $filesIds)
     {
         if (empty($filesIds)) {
             throw new RepositoryValidationException(
@@ -969,7 +970,6 @@ class ContentRepository extends BaseRepository {
         } else {
             throw new RepositoryValidationException($message);
         }
-
     }
 
     /**

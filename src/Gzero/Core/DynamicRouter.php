@@ -52,7 +52,7 @@ class DynamicRouter {
      * @param Lang   $lang Lang entity
      *
      * @return View
-     * @throws \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+     * @throws NotFoundHttpException
      */
     public function handleRequest($url, Lang $lang)
     {

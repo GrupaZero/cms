@@ -9,7 +9,7 @@ if (!function_exists('setMultilangRouting')) {
      *
      * @return array
      */
-    function setMultilangRouting(Array $routingOptions = [])
+    function setMultilangRouting(array $routingOptions = [])
     {
         if (config('gzero.multilang.enabled')) {
             if (config('gzero.multilang.subdomain')) {
