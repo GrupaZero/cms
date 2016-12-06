@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "b72db64ec28eabca4b0cb97253d308fa",
-    "content-hash": "39bf273816d425a01b3b7ba0f8a2690a",
+    "hash": "a5e305a269bf623013d9c6cfc1417fe4",
+    "content-hash": "96362dc92e45f014cbd1a6f16063b495",
     "packages": [
         {
             "name": "classpreloader/classpreloader",
@@ -3290,16 +3290,16 @@
         },
         {
             "name": "gzero/testing",
-            "version": "v1.1.1",
+            "version": "v2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/GrupaZero/testing.git",
-                "reference": "f8e80614845f96071bd5d862aa490c2fab07e6d8"
+                "reference": "c62bcc80c6d2a2cee7e10e63c6ce51522f3ae1bc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/GrupaZero/testing/zipball/f8e80614845f96071bd5d862aa490c2fab07e6d8",
-                "reference": "f8e80614845f96071bd5d862aa490c2fab07e6d8",
+                "url": "https://api.github.com/repos/GrupaZero/testing/zipball/c62bcc80c6d2a2cee7e10e63c6ce51522f3ae1bc",
+                "reference": "c62bcc80c6d2a2cee7e10e63c6ce51522f3ae1bc",
                 "shasum": ""
             },
             "type": "library",
@@ -3314,7 +3314,7 @@
                 }
             ],
             "description": "Package that helps testing across our packages",
-            "time": "2016-12-01 15:14:32"
+            "time": "2016-12-06 08:46:05"
         },
         {
             "name": "hamcrest/hamcrest-php",
