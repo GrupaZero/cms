@@ -277,13 +277,13 @@ abstract class BaseRepository {
     /**
      * Function sets all translation of provided entity as inactive
      *
-     * @param int    $id        entity id
-     * @param string $lang_code lang code
+     * @param int    $id       entity id
+     * @param string $langCode lang code
      *
      * @throws RepositoryException
      * @return bool|int
      */
-    protected function disableActiveTranslations($id, $lang_code)
+    protected function disableActiveTranslations($id, $langCode)
     {
         if (method_exists($this->model, 'translations')) {
             $relation   = $this->model->translations();
@@ -291,7 +291,7 @@ abstract class BaseRepository {
             if (isset($foreignKey[1])) {
                 return $relation->getModel()
                     ->where($foreignKey[1], $id)
-                    ->where('lang_code', $lang_code)
+                    ->where('lang_code', $langCode)
                     ->update(['is_active' => false]);
             } else {
                 throw new RepositoryException("Unable to find foreign key of related translations");
@@ -346,9 +346,9 @@ abstract class BaseRepository {
      */
     protected function checkIfFilesExists(array $filesIds)
     {
-        foreach ($filesIds as $file_id) {
-            if (!File::checkIfExists($file_id)) {
-                throw new RepositoryValidationException("File (id: $file_id) does not exist");
+        foreach ($filesIds as $fileId) {
+            if (!File::checkIfExists($fileId)) {
+                throw new RepositoryValidationException("File (id: $fileId) does not exist");
             }
         }
 
@@ -372,7 +372,7 @@ abstract class BaseRepository {
                 $result[array_pop($temp)] = [
                     'value'     => (is_numeric($row[2])) ? (float) $row[2] : $row[2],
                     'operation' => $row[1],
-                    'relation'  => trim(implode('.', $temp), '.')
+                    'relation'  => snake_case(trim(implode('.', $temp), '.'))
                 ];
 
             } else {
@@ -401,7 +401,7 @@ abstract class BaseRepository {
                 $temp                     = explode('.', $row[0]);
                 $result[array_pop($temp)] = [
                     'direction' => $row[1],
-                    'relation'  => trim(implode('.', $temp), '.')
+                    'relation'  => snake_case(trim(implode('.', $temp), '.'))
                 ];
             } else {
                 $result[$row[0]] = [

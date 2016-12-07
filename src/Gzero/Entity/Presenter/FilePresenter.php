@@ -19,17 +19,17 @@ class FilePresenter extends Presenter {
     /**
      * This function get single translation
      *
-     * @param string $lang_code LangCode
+     * @param string $langCode LangCode
      *
      * @return string
      */
-    public function translation($lang_code)
+    public function translation($langCode)
     {
         $translation = '';
-        if (!empty($this->translations) && !empty($lang_code)) {
+        if (!empty($this->translations) && !empty($langCode)) {
             $translation = $this->translations->filter(
-                function ($translation) use ($lang_code) {
-                    return $translation->lang_code === $lang_code;
+                function ($translation) use ($langCode) {
+                    return $translation->lang_code === $langCode;
                 }
             )->first();
         }

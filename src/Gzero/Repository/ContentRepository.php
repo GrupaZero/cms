@@ -629,23 +629,23 @@ class ContentRepository extends BaseRepository {
      * Function handles creation of route from translations
      *
      * @param Content $content   Content entity
-     * @param string  $lang_code Lang code
+     * @param string  $langCode  Lang code
      * @param string  $urlString string used to build unique url
      *
      * @return Route
      * @throws RepositoryValidationException
      */
-    public function createRoute(Content $content, $lang_code, $urlString)
+    public function createRoute(Content $content, $langCode, $urlString)
     {
         $route = $this->newQuery()->transaction(
-            function () use ($content, $lang_code, $urlString) {
+            function () use ($content, $langCode, $urlString) {
                 $url = '';
                 // Search for parent, to get its url
                 if (!empty($content->parent_id)) {
                     $parent = $this->getById($content->parent_id);
                     if (!empty($parent)) {
                         try {
-                            $url = $parent->getUrl($lang_code) . '/';
+                            $url = $parent->getUrl($langCode) . '/';
                         } catch (Exception $e) {
                             throw new RepositoryValidationException(
                                 'Parent has not been translated in this language, translate it first!'
@@ -658,11 +658,11 @@ class ContentRepository extends BaseRepository {
                 $content->route()->save($route);
                 //  Search for route translations, or instantiate a new instance
                 $routeTranslation      = RouteTranslation::firstOrNew(
-                    ['route_id' => $route->id, 'lang_code' => $lang_code, 'is_active' => 1]
+                    ['route_id' => $route->id, 'lang_code' => $langCode, 'is_active' => 1]
                 );
                 $routeTranslation->url = $this->buildUniqueUrl(
                     $url . str_slug($urlString),
-                    $lang_code
+                    $langCode
                 );
                 $this->events->fire('route.creating', [$route]);
                 $route->translations()->save($routeTranslation);
@@ -738,25 +738,25 @@ class ContentRepository extends BaseRepository {
      * Updates file of specified content entity
      *
      * @param Content $content    Content entity
-     * @param integer $file_id    file id to update
-     * @param array   $attributes files attributes to update
+     * @param integer $fileId     File id to update
+     * @param array   $attributes Files attributes to update
      *
      * @return File
      * @throws RepositoryValidationException
      */
-    public function updateFile(Content $content, $file_id, array $attributes)
+    public function updateFile(Content $content, $fileId, array $attributes)
     {
-        if (!$file_id) {
+        if (!$fileId) {
             throw new RepositoryValidationException('You must provide the file in order to update it');
         }
 
         // New content query
         $file = $this->newQuery()->transaction(
-            function () use ($content, $file_id, $attributes) {
-                $this->events->fire('content.files.updating', [$content, $file_id, $attributes]);
-                $content->files()->updateExistingPivot($file_id, $attributes);
-                $this->events->fire('content.files.updated', [$content, $file_id, $attributes]);
-                return $this->getContentFileById($content, $file_id);
+            function () use ($content, $fileId, $attributes) {
+                $this->events->fire('content.files.updating', [$content, $fileId, $attributes]);
+                $content->files()->updateExistingPivot($fileId, $attributes);
+                $this->events->fire('content.files.updated', [$content, $fileId, $attributes]);
+                return $this->getContentFileById($content, $fileId);
             }
         );
 

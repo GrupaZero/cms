@@ -1,5 +1,5 @@
 <?php
-
+namespace Cms;
 
 /**
  * Inherited Methods

@@ -62,20 +62,20 @@ class Content extends BaseTree implements PresentableInterface {
      * Get Content url in specified language.
      * WARNING: This function use LAZY LOADING to get this information
      *
-     * @param string $lang_code Lang code
+     * @param string $langCode Lang code
      *
      * @return mixed
      * @throws Exception
      */
-    public function getUrl($lang_code)
+    public function getUrl($langCode)
     {
         $routeTranslation = $this->route->translations->filter(
-            function ($translation) use ($lang_code) {
-                return $translation->lang_code == $lang_code;
+            function ($translation) use ($langCode) {
+                return $translation->lang_code == $langCode;
             }
         )->first();
         if (empty($routeTranslation->url)) {
-            throw new Exception("No route [$lang_code] translation found for Content id: " . $this->getKey());
+            throw new Exception("No route [$langCode] translation found for Content id: " . $this->getKey());
         }
         return $routeTranslation->url;
     }

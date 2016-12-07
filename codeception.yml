@@ -1,4 +1,5 @@
 actor: Tester
+namespace: Cms
 paths:
     tests: tests
     log: tests/_output
