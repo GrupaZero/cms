@@ -1,7 +1,5 @@
 <?php namespace Gzero\Entity\Presenter;
 
-use Robbo\Presenter\Presenter;
-
 /**
  * This file is part of the GZERO CMS package.
  *
@@ -14,7 +12,7 @@ use Robbo\Presenter\Presenter;
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2015, Adrian Skierniewski
  */
-class BlockPresenter extends Presenter {
+class BlockPresenter extends BasePresenter {
 
     /**
      * This function get single translation

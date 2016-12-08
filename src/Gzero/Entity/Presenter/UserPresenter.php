@@ -1,7 +1,5 @@
 <?php namespace Gzero\Entity\Presenter;
 
-use Robbo\Presenter\Presenter;
-
 /**
  * This file is part of the GZERO CMS package.
  *
@@ -14,7 +12,7 @@ use Robbo\Presenter\Presenter;
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2015, Adrian Skierniewski
  */
-class UserPresenter extends Presenter {
+class UserPresenter extends BasePresenter {
 
     /**
      * Get display name nick or first and last name
@@ -27,8 +25,8 @@ class UserPresenter extends Presenter {
             return $this->nick;
         }
 
-        if ($this->first_name || $this->last_name) {
-            return $this->first_name . ' ' . $this->last_name;
+        if ($this->firstName || $this->lastName) {
+            return $this->firstName . ' ' . $this->lastName;
         }
         return trans('common.anonymous');
     }

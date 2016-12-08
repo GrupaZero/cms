@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\Access\Authorizable;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
+use Robbo\Presenter\PresentableInterface;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -21,7 +22,7 @@ use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2014, Adrian Skierniewski
  */
-class User extends Base implements AuthenticatableContract, AuthorizableContract, CanResetPasswordContract {
+class User extends Base implements AuthenticatableContract, AuthorizableContract, CanResetPasswordContract, PresentableInterface {
 
     use Authenticatable, Authorizable, CanResetPassword, HasApiTokens;
 

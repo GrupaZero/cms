@@ -1,7 +1,5 @@
 <?php namespace Gzero\Entity\Presenter;
 
-use Robbo\Presenter\Presenter;
-
 /**
  * This file is part of the GZERO CMS package.
  *
@@ -14,7 +12,7 @@ use Robbo\Presenter\Presenter;
  * @author     Mateusz Urbanowicz <urbanowiczmateusz89@gmail.com>
  * @copyright  Copyright (c) 2015, Mateusz Urbanowicz
  */
-class ContentTranslationPresenter extends Presenter {
+class ContentTranslationPresenter extends BasePresenter {
 
     /**
      * Return seoTitle of translation if exists

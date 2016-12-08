@@ -269,6 +269,7 @@ class CMSSeeder extends Seeder {
                 'email'      => 'admin@gzero.pl',
                 'first_name' => 'John',
                 'last_name'  => 'Doe',
+                'nick'       => 'admin',
                 'password'   => Hash::make('test')
 
             ]

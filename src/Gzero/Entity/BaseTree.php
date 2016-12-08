@@ -1,8 +1,6 @@
 <?php namespace Gzero\Entity;
 
-use Gzero\Core\Overrides\MorphToMany;
 use Gzero\EloquentTree\Model\Tree;
-use Illuminate\Support\Str;
 
 /**
  * This file is part of the GZERO CMS package.
