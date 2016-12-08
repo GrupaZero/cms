@@ -40,6 +40,52 @@ if (!function_exists('setMultilangRouting')) {
     }
 }
 
+if (!function_exists('array_snake_case_keys')) {
+    /**
+     * It creates new array from given array with snake_case keys
+     *
+     * @param array $array Array to get keys
+     *
+     * @return array
+     */
+    function array_snake_case_keys(array $array)
+    {
+        $results = [];
+        foreach ($array as $key => $val) {
+            $newKey = snake_case($key);
+            if (!is_array($val)) {
+                $results[$newKey] = $val;
+            } else {
+                $results[$newKey] = array_snake_case_keys($val);
+            }
+        }
+        return $results;
+    }
+}
+
+if (!function_exists('array_camel_case_keys')) {
+    /**
+     * It creates new array from given array with camel_case keys
+     *
+     * @param array $array Array to get keys
+     *
+     * @return array
+     */
+    function array_camel_case_keys(array $array)
+    {
+        $results = [];
+        foreach ($array as $key => $val) {
+            $newKey = camel_case($key);
+            if (!is_array($val)) {
+                $results[$newKey] = $val;
+            } else {
+                $results[$newKey] = array_camel_case_keys($val);
+            }
+        }
+        return $results;
+    }
+}
+
 if (!function_exists('group')) {
     /**
      * Create a route group with shared attributes.

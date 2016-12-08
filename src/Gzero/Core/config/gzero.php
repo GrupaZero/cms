@@ -2,6 +2,7 @@
 return [
     'domain'                            => env('DOMAIN', 'localhost'),
     'site_name'                         => 'G-ZERO CMS',
+    'site_desc'                         => 'Content management system.',
     'default_page_size'                 => 5,
     'seo' => [
         'alternative_title' => 'title',
@@ -9,7 +10,6 @@ return [
         'desc_length'       => 160
     ],
     'use_users_nicks'                   => true,
-    'site_desc'                         => 'Content management system.',
     'multilang'                         => [
         'enabled'   => true,
         'detected'  => false, // Do not change, changes in runtime!

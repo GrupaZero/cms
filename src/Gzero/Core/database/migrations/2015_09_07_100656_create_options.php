@@ -76,7 +76,11 @@ class CreateOptions extends Migration {
         foreach ($options as $categoryKey => $category) {
             foreach ($options[$categoryKey] as $key => $option) {
                 foreach (Lang::all()->toArray() as $lang) {
-                    $options[$categoryKey][$key][$lang['code']] = config('gzero.' . $key);
+                    if ($categoryKey != 'general') {
+                        $options[$categoryKey][$key][$lang['code']] = config('gzero.' . $categoryKey . '.' . $key);
+                    } else {
+                        $options[$categoryKey][$key][$lang['code']] = config('gzero.' . $key);
+                    }
                 }
             }
         }

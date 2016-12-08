@@ -88,7 +88,7 @@ class FileRepository extends BaseRepository {
                                 'Bucket'      => config('filesystems.disks.s3.bucket'),
                                 'Key'         => $path,
                                 'Body'        => file_get_contents($uploadedFile),
-                                'ContentType' => $file->mimeType
+                                'ContentType' => $file->mime_type
                             ]
                         );
                     } else {

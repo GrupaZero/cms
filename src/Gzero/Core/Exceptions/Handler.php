@@ -62,12 +62,13 @@ class Handler extends ExceptionHandler {
         if ($request->ajax() || $request->wantsJson() || preg_match('/^api/', $request->getHost())) {
 
             if ($e instanceof ValidationException) {
+                $errors = (is_array($e->getErrors())) ?: $e->getErrors()->toArray();
                 return $this->errorResponse(
                     $request,
                     [
                         'code'    => self::VALIDATION_ERROR,
                         'message' => 'Validation Error',
-                        'errors'  => $e->getErrors()
+                        'errors'  => $errors
                     ]
                 );
             }
