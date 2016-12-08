@@ -738,25 +738,25 @@ class ContentRepository extends BaseRepository {
      * Updates file of specified content entity
      *
      * @param Content $content    Content entity
-     * @param integer $file_id    file id to update
+     * @param integer $fileId     file id to update
      * @param array   $attributes files attributes to update
      *
      * @return File
      * @throws RepositoryValidationException
      */
-    public function updateFile(Content $content, $file_id, array $attributes)
+    public function updateFile(Content $content, $fileId, array $attributes)
     {
-        if (!$file_id) {
+        if (!$fileId) {
             throw new RepositoryValidationException('You must provide the file in order to update it');
         }
 
         // New content query
         $file = $this->newQuery()->transaction(
-            function () use ($content, $file_id, $attributes) {
-                $this->events->fire('content.files.updating', [$content, $file_id, $attributes]);
-                $content->files()->updateExistingPivot($file_id, $attributes);
-                $this->events->fire('content.files.updated', [$content, $file_id, $attributes]);
-                return $this->getContentFileById($content, $file_id);
+            function () use ($content, $fileId, $attributes) {
+                $this->events->fire('content.files.updating', [$content, $fileId, $attributes]);
+                $content->files()->updateExistingPivot($fileId, $attributes);
+                $this->events->fire('content.files.updated', [$content, $fileId, $attributes]);
+                return $this->getContentFileById($content, $fileId);
             }
         );
 
