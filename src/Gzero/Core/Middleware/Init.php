@@ -34,7 +34,6 @@ class Init {
         return $next($request);
     }
 
-
     /**
      * It changes all parameters to snake_case
      *
@@ -44,12 +43,7 @@ class Init {
      */
     private function toSnakeCase($request)
     {
-        $params = [];
-        foreach ($request->all() as $key => $value) {
-            $params[snake_case($key)] = $value;
-        }
-
-        $request->replace($params);
+        $request->replace(array_snake_case_keys($request->all()));
     }
 
 }

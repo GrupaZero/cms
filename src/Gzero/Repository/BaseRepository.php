@@ -372,7 +372,7 @@ abstract class BaseRepository {
                 $result[array_pop($temp)] = [
                     'value'     => (is_numeric($row[2])) ? (float) $row[2] : $row[2],
                     'operation' => $row[1],
-                    'relation'  => snake_case(trim(implode('.', $temp), '.'))
+                    'relation'  => trim(implode('.', $temp), '.')
                 ];
 
             } else {
@@ -401,7 +401,7 @@ abstract class BaseRepository {
                 $temp                     = explode('.', $row[0]);
                 $result[array_pop($temp)] = [
                     'direction' => $row[1],
-                    'relation'  => snake_case(trim(implode('.', $temp), '.'))
+                    'relation'  => trim(implode('.', $temp), '.')
                 ];
             } else {
                 $result[$row[0]] = [

@@ -68,7 +68,7 @@ class Handler extends ExceptionHandler {
                     [
                         'code'    => self::VALIDATION_ERROR,
                         'message' => 'Validation Error',
-                        'errors'  => $errors
+                        'errors'  => array_camel_case_keys($errors)
                     ]
                 );
             }

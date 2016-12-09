@@ -392,7 +392,7 @@ class CMSSeeder extends Seeder {
      */
     private function seedRandomBlock(BlockType $type, $langs, $users, $contents)
     {
-        $is_active   = (bool) rand(0, 1);
+        $isActive   = (bool) rand(0, 1);
         $isCacheable = (bool) rand(0, 1);
         $filter      = (rand(0, 1)) ? [
             '+' => [$this->getRandomBlockFilter($contents)],
@@ -404,13 +404,13 @@ class CMSSeeder extends Seeder {
             'weight'       => rand(0, 12),
             'filter'       => $filter,
             'options'      => array_combine($this->faker->words(), $this->faker->words()),
-            'is_active'    => $is_active,
+            'is_active'    => $isActive,
             'is_cacheable' => $isCacheable,
             'translations' => $this->prepareBlockTranslation($langs['en']),
             'widget'       => [
                 'name'         => $this->faker->unique()->word,
                 'args'         => array_combine($this->faker->words(), $this->faker->words()),
-                'is_active'    => $is_active,
+                'is_active'    => $isActive,
                 'is_cacheable' => $isCacheable,
             ],
         ];
@@ -484,7 +484,7 @@ class CMSSeeder extends Seeder {
      */
     private function seedRandomFiles(FileType $type, $langs, $users, $entity)
     {
-        $is_active = (bool) rand(0, 1);
+        $isActive = (bool) rand(0, 1);
         $faker     = Factory::create($langs['en']->i18n);
         $user      = $users[array_rand($users)];
         $entity    = $entity[array_rand($entity)];
@@ -495,7 +495,7 @@ class CMSSeeder extends Seeder {
             'size'       => $faker->randomNumber,
             'mime_type'  => $faker->mimeType,
             'info'       => array_combine($this->faker->words(), $this->faker->words()),
-            'is_active'  => $is_active,
+            'is_active'  => $isActive,
             'created_by' => $user->id,
         ];
         // create file record in db
@@ -534,14 +534,14 @@ class CMSSeeder extends Seeder {
     /**
      * Function generates translation for specified language
      *
-     * @param Lang $lang      language of translation
-     * @param null $title     optional title value
-     * @param null $is_active optional is_active value
+     * @param Lang $lang     language of translation
+     * @param null $title    optional title value
+     * @param null $isActive optional is_active value
      *
      * @return array
      * @throws Exception
      */
-    private function prepareContentTranslation(Lang $lang, $title = null, $is_active = null)
+    private function prepareContentTranslation(Lang $lang, $title = null, $isActive = null)
     {
         if ($lang) {
             $faker = Factory::create($lang->i18n);
@@ -552,7 +552,7 @@ class CMSSeeder extends Seeder {
                 'body'            => $this->generateBodyHTML($faker),
                 'seo_title'       => $faker->realText(60, 1),
                 'seo_description' => $faker->realText(160, 1),
-                'is_active'       => (bool) ($title) ? $is_active : rand(0, 1)
+                'is_active'       => (bool) ($title) ? $isActive : rand(0, 1)
             ];
         }
         throw new Exception("Translation language is required!");
@@ -561,14 +561,14 @@ class CMSSeeder extends Seeder {
     /**
      * Function generates translation for specified language
      *
-     * @param Lang $lang      language of translation
-     * @param null $title     optional title value
-     * @param null $is_active optional is_active value
+     * @param Lang $lang     language of translation
+     * @param null $title    optional title value
+     * @param null $isActive optional is_active value
      *
      * @return array
      * @throws Exception
      */
-    private function prepareBlockTranslation(Lang $lang, $title = null, $is_active = null)
+    private function prepareBlockTranslation(Lang $lang, $title = null, $isActive = null)
     {
         if ($lang) {
             $faker = Factory::create($lang->i18n);
@@ -577,7 +577,7 @@ class CMSSeeder extends Seeder {
                 'title'         => ($title) ? $title : $faker->realText(38, 1),
                 'body'          => $faker->realText(300),
                 'custom_fields' => array_combine($this->faker->words(), $this->faker->words()),
-                'is_active'     => (bool) ($title) ? $is_active : rand(0, 1)
+                'is_active'     => (bool) ($title) ? $isActive : rand(0, 1)
             ];
         }
         throw new Exception("Translation language is required!");
