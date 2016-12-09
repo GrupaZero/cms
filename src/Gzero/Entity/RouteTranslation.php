@@ -18,16 +18,16 @@ class RouteTranslation extends Base {
      * @var array
      */
     protected $fillable = [
-        'langCode',
+        'lang_code',
         'url',
-        'isActive'
+        'is_active'
     ];
 
     /**
      * @var array
      */
     protected $attributes = [
-        'isActive' => false
+        'is_active' => false
     ];
 
     /**

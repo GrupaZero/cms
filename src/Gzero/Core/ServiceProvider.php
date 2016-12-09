@@ -18,7 +18,6 @@ use Gzero\Entity\User;
 use Gzero\Repository\LangRepository;
 use Illuminate\Foundation\Application;
 use Robbo\Presenter\PresenterServiceProvider;
-use Symfony\Component\HttpFoundation\Request;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -104,11 +103,11 @@ class ServiceProvider extends AbstractServiceProvider {
      */
     protected function detectLanguage()
     {
-        if (\Request::segment(1) != 'admin' && $this->app['config']['gzero.multilang.enabled']) {
+        if (request()->segment(1) != 'admin' && $this->app['config']['gzero.multilang.enabled']) {
             if ($this->app['config']['gzero.multilang.subdomain']) {
-                $locale = preg_replace('/\..+$/', '', Request::getHost());
+                $locale = preg_replace('/\..+$/', '', request()->getHost());
             } else {
-                $locale = \Request::segment(1);
+                $locale = request()->segment(1);
             }
             $languages = ['pl', 'en'];
             if (in_array($locale, $languages, true)) {

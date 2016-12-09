@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Illuminate\Events\Dispatcher;
 
-
 require_once(__DIR__ . '/../../stub/TestSeeder.php');
 require_once(__DIR__ . '/../../stub/TestTreeSeeder.php');
 
@@ -79,10 +78,10 @@ class FileRepositoryTest extends \TestCase {
         $file         = $this->repository->create(
             [
                 'type'         => 'image',
-                'isActive'     => true,
+                'is_active'    => true,
                 'info'         => ['key' => 'value'],
                 'translations' => [
-                    'langCode'    => 'en',
+                    'lang_code'   => 'en',
                     'title'       => 'Example file title',
                     'description' => 'Example file description'
                 ]
@@ -101,17 +100,17 @@ class FileRepositoryTest extends \TestCase {
         $this->assertEquals($file->type, $newFile->type);
         $this->assertEquals($file->name, $newFile->name);
         $this->assertEquals($file->extension, $newFile->extension);
-        $this->assertEquals($file->isActive, $newFile->isActive);
+        $this->assertEquals($file->is_active, $newFile->is_active);
         $this->assertEquals($file->size, $newFile->size);
-        $this->assertEquals($file->mimeType, $newFile->mimeType);
+        $this->assertEquals($file->mime_type, $newFile->mime_type);
         $this->assertEquals($file->info, $newFile->info);
 
         // Author
-        $this->assertEquals($author->id, $newFile->createdBy);
+        $this->assertEquals($author->id, $newFile->created_by);
         $this->assertEquals($author->email, $newFileAuthor['email']);
 
         // Translation
-        $this->assertEquals($newTranslation->langCode, 'en');
+        $this->assertEquals($newTranslation->lang_code, 'en');
         $this->assertEquals($newTranslation->title, 'Example file title');
         $this->assertEquals($newTranslation->description, 'Example file description');
     }
@@ -125,9 +124,9 @@ class FileRepositoryTest extends \TestCase {
         $file         = $this->repository->create(
             [
                 'type'         => 'image',
-                'isActive'     => true,
+                'is_active'    => true,
                 'translations' => [
-                    'langCode'    => 'en',
+                    'lang_code'   => 'en',
                     'title'       => 'Example file title',
                     'description' => 'Example file description'
                 ]
@@ -147,8 +146,8 @@ class FileRepositoryTest extends \TestCase {
         $uploadedFile = $this->getExampleImage();
         $file         = $this->repository->create(
             [
-                'type'     => 'image',
-                'isActive' => true
+                'type'      => 'image',
+                'is_active' => true
             ],
             $uploadedFile
         );
@@ -165,22 +164,22 @@ class FileRepositoryTest extends \TestCase {
         $uploadedFile = $this->getExampleImage();
         $file         = $this->repository->create(
             [
-                'type'     => 'image',
-                'isActive' => true
+                'type'      => 'image',
+                'is_active' => true
             ],
             $uploadedFile
         );
         $secondFile   = $this->repository->create(
             [
-                'type'     => 'image',
-                'isActive' => true
+                'type'      => 'image',
+                'is_active' => true
             ],
             $uploadedFile
         );
         $thirdFile    = $this->repository->create(
             [
-                'type'     => 'image',
-                'isActive' => true
+                'type'      => 'image',
+                'is_active' => true
             ],
             $uploadedFile
         );
@@ -188,8 +187,8 @@ class FileRepositoryTest extends \TestCase {
         $this->repository->delete($secondFile);
         $fourthFile = $this->repository->create(
             [
-                'type'     => 'image',
-                'isActive' => true
+                'type'      => 'image',
+                'is_active' => true
             ],
             $uploadedFile
         );
@@ -198,16 +197,16 @@ class FileRepositoryTest extends \TestCase {
         // Re upload first file
         $fifthFile = $this->repository->create(
             [
-                'type'     => 'image',
-                'isActive' => true
+                'type'      => 'image',
+                'is_active' => true
             ],
             $uploadedFile
         );
         // Document file
         $documentFile = $this->repository->create(
             [
-                'type'     => 'document',
-                'isActive' => true
+                'type'      => 'document',
+                'is_active' => true
             ],
             $this->getExampleDocument()
         );
@@ -230,9 +229,9 @@ class FileRepositoryTest extends \TestCase {
         $file             = $this->repository->create(
             [
                 'type'         => 'image',
-                'isActive'     => true,
+                'is_active'    => true,
                 'translations' => [
-                    'langCode'    => 'en',
+                    'lang_code'   => 'en',
                     'title'       => 'Example file title',
                     'description' => 'New example body',
                 ]
@@ -245,7 +244,7 @@ class FileRepositoryTest extends \TestCase {
         $translationEn = $this->repository->createTranslation(
             $newFile,
             [
-                'langCode'    => 'en',
+                'lang_code'   => 'en',
                 'title'       => 'Updated example title',
                 'description' => 'Updated example body',
             ]
@@ -254,7 +253,7 @@ class FileRepositoryTest extends \TestCase {
         $translationPl    = $this->repository->createTranslation(
             $newFile,
             [
-                'langCode'    => 'pl',
+                'lang_code'   => 'pl',
                 'title'       => 'New polish title',
                 'description' => 'New polish body',
             ]
@@ -271,15 +270,15 @@ class FileRepositoryTest extends \TestCase {
 
         // Check if a new translations has been added
         // English
-        $this->assertEquals($translationEn->langCode, $newTranslationEn->langCode);
+        $this->assertEquals($translationEn->lang_code, $newTranslationEn->lang_code);
         $this->assertEquals($translationEn->title, $newTranslationEn->title);
         $this->assertEquals($translationEn->description, $newTranslationEn->description);
-        $this->assertEquals($newFile->id, $newTranslationEn->fileId);
+        $this->assertEquals($newFile->id, $newTranslationEn->file_id);
         // Polish
-        $this->assertEquals($translationPl->langCode, $newTranslationPl->langCode);
+        $this->assertEquals($translationPl->lang_code, $newTranslationPl->lang_code);
         $this->assertEquals($translationPl->title, $newTranslationPl->title);
         $this->assertEquals($translationPl->description, $newTranslationPl->description);
-        $this->assertEquals($newFile->id, $newTranslationPl->fileId);
+        $this->assertEquals($newFile->id, $newTranslationPl->file_id);
     }
 
     /**
@@ -292,7 +291,7 @@ class FileRepositoryTest extends \TestCase {
             [
                 'type'         => 'image',
                 'translations' => [
-                    'langCode'    => 'en',
+                    'lang_code'   => 'en',
                     'title'       => 'Example file title',
                     'description' => 'Example file description'
                 ]
@@ -302,14 +301,14 @@ class FileRepositoryTest extends \TestCase {
         $this->repository->update(
             $file,
             [
-                'isActive' => false,
+                'is_active' => false,
             ]
         );
 
         $newFile = $this->repository->getById($file->id);
 
         // File
-        $this->assertEquals(0, $newFile->isActive);
+        $this->assertEquals(0, $newFile->is_active);
 
     }
 
@@ -323,7 +322,7 @@ class FileRepositoryTest extends \TestCase {
             [
                 'type'         => 'image',
                 'translations' => [
-                    'langCode'    => 'en',
+                    'lang_code'   => 'en',
                     'title'       => 'Example file title',
                     'description' => 'Example file description'
                 ]
@@ -338,7 +337,7 @@ class FileRepositoryTest extends \TestCase {
         $translationPl = $this->repository->createTranslation(
             $newFile,
             [
-                'langCode'    => 'pl',
+                'lang_code'   => 'pl',
                 'title'       => 'New polish title',
                 'description' => 'New polish body',
             ]
@@ -368,7 +367,7 @@ class FileRepositoryTest extends \TestCase {
             [
                 'type'         => 'image',
                 'translations' => [
-                    'langCode'    => 'en',
+                    'lang_code'   => 'en',
                     'title'       => 'Example file title',
                     'description' => 'Example file description'
                 ]
@@ -398,7 +397,7 @@ class FileRepositoryTest extends \TestCase {
             [
                 'type'         => 'fakeType',
                 'translations' => [
-                    'langCode'    => 'en',
+                    'lang_code'   => 'en',
                     'title'       => 'Example file title',
                     'description' => 'Example file description'
                 ]
@@ -446,9 +445,9 @@ class FileRepositoryTest extends \TestCase {
         $firstFile = $this->repository->create(
             [
                 'type'         => 'image',
-                'isActive'     => true,
+                'is_active'    => true,
                 'translations' => [
-                    'langCode'    => 'en',
+                    'lang_code'   => 'en',
                     'title'       => 'Example file title',
                     'description' => 'Example file description'
                 ]
@@ -460,9 +459,9 @@ class FileRepositoryTest extends \TestCase {
         $secondFile = $this->repository->create(
             [
                 'type'         => 'document',
-                'isActive'     => true,
+                'is_active'    => true,
                 'translations' => [
-                    'langCode'    => 'en',
+                    'lang_code'   => 'en',
                     'title'       => 'Example file title',
                     'description' => 'Example file description'
                 ]
@@ -474,7 +473,7 @@ class FileRepositoryTest extends \TestCase {
         $files = $this->repository->getFiles(
             [
                 ['type', '=', 'image'],
-                ['isActive', '=', true]
+                ['is_active', '=', true]
             ]
         );
 
@@ -482,7 +481,7 @@ class FileRepositoryTest extends \TestCase {
         foreach ($files as $file) {
             $this->assertEquals($firstFile->type, $file->type);
             $this->assertNotEquals($secondFile->type, $file->type);
-            $this->assertEquals(true, $file->isActive);
+            $this->assertEquals(true, $file->is_active);
         }
     }
 
@@ -496,7 +495,7 @@ class FileRepositoryTest extends \TestCase {
             [
                 'type'         => 'image',
                 'translations' => [
-                    'langCode'    => 'en',
+                    'lang_code'   => 'en',
                     'title'       => 'A file title',
                     'description' => 'A file description'
                 ]
@@ -508,7 +507,7 @@ class FileRepositoryTest extends \TestCase {
             [
                 'type'         => 'image',
                 'translations' => [
-                    'langCode'    => 'en',
+                    'lang_code'   => 'en',
                     'title'       => 'B file title',
                     'description' => 'B file description'
                 ]
@@ -522,12 +521,12 @@ class FileRepositoryTest extends \TestCase {
                 ['translations.lang', '=', 'en']
             ],
             [
-                ['createdAt', 'ASC'],
+                ['created_at', 'ASC'],
                 ['translations.title', 'ASC'],
             ]
         );
         // Created at
-        $this->assertEquals($firstFile->createdAt, $files[0]['createdAt']);
+        $this->assertEquals($firstFile->created_at, $files[0]['created_at']);
         // Translations title
         $this->assertEquals('A file title', $files[0]['translations'][0]['title']);
 
@@ -537,12 +536,12 @@ class FileRepositoryTest extends \TestCase {
                 ['translations.lang', '=', 'en']
             ],
             [
-                ['createdAt', 'DESC'],
+                ['created_at', 'DESC'],
                 ['translations.title', 'DESC'],
             ]
         );
         // Created at
-        $this->assertEquals($secondFile->createdAt, $files[0]['createdAt']);
+        $this->assertEquals($secondFile->created_at, $files[0]['created_at']);
         // Translations title
         $this->assertEquals('B file title', $files[0]['translations'][0]['title']);
     }
@@ -557,7 +556,7 @@ class FileRepositoryTest extends \TestCase {
             [
                 'type'         => 'image',
                 'translations' => [
-                    'langCode'    => 'en',
+                    'lang_code'   => 'en',
                     'title'       => 'Example file title',
                     'description' => 'Example file description'
                 ]
@@ -569,7 +568,7 @@ class FileRepositoryTest extends \TestCase {
             [
                 'type'         => 'image',
                 'translations' => [
-                    'langCode'    => 'en',
+                    'lang_code'   => 'en',
                     'title'       => 'Example file title',
                     'description' => 'Example file description'
                 ]
@@ -581,7 +580,7 @@ class FileRepositoryTest extends \TestCase {
         $files = $this->repository->getFiles(
             [],
             [
-                ['createdAt', 'ASC'],
+                ['created_at', 'ASC'],
             ],
             1, // Page
             1 // Items per page
@@ -591,13 +590,13 @@ class FileRepositoryTest extends \TestCase {
         $this->assertEquals(1, count($files)); // Items per page
         $this->assertEquals($firstFile->type, $files[0]->type);
         $this->assertEquals($firstFile['translations'][0]['title'], $files[0]['translations'][0]['title']);
-        $this->assertEquals($firstFile['translations'][0]['langCode'], $files[0]['translations'][0]['langCode']);
+        $this->assertEquals($firstFile['translations'][0]['lang_code'], $files[0]['translations'][0]['lang_code']);
 
         // Second Page
         $files = $this->repository->getFiles(
             [],
             [
-                ['createdAt', 'ASC'],
+                ['created_at', 'ASC'],
             ],
             2, // Page
             1 // Items per page
@@ -606,7 +605,7 @@ class FileRepositoryTest extends \TestCase {
         $this->assertEquals(1, count($files));
         $this->assertEquals($secondFile->type, $files[0]->type);
         $this->assertEquals($secondFile['translations'][0]['title'], $files[0]['translations'][0]['title']);
-        $this->assertEquals($secondFile['translations'][0]['langCode'], $files[0]['translations'][0]['langCode']);
+        $this->assertEquals($secondFile['translations'][0]['lang_code'], $files[0]['translations'][0]['lang_code']);
     }
 
     /*

@@ -233,7 +233,6 @@ abstract class BaseRepository {
         } catch (BadMethodCallException $e) {
             throw new RepositoryException("Relation '" . $relationString . "' doesn't exist");
         }
-
     }
 
 
@@ -292,8 +291,8 @@ abstract class BaseRepository {
             if (isset($foreignKey[1])) {
                 return $relation->getModel()
                     ->where($foreignKey[1], $id)
-                    ->where('langCode', $langCode)
-                    ->update(['isActive' => false]);
+                    ->where('lang_code', $langCode)
+                    ->update(['is_active' => false]);
             } else {
                 throw new RepositoryException("Unable to find foreign key of related translations");
             }
@@ -314,8 +313,8 @@ abstract class BaseRepository {
     {
         // search for duplicated url
         $count = $this->newQuery()
-            ->table('RouteTranslations')
-            ->where('langCode', $langCode)
+            ->table('route_translations')
+            ->where('lang_code', $langCode)
             ->whereRaw("url REGEXP '^$url($|-[0-9]+$)'")
             ->count();
         return ($count) ? $url . '-' . $count : $url;
@@ -345,7 +344,7 @@ abstract class BaseRepository {
      * @return array $filesIds array of file id's
      * @throws RepositoryValidationException
      */
-    protected function checkIfFilesExists(Array $filesIds)
+    protected function checkIfFilesExists(array $filesIds)
     {
         foreach ($filesIds as $fileId) {
             if (!File::checkIfExists($fileId)) {

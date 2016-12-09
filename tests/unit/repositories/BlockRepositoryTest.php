@@ -28,7 +28,7 @@ require_once(__DIR__ . '/../../stub/TestTreeSeeder.php');
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2015, Adrian Skierniewski
  */
-class BlockRepositoryTest extends \TestCase  {
+class BlockRepositoryTest extends \TestCase {
 
     /**
      * @var \UnitTester
@@ -95,11 +95,11 @@ class BlockRepositoryTest extends \TestCase  {
                 'weight'       => 1,
                 'filter'       => ['+' => ['1/2/3']],
                 'options'      => ['test' => 'value'],
-                'isActive'     => true,
-                'isCacheable'  => true,
+                'is_active'    => true,
+                'is_cacheable' => true,
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Example block title'
+                    'lang_code' => 'en',
+                    'title'     => 'Example block title'
                 ]
             ],
             $author
@@ -116,13 +116,13 @@ class BlockRepositoryTest extends \TestCase  {
         $this->assertEquals($block->region, $newBlock->region);
         $this->assertEquals($block->filter, $newBlock->filter);
         $this->assertEquals($block->options, $newBlock->options);
-        $this->assertEquals($block->isActive, $newBlock->isActive);
-        $this->assertEquals($block->isCacheable, $newBlock->isCacheable);
+        $this->assertEquals($block->is_active, $newBlock->is_active);
+        $this->assertEquals($block->is_cacheable, $newBlock->is_cacheable);
         // Author
-        $this->assertEquals($author->id, $newBlock->authorId);
+        $this->assertEquals($author->id, $newBlock->author_id);
         $this->assertEquals($author->email, $newBlockAuthor['email']);
         // Translation
-        $this->assertEquals($newTranslation->langCode, 'en');
+        $this->assertEquals($newTranslation->lang_code, 'en');
         $this->assertEquals($newTranslation->title, 'Example block title');
     }
 
@@ -135,14 +135,14 @@ class BlockRepositoryTest extends \TestCase  {
             [
                 'type'         => 'widget',
                 'widget'       => [
-                    'name'        => 'getLastContent',
-                    'args'        => ['contentId' => 1],
-                    'isActive'    => 1,
-                    'isCacheable' => 1,
+                    'name'         => 'getLastContent',
+                    'args'         => ['content_id' => 1],
+                    'is_active'    => 1,
+                    'is_cacheable' => 1,
                 ],
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Example title'
+                    'lang_code' => 'en',
+                    'title'     => 'Example title'
                 ]
             ]
         );
@@ -164,8 +164,8 @@ class BlockRepositoryTest extends \TestCase  {
             [
                 'type'         => 'slider',
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Example title'
+                    'lang_code' => 'en',
+                    'title'     => 'Example title'
                 ]
             ]
         );
@@ -183,8 +183,8 @@ class BlockRepositoryTest extends \TestCase  {
             [
                 'type'         => 'slider',
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Example title'
+                    'lang_code' => 'en',
+                    'title'     => 'Example title'
                 ]
             ]
         );
@@ -192,9 +192,9 @@ class BlockRepositoryTest extends \TestCase  {
         $translation      = $this->repository->createTranslation(
             $newBlock,
             [
-                'langCode' => 'en',
-                'title'    => 'New example title',
-                'body'     => 'New example body',
+                'lang_code' => 'en',
+                'title'     => 'New example title',
+                'body'      => 'New example body',
             ]
         );
         $firstTranslation = $this->repository->getBlockTranslationById($newBlock, 1);
@@ -202,12 +202,12 @@ class BlockRepositoryTest extends \TestCase  {
         $this->assertNotSame($block, $newBlock);
         $this->assertNotSame($translation, $firstTranslation);
         // Check if previous translation are inactive
-        $this->assertFalse((bool) $firstTranslation->isActive);
+        $this->assertFalse((bool) $firstTranslation->is_active);
         // Check if a new translation has been added
-        $this->assertEquals('en', $newTranslation->langCode);
+        $this->assertEquals('en', $newTranslation->lang_code);
         $this->assertEquals('New example title', $newTranslation->title);
         $this->assertEquals('New example body', $newTranslation->body);
-        $this->assertEquals($newBlock->id, $newTranslation->blockId);
+        $this->assertEquals($newBlock->id, $newTranslation->block_id);
     }
 
     /**
@@ -221,8 +221,8 @@ class BlockRepositoryTest extends \TestCase  {
             [
                 'type'         => 'fakeType',
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Example block title'
+                    'lang_code' => 'en',
+                    'title'     => 'Example block title'
                 ]
             ]
         );
@@ -239,8 +239,8 @@ class BlockRepositoryTest extends \TestCase  {
             [
                 'type'         => 'widget',
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Example block title'
+                    'lang_code' => 'en',
+                    'title'     => 'Example block title'
                 ]
             ]
         );
@@ -258,8 +258,8 @@ class BlockRepositoryTest extends \TestCase  {
                 'region'       => 'test',
                 'filter'       => ['+' => ['1/2/3']],
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Example block title'
+                    'lang_code' => 'en',
+                    'title'     => 'Example block title'
                 ]
             ],
             $author
@@ -283,7 +283,7 @@ class BlockRepositoryTest extends \TestCase  {
      */
     public function it_should_force_delete_one_block()
     {
-        $author  = User::find(1);
+        $author = User::find(1);
         $block  = $this->repository->create(
             [
                 'type'         => 'menu',
@@ -291,27 +291,27 @@ class BlockRepositoryTest extends \TestCase  {
                 'weight'       => 1,
                 'filter'       => ['+' => ['1/2/3']],
                 'options'      => ['test' => 'value'],
-                'isActive'     => true,
-                'isCacheable'  => true,
+                'is_active'    => true,
+                'is_cacheable' => true,
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Example block title'
+                    'lang_code' => 'en',
+                    'title'     => 'Example block title'
                 ]
             ],
             $author
         );
-        $block2  = $this->repository->create(
+        $block2 = $this->repository->create(
             [
                 'type'         => 'menu',
                 'region'       => 'test',
                 'weight'       => 1,
                 'filter'       => ['+' => ['1/2/3']],
                 'options'      => ['test' => 'value'],
-                'isActive'     => true,
-                'isCacheable'  => true,
+                'is_active'    => true,
+                'is_cacheable' => true,
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Example block title'
+                    'lang_code' => 'en',
+                    'title'     => 'Example block title'
                 ]
             ],
             $author
@@ -333,19 +333,20 @@ class BlockRepositoryTest extends \TestCase  {
     /**
      * @test
      */
-    public function it_should_retrive_non_trashed_block() {
-        $block = $this->repository->create(
+    public function it_should_retrive_non_trashed_block()
+    {
+        $block    = $this->repository->create(
             [
                 'type'         => 'menu',
                 'region'       => 'test',
                 'weight'       => 1,
                 'filter'       => ['+' => ['1/2/3']],
                 'options'      => ['test' => 'value'],
-                'isActive'     => true,
-                'isCacheable'  => true,
+                'is_active'    => true,
+                'is_cacheable' => true,
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Example block title'
+                    'lang_code' => 'en',
+                    'title'     => 'Example block title'
                 ]
             ]
         );
@@ -356,7 +357,8 @@ class BlockRepositoryTest extends \TestCase  {
     /**
      * @test
      */
-    public function it_should_retrive_trashed_block() {
+    public function it_should_retrive_trashed_block()
+    {
         $block = $this->repository->create(
             [
                 'type'         => 'menu',
@@ -364,11 +366,11 @@ class BlockRepositoryTest extends \TestCase  {
                 'weight'       => 1,
                 'filter'       => ['+' => ['1/2/3']],
                 'options'      => ['test' => 'value'],
-                'isActive'     => true,
-                'isCacheable'  => true,
+                'is_active'    => true,
+                'is_cacheable' => true,
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Example block title'
+                    'lang_code' => 'en',
+                    'title'     => 'Example block title'
                 ]
             ]
         );
@@ -380,7 +382,8 @@ class BlockRepositoryTest extends \TestCase  {
     /**
      * @test
      */
-    public function it_should_not_retrive_force_deleted_block() {
+    public function it_should_not_retrive_force_deleted_block()
+    {
         $block = $this->repository->create(
             [
                 'type'         => 'menu',
@@ -388,11 +391,11 @@ class BlockRepositoryTest extends \TestCase  {
                 'weight'       => 1,
                 'filter'       => ['+' => ['1/2/3']],
                 'options'      => ['test' => 'value'],
-                'isActive'     => true,
-                'isCacheable'  => true,
+                'is_active'    => true,
+                'is_cacheable' => true,
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Example block title'
+                    'lang_code' => 'en',
+                    'title'     => 'Example block title'
                 ]
             ]
         );
@@ -421,16 +424,16 @@ class BlockRepositoryTest extends \TestCase  {
         $this->repository->create(
             [
                 'type'         => 'widget',
-                'isActive'     => 1,
+                'is_active'    => 1,
                 'widget'       => [
-                    'name'        => 'getLastContent',
-                    'args'        => ['contentId' => 1],
-                    'isActive'    => 1,
-                    'isCacheable' => 1,
+                    'name'         => 'getLastContent',
+                    'args'         => ['content_id' => 1],
+                    'is_active'    => 1,
+                    'is_cacheable' => 1,
                 ],
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Example block title'
+                    'lang_code' => 'en',
+                    'title'     => 'Example block title'
                 ]
             ]
         );
@@ -439,10 +442,10 @@ class BlockRepositoryTest extends \TestCase  {
         $this->repository->create(
             [
                 'type'         => 'slider',
-                'isActive'     => 1,
+                'is_active'    => 1,
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Example block title'
+                    'lang_code' => 'en',
+                    'title'     => 'Example block title'
                 ]
             ]
         );
@@ -451,7 +454,7 @@ class BlockRepositoryTest extends \TestCase  {
         $blocks = $this->repository->getBlocks(
             [
                 ['type', '=', 'widget'],
-                ['isActive', '=', true]
+                ['is_active', '=', true]
             ]
         );
 
@@ -459,7 +462,7 @@ class BlockRepositoryTest extends \TestCase  {
         foreach ($blocks as $block) {
             $this->assertEquals('widget', $block->type);
             $this->assertNotEquals('slider', $block->type);
-            $this->assertEquals(true, $block->isActive);
+            $this->assertEquals(true, $block->is_active);
         }
     }
 
@@ -472,11 +475,11 @@ class BlockRepositoryTest extends \TestCase  {
         $this->repository->create(
             [
                 'type'         => 'basic',
-                'isActive'     => 1,
+                'is_active'    => 1,
                 'region'       => 'header',
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Example block title'
+                    'lang_code' => 'en',
+                    'title'     => 'Example block title'
                 ]
             ]
         );
@@ -485,11 +488,11 @@ class BlockRepositoryTest extends \TestCase  {
         $this->repository->create(
             [
                 'type'         => 'basic',
-                'isActive'     => 1,
+                'is_active'    => 1,
                 'region'       => 'footer',
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Example block title'
+                    'lang_code' => 'en',
+                    'title'     => 'Example block title'
                 ]
             ]
         );
@@ -498,7 +501,7 @@ class BlockRepositoryTest extends \TestCase  {
         $blocks = $this->repository->getBlocks(
             [
                 ['region', '=', 'header'],
-                ['isActive', '=', true]
+                ['is_active', '=', true]
             ]
         );
 
@@ -506,7 +509,7 @@ class BlockRepositoryTest extends \TestCase  {
         foreach ($blocks as $block) {
             $this->assertEquals('header', $block->region);
             $this->assertNotEquals('footer', $block->type);
-            $this->assertEquals(true, $block->isActive);
+            $this->assertEquals(true, $block->is_active);
         }
     }
 
@@ -520,11 +523,11 @@ class BlockRepositoryTest extends \TestCase  {
             [
                 'type'         => 'basic',
                 'weight'       => 0,
-                'isActive'     => 1,
+                'is_active'    => 1,
                 'region'       => 'header',
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'A title'
+                    'lang_code' => 'en',
+                    'title'     => 'A title'
                 ]
             ]
         );
@@ -534,11 +537,11 @@ class BlockRepositoryTest extends \TestCase  {
             [
                 'type'         => 'basic',
                 'weight'       => 1,
-                'isActive'     => 1,
+                'is_active'    => 1,
                 'region'       => 'footer',
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'B title'
+                    'lang_code' => 'en',
+                    'title'     => 'B title'
                 ]
             ]
         );
@@ -584,11 +587,11 @@ class BlockRepositoryTest extends \TestCase  {
             [
                 'type'         => 'basic',
                 'weight'       => 0,
-                'isActive'     => 1,
+                'is_active'    => 1,
                 'region'       => 'header',
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'A title'
+                    'lang_code' => 'en',
+                    'title'     => 'A title'
                 ]
             ]
         );
@@ -598,11 +601,11 @@ class BlockRepositoryTest extends \TestCase  {
             [
                 'type'         => 'basic',
                 'weight'       => 1,
-                'isActive'     => 1,
+                'is_active'    => 1,
                 'region'       => 'footer',
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'B title'
+                    'lang_code' => 'en',
+                    'title'     => 'B title'
                 ]
             ]
         );
@@ -622,7 +625,7 @@ class BlockRepositoryTest extends \TestCase  {
         $this->assertEquals($firstBlock->type, $blocks[0]->type);
         $this->assertEquals($firstBlock->region, $blocks[0]->region);
         $this->assertEquals($firstBlock['translations'][0]['title'], $blocks[0]['translations'][0]['title']);
-        $this->assertEquals($firstBlock['translations'][0]['langCode'], $blocks[0]['translations'][0]['langCode']);
+        $this->assertEquals($firstBlock['translations'][0]['lang_code'], $blocks[0]['translations'][0]['lang_code']);
 
         // Second Page
         $blocks = $this->repository->getBlocks(
@@ -638,7 +641,7 @@ class BlockRepositoryTest extends \TestCase  {
         $this->assertEquals($secondBlock->type, $blocks[0]->type);
         $this->assertEquals($secondBlock->region, $blocks[0]->region);
         $this->assertEquals($secondBlock['translations'][0]['title'], $blocks[0]['translations'][0]['title']);
-        $this->assertEquals($secondBlock['translations'][0]['langCode'], $blocks[0]['translations'][0]['langCode']);
+        $this->assertEquals($secondBlock['translations'][0]['lang_code'], $blocks[0]['translations'][0]['lang_code']);
     }
 
     /**
@@ -653,12 +656,12 @@ class BlockRepositoryTest extends \TestCase  {
             [
                 'type'         => 'basic',
                 'weight'       => 0,
-                'isActive'     => 1,
+                'is_active'    => 1,
                 'region'       => 'header',
                 'filter'       => ['+' => ['1/*']],
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'First block title'
+                    'lang_code' => 'en',
+                    'title'     => 'First block title'
                 ]
             ]
         );
@@ -668,12 +671,12 @@ class BlockRepositoryTest extends \TestCase  {
             [
                 'type'         => 'basic',
                 'weight'       => 1,
-                'isActive'     => 1,
+                'is_active'    => 1,
                 'region'       => 'footer',
                 'filter'       => ['+' => ['1/*']],
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Second block title'
+                    'lang_code' => 'en',
+                    'title'     => 'Second block title'
                 ]
             ]
         );
@@ -683,12 +686,12 @@ class BlockRepositoryTest extends \TestCase  {
             [
                 'type'         => 'basic',
                 'weight'       => 1,
-                'isActive'     => 1,
+                'is_active'    => 1,
                 'region'       => 'footer',
                 'filter'       => ['+' => ['1/2/3/']],
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Third block title'
+                    'lang_code' => 'en',
+                    'title'     => 'Third block title'
                 ]
             ]
         );
@@ -698,12 +701,12 @@ class BlockRepositoryTest extends \TestCase  {
             [
                 'type'         => 'basic',
                 'weight'       => 1,
-                'isActive'     => 1,
+                'is_active'    => 1,
                 'region'       => 'sidebar',
                 'filter'       => ['+' => ['1/2/3/*']],
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Fourth block title'
+                    'lang_code' => 'en',
+                    'title'     => 'Fourth block title'
                 ]
             ]
         );
@@ -713,12 +716,12 @@ class BlockRepositoryTest extends \TestCase  {
             [
                 'type'         => 'basic',
                 'weight'       => 1,
-                'isActive'     => 1,
+                'is_active'    => 1,
                 'region'       => 'sidebar',
                 'filter'       => ['+' => ['1/2/3/4/5/6/']],
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Fifth block title'
+                    'lang_code' => 'en',
+                    'title'     => 'Fifth block title'
                 ]
             ]
         );
@@ -728,12 +731,12 @@ class BlockRepositoryTest extends \TestCase  {
             [
                 'type'         => 'basic',
                 'weight'       => 1,
-                'isActive'     => 1,
+                'is_active'    => 1,
                 'region'       => 'footer',
                 'filter'       => ['+' => ['1/2/3/4/5/6/'], '-' => ['1/2/3/4/5/6/']],
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Sixth block title'
+                    'lang_code' => 'en',
+                    'title'     => 'Sixth block title'
                 ]
             ]
         );
@@ -743,11 +746,11 @@ class BlockRepositoryTest extends \TestCase  {
             [
                 'type'         => 'basic',
                 'weight'       => 1,
-                'isActive'     => 1,
+                'is_active'    => 1,
                 'region'       => 'header',
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'Seventh block title'
+                    'lang_code' => 'en',
+                    'title'     => 'Seventh block title'
                 ]
             ]
         );
@@ -762,27 +765,27 @@ class BlockRepositoryTest extends \TestCase  {
         $this->assertEquals($firstBlock->type, $blocks[0]->type);
         $this->assertEquals($firstBlock->region, $blocks[0]->region);
         $this->assertEquals($firstBlock['translations'][0]['title'], $blocks[0]['translations'][0]['title']);
-        $this->assertEquals($firstBlock['translations'][0]['langCode'], $blocks[0]['translations'][0]['langCode']);
+        $this->assertEquals($firstBlock['translations'][0]['lang_code'], $blocks[0]['translations'][0]['lang_code']);
         // Second block
         $this->assertEquals($secondBlock->type, $blocks[1]->type);
         $this->assertEquals($secondBlock->region, $blocks[1]->region);
         $this->assertEquals($secondBlock['translations'][0]['title'], $blocks[1]['translations'][0]['title']);
-        $this->assertEquals($secondBlock['translations'][0]['langCode'], $blocks[1]['translations'][0]['langCode']);
+        $this->assertEquals($secondBlock['translations'][0]['lang_code'], $blocks[1]['translations'][0]['lang_code']);
         // Fourth block
         $this->assertEquals($fourthBlock->type, $blocks[2]->type);
         $this->assertEquals($fourthBlock->region, $blocks[2]->region);
         $this->assertEquals($fourthBlock['translations'][0]['title'], $blocks[2]['translations'][0]['title']);
-        $this->assertEquals($fourthBlock['translations'][0]['langCode'], $blocks[2]['translations'][0]['langCode']);
+        $this->assertEquals($fourthBlock['translations'][0]['lang_code'], $blocks[2]['translations'][0]['lang_code']);
         // Fifth block
         $this->assertEquals($fifthBlock->type, $blocks[3]->type);
         $this->assertEquals($fifthBlock->region, $blocks[3]->region);
         $this->assertEquals($fifthBlock['translations'][0]['title'], $blocks[3]['translations'][0]['title']);
-        $this->assertEquals($fifthBlock['translations'][0]['langCode'], $blocks[3]['translations'][0]['langCode']);
+        $this->assertEquals($fifthBlock['translations'][0]['lang_code'], $blocks[3]['translations'][0]['lang_code']);
         // Seventh block
         $this->assertEquals($seventhBlock->type, $blocks[4]->type);
         $this->assertEquals($seventhBlock->region, $blocks[4]->region);
         $this->assertEquals($seventhBlock['translations'][0]['title'], $blocks[4]['translations'][0]['title']);
-        $this->assertEquals($seventhBlock['translations'][0]['langCode'], $blocks[4]['translations'][0]['langCode']);
+        $this->assertEquals($seventhBlock['translations'][0]['lang_code'], $blocks[4]['translations'][0]['lang_code']);
     }
 
     /*
@@ -809,12 +812,12 @@ class BlockRepositoryTest extends \TestCase  {
             [
                 'type'         => 'basic',
                 'weight'       => 0,
-                'isActive'     => 1,
+                'is_active'    => 1,
                 'region'       => 'header',
                 'filter'       => ['+' => ['1/*']],
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'First block title'
+                    'lang_code' => 'en',
+                    'title'     => 'First block title'
                 ]
             ]
         );
@@ -834,12 +837,12 @@ class BlockRepositoryTest extends \TestCase  {
             [
                 'type'         => 'basic',
                 'weight'       => 0,
-                'isActive'     => 1,
+                'is_active'    => 1,
                 'region'       => 'header',
                 'filter'       => ['+' => ['1/*']],
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'First block title'
+                    'lang_code' => 'en',
+                    'title'     => 'First block title'
                 ]
             ]
         );
@@ -857,12 +860,12 @@ class BlockRepositoryTest extends \TestCase  {
             [
                 'type'         => 'basic',
                 'weight'       => 0,
-                'isActive'     => 1,
+                'is_active'    => 1,
                 'region'       => 'header',
                 'filter'       => ['+' => ['1/*']],
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'First block title'
+                    'lang_code' => 'en',
+                    'title'     => 'First block title'
                 ]
             ]
         );
@@ -873,10 +876,10 @@ class BlockRepositoryTest extends \TestCase  {
         $file         = $this->fileRepository->create(
             [
                 'type'         => 'image',
-                'isActive'     => true,
+                'is_active'    => true,
                 'info'         => ['key' => 'value'],
                 'translations' => [
-                    'langCode'    => 'en',
+                    'lang_code'   => 'en',
                     'title'       => 'Example file title',
                     'description' => 'Example file description'
                 ]
@@ -887,17 +890,17 @@ class BlockRepositoryTest extends \TestCase  {
 
         // Assign files
         $this->repository->addFiles($block, [$file->id]);
-        $relatedFile   = $this->repository->getBlockFileById($block, $file->id);
+        $relatedFile = $this->repository->getBlockFileById($block, $file->id);
 
         $this->assertNotEmpty($relatedFile);
         $this->assertEquals($file->id, $relatedFile->id);
         $this->assertEquals($file->name, $relatedFile->name);
         $this->assertEquals($file->type, $relatedFile->type);
-        $this->assertEquals($file->isActive, $relatedFile->isActive);
+        $this->assertEquals($file->is_active, $relatedFile->is_active);
         $this->assertEquals($file->extension, $relatedFile->extension);
-        $this->assertEquals($file->mimeType, $relatedFile->mimeType);
+        $this->assertEquals($file->mime_type, $relatedFile->mime_type);
         $this->assertEquals($file->info, $relatedFile->info);
-        $this->assertEquals($file->translations[0]->langCode, $relatedFile->translations[0]->langCode);
+        $this->assertEquals($file->translations[0]->lang_code, $relatedFile->translations[0]->lang_code);
         $this->assertEquals($file->translations[0]->title, $relatedFile->translations[0]->title);
         $this->assertEquals($file->translations[0]->description, $relatedFile->translations[0]->description);
     }
@@ -914,12 +917,12 @@ class BlockRepositoryTest extends \TestCase  {
             [
                 'type'         => 'basic',
                 'weight'       => 0,
-                'isActive'     => 1,
+                'is_active'    => 1,
                 'region'       => 'header',
                 'filter'       => ['+' => ['1/*']],
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'First block title'
+                    'lang_code' => 'en',
+                    'title'     => 'First block title'
                 ]
             ]
         );
@@ -931,10 +934,10 @@ class BlockRepositoryTest extends \TestCase  {
             $file = $this->fileRepository->create(
                 [
                     'type'         => 'image',
-                    'isActive'     => true,
+                    'is_active'    => true,
                     'info'         => ['key' => 'value'],
                     'translations' => [
-                        'langCode'    => 'en',
+                        'lang_code'   => 'en',
                         'title'       => 'Example file title',
                         'description' => 'Example file description'
                     ]
@@ -958,11 +961,11 @@ class BlockRepositoryTest extends \TestCase  {
         foreach ($files as $index => $file) {
             $this->assertEquals($fileIds[$index], $file->id);
             $this->assertEquals('image', $file->type);
-            $this->assertEquals(true, $file->isActive);
+            $this->assertEquals(true, $file->is_active);
             $this->assertEquals('png', $file->extension);
-            $this->assertEquals('image/png', $file->mimeType);
+            $this->assertEquals('image/png', $file->mime_type);
             $this->assertEquals(['key' => 'value'], $file->info);
-            $this->assertEquals('en', $file->translations[0]->langCode);
+            $this->assertEquals('en', $file->translations[0]->lang_code);
             $this->assertEquals('Example file title', $file->translations[0]->title);
             $this->assertEquals('Example file description', $file->translations[0]->description);
         }
@@ -981,12 +984,12 @@ class BlockRepositoryTest extends \TestCase  {
             [
                 'type'         => 'basic',
                 'weight'       => 0,
-                'isActive'     => 1,
+                'is_active'    => 1,
                 'region'       => 'header',
                 'filter'       => ['+' => ['1/*']],
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'First block title'
+                    'lang_code' => 'en',
+                    'title'     => 'First block title'
                 ]
             ]
         );
@@ -998,10 +1001,10 @@ class BlockRepositoryTest extends \TestCase  {
             $file = $this->fileRepository->create(
                 [
                     'type'         => 'image',
-                    'isActive'     => true,
+                    'is_active'    => true,
                     'info'         => ['key' => 'value'],
                     'translations' => [
-                        'langCode'    => 'en',
+                        'lang_code'   => 'en',
                         'title'       => 'Example file title ' . $i,
                         'description' => 'Example file description'
                     ]
@@ -1041,12 +1044,12 @@ class BlockRepositoryTest extends \TestCase  {
             [
                 'type'         => 'basic',
                 'weight'       => 0,
-                'isActive'     => 1,
+                'is_active'    => 1,
                 'region'       => 'header',
                 'filter'       => ['+' => ['1/*']],
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'First block title'
+                    'lang_code' => 'en',
+                    'title'     => 'First block title'
                 ]
             ]
         );
@@ -1054,13 +1057,13 @@ class BlockRepositoryTest extends \TestCase  {
         // Create files
         $uploadedFile = $this->getExampleImage();
         $author       = User::find(1);
-        $file = $this->fileRepository->create(
+        $file         = $this->fileRepository->create(
             [
                 'type'         => 'image',
-                'isActive'     => false,
+                'is_active'    => false,
                 'info'         => ['key' => 'value'],
                 'translations' => [
-                    'langCode'    => 'en',
+                    'lang_code'   => 'en',
                     'title'       => 'Example file title',
                     'description' => 'Example file description'
                 ]
@@ -1073,7 +1076,7 @@ class BlockRepositoryTest extends \TestCase  {
         $this->repository->addFiles($block, [$file->id]);
         $files = $this->repository->getFiles(
             $block,
-            [['isActive', '=', true]],
+            [['is_active', '=', true]],
             []
         );
 
@@ -1092,12 +1095,12 @@ class BlockRepositoryTest extends \TestCase  {
             [
                 'type'         => 'basic',
                 'weight'       => 0,
-                'isActive'     => 1,
+                'is_active'    => 1,
                 'region'       => 'header',
                 'filter'       => ['+' => ['1/*']],
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'First block title'
+                    'lang_code' => 'en',
+                    'title'     => 'First block title'
                 ]
             ]
         );
@@ -1115,12 +1118,12 @@ class BlockRepositoryTest extends \TestCase  {
             [
                 'type'         => 'basic',
                 'weight'       => 0,
-                'isActive'     => 1,
+                'is_active'    => 1,
                 'region'       => 'header',
                 'filter'       => ['+' => ['1/*']],
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'First block title'
+                    'lang_code' => 'en',
+                    'title'     => 'First block title'
                 ]
             ]
         );
@@ -1128,13 +1131,13 @@ class BlockRepositoryTest extends \TestCase  {
         // Create files
         $uploadedFile = $this->getExampleImage();
         $author       = User::find(1);
-        $file = $this->fileRepository->create(
+        $file         = $this->fileRepository->create(
             [
                 'type'         => 'image',
-                'isActive'     => true,
+                'is_active'    => true,
                 'info'         => ['key' => 'value'],
                 'translations' => [
-                    'langCode'    => 'en',
+                    'lang_code'   => 'en',
                     'title'       => 'Example file title',
                     'description' => 'Example file description'
                 ]
@@ -1164,12 +1167,12 @@ class BlockRepositoryTest extends \TestCase  {
             [
                 'type'         => 'basic',
                 'weight'       => 0,
-                'isActive'     => 1,
+                'is_active'    => 1,
                 'region'       => 'header',
                 'filter'       => ['+' => ['1/*']],
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'First block title'
+                    'lang_code' => 'en',
+                    'title'     => 'First block title'
                 ]
             ]
         );
@@ -1189,12 +1192,12 @@ class BlockRepositoryTest extends \TestCase  {
             [
                 'type'         => 'basic',
                 'weight'       => 0,
-                'isActive'     => 1,
+                'is_active'    => 1,
                 'region'       => 'header',
                 'filter'       => ['+' => ['1/*']],
                 'translations' => [
-                    'langCode' => 'en',
-                    'title'    => 'First block title'
+                    'lang_code' => 'en',
+                    'title'     => 'First block title'
                 ]
             ]
         );
@@ -1205,10 +1208,10 @@ class BlockRepositoryTest extends \TestCase  {
             $file = $this->fileRepository->create(
                 [
                     'type'         => 'image',
-                    'isActive'     => true,
+                    'is_active'    => true,
                     'info'         => ['key' => 'value'],
                     'translations' => [
-                        'langCode'    => 'en',
+                        'lang_code'   => 'en',
                         'title'       => 'Example file title',
                         'description' => 'Example file description'
                     ]

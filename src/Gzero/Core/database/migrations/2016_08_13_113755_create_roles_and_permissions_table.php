@@ -15,46 +15,43 @@ class CreateRolesAndPermissionsTable extends Migration {
     public function up()
     {
         Schema::create(
-            'ACLRoles',
+            'acl_roles',
             function (Blueprint $table) {
                 $table->increments('id');
                 $table->string('name')->unique();
-                $table->timestamp('createdAt')->useCurrent();
-                $table->timestamp('updatedAt')->useCurrent();
+                $table->timestamps();
             }
         );
 
         Schema::create(
-            'ACLPermissions',
+            'acl_permissions',
             function (Blueprint $table) {
                 $table->increments('id');
                 $table->string('name')->unique();
                 $table->string('category');
+                $table->timestamps();
             }
         );
 
         Schema::create(
-            'ACLRolePermissions',
+            'acl_permission_role',
             function (Blueprint $table) {
-                $table->integer('permissionId')->unsigned()->index();
-                $table->integer('roleId')->unsigned()->index();
-                $table->timestamp('createdAt')->useCurrent();
-                $table->timestamp('updatedAt')->useCurrent();
-                $table->foreign('permissionId')->references('id')->on('ACLPermissions')->onDelete('CASCADE');
-                $table->foreign('roleId')->references('id')->on('ACLRoles')->onDelete('CASCADE');
-
+                $table->integer('permission_id')->unsigned()->index();
+                $table->integer('role_id')->unsigned()->index();
+                $table->timestamps();
+                $table->foreign('permission_id')->references('id')->on('acl_permissions')->onDelete('CASCADE');
+                $table->foreign('role_id')->references('id')->on('acl_roles')->onDelete('CASCADE');
             }
         );
 
         Schema::create(
-            'ACLUserRoles',
+            'acl_user_role',
             function (Blueprint $table) {
-                $table->integer('userId')->unsigned()->index();
-                $table->integer('roleId')->unsigned()->index();
-                $table->timestamp('createdAt')->useCurrent();
-                $table->timestamp('updatedAt')->useCurrent();
-                $table->foreign('userId')->references('id')->on('Users')->onDelete('CASCADE');
-                $table->foreign('roleId')->references('id')->on('ACLRoles')->onDelete('CASCADE');
+                $table->integer('user_id')->unsigned()->index();
+                $table->integer('role_id')->unsigned()->index();
+                $table->timestamps();
+                $table->foreign('user_id')->references('id')->on('users')->onDelete('CASCADE');
+                $table->foreign('role_id')->references('id')->on('acl_roles')->onDelete('CASCADE');
 
             }
         );
@@ -69,10 +66,10 @@ class CreateRolesAndPermissionsTable extends Migration {
      */
     public function down()
     {
-        Schema::dropIfExists('ACLUserRoles');
-        Schema::dropIfExists('ACLRolePermissions');
-        Schema::dropIfExists('ACLPermissions');
-        Schema::dropIfExists('ACLRoles');
+        Schema::dropIfExists('acl_user_role');
+        Schema::dropIfExists('acl_permission_role');
+        Schema::dropIfExists('acl_permissions');
+        Schema::dropIfExists('acl_roles');
     }
 
     /**

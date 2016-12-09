@@ -59,7 +59,7 @@ class FileRepository extends BaseRepository {
      * @return File
      * @throws RepositoryValidationException
      */
-    public function create(Array $data, UploadedFile $uploadedFile, User $author = null)
+    public function create(array $data, UploadedFile $uploadedFile, User $author = null)
     {
         if (!$uploadedFile->isValid()) {
             throw new RepositoryValidationException("Error occurred while uploading the file to the server");
@@ -88,7 +88,7 @@ class FileRepository extends BaseRepository {
                                 'Bucket'      => config('filesystems.disks.s3.bucket'),
                                 'Key'         => $path,
                                 'Body'        => file_get_contents($uploadedFile),
-                                'ContentType' => $file->mimeType
+                                'ContentType' => $file->mime_type
                             ]
                         );
                     } else {
@@ -123,16 +123,16 @@ class FileRepository extends BaseRepository {
      * @return FileTranslation
      * @throws RepositoryValidationException
      */
-    public function createTranslation(File $file, Array $data)
+    public function createTranslation(File $file, array $data)
     {
-        if (!array_key_exists('langCode', $data) || !array_key_exists('title', $data)) {
+        if (!array_key_exists('lang_code', $data) || !array_key_exists('title', $data)) {
             throw new RepositoryValidationException("Language code and title of translation is required");
         }
         // New translation query
         $translation = $this->newQuery()->transaction(
             function () use ($file, $data) {
                 // Remove any existing translation in this language
-                $existingTranslation = $this->getFileTranslationByLangCode($file, $data['langCode']);
+                $existingTranslation = $this->getFileTranslationByLangCode($file, $data['lang_code']);
                 if ($existingTranslation) {
                     $existingTranslation->delete();
                 }
@@ -157,7 +157,7 @@ class FileRepository extends BaseRepository {
      * @return File
      * @SuppressWarnings("unused")
      */
-    public function update(File $file, Array $data, User $modifier = null)
+    public function update(File $file, array $data, User $modifier = null)
     {
         $file = $this->newQuery()->transaction(
             function () use ($file, $data, $modifier) {
@@ -237,7 +237,7 @@ class FileRepository extends BaseRepository {
      */
     public function getFileTranslationByLangCode(File $file, $langCode)
     {
-        return $file->translations()->where('langCode', '=', $langCode)->first();
+        return $file->translations()->where('lang_code', '=', $langCode)->first();
     }
 
 
@@ -274,17 +274,17 @@ class FileRepository extends BaseRepository {
      * @param array $parsedOrderBy  Array with orderBy
      * @param mixed $query          Eloquent query object
      *
-     * @throws RepositoryException
+     * @throws RepositoryValidationException
      * @return array
      */
     public function handleTranslationsJoin(array &$parsedCriteria, array $parsedOrderBy, $query)
     {
         if (!empty($parsedCriteria['lang'])) {
             $query->leftJoin(
-                'FileTranslations',
+                'file_translations',
                 function ($join) use ($parsedCriteria) {
-                    $join->on('Files.id', '=', 'FileTranslations.fileId')
-                        ->where('FileTranslations.langCode', '=', $parsedCriteria['lang']['value']);
+                    $join->on('files.id', '=', 'file_translations.file_id')
+                        ->where('file_translations.lang_code', '=', $parsedCriteria['lang']['value']);
                 }
             );
             unset($parsedCriteria['lang']);
@@ -316,7 +316,7 @@ class FileRepository extends BaseRepository {
     protected function fileDefaultOrderBy()
     {
         return function ($query) {
-            $query->orderBy('Files.createdAt', 'DESC');
+            $query->orderBy('files.created_at', 'DESC');
         };
     }
 
@@ -373,7 +373,7 @@ class FileRepository extends BaseRepository {
             'name'      => pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME),
             'extension' => $uploadedFile->getClientOriginalExtension(),
             'size'      => $uploadedFile->getSize(),
-            'mimeType'  => $uploadedFile->getMimeType(),
+            'mime_type' => $uploadedFile->getMimeType(),
         ];
     }
 

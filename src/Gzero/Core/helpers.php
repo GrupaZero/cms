@@ -9,7 +9,7 @@ if (!function_exists('setMultilangRouting')) {
      *
      * @return array
      */
-    function setMultilangRouting(Array $routingOptions = [])
+    function setMultilangRouting(array $routingOptions = [])
     {
         if (config('gzero.multilang.enabled')) {
             if (config('gzero.multilang.subdomain')) {
@@ -37,6 +37,52 @@ if (!function_exists('setMultilangRouting')) {
                 ['domain' => config('gzero.domain')]
             );
         }
+    }
+}
+
+if (!function_exists('array_snake_case_keys')) {
+    /**
+     * It creates new array from given array with snake_case keys
+     *
+     * @param array $array Array to get keys
+     *
+     * @return array
+     */
+    function array_snake_case_keys(array $array)
+    {
+        $results = [];
+        foreach ($array as $key => $val) {
+            $newKey = snake_case($key);
+            if (!is_array($val)) {
+                $results[$newKey] = $val;
+            } else {
+                $results[$newKey] = array_snake_case_keys($val);
+            }
+        }
+        return $results;
+    }
+}
+
+if (!function_exists('array_camel_case_keys')) {
+    /**
+     * It creates new array from given array with camel_case keys
+     *
+     * @param array $array Array to get keys
+     *
+     * @return array
+     */
+    function array_camel_case_keys(array $array)
+    {
+        $results = [];
+        foreach ($array as $key => $val) {
+            $newKey = camel_case($key);
+            if (!is_array($val)) {
+                $results[$newKey] = $val;
+            } else {
+                $results[$newKey] = array_camel_case_keys($val);
+            }
+        }
+        return $results;
     }
 }
 

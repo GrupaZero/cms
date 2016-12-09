@@ -104,7 +104,7 @@ class LangRepository {
     {
         return $this->langs->filter(
             function ($lang) {
-                return ($lang->isEnabled) ? $lang : false;
+                return ($lang->is_enabled) ? $lang : false;
             }
         );
     }

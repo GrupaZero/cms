@@ -3,4 +3,4 @@ modules:
     enabled:
         - Db
         - Asserts
-        - \Helper\Unit
+        - Cms\Helper\Unit

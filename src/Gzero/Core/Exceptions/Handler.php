@@ -62,12 +62,13 @@ class Handler extends ExceptionHandler {
         if ($request->ajax() || $request->wantsJson() || preg_match('/^api/', $request->getHost())) {
 
             if ($e instanceof ValidationException) {
+                $errors = (is_array($e->getErrors())) ?: $e->getErrors()->toArray();
                 return $this->errorResponse(
                     $request,
                     [
                         'code'    => self::VALIDATION_ERROR,
                         'message' => 'Validation Error',
-                        'errors'  => $e->getErrors()
+                        'errors'  => array_camel_case_keys($errors)
                     ]
                 );
             }
@@ -120,7 +121,7 @@ class Handler extends ExceptionHandler {
         $response = response()
             ->json(
                 $errorResponse,
-                !empty($errorResponse['code']) ? $errorResponse['code'] : self::SERVER_ERROR
+                $this->isProperHTTPErrorCode($errorResponse['code']) ? $errorResponse['code'] : self::SERVER_ERROR
             );
         if (class_exists('Barryvdh\Cors\Stack\CorsService')) {
             app('Barryvdh\Cors\Stack\CorsService')->addActualRequestHeaders($response, $request);
@@ -150,5 +151,17 @@ class Handler extends ExceptionHandler {
         }
 
         return $code;
+    }
+
+    /**
+     * It checks if specific code is valid HTTP error code
+     *
+     * @param int $code Error code
+     *
+     * @return bool
+     */
+    protected function isProperHTTPErrorCode($code)
+    {
+        return (!empty($code) && (int) $code >= 400);
     }
 }

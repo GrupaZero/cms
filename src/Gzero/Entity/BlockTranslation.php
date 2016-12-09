@@ -22,18 +22,18 @@ class BlockTranslation extends Base implements PresentableInterface {
      * @var array
      */
     protected $fillable = [
-        'langCode',
+        'lang_code',
         'title',
         'body',
-        'customFields',
-        'isActive'
+        'custom_fields',
+        'is_active'
     ];
 
     /**
      * @var array
      */
     protected $attributes = [
-        'isActive' => false
+        'is_active' => false
     ];
 
     /**
@@ -65,7 +65,7 @@ class BlockTranslation extends Base implements PresentableInterface {
      */
     public function setCustomFieldsAttribute($value)
     {
-        return ($value) ? $this->attributes['customFields'] = json_encode($value) : null;
+        return ($value) ? $this->attributes['custom_fields'] = json_encode($value) : null;
     }
 
     /**

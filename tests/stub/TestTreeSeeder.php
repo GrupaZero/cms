@@ -84,18 +84,18 @@ class TestTreeSeeder extends Seeder {
         $langs       = [];
         $langs['en'] = Lang::firstOrCreate(
             [
-                'code'      => 'en',
-                'i18n'      => 'en_US',
-                'isEnabled' => true,
-                'isDefault' => true
+                'code'       => 'en',
+                'i18n'       => 'en_US',
+                'is_enabled' => true,
+                'is_default' => true
             ]
         );
 
         $langs['pl'] = Lang::firstOrCreate(
             [
-                'code'      => 'pl',
-                'i18n'      => 'pl_PL',
-                'isEnabled' => true
+                'code'       => 'pl',
+                'i18n'       => 'pl_PL',
+                'is_enabled' => true
             ]
         );
         return $langs;
@@ -110,7 +110,7 @@ class TestTreeSeeder extends Seeder {
     {
         $contentTypes = [];
         foreach (['content', 'category'] as $type) {
-            $contentTypes[$type] = ContentType::firstOrCreate(['name' => $type, 'isActive' => true]);
+            $contentTypes[$type] = ContentType::firstOrCreate(['name' => $type, 'is_active' => true]);
         }
         return $contentTypes;
     }
@@ -127,16 +127,16 @@ class TestTreeSeeder extends Seeder {
     {
         $input = [
             'type'         => $type->name,
-            'isActive'     => true,
+            'is_active'    => true,
             'translations' => [
-                'langCode' => 'en',
-                'title'    => $this->faker->sentence(5),
-                'body'     => $this->faker->text(rand(100, 255)),
-                'isActive' => true
+                'lang_code' => 'en',
+                'title'     => $this->faker->sentence(5),
+                'body'      => $this->faker->text(rand(100, 255)),
+                'is_active' => true
             ]
         ];
         if (!empty($parent)) {
-            $input['parentId'] = $parent->id;
+            $input['parent_id'] = $parent->id;
         }
         $content = $this->repository->create($input, User::find(1));
         return $content;
@@ -155,8 +155,8 @@ class TestTreeSeeder extends Seeder {
             $user = User::create(
                 [
                     'email'         => 'a@a.pl',
-                    'firstName'     => 'John',
-                    'lastName'      => 'Doe',
+                    'first_name'    => 'John',
+                    'last_name'     => 'Doe',
                     'password'      => 'test',
                     'rememberToken' => true
                 ]

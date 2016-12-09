@@ -1,7 +1,5 @@
 <?php namespace Gzero\Entity\Presenter;
 
-use Robbo\Presenter\Presenter;
-
 /**
  * This file is part of the GZERO CMS package.
  *
@@ -14,7 +12,7 @@ use Robbo\Presenter\Presenter;
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2015, Adrian Skierniewski
  */
-class FilePresenter extends Presenter {
+class FilePresenter extends BasePresenter {
 
     /**
      * This function get single translation
@@ -29,7 +27,7 @@ class FilePresenter extends Presenter {
         if (!empty($this->translations) && !empty($langCode)) {
             $translation = $this->translations->filter(
                 function ($translation) use ($langCode) {
-                    return $translation->langCode === $langCode;
+                    return $translation->lang_code === $langCode;
                 }
             )->first();
         }

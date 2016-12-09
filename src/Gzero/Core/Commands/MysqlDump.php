@@ -21,7 +21,7 @@ class MysqlDump extends Command {
     /**
      * Execute the console command.
      *
-     * @return mixed
+     * @return void
      */
     public function fire()
     {
@@ -43,7 +43,6 @@ class MysqlDump extends Command {
 
         $this->info('Writing to: ' . $backupPath);
         $this->info('Backup has been completed!');
-
     }
 
 }

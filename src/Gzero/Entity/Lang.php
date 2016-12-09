@@ -30,16 +30,16 @@ class Lang extends Base {
     protected $fillable = [
         'code',
         'i18n',
-        'isEnabled',
-        'isDefault'
+        'is_enabled',
+        'is_default'
     ];
 
     /**
      * @var array
      */
     protected $attributes = [
-        'isEnabled' => false,
-        'isDefault' => false
+        'is_enabled' => false,
+        'is_default' => false
     ];
 
 }

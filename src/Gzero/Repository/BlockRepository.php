@@ -65,7 +65,7 @@ class BlockRepository extends BaseRepository {
      *
      * @return Block
      */
-    public function create(Array $data, User $author = null)
+    public function create(array $data, User $author = null)
     {
         $block = $this->newQuery()->transaction(
             function () use ($data, $author) {
@@ -104,20 +104,20 @@ class BlockRepository extends BaseRepository {
      * @return BlockTranslation
      * @throws RepositoryValidationException
      */
-    public function createTranslation(Block $block, Array $data)
+    public function createTranslation(Block $block, array $data)
     {
-        if (!array_key_exists('langCode', $data) || !array_key_exists('title', $data)) {
+        if (!array_key_exists('lang_code', $data) || !array_key_exists('title', $data)) {
             throw new RepositoryValidationException("Language code and title of translation is required");
         }
         // New translation query
         $translation = $this->newQuery()->transaction(
             function () use ($block, $data) {
                 // Set all translation of this block as inactive
-                $this->disableActiveTranslations($block->id, $data['langCode']);
+                $this->disableActiveTranslations($block->id, $data['lang_code']);
                 $translation = new BlockTranslation();
                 $translation->fill($data);
                 $this->events->fire('block.translation.creating', [$block, $translation]);
-                $translation->isActive = 1; // Because only recent translation is active
+                $translation->is_active = 1; // Because only recent translation is active
                 $block->translations()->save($translation);
                 $this->events->fire('block.translation.created', [$block, $translation]);
                 $this->clearBlocksCache();
@@ -136,7 +136,7 @@ class BlockRepository extends BaseRepository {
      * @return Block
      * @throws RepositoryValidationException
      */
-    public function addFiles(Block $block, Array $filesIds)
+    public function addFiles(Block $block, array $filesIds)
     {
         if (empty($filesIds)) {
             throw new RepositoryValidationException('You must provide the files in order to add them to the block');
@@ -167,7 +167,7 @@ class BlockRepository extends BaseRepository {
      * @return Block
      * @SuppressWarnings("unused")
      */
-    public function update(Block $block, Array $data, User $modifier = null)
+    public function update(Block $block, array $data, User $modifier = null)
     {
         $block = $this->newQuery()->transaction(
             function () use ($block, $data, $modifier) {
@@ -192,7 +192,7 @@ class BlockRepository extends BaseRepository {
      * @return Block
      * @throws RepositoryValidationException
      */
-    public function updateFile(Block $block, $fileId, Array $attributes)
+    public function updateFile(Block $block, $fileId, array $attributes)
     {
         if (!$fileId) {
             throw new RepositoryValidationException('You must provide the file in order to update it');
@@ -260,11 +260,10 @@ class BlockRepository extends BaseRepository {
      *
      * @return bool
      * @throws RepositoryValidationException
-     * @throws \Exception
      */
     public function deleteTranslation(BlockTranslation $translation)
     {
-        if ($translation->isActive) {
+        if ($translation->is_active) {
             throw new RepositoryValidationException('Cannot delete active translation');
         }
         return $this->newQuery()->transaction(
@@ -283,7 +282,7 @@ class BlockRepository extends BaseRepository {
      * @return Block
      * @throws RepositoryValidationException
      */
-    public function removeFiles(Block $block, Array $filesIds)
+    public function removeFiles(Block $block, array $filesIds)
     {
         if (empty($filesIds)) {
             throw new RepositoryValidationException(
@@ -356,8 +355,9 @@ class BlockRepository extends BaseRepository {
             $this->getFilesTableName(),
             $parsed['orderBy'],
             $query,
-            function ($query) { // default order by
-                $query->orderBy('Uploadables.weight', 'ASC');
+            function ($query) {
+                // default order by
+                $query->orderBy('uploadables.weight', 'ASC');
             }
         );
         return $this->handlePagination($this->getFilesTableName(), $query, $page, $pageSize);
@@ -410,7 +410,7 @@ class BlockRepository extends BaseRepository {
                 ->orderBy('weight', 'ASC');
         }
         if ($onlyPublic) {
-            $query->where('isActive', '=', true);
+            $query->where('is_active', '=', true);
         }
         $blocks = $query->get();
         $this->listEagerLoad($blocks);
@@ -467,7 +467,7 @@ class BlockRepository extends BaseRepository {
     protected function blockDefaultOrderBy()
     {
         return function ($query) {
-            $query->orderBy('Blocks.weight', 'ASC');
+            $query->orderBy('blocks.weight', 'ASC');
         };
     }
 
@@ -485,11 +485,11 @@ class BlockRepository extends BaseRepository {
     {
         if (!empty($parsedCriteria['lang'])) {
             $query->leftJoin(
-                'BlockTranslations',
+                'block_translations',
                 function ($join) use ($parsedCriteria) {
-                    $join->on('Blocks.id', '=', 'BlockTranslations.blockId')
-                        ->where('BlockTranslations.langCode', '=', $parsedCriteria['lang']['value'])
-                        ->where('BlockTranslations.isActive', '=', 1);
+                    $join->on('blocks.id', '=', 'block_translations.block_id')
+                        ->where('block_translations.lang_code', '=', $parsedCriteria['lang']['value'])
+                        ->where('block_translations.is_active', '=', 1);
                 }
             );
             unset($parsedCriteria['lang']);

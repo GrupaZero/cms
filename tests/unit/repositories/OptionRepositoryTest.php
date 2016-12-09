@@ -47,7 +47,7 @@ class OptionRepositoryTest extends \TestCase {
 
         $this->repository->getOptions($categoryName);
 
-        $this->tester->dontSeeInDatabase('OptionCategories', ['key' => $categoryName]);
+        $this->tester->dontSeeInDatabase('option_categories', ['key' => $categoryName]);
     }
 
     /**
@@ -62,8 +62,8 @@ class OptionRepositoryTest extends \TestCase {
 
         $this->repository->getOption($categoryName, $optionName);
 
-        $this->tester->dontSeeInDatabase('Options', ['key' => $optionName]);
-        $this->tester->dontSeeInDatabase('OptionCategories', ['key' => $categoryName]);
+        $this->tester->dontSeeInDatabase('options', ['key' => $optionName]);
+        $this->tester->dontSeeInDatabase('option_categories', ['key' => $categoryName]);
     }
 
     /**
@@ -78,8 +78,8 @@ class OptionRepositoryTest extends \TestCase {
 
         $this->repository->getOption($categoryName, $optionName);
 
-        $this->tester->dontSeeInDatabase('Options', ['key' => $optionName]);
-        $this->tester->seeInDatabase('OptionCategories', ['key' => $categoryName]);
+        $this->tester->dontSeeInDatabase('options', ['key' => $optionName]);
+        $this->tester->seeInDatabase('option_categories', ['key' => $categoryName]);
     }
 
     /**
@@ -93,7 +93,7 @@ class OptionRepositoryTest extends \TestCase {
 
         $this->repository->deleteCategory($categoryName);
 
-        $this->tester->dontSeeInDatabase('OptionCategories', ['key' => $categoryName]);
+        $this->tester->dontSeeInDatabase('option_categories', ['key' => $categoryName]);
     }
 
     /**
@@ -108,8 +108,8 @@ class OptionRepositoryTest extends \TestCase {
 
         $this->repository->deleteOption($categoryName, $optionName);
 
-        $this->tester->dontSeeInDatabase('Options', ['key' => $categoryName]);
-        $this->tester->dontSeeInDatabase('OptionCategories', ['key' => $categoryName]);
+        $this->tester->dontSeeInDatabase('options', ['key' => $categoryName]);
+        $this->tester->dontSeeInDatabase('option_categories', ['key' => $categoryName]);
     }
 
     /**
@@ -124,8 +124,8 @@ class OptionRepositoryTest extends \TestCase {
 
         $this->repository->deleteOption($categoryName, $optionName);
 
-        $this->tester->dontSeeInDatabase('Options', ['key' => $optionName]);
-        $this->tester->seeInDatabase('OptionCategories', ['key' => $categoryName]);
+        $this->tester->dontSeeInDatabase('options', ['key' => $optionName]);
+        $this->tester->seeInDatabase('option_categories', ['key' => $categoryName]);
     }
 
     /**
@@ -133,7 +133,7 @@ class OptionRepositoryTest extends \TestCase {
      */
     public function it_gets_option_from_general_category()
     {
-        $optionName   = 'siteName';
+        $optionName   = 'site_name';
         $categoryName = 'general';
 
         $this->assertEquals(
@@ -141,8 +141,8 @@ class OptionRepositoryTest extends \TestCase {
             $this->repository->getOption($categoryName, $optionName)['en']
         );
 
-        $this->tester->seeInDatabase('Options', ['key' => $optionName]);
-        $this->tester->seeInDatabase('OptionCategories', ['key' => $categoryName]);
+        $this->tester->seeInDatabase('options', ['key' => $optionName]);
+        $this->tester->seeInDatabase('option_categories', ['key' => $categoryName]);
     }
 
     /**
@@ -157,7 +157,7 @@ class OptionRepositoryTest extends \TestCase {
             $this->repository->getOptions($categoryName)
         );
 
-        $this->tester->seeInDatabase('OptionCategories', ['key' => $categoryName]);
+        $this->tester->seeInDatabase('option_categories', ['key' => $categoryName]);
     }
 
     /**
@@ -171,7 +171,7 @@ class OptionRepositoryTest extends \TestCase {
 
         $this->assertNotNull(OptionCategory::find($categoryName));
 
-        $this->tester->seeInDatabase('OptionCategories', ['key' => $categoryName]);
+        $this->tester->seeInDatabase('option_categories', ['key' => $categoryName]);
     }
 
     /**
@@ -192,8 +192,8 @@ class OptionRepositoryTest extends \TestCase {
         $this->recreateRepository();
         $this->assertEquals($value, $this->repository->getOption($categoryName, $optionName));
 
-        $this->tester->seeInDatabase('Options', ['key' => $optionName]);
-        $this->tester->seeInDatabase('OptionCategories', ['key' => $categoryName]);
+        $this->tester->seeInDatabase('options', ['key' => $optionName]);
+        $this->tester->seeInDatabase('option_categories', ['key' => $categoryName]);
     }
 
 
@@ -207,7 +207,7 @@ class OptionRepositoryTest extends \TestCase {
         $this->repository->deleteCategory($categoryName);
         $this->assertNull(OptionCategory::find($categoryName));
 
-        $this->tester->dontSeeInDatabase('OptionCategories', ['key' => $categoryName]);
+        $this->tester->dontSeeInDatabase('option_categories', ['key' => $categoryName]);
     }
 
     /**
@@ -216,7 +216,7 @@ class OptionRepositoryTest extends \TestCase {
     public function can_delete_option()
     {
         $categoryName = 'general';
-        $optionName   = 'siteName';
+        $optionName   = 'site_name';
 
         $this->repository->deleteOption('general', $optionName);
         $this->assertFalse(
@@ -224,7 +224,7 @@ class OptionRepositoryTest extends \TestCase {
             where(['key' => $optionName])->exists()
         );
 
-        $this->tester->dontSeeInDatabase('Options', ['key' => $optionName]);
+        $this->tester->dontSeeInDatabase('options', ['key' => $optionName]);
     }
 
     private function recreateRepository()
@@ -240,10 +240,10 @@ class OptionRepositoryTest extends \TestCase {
     {
         $this->expectedOptions = [
             'general' => [
-                'siteName'         => [],
-                'siteDesc'         => [],
-                'defaultPageSize'  => [],
-                'cookiesPolicyUrl' => [],
+                'site_name'          => [],
+                'site_desc'          => [],
+                'default_page_size'  => [],
+                'cookies_policy_url' => [],
             ],
             'seo'     => [
                 'seoDescLength'     => [],

@@ -58,8 +58,8 @@ class TestSeeder extends Seeder {
             [
                 'code'      => 'en',
                 'i18n'      => 'en_US',
-                'isEnabled' => true,
-                'isDefault' => true
+                'is_enabled' => true,
+                'is_default' => true
             ]
         );
 
@@ -67,7 +67,7 @@ class TestSeeder extends Seeder {
             [
                 'code'      => 'pl',
                 'i18n'      => 'pl_PL',
-                'isEnabled' => true
+                'is_enabled' => true
             ]
         );
         return $langs;
@@ -82,7 +82,7 @@ class TestSeeder extends Seeder {
     {
         $contentTypes = [];
         foreach (['content', 'category'] as $type) {
-            $contentTypes[$type] = ContentType::firstOrCreate(['name' => $type, 'isActive' => true]);
+            $contentTypes[$type] = ContentType::firstOrCreate(['name' => $type, 'is_active' => true]);
         }
         return $contentTypes;
     }
@@ -96,7 +96,7 @@ class TestSeeder extends Seeder {
     {
         $blockTypes = [];
         foreach (['basic', 'menu', 'slider', 'widget', 'content'] as $type) {
-            $blockTypes[$type] = BlockType::firstOrCreate(['name' => $type, 'isActive' => true]);
+            $blockTypes[$type] = BlockType::firstOrCreate(['name' => $type, 'is_active' => true]);
         }
         return $blockTypes;
     }
@@ -109,7 +109,7 @@ class TestSeeder extends Seeder {
     private function seedFileTypes()
     {
         foreach (['image', 'document', 'video', 'music'] as $type) {
-            FileType::firstOrCreate(['name' => $type, 'isActive' => true]);
+            FileType::firstOrCreate(['name' => $type, 'is_active' => true]);
         }
     }
 }

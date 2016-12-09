@@ -30,7 +30,20 @@ class Init {
         if (str_contains($request->getRequestUri(), 'index.php')) {
             return new RedirectResponse(url(preg_replace('#index.php(/)?#', '', $request->fullUrl())), 301);
         }
+        $this->toSnakeCase($request);
         return $next($request);
+    }
+
+    /**
+     * It changes all parameters to snake_case
+     *
+     * @param \Illuminate\Http\Request $request Request object
+     *
+     * @return void
+     */
+    private function toSnakeCase($request)
+    {
+        $request->replace(array_snake_case_keys($request->all()));
     }
 
 }

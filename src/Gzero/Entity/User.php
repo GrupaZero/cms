@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\Access\Authorizable;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
+use Robbo\Presenter\PresentableInterface;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -21,7 +22,7 @@ use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2014, Adrian Skierniewski
  */
-class User extends Base implements AuthenticatableContract, AuthorizableContract, CanResetPasswordContract {
+class User extends Base implements AuthenticatableContract, AuthorizableContract, CanResetPasswordContract, PresentableInterface {
 
     use Authenticatable, Authorizable, CanResetPassword, HasApiTokens;
 
@@ -31,19 +32,19 @@ class User extends Base implements AuthenticatableContract, AuthorizableContract
      */
     protected $fillable = [
         'email',
-        'nickName',
-        'firstName',
-        'lastName',
+        'first_name',
+        'has_social_integrations',
+        'last_name',
+        'nick',
         'password',
-        'hasSocialIntegrations',
-        'rememberToken'
+        'remember_token'
     ];
 
     /**
      * @var array
      */
     protected $attributes = [
-        'isAdmin' => false
+        'is_admin' => false
     ];
 
     /**
@@ -67,7 +68,7 @@ class User extends Base implements AuthenticatableContract, AuthorizableContract
      */
     public function roles()
     {
-        return $this->belongsToMany(Role::class, 'ACLUserRoles')->withTimestamps();
+        return $this->belongsToMany(Role::class, 'acl_user_role')->withTimestamps();
     }
 
     /**
@@ -77,7 +78,7 @@ class User extends Base implements AuthenticatableContract, AuthorizableContract
      */
     public function isSuperAdmin()
     {
-        return (boolean) $this->isAdmin;
+        return (boolean) $this->is_admin;
     }
 
     /**
@@ -99,68 +100,6 @@ class User extends Base implements AuthenticatableContract, AuthorizableContract
             }
         }
         return in_array($permission, $this->permissionsMap);
-    }
-
-    /**
-     * Get the unique identifier for the user.
-     *
-     * @return mixed
-     */
-    public function getAuthIdentifier()
-    {
-        return $this->getKey();
-    }
-
-    /**
-     * Get the password for the user.
-     *
-     * @return string
-     */
-    public function getAuthPassword()
-    {
-        return $this->password;
-    }
-
-    /**
-     * Get the token value for the "remember me" session.
-     *
-     * @return string
-     */
-    public function getRememberToken()
-    {
-        return $this->rememberToken;
-    }
-
-    /**
-     * Set the token value for the "remember me" session.
-     *
-     * @param string $value token
-     *
-     * @return void
-     */
-    public function setRememberToken($value)
-    {
-        $this->rememberToken = $value;
-    }
-
-    /**
-     * Get the column name for the "remember me" token.
-     *
-     * @return string
-     */
-    public function getRememberTokenName()
-    {
-        return 'rememberToken';
-    }
-
-    /**
-     * Get the e-mail address where password reminders are sent.
-     *
-     * @return string
-     */
-    public function getReminderEmail()
-    {
-        return $this->email;
     }
 
     /**

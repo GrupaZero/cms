@@ -120,7 +120,7 @@ class ValidatorTest extends \Codeception\Test\Unit {
             'title'       => 'Lorem Ipsum',
             'type'        => 'content',
             'lang'        => 'pl',
-            'parentId'    => null,
+            'parent_id'   => null,
             'translation' => [
                 'test1' => 'Before trim       ',
                 'test2' => 2

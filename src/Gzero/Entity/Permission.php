@@ -1,6 +1,5 @@
 <?php namespace Gzero\Entity;
 
-
 /**
  * This file is part of the GZERO CMS package.
  *
@@ -23,7 +22,7 @@ class Permission extends Base {
     /**
      * @var string
      */
-    protected $table = 'ACLPermissions';
+    protected $table = 'acl_permissions';
 
     /**
      * @var array
@@ -47,7 +46,7 @@ class Permission extends Base {
      */
     public function roles()
     {
-        return $this->belongsToMany(User::class, 'ACLRolePermissions')->withTimestamps();
+        return $this->belongsToMany(User::class, 'acl_permission_role')->withTimestamps();
     }
 
 }

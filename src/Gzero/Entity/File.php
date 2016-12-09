@@ -25,17 +25,17 @@ class File extends Base {
         'name',
         'extension',
         'size',
-        'mimeType',
+        'mime_type',
         'info',
         'createdBy',
-        'isActive'
+        'is_active'
     ];
 
     /**
      * @var array
      */
     protected $attributes = [
-        'isActive' => false
+        'is_active' => false
     ];
 
     /**
@@ -55,7 +55,7 @@ class File extends Base {
      */
     public function translations()
     {
-        return $this->hasMany(FileTranslation::class, 'fileId');
+        return $this->hasMany(FileTranslation::class, 'file_id');
     }
 
     /**
@@ -85,7 +85,7 @@ class File extends Base {
      */
     public function author()
     {
-        return $this->belongsTo(User::class, 'createdBy', 'id');
+        return $this->belongsTo(User::class, 'created_by', 'id');
     }
 
     /**

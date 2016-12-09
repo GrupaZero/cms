@@ -20,16 +20,16 @@ class Widget extends Base {
     protected $fillable = [
         'name',
         'args',
-        'isActive',
-        'isCacheable',
+        'is_active',
+        'is_cacheable',
     ];
 
     /**
      * @var array
      */
     protected $attributes = [
-        'isActive' => false,
-        'isCacheable' => false
+        'is_active' => false,
+        'is_cacheable' => false
     ];
 
     /**
@@ -39,7 +39,7 @@ class Widget extends Base {
      */
     public function blocks()
     {
-        return $this->morphMany(Block::class, 'blockable', 'blockableType', 'blockableId');
+        return $this->morphMany(Block::class, 'blockable');
     }
 
     /**

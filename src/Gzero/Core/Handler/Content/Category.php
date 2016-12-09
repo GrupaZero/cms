@@ -34,16 +34,16 @@ class Category extends Content {
         $this->children = $this->contentRepo->getChildren(
             $content,
             [
-                ['isActive', '=', true]
+                ['is_active', '=', true]
             ],
             [
-                ['isPromoted', 'DESC'],
-                ['isSticky', 'DESC'],
+                ['is_promoted', 'DESC'],
+                ['is_sticky', 'DESC'],
                 ['weight', 'ASC'],
-                ['publishedAt', 'DESC']
+                ['published_at', 'DESC']
             ],
             $this->request->get('page', 1),
-            option('general', 'defaultPageSize', 20)
+            option('general', 'default_page_size', 20)
         )->setPath($this->request->url());
 
         return $this;

@@ -4,8 +4,7 @@ use Gzero\Entity\FileType;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateFilesTable extends Migration
-{
+class CreateFilesTable extends Migration {
     /**
      * Run the migrations.
      *
@@ -14,61 +13,57 @@ class CreateFilesTable extends Migration
     public function up()
     {
         Schema::create(
-            'FileTypes',
+            'file_types',
             function (Blueprint $table) {
                 $table->string('name')->index()->unique();
                 $table->text('extensions')->nullable();
-                $table->boolean('isActive')->default(false);
-                $table->timestamp('createdAt')->useCurrent();
-                $table->timestamp('updatedAt')->useCurrent();
+                $table->boolean('is_active')->default(false);
+                $table->timestamps();
             }
         );
 
         Schema::create(
-            'Files',
+            'files',
             function (Blueprint $table) {
                 $table->increments('id');
                 $table->string('type');
                 $table->string('name');
                 $table->string('extension');
                 $table->integer('size')->nullable();
-                $table->string('mimeType');
+                $table->string('mime_type');
                 $table->text('info')->nullable();
-                $table->integer('createdBy')->unsigned()->nullable();
-                $table->boolean('isActive')->default(false);
-                $table->timestamp('createdAt')->useCurrent();
-                $table->timestamp('updatedAt')->useCurrent();
-                $table->foreign('createdBy')->references('id')->on('Users')->onDelete('SET NULL');
-                $table->foreign('type')->references('name')->on('FileTypes')->onDelete('CASCADE');
+                $table->integer('created_by')->unsigned()->nullable();
+                $table->boolean('is_active')->default(false);
+                $table->timestamps();
+                $table->foreign('created_by')->references('id')->on('users')->onDelete('SET NULL');
+                $table->foreign('type')->references('name')->on('file_types')->onDelete('CASCADE');
             }
         );
 
         Schema::create(
-            'FileTranslations',
+            'file_translations',
             function (Blueprint $table) {
                 $table->increments('id');
-                $table->string('langCode', 2);
-                $table->integer('fileId')->unsigned();
+                $table->string('lang_code', 2);
+                $table->integer('file_id')->unsigned();
                 $table->string('title');
                 $table->text('description');
-                $table->timestamp('createdAt')->useCurrent();
-                $table->timestamp('updatedAt')->useCurrent();
-                $table->unique(['fileId', 'langCode']);
-                $table->foreign('fileId')->references('id')->on('Files')->onDelete('CASCADE');
-                $table->foreign('langCode')->references('code')->on('Langs')->onDelete('CASCADE');
+                $table->timestamps();
+                $table->unique(['file_id', 'lang_code']);
+                $table->foreign('file_id')->references('id')->on('files')->onDelete('CASCADE');
+                $table->foreign('lang_code')->references('code')->on('langs')->onDelete('CASCADE');
             }
         );
 
         Schema::create(
-            'Uploadables',
+            'uploadables',
             function (Blueprint $table) {
-                $table->integer('fileId')->unsigned()->index();
-                $table->integer('uploadableId')->unsigned()->nullable();
-                $table->string('uploadableType')->nullable();
+                $table->integer('file_id')->unsigned()->index();
+                $table->integer('uploadable_id')->unsigned()->nullable();
+                $table->string('uploadable_type')->nullable();
                 $table->integer('weight')->default(0);
-                $table->timestamp('createdAt')->useCurrent();
-                $table->timestamp('updatedAt')->useCurrent();
-                $table->foreign('fileId')->references('id')->on('Files')->onDelete('CASCADE');
+                $table->timestamps();
+                $table->foreign('file_id')->references('id')->on('files')->onDelete('CASCADE');
             }
         );
 
@@ -83,10 +78,10 @@ class CreateFilesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('Uploadables');
-        Schema::dropIfExists('FileTranslations');
-        Schema::dropIfExists('Files');
-        Schema::dropIfExists('FileTypes');
+        Schema::dropIfExists('uploadables');
+        Schema::dropIfExists('file_translations');
+        Schema::dropIfExists('files');
+        Schema::dropIfExists('file_types');
     }
 
     /**
@@ -97,7 +92,7 @@ class CreateFilesTable extends Migration
     private function seedFileTypes()
     {
         foreach (['image', 'document', 'video', 'music'] as $type) {
-            FileType::firstOrCreate(['name' => $type, 'isActive' => true]);
+            FileType::firstOrCreate(['name' => $type, 'is_active' => true]);
         }
     }
 

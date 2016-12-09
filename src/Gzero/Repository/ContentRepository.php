@@ -102,28 +102,29 @@ class ContentRepository extends BaseRepository {
      * @param string $url      Url address
      * @param string $langCode Lang code
      *
-     * @return Content $content Content content
+     * @return Builder
      * @throws RepositoryException
      */
     public function getByUrl($url, $langCode)
     {
         return $this->newORMQuery()
             ->join(
-                'Routes',
+                'routes',
                 function ($join) {
-                    $join->on('Contents.id', '=', 'Routes.routableId')
-                        ->where('Routes.RoutableType', '=', 'Gzero\Entity\Content');
+                    $join->on('contents.id', '=', 'routes.routable_id')
+                        ->where('routes.routable_type', '=', Content::class);
                 }
             )
             ->join(
-                'RouteTranslations',
+                'route_translations',
                 function ($join) use ($langCode) {
-                    $join->on('Routes.id', '=', 'RouteTranslations.routeId')
-                        ->where('RouteTranslations.langCode', '=', $langCode);
+                    $join->on('routes.id', '=', 'route_translations.route_id')
+                        ->where('route_translations.lang_code', '=', $langCode);
                 }
-            )->where('RouteTranslations.url', '=', $url)
-            ->where('Routes.isActive', '=', 1)// We only need content with active route
-            ->first(['Contents.*']);
+            )
+            ->where('route_translations.url', '=', $url)
+            ->where('routes.is_active', '=', 1)// We only need content with active route
+            ->first(['contents.*']);
     }
 
     /**
@@ -152,8 +153,9 @@ class ContentRepository extends BaseRepository {
             $this->getTranslationsTableName(),
             $parsed['orderBy'],
             $query,
-            function ($query) { // default order by
-                $query->orderBy('ContentTranslations.isActive', 'DESC');
+            function ($query) {
+                // default order by
+                $query->orderBy('content_translations.is_active', 'DESC');
             }
         );
         return $this->handlePagination($this->getTranslationsTableName(), $query, $page, $pageSize);
@@ -186,8 +188,9 @@ class ContentRepository extends BaseRepository {
             $this->getFilesTableName(),
             $parsed['orderBy'],
             $query,
-            function ($query) { // default order by
-                $query->orderBy('Uploadables.weight', 'ASC');
+            function ($query) {
+                // default order by
+                $query->orderBy('uploadables.weight', 'ASC');
             }
         );
         return $this->handlePagination($this->getFilesTableName(), $query, $page, $pageSize);
@@ -541,7 +544,7 @@ class ContentRepository extends BaseRepository {
      *
      * @return Content
      */
-    public function create(Array $data, User $author = null)
+    public function create(array $data, User $author = null)
     {
         $content = $this->newQuery()->transaction(
             function () use ($data, $author) {
@@ -558,11 +561,11 @@ class ContentRepository extends BaseRepository {
                 if ($author) {
                     $content->author()->associate($author);
                 }
-                if (!empty($data['parentId'])) {
-                    $parent = $this->getById($data['parentId']);
+                if (!empty($data['parent_id'])) {
+                    $parent = $this->getById($data['parent_id']);
                     if (empty($parent)) {
                         throw new RepositoryValidationException(
-                            'Parent node id: ' . $data['parentId'] . ' doesn\'t exist'
+                            'Parent node id: ' . $data['parent_id'] . ' doesn\'t exist'
                         );
                     }
                     // Check if parent is one of allowed type
@@ -595,24 +598,24 @@ class ContentRepository extends BaseRepository {
      * @return ContentTranslation
      * @throws RepositoryValidationException
      */
-    public function createTranslation(Content $content, Array $data)
+    public function createTranslation(Content $content, array $data)
     {
-        if (!array_key_exists('langCode', $data) || !array_key_exists('title', $data)) {
+        if (!array_key_exists('lang_code', $data) || !array_key_exists('title', $data)) {
             throw new RepositoryValidationException('Language code and title of translation is required');
         }
         // Create route only for the first translation
-        if ($content->translations()->where('langCode', $data['langCode'])->first() === null) {
-            $this->createRoute($content, $data['langCode'], $data['title']);
+        if ($content->translations()->where('lang_code', $data['lang_code'])->first() === null) {
+            $this->createRoute($content, $data['lang_code'], $data['title']);
         };
 
         // New translation query
         $translation = $this->newQuery()->transaction(
             function () use ($content, $data) {
                 // Set all translation of this content as inactive
-                $this->disableActiveTranslations($content->id, $data['langCode']);
+                $this->disableActiveTranslations($content->id, $data['lang_code']);
                 $translation = new ContentTranslation();
                 $translation->fill($data);
-                $translation->isActive = 1; // Because only recent translation is active
+                $translation->is_active = 1; // Because only recent translation is active
                 $this->events->fire('content.translation.creating', [$content, $translation]);
                 $content->translations()->save($translation);
                 $this->events->fire('content.translation.created', [$content, $translation]);
@@ -638,8 +641,8 @@ class ContentRepository extends BaseRepository {
             function () use ($content, $langCode, $urlString) {
                 $url = '';
                 // Search for parent, to get its url
-                if (!empty($content->parentId)) {
-                    $parent = $this->getById($content->parentId);
+                if (!empty($content->parent_id)) {
+                    $parent = $this->getById($content->parent_id);
                     if (!empty($parent)) {
                         try {
                             $url = $parent->getUrl($langCode) . '/';
@@ -651,11 +654,11 @@ class ContentRepository extends BaseRepository {
                     }
                 }
                 // Search for route, or instantiate a new instance
-                $route = Route::firstOrNew(['routableId' => $content->id, 'isActive' => 1]);
+                $route = Route::firstOrNew(['routable_id' => $content->id, 'is_active' => 1]);
                 $content->route()->save($route);
                 //  Search for route translations, or instantiate a new instance
                 $routeTranslation      = RouteTranslation::firstOrNew(
-                    ['routeId' => $route->id, 'langCode' => $langCode, 'isActive' => 1]
+                    ['route_id' => $route->id, 'lang_code' => $langCode, 'is_active' => 1]
                 );
                 $routeTranslation->url = $this->buildUniqueUrl(
                     $url . str_slug($urlString),
@@ -679,7 +682,7 @@ class ContentRepository extends BaseRepository {
      * @return Content
      * @throws RepositoryValidationException
      */
-    public function addFiles(Content $content, Array $filesIds)
+    public function addFiles(Content $content, array $filesIds)
     {
         if (empty($filesIds)) {
             throw new RepositoryValidationException('You must provide the files in order to add them to the content');
@@ -710,16 +713,16 @@ class ContentRepository extends BaseRepository {
      * @return Content
      * @SuppressWarnings("unused")
      */
-    public function update(Content $content, Array $data, User $modifier = null)
+    public function update(Content $content, array $data, User $modifier = null)
     {
         $content = $this->newQuery()->transaction(
             function () use ($content, $data, $modifier) {
-                if (!empty($data['fileId']) && !$this->checkIfContentFileExists($content, $data['fileId'])) {
+                if (!empty($data['file_id']) && !$this->checkIfContentFileExists($content, $data['file_id'])) {
                     throw new RepositoryValidationException('Please provide content related file id');
                 }
                 $content->fill($data);
                 $this->events->fire('content.updating', [$content]);
-                if (!empty($data['parentId'])) {
+                if (!empty($data['parent_id'])) {
                     $this->handleParentUpdate($content, $data);
                 } else {
                     $content->save();
@@ -741,7 +744,7 @@ class ContentRepository extends BaseRepository {
      * @return File
      * @throws RepositoryValidationException
      */
-    public function updateFile(Content $content, $fileId, Array $attributes)
+    public function updateFile(Content $content, $fileId, array $attributes)
     {
         if (!$fileId) {
             throw new RepositoryValidationException('You must provide the file in order to update it');
@@ -817,11 +820,10 @@ class ContentRepository extends BaseRepository {
      *
      * @return bool
      * @throws RepositoryValidationException
-     * @throws \Exception
      */
     public function deleteTranslation(ContentTranslation $translation)
     {
-        if ($translation->isActive) {
+        if ($translation->is_active) {
             throw new RepositoryValidationException('Cannot delete active translation');
         }
         return $this->newQuery()->transaction(
@@ -840,7 +842,7 @@ class ContentRepository extends BaseRepository {
      * @return Content
      * @throws RepositoryValidationException
      */
-    public function removeFiles(Content $content, Array $filesIds)
+    public function removeFiles(Content $content, array $filesIds)
     {
         if (empty($filesIds)) {
             throw new RepositoryValidationException(
@@ -856,9 +858,9 @@ class ContentRepository extends BaseRepository {
                 $this->events->fire('content.files.removed', [$content, $filesIds]);
 
                 // Remove related file
-                if (!empty($content->fileId) && in_array($content->fileId, $filesIds)) {
+                if (!empty($content->file_id) && in_array($content->file_id, $filesIds)) {
                     $this->events->fire('content.related.file.removing', [$content]);
-                    $content->fileId = null;
+                    $content->file_id = null;
                     $content->save();
                     $this->events->fire('content.related.file.removed', [$content]);
                 }
@@ -887,8 +889,8 @@ class ContentRepository extends BaseRepository {
     private function contentDefaultOrderBy()
     {
         return function ($query) {
-            $query->orderBy('Contents.weight', 'ASC');
-            $query->orderBy('Contents.createdAt', 'DESC');
+            $query->orderBy('contents.weight', 'ASC');
+            $query->orderBy('contents.created_at', 'DESC');
         };
     }
 
@@ -906,11 +908,11 @@ class ContentRepository extends BaseRepository {
     {
         if (!empty($parsedCriteria['lang'])) {
             $query->leftJoin(
-                'ContentTranslations',
+                'content_translations',
                 function ($join) use ($parsedCriteria) {
-                    $join->on('Contents.id', '=', 'ContentTranslations.contentId')
-                        ->where('ContentTranslations.langCode', '=', $parsedCriteria['lang']['value'])
-                        ->where('ContentTranslations.isActive', '=', 1);
+                    $join->on('contents.id', '=', 'content_translations.content_id')
+                        ->where('content_translations.lang_code', '=', $parsedCriteria['lang']['value'])
+                        ->where('content_translations.is_active', '=', 1);
                 }
             );
             unset($parsedCriteria['lang']);
@@ -931,9 +933,9 @@ class ContentRepository extends BaseRepository {
     private function handleAuthorJoin($query)
     {
         $query->leftJoin(
-            'Users',
+            'users',
             function ($join) {
-                $join->on('Contents.authorId', '=', 'Users.id');
+                $join->on('contents.author_id', '=', 'users.id');
             }
         );
     }
@@ -968,7 +970,6 @@ class ContentRepository extends BaseRepository {
         } else {
             throw new RepositoryValidationException($message);
         }
-
     }
 
     /**
@@ -1003,7 +1004,7 @@ class ContentRepository extends BaseRepository {
      */
     private function handleParentUpdate(Content $content, array $data)
     {
-        $parent = $this->getById($data['parentId']);
+        $parent = $this->getById($data['parent_id']);
 
         // @TODO handle parent change for category with children
         if ($content->type === 'category') {

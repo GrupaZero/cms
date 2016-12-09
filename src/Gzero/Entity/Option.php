@@ -20,7 +20,7 @@ class Option extends Base {
     protected $fillable = [
         'key',
         'value',
-        'categoryKey'
+        'category_key'
     ];
 
     /**
@@ -30,7 +30,7 @@ class Option extends Base {
      */
     public function category()
     {
-        return $this->belongsTo(OptionCategory::class, 'categoryKey', 'key');
+        return $this->belongsTo(OptionCategory::class, 'category_key', 'key');
     }
 
 

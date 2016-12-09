@@ -28,7 +28,7 @@ class MysqlRestore extends Command {
     /**
      * Execute the console command.
      *
-     * @return mixed
+     * @return void
      */
     public function fire()
     {
@@ -54,7 +54,6 @@ class MysqlRestore extends Command {
         system($command);
 
         $this->info('Database has been restored!');
-
     }
 
 }

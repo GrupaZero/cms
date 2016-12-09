@@ -47,7 +47,7 @@ class OptionsService {
      * @param string $categoryKey category key
      * @param string $optionKey   option key
      *
-     * @return array with translations for given option
+     * @return string option value
      */
     public function getOption($categoryKey, $optionKey)
     {

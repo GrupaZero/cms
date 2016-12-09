@@ -18,14 +18,14 @@ class Route extends Base {
      * @var array
      */
     protected $fillable = [
-        'isActive'
+        'is_active'
     ];
 
     /**
      * @var array
      */
     protected $attributes = [
-        'isActive' => false
+        'is_active' => false
     ];
 
     /**
@@ -45,6 +45,6 @@ class Route extends Base {
      */
     public function translations()
     {
-        return $this->hasMany(RouteTranslation::class, 'routeId');
+        return $this->hasMany(RouteTranslation::class);
     }
 }

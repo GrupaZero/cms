@@ -18,7 +18,7 @@ class FileTranslation extends Base {
      * @var array
      */
     protected $fillable = [
-        'langCode',
+        'lang_code',
         'title',
         'description'
     ];
