@@ -169,6 +169,8 @@ class Handler extends ExceptionHandler {
      * @param           $request
      * @param Exception $e
      *
+     * @SuppressWarnings(PHPMD)
+     *
      * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\JsonResponse|\Symfony\Component\HttpFoundation\Response
      */
     protected function handleError($request, Exception $e)
