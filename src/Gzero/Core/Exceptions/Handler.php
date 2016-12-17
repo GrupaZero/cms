@@ -16,7 +16,8 @@ use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 
 class Handler extends ExceptionHandler {
 
-    const SERVER_ERROR = 500; // (Internal Server Error)
+    const FORBIDDEN = 403;
+    const SERVER_ERROR = 500;
 
     /**
      * A list of the exception types that should not be reported.
@@ -64,17 +65,19 @@ class Handler extends ExceptionHandler {
      */
     public function render($request, Exception $e)
     {
+        if ($e instanceof ModelNotFoundException) {
+            $e = new NotFoundHttpException('Not found', $e);
+        } elseif ($e instanceof AuthorizationException) {
+            $e = new HttpException(self::FORBIDDEN, 'Forbidden', $e);
+        }
+
         if ($e instanceof HttpResponseException) {
             return $e->getResponse();
-        } elseif($e instanceof ModelNotFoundException) {
-            $e = new NotFoundHttpException($e->getMessage(), $e);
-        } elseif ($e instanceof AuthorizationException) {
-            $e = new HttpException(403, $e->getMessage());
         } elseif ($e instanceof AuthenticationException) {
             return $this->unauthenticated($request, $e);
         } elseif ($e instanceof ValidationException) {
             return $this->convertValidationExceptionToResponse($e, $request);
-        } elseif ($e instanceof HttpException){
+        } elseif ($e instanceof HttpException) {
             return $this->httpException($request, $e);
         }
 
@@ -195,15 +198,22 @@ class Handler extends ExceptionHandler {
      * @param               $request
      * @param HttpException $e
      *
+     * @SuppressWarnings(PHPMD)
+     *
      * @return \Illuminate\Http\JsonResponse|\Symfony\Component\HttpFoundation\Response
      */
     protected function httpException($request, HttpException $e)
     {
+        $message = $e->getMessage();
+        // Making sure that we always return message for 404's
+        if ($e->getStatusCode() === 404 && empty($message)) {
+            $message = 'Not Found';
+        }
         if ($this->wantsJson($request)) {
-            return response()->json(['error' => ['message' => $e->getMessage()]], $e->getStatusCode());
+            return response()->json(['error' => ['message' => $message]], $e->getStatusCode());
         }
 
-        return $this->renderHttpException(new HttpException($e->getStatusCode(), $e->getMessage()));
+        return $this->renderHttpException($e);
     }
 
     // @codingStandardsIgnoreEnd
