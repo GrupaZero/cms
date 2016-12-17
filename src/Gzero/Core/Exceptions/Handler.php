@@ -163,20 +163,6 @@ class Handler extends ExceptionHandler {
         return $this->renderHttpException($e);
     }
 
-    // @codingStandardsIgnoreEnd
-
-    /**
-     * Determine if the current request probably expects a JSON response.
-     *
-     * @param \Illuminate\Http\Request $request Request
-     *
-     * @return bool
-     */
-    protected function wantsJson($request)
-    {
-        return $request->expectsJson() || str_is('api.*', $request->getHost());
-    }
-
     /**
      * Handles errors response
      *
@@ -244,5 +230,19 @@ class Handler extends ExceptionHandler {
             }
             return parent::convertExceptionToResponse($e);
         }
+    }
+
+    // @codingStandardsIgnoreEnd
+
+    /**
+     * Determine if the current request probably expects a JSON response.
+     *
+     * @param \Illuminate\Http\Request $request Request
+     *
+     * @return bool
+     */
+    protected function wantsJson($request)
+    {
+        return $request->expectsJson() || str_is('api.*', $request->getHost());
     }
 }
