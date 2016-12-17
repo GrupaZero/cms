@@ -1,8 +1,9 @@
 <?php namespace Gzero\Validator;
 
 use Gzero\Core\Exception;
-use Illuminate\Support\Facades\Validator;
+use \Illuminate\Contracts\Validation\Validator;
 use Illuminate\Validation\Factory;
+use Illuminate\Validation\ValidationException;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -77,11 +78,11 @@ abstract class AbstractValidator {
 
         $this->setContext($context);
         $rules = $this->buildRulesArray();
-        $this->setValidator(Validator::make($this->filterArray($rules, $this->data), $rules));
+        $this->setValidator($this->validator->make($this->filterArray($rules, $this->data), $rules));
         if ($this->getValidator()->passes()) {
             return $this->getValidator()->getData();
         } else {
-            throw new ValidationException($this->getValidator()->getMessageBag());
+            throw new ValidationException($this->getValidator());
         }
     }
 

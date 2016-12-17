@@ -82,6 +82,16 @@ class User extends Base implements AuthenticatableContract, AuthorizableContract
     }
 
     /**
+     * Only GuestUser should have it set to true
+     *
+     * @return boolean
+     */
+    public function isGuest()
+    {
+        return false;
+    }
+
+    /**
      * It checks if given user have specified permission
      *
      * @param string $permission Permission name

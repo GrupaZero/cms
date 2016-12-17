@@ -3,6 +3,7 @@
 require_once(__DIR__ . '/../../stub/DummyValidator.php');
 
 use Aedart\Testing\Laravel\Traits\TestHelperTrait;
+use Illuminate\Validation\ValidationException;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -46,36 +47,36 @@ class ValidatorTest extends \Codeception\Test\Unit {
 
     /**
      * @test
-     * @expectedException Gzero\Validator\ValidationException
+     * @expectedException \Illuminate\Validation\ValidationException
      */
     public function it_throws_exceptions_with_errors()
     {
         try {
             $this->input['type'] = 'product';
             $this->validator->validate('list', $this->input);
-        } catch (Gzero\Validator\ValidationException $e) {
-            $this->assertEquals('validation.in', $e->getErrors()->first('type'));
+        } catch (ValidationException $e) {
+            $this->assertEquals('The selected type is invalid.', $e->validator->getMessageBag()->first('type'));
             throw $e;
         }
     }
 
     /**
      * @test
-     * @expectedException Gzero\Validator\ValidationException
+     * @expectedException \Illuminate\Validation\ValidationException
      */
     public function can_bind_rules()
     {
         try {
             $this->validator->bind('lang', ['required' => 'numeric'])->validate('update', $this->input);
-        } catch (Gzero\Validator\ValidationException $e) {
-            $this->assertEquals('validation.numeric', $e->getErrors()->first('lang'));
+        } catch (ValidationException $e) {
+            $this->assertEquals('The lang must be a number.', $e->validator->getMessageBag()->first('lang'));
             throw $e;
         }
     }
 
     /**
      * @test
-     * @expectedException Gzero\Core\Exception
+     * @expectedException \Gzero\Core\Exception
      */
     public function it_checks_validation_context()
     {
