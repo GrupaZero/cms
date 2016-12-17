@@ -85,7 +85,7 @@ class Handler extends ExceptionHandler {
     /**
      * Create a response object from the given validation exception.
      *
-     * @param  \Illuminate\Validation\ValidationException $e       Execption
+     * @param  \Illuminate\Validation\ValidationException $e       Exception
      * @param  \Illuminate\Http\Request                   $request Request
      *
      * @SuppressWarnings(PHPMD)
@@ -138,6 +138,8 @@ class Handler extends ExceptionHandler {
     }
 
     /**
+     * Handles given HttpException.
+     *
      * @param               $request
      * @param HttpException $e
      *
@@ -164,6 +166,8 @@ class Handler extends ExceptionHandler {
     // @codingStandardsIgnoreEnd
 
     /**
+     * Determine if the current request probably expects a JSON response.
+     *
      * @param \Illuminate\Http\Request $request Request
      *
      * @return bool
@@ -174,6 +178,8 @@ class Handler extends ExceptionHandler {
     }
 
     /**
+     * Handles errors response
+     *
      * @param           $request
      * @param Exception $e
      *
