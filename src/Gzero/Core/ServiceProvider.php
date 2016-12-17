@@ -204,7 +204,13 @@ class ServiceProvider extends AbstractServiceProvider {
         $gate = app('Illuminate\Contracts\Auth\Access\Gate');
         $gate->before(
             function ($user) {
-                return $user->isSuperAdmin();
+                if ($user->isSuperAdmin()) {
+                    return true;
+                }
+
+                if ($user->isGuest()) {
+                    return false;
+                }
             }
         );
         foreach ($this->policies as $key => $value) {
