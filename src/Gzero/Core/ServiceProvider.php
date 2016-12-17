@@ -208,9 +208,9 @@ class ServiceProvider extends AbstractServiceProvider {
                     return true;
                 }
 
-                //if ($user->isGuest()) {
-                //    return false;
-                //}
+                if ($user->isGuest()) {
+                    return false;
+                }
             }
         );
         foreach ($this->policies as $key => $value) {
