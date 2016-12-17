@@ -3,10 +3,12 @@
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Exception\HttpResponseException;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\Debug\Exception\FlattenException;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Whoops\Run;
 use Whoops\Handler\PrettyPageHandler;
 use Whoops\Handler\JsonResponseHandler;
@@ -64,12 +66,16 @@ class Handler extends ExceptionHandler {
     {
         if ($e instanceof HttpResponseException) {
             return $e->getResponse();
+        } elseif($e instanceof ModelNotFoundException) {
+            $e = new NotFoundHttpException($e->getMessage(), $e);
         } elseif ($e instanceof AuthorizationException) {
-            return $this->forbidden($request, $e);
+            $e = new HttpException(403, $e->getMessage());
         } elseif ($e instanceof AuthenticationException) {
             return $this->unauthenticated($request, $e);
         } elseif ($e instanceof ValidationException) {
             return $this->convertValidationExceptionToResponse($e, $request);
+        } elseif ($e instanceof HttpException){
+            return $this->httpException($request, $e);
         }
 
         $flatted = FlattenException::create($e);
@@ -186,23 +192,18 @@ class Handler extends ExceptionHandler {
     }
 
     /**
-     * Convert an authentication exception into an unauthenticated response.
+     * @param               $request
+     * @param HttpException $e
      *
-     * @param  \Illuminate\Http\Request $request Request
-     *
-     * @param AuthorizationException    $e       Exception
-     *
-     * @SuppressWarnings(PHPMD)
-     *
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return \Illuminate\Http\JsonResponse|\Symfony\Component\HttpFoundation\Response
      */
-    protected function forbidden($request, AuthorizationException $e)
+    protected function httpException($request, HttpException $e)
     {
         if ($this->wantsJson($request)) {
-            return response()->json(['error' => ['message' => 'Forbidden']], 403);
+            return response()->json(['error' => ['message' => $e->getMessage()]], $e->getStatusCode());
         }
 
-        return $this->renderHttpException(new HttpException(403, 'Forbidden'));
+        return $this->renderHttpException(new HttpException($e->getStatusCode(), $e->getMessage()));
     }
 
     // @codingStandardsIgnoreEnd
