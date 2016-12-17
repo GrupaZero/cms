@@ -3,18 +3,19 @@
 use Exception;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Auth\AuthenticationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Exception\HttpResponseException;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\Debug\Exception\FlattenException;
+use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
 use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Whoops\Run;
 use Whoops\Handler\PrettyPageHandler;
 use Whoops\Handler\JsonResponseHandler;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 
 class Handler extends ExceptionHandler {
-
-    const SERVER_ERROR = 500; // (Internal Server Error)
 
     /**
      * A list of the exception types that should not be reported.
@@ -62,60 +63,11 @@ class Handler extends ExceptionHandler {
      */
     public function render($request, Exception $e)
     {
-        if ($e instanceof HttpResponseException) {
-            return $e->getResponse();
-        } elseif ($e instanceof AuthorizationException) {
-            return $this->forbidden($request, $e);
-        } elseif ($e instanceof AuthenticationException) {
-            return $this->unauthenticated($request, $e);
-        } elseif ($e instanceof ValidationException) {
-            return $this->convertValidationExceptionToResponse($e, $request);
+        $response = $this->handleError($request, $e);
+        if (class_exists('Barryvdh\Cors\Stack\CorsService') && $this->wantsJson($request)) {
+            app('Barryvdh\Cors\Stack\CorsService')->addActualRequestHeaders($response, $request);
         }
-
-        $flatted = FlattenException::create($e);
-
-        if (app()->environment() === 'local' && config('app.debug')) {
-            $handler = new PrettyPageHandler;
-            if ($this->wantsJson($request)) {
-                $handler = new JsonResponseHandler();
-                $handler->addTraceToOutput(true);
-            }
-            $whoops = new Run;
-            $whoops->allowQuit(false);
-            $whoops->writeToOutput(false);
-            $whoops->pushHandler($handler);
-            $whoops->register();
-
-            $response = response(
-                $whoops->handleException($e),
-                $this->isProperHTTPErrorCode($flatted->getStatusCode()) ? $flatted->getStatusCode() : self::SERVER_ERROR,
-                $flatted->getHeaders() ?: []
-            );
-            if ($this->wantsJson($request)) {
-                $response->header('Content-Type', 'application/json');
-                if (class_exists('Barryvdh\Cors\Stack\CorsService')) {
-                    app('Barryvdh\Cors\Stack\CorsService')->addActualRequestHeaders($response, $request);
-                }
-            }
-            return $response;
-        } else {
-            if ($this->wantsJson($request)) {
-                $response = response()->json(
-                    [
-                        'error' => [
-                            'message' => 'Internal Server Error'
-                        ]
-                    ],
-                    $this->isProperHTTPErrorCode($flatted->getStatusCode()) ? $flatted->getStatusCode() : self::SERVER_ERROR,
-                    $flatted->getHeaders()
-                );
-                if (class_exists('Barryvdh\Cors\Stack\CorsService')) {
-                    app('Barryvdh\Cors\Stack\CorsService')->addActualRequestHeaders($response, $request);
-                }
-                return $response;
-            }
-            return parent::convertExceptionToResponse($e);
-        }
+        return $response;
     }
 
     /**
@@ -133,7 +85,7 @@ class Handler extends ExceptionHandler {
     /**
      * Create a response object from the given validation exception.
      *
-     * @param  \Illuminate\Validation\ValidationException $e       Execption
+     * @param  \Illuminate\Validation\ValidationException $e       Exception
      * @param  \Illuminate\Http\Request                   $request Request
      *
      * @SuppressWarnings(PHPMD)
@@ -153,7 +105,7 @@ class Handler extends ExceptionHandler {
                 [
                     'error' => [
                         'message' => 'Validation Error',
-                        'errors'  => $errors
+                        'errors'  => array_camel_case_keys($errors)
                     ]
                 ],
                 422
@@ -186,33 +138,112 @@ class Handler extends ExceptionHandler {
     }
 
     /**
-     * Convert an authentication exception into an unauthenticated response.
+     * Handles given HttpException.
      *
-     * @param  \Illuminate\Http\Request $request Request
-     *
-     * @param AuthorizationException    $e       Exception
+     * @param               $request
+     * @param HttpException $e
      *
      * @SuppressWarnings(PHPMD)
      *
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return \Illuminate\Http\JsonResponse|\Symfony\Component\HttpFoundation\Response
      */
-    protected function forbidden($request, AuthorizationException $e)
+    protected function httpException($request, HttpException $e)
     {
-        if ($this->wantsJson($request)) {
-            return response()->json(['error' => ['message' => 'Forbidden']], 403);
+        $code    = $e->getStatusCode();
+        $message = $e->getMessage();
+
+        if (empty($message)) {
+            $message = !empty(SymfonyResponse::$statusTexts[$code]) ? SymfonyResponse::$statusTexts[$code] : 'Error';
         }
 
-        return $this->renderHttpException(new HttpException(403, 'Forbidden'));
+        if ($this->wantsJson($request)) {
+            return response()->json(['error' => ['message' => $message]], $code);
+        }
+
+        return $this->renderHttpException($e);
+    }
+
+    /**
+     * Handles errors response
+     *
+     * @param           $request
+     * @param Exception $e
+     *
+     * @SuppressWarnings(PHPMD)
+     *
+     * @return \Illuminate\Contracts\Routing\ResponseFactory|\Illuminate\Http\JsonResponse|\Symfony\Component\HttpFoundation\Response
+     */
+    protected function handleError($request, Exception $e)
+    {
+        if ($e instanceof ModelNotFoundException) {
+            $e = new NotFoundHttpException('Not found', $e);
+        } elseif ($e instanceof AuthorizationException) {
+            $e = new HttpException(SymfonyResponse::HTTP_FORBIDDEN, 'Forbidden', $e);
+        }
+
+        if ($e instanceof HttpResponseException) {
+            return $e->getResponse();
+        } elseif ($e instanceof AuthenticationException) {
+            return $this->unauthenticated($request, $e);
+        } elseif ($e instanceof ValidationException) {
+            return $this->convertValidationExceptionToResponse($e, $request);
+        } elseif ($e instanceof HttpException) {
+            return $this->httpException($request, $e);
+        }
+
+        $flatted    = FlattenException::create($e);
+        $statusCode = $flatted->getStatusCode();
+        $code       = $this->isProperHTTPErrorCode($statusCode) ?
+            $statusCode : SymfonyResponse::HTTP_INTERNAL_SERVER_ERROR;
+
+        if (app()->environment() === 'local' && config('app.debug')) {
+            $handler = new PrettyPageHandler;
+            if ($this->wantsJson($request)) {
+                $handler = new JsonResponseHandler();
+                $handler->addTraceToOutput(true);
+            }
+            $whoops = new Run;
+            $whoops->allowQuit(false);
+            $whoops->writeToOutput(false);
+            $whoops->pushHandler($handler);
+            $whoops->register();
+
+            $response = response(
+                $whoops->handleException($e),
+                $code,
+                $flatted->getHeaders() ?: []
+            );
+            if ($this->wantsJson($request)) {
+                $response->header('Content-Type', 'application/json');
+            }
+            return $response;
+        } else {
+            if ($this->wantsJson($request)) {
+                $response = response()->json(
+                    [
+                        'error' => [
+                            'message' => 'Internal Server Error'
+                        ]
+                    ],
+                    $code,
+                    $flatted->getHeaders()
+                );
+                return $response;
+            }
+            return parent::convertExceptionToResponse($e);
+        }
     }
 
     // @codingStandardsIgnoreEnd
 
     /**
+     * Determine if the current request probably expects a JSON response.
+     *
      * @param \Illuminate\Http\Request $request Request
      *
      * @return bool
      */
-    protected function wantsJson($request): bool
+    protected function wantsJson($request)
     {
         return $request->expectsJson() || str_is('api.*', $request->getHost());
     }
