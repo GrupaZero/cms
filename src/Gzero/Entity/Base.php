@@ -25,5 +25,4 @@ abstract class Base extends Model {
      * @var string
      */
     protected $dateFormat = 'Y-m-d H:i:s';
-
 }
