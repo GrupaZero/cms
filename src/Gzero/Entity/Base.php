@@ -1,5 +1,6 @@
 <?php namespace Gzero\Entity;
 
+use Gzero\Entity\traits\DatesFormatTrait;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -15,6 +16,8 @@ use Illuminate\Database\Eloquent\Model;
  * @copyright  Copyright (c) 2014, Adrian Skierniewski
  */
 abstract class Base extends Model {
+
+    use DatesFormatTrait;
 
     /**
      * The storage format of the model's date columns.
