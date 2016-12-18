@@ -90,7 +90,7 @@ class ContentPresenter extends BasePresenter {
     public function publishDate()
     {
         if (!empty($this->published_at)) {
-            return $this->published_at;
+            return $this->published_at->format('d-m-Y - H:s');
         }
         return trans('common.unknown');
     }
