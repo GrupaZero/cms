@@ -1,5 +1,6 @@
 <?php namespace Gzero\Entity;
 
+use Gzero\Entity\traits\DatesFormatTrait;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -16,11 +17,12 @@ use Illuminate\Database\Eloquent\Model;
  */
 abstract class Base extends Model {
 
+    use DatesFormatTrait;
+
     /**
      * The storage format of the model's date columns.
      *
      * @var string
      */
     protected $dateFormat = 'Y-m-d H:i:s';
-
 }
