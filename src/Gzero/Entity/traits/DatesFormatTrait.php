@@ -66,6 +66,9 @@ trait DatesFormatTrait {
      */
     private function getFormattedDate($date)
     {
+        if (!$date) {
+            return $date;
+        }
         return Carbon::createFromFormat('Y-m-d H:i:s', $date)->format('d-m-Y - H:s');
     }
 }
