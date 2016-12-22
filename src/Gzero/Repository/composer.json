@@ -8,7 +8,7 @@
         }
     ],
     "require": {
-        "php": ">=7.0.0",
+        "php": ">=7.1.0",
         "gzero/entity": "self.version",
         "illuminate/events": "5.3.*",
         "illuminate/database": "5.3.*"
