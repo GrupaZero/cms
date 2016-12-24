@@ -126,7 +126,7 @@ class ContentPresenter extends BasePresenter {
             }
             return implode('', $html);
         }
-        return trans('common.noRatings');
+        return trans('common.no_ratings');
     }
 
     /**

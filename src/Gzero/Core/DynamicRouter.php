@@ -70,7 +70,7 @@ class DynamicRouter {
                 [
                     [
                         'code' => 'warning',
-                        'text' => trans('common.contentNotPublished')
+                        'text' => trans('common.content_not_published')
                     ]
                 ]
             );
