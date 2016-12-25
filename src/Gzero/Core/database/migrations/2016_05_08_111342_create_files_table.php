@@ -27,10 +27,10 @@ class CreateFilesTable extends Migration {
             function (Blueprint $table) {
                 $table->increments('id');
                 $table->string('type');
-                $table->string('name');
-                $table->string('extension');
+                $table->string('name')->nullable();
+                $table->string('extension')->nullable();
                 $table->integer('size')->nullable();
-                $table->string('mime_type');
+                $table->string('mime_type')->nullable();
                 $table->text('info')->nullable();
                 $table->integer('created_by')->unsigned()->nullable();
                 $table->boolean('is_active')->default(false);
@@ -46,8 +46,8 @@ class CreateFilesTable extends Migration {
                 $table->increments('id');
                 $table->string('lang_code', 2);
                 $table->integer('file_id')->unsigned();
-                $table->string('title');
-                $table->text('description');
+                $table->string('title')->nullable();
+                $table->text('description')->nullable();
                 $table->timestamps();
                 $table->unique(['file_id', 'lang_code']);
                 $table->foreign('file_id')->references('id')->on('files')->onDelete('CASCADE');
