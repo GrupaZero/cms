@@ -71,7 +71,7 @@ class BlockLoad {
     /**
      * Handle the event. It loads block for static named routes.
      *
-     * @param RouteMatched $event
+     * @param RouteMatched $event dispatched event
      *
      * @return void
      *
@@ -91,7 +91,7 @@ class BlockLoad {
     /**
      * Handle the event. It loads block for dynamic router.
      *
-     * @param ContentRouteMatched $event
+     * @param ContentRouteMatched $event dispatched event
      *
      * @return void
      *
