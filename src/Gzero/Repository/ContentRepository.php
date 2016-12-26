@@ -102,7 +102,7 @@ class ContentRepository extends BaseRepository {
      * @param string $url      Url address
      * @param string $langCode Lang code
      *
-     * @return Builder
+     * @return Content|Builder
      * @throws RepositoryException
      */
     public function getByUrl($url, $langCode)
