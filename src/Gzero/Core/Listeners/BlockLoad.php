@@ -1,4 +1,4 @@
-<?php namespace Gzero\Core\Listeners\Events;
+<?php namespace Gzero\Core\Listeners;
 
 use Gzero\Core\BlockFinder;
 use Gzero\Entity\Content;
@@ -25,17 +25,17 @@ class BlockLoad {
     /**
      * @var BlockFinder
      */
-    private $blockFinder;
+    protected $blockFinder;
 
     /**
      * @var BlockRepository
      */
-    private $blockRepository;
+    protected $blockRepository;
 
     /**
      * @var LangRepository
      */
-    private $langRepository;
+    protected $langRepository;
 
     /**
      * Event constructor.

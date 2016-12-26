@@ -46,11 +46,11 @@ class Content extends BaseTree implements PresentableInterface {
      * @var array
      */
     protected $attributes = [
-        'is_on_home' => false,
+        'is_on_home'         => false,
         'is_comment_allowed' => false,
-        'is_promoted' => false,
-        'is_sticky' => false,
-        'is_active' => false
+        'is_promoted'        => false,
+        'is_sticky'          => false,
+        'is_active'          => false
     ];
 
     /**
@@ -158,11 +158,7 @@ class Content extends BaseTree implements PresentableInterface {
      */
     public function canBeShown()
     {
-        if (app('auth')->check() && app('auth')->user()->is_admin) {
-            return true;
-        } else {
-            return $this->is_active;
-        }
+        return $this->is_active || (app('auth')->check() && app('auth')->user()->isAdmin());
     }
 
     /**

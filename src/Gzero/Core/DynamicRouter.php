@@ -1,9 +1,11 @@
 <?php namespace Gzero\Core;
 
+use Gzero\Core\Events\ContentRouteMatched;
 use Gzero\Repository\ContentRepository;
 use Illuminate\Events\Dispatcher;
 use Gzero\Entity\Lang;
 use Gzero\Core\Handler\Content\ContentTypeHandler;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\View;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
@@ -48,13 +50,14 @@ class DynamicRouter {
     /**
      * Handles dynamic content rendering
      *
-     * @param String $url  Url address
-     * @param Lang   $lang Lang entity
+     * @param String  $url     Url address
+     * @param Lang    $lang    Lang entity
+     * @param Request $request Request
      *
-     * @return View
      * @throws NotFoundHttpException
+     * @return View
      */
-    public function handleRequest($url, Lang $lang)
+    public function handleRequest($url, Lang $lang, Request $request)
     {
         //Get url without query string, so that pagination can work
         $url     = preg_replace('/\?.*/', '', $url);
@@ -75,7 +78,7 @@ class DynamicRouter {
                 ]
             );
         }
-        $this->events->fire('router.contentMatched', [$content]);
+        $this->events->fire(new ContentRouteMatched($content, $request));
         $type = $this->resolveType($content->type);
         return $type->load($content, $lang)->render();
     }
@@ -88,7 +91,7 @@ class DynamicRouter {
      * @return ContentTypeHandler
      * @throws \ReflectionException
      */
-    private function resolveType($typeName)
+    protected function resolveType($typeName)
     {
         $type = app()->make('content:type:' . $typeName);
         if (!$type instanceof ContentTypeHandler) {
