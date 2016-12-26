@@ -152,13 +152,13 @@ class Content extends BaseTree implements PresentableInterface {
     }
 
     /**
-     * Return true if content can be shown to current user on front end
+     * Return true if content can be shown on frontend
      *
      * @return bool
      */
     public function canBeShown()
     {
-        return $this->is_active || (app('auth')->check() && app('auth')->user()->isAdmin());
+        return $this->is_active;
     }
 
     /**

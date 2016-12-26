@@ -74,4 +74,20 @@ class ContentPolicy {
         }
         return $user->hasPermission('content-delete');
     }
+
+    /**
+     * Policy for viewing single unpublished element
+     *
+     * @param User    $user    User trying to do it
+     * @param Content $content Content that we're trying to update
+     *
+     * @return boolean
+     */
+    public function viewOnFrontend(User $user, Content $content)
+    {
+        if ($content->canBeShown()) {
+            return true;
+        }
+        return ($content->author->id === $user->id);
+    }
 }

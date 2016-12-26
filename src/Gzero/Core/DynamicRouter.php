@@ -2,6 +2,7 @@
 
 use Gzero\Core\Events\ContentRouteMatched;
 use Gzero\Repository\ContentRepository;
+use Illuminate\Contracts\Auth\Access\Gate;
 use Illuminate\Events\Dispatcher;
 use Gzero\Entity\Lang;
 use Gzero\Core\Handler\Content\ContentTypeHandler;
@@ -40,11 +41,13 @@ class DynamicRouter {
      *
      * @param ContentRepository $repository Content repository
      * @param Dispatcher        $events     Events dispatcher
+     * @param Gate              $gate       Gate
      */
-    public function __construct(ContentRepository $repository, Dispatcher $events)
+    public function __construct(ContentRepository $repository, Dispatcher $events, Gate $gate)
     {
         $this->repository = $repository;
         $this->events     = $events;
+        $this->gate       = $gate;
     }
 
     /**
@@ -63,20 +66,8 @@ class DynamicRouter {
         $url     = preg_replace('/\?.*/', '', $url);
         $content = $this->repository->getByUrl($url, $lang->code);
         // Only if page is visible on public
-        if (empty($content) || !$content->canBeShown()) {
+        if (empty($content) || (!$content->canBeShown() && $this->gate->denies('viewOnFrontend', $content))) {
             throw new NotFoundHttpException();
-        }
-
-        if (!$content->is_active) {
-            app('session')->flash(
-                'messages',
-                [
-                    [
-                        'code' => 'warning',
-                        'text' => trans('common.content_not_published')
-                    ]
-                ]
-            );
         }
         $this->events->fire(new ContentRouteMatched($content, $request));
         $type = $this->resolveType($content->type);
