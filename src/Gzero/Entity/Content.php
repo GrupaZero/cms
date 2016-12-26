@@ -158,7 +158,7 @@ class Content extends BaseTree implements PresentableInterface {
      */
     public function canBeShown()
     {
-        return $this->is_active || (app('auth')->check() && app('auth')->user()->isAdmin());
+        return $this->is_active || (app('auth')->check() && app('auth')->user()->isSuperAdmin());
     }
 
     /**

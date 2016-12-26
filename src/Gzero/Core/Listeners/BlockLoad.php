@@ -1,12 +1,11 @@
 <?php namespace Gzero\Core\Listeners;
 
 use Gzero\Core\BlockFinder;
-use Gzero\Entity\Content;
+use Gzero\Core\Events\ContentRouteMatched;
 use Gzero\Repository\BlockRepository;
 use Gzero\Repository\LangRepository;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Http\Request;
-use Illuminate\Routing\Route;
+use Illuminate\Routing\Events\RouteMatched;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -54,35 +53,36 @@ class BlockLoad {
     /**
      * Handle the event. It loads block for matched routes.
      *
-     * @param mixed        $route   Matched route or content
-     * @param Request|null $request Request
+     * @param mixed $event Matched route or content
      *
      * @return void
      */
-    public function handle($route, $request = null)
+    public function handle($event)
     {
-        if ($request) {
-            $this->handleLaravelRoute($route, $request);
-        } else {
-            $this->handleContentRoute($route);
+        if ($event instanceof RouteMatched) {
+            $this->handleLaravelRoute($event);
+        }
+
+        if ($event instanceof ContentRouteMatched) {
+            $this->handleContentRoute($event);
         }
     }
 
     /**
      * Handle the event. It loads block for static named routes.
      *
-     * @param Route   $route   Matched route
-     * @param Request $request Request
+     * @param RouteMatched $event
      *
      * @return void
+     *
      */
-    public function handleLaravelRoute(Route $route, Request $request)
+    public function handleLaravelRoute(RouteMatched $event)
     {
-        if ($request->method() === 'GET' && $route->domain() === env('DOMAIN') && $route->getName()) {
-            $blockIds = $this->blockFinder->getBlocksIds($route->getName(), true);
+        if ($event->request->method() === 'GET' && $event->route->domain() === env('DOMAIN') && $event->route->getName()) {
+            $blockIds = $this->blockFinder->getBlocksIds($event->route->getName(), true);
             $blocks   = $this->blockRepository->getVisibleBlocks($blockIds, true);
             $this->handleBlockRendering($blocks);
-            $blocks   = $blocks->groupBy('region');
+            $blocks = $blocks->groupBy('region');
             view()->share('blocks', $blocks);
             view()->share('sidebarsNumber', $this->getSidebarsNumber($blocks));
         }
@@ -91,16 +91,17 @@ class BlockLoad {
     /**
      * Handle the event. It loads block for dynamic router.
      *
-     * @param Content $content Content entity
+     * @param ContentRouteMatched $event
      *
      * @return void
+     *
      */
-    public function handleContentRoute(Content $content)
+    public function handleContentRoute(ContentRouteMatched $event)
     {
-        $blockIds = $this->blockFinder->getBlocksIds($content->path, true);
+        $blockIds = $this->blockFinder->getBlocksIds($event->content->path, true);
         $blocks   = $this->blockRepository->getVisibleBlocks($blockIds, true);
         $this->handleBlockRendering($blocks);
-        $blocks   = $blocks->groupBy('region');
+        $blocks = $blocks->groupBy('region');
         view()->share('blocks', $blocks);
         view()->share('sidebarsNumber', $this->getSidebarsNumber($blocks));
     }
