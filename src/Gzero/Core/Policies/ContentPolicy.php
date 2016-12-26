@@ -88,18 +88,6 @@ class ContentPolicy {
         if ($content->canBeShown()) {
             return true;
         }
-        if ($content->author->id === $user->id) {
-            app('session')->flash(
-                'messages',
-                [
-                    [
-                        'code' => 'warning',
-                        'text' => trans('common.content_not_published')
-                    ]
-                ]
-            );
-            return true;
-        }
-        return false;
+        return ($content->author->id === $user->id);
     }
 }

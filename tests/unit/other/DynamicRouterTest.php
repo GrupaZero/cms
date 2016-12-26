@@ -131,7 +131,7 @@ class DynamicRouterTest extends \Codeception\Test\Unit {
     public function it_denies_access_to_unpublished_content_for_users_without_access()
     {
         $request = new Request();
-        $content = new Content(['is_active' => true, 'type' => 'category']);
+        $content = new Content(['is_active' => false, 'type' => 'category']);
         $this->repositoryMock
             ->shouldReceive('getByUrl')
             ->andReturn($content)
@@ -144,6 +144,16 @@ class DynamicRouterTest extends \Codeception\Test\Unit {
         $this->eventDispatcherMock
             ->shouldReceive('fire')
             ->never()
+            ->getMock();
+        $this->router->shouldReceive('resolveType')
+            ->andReturn(
+                new class {
+                    function load()
+                    {
+                        throw new \Exception('should not be called');
+                    }
+                }
+            )
             ->getMock();
         $this->router->handleRequest('test-url', new Lang(), $request);
     }

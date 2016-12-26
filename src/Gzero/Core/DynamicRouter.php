@@ -66,7 +66,7 @@ class DynamicRouter {
         $url     = preg_replace('/\?.*/', '', $url);
         $content = $this->repository->getByUrl($url, $lang->code);
         // Only if page is visible on public
-        if (empty($content) || $this->gate->denies('viewOnFrontend', $content)) {
+        if (empty($content) || (!$content->canBeShown() && $this->gate->denies('viewOnFrontend', $content))) {
             throw new NotFoundHttpException();
         }
         $this->events->fire(new ContentRouteMatched($content, $request));
