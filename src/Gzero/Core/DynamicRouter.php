@@ -1,7 +1,6 @@
 <?php namespace Gzero\Core;
 
 use Gzero\Core\Events\ContentRouteMatched;
-use Gzero\Entity\Content;
 use Gzero\Repository\ContentRepository;
 use Illuminate\Contracts\Auth\Access\Gate;
 use Illuminate\Events\Dispatcher;
@@ -67,20 +66,8 @@ class DynamicRouter {
         $url     = preg_replace('/\?.*/', '', $url);
         $content = $this->repository->getByUrl($url, $lang->code);
         // Only if page is visible on public
-        if (empty($content) || !$this->canBeShown($content)) {
+        if (empty($content) || $this->gate->denies('viewOnFrontend', $content)) {
             throw new NotFoundHttpException();
-        }
-
-        if (!$content->canBeShown()) {
-            app('session')->flash(
-                'messages',
-                [
-                    [
-                        'code' => 'warning',
-                        'text' => trans('common.content_not_published')
-                    ]
-                ]
-            );
         }
         $this->events->fire(new ContentRouteMatched($content, $request));
         $type = $this->resolveType($content->type);
@@ -102,17 +89,5 @@ class DynamicRouter {
             throw new \ReflectionException("Type: $typeName must implement ContentTypeInterface");
         }
         return $type;
-    }
-
-    /**
-     * It checks if specified content can be shown for logged user
-     *
-     * @param Content $content Content
-     *
-     * @return bool
-     */
-    protected function canBeShown(Content $content)
-    {
-        return $content->canBeShown() || (!$content->canBeShown() && $this->gate->allows('viewUnpublished', $content));
     }
 }

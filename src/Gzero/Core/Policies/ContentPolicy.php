@@ -83,8 +83,23 @@ class ContentPolicy {
      *
      * @return boolean
      */
-    public function viewUnpublished(User $user, Content $content)
+    public function viewOnFrontend(User $user, Content $content)
     {
-        return ($content->author->id === $user->id);
+        if ($content->canBeShown()) {
+            return true;
+        }
+        if ($content->author->id === $user->id) {
+            app('session')->flash(
+                'messages',
+                [
+                    [
+                        'code' => 'warning',
+                        'text' => trans('common.content_not_published')
+                    ]
+                ]
+            );
+            return true;
+        }
+        return false;
     }
 }

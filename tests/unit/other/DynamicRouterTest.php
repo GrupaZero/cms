@@ -31,6 +31,11 @@ class DynamicRouterTest extends \Codeception\Test\Unit {
     protected $eventDispatcherMock;
 
     /**
+     * @var \Mockery\MockInterface
+     */
+    protected $gateMock;
+
+    /**
      * @var DynamicRouter|\Mockery\MockInterface
      */
     protected $router;
@@ -39,7 +44,11 @@ class DynamicRouterTest extends \Codeception\Test\Unit {
     {
         $this->eventDispatcherMock = m::mock('Illuminate\Events\Dispatcher');
         $this->repositoryMock      = m::mock('Gzero\Repository\ContentRepository');
-        $this->router              = m::mock('Gzero\Core\DynamicRouter', [$this->repositoryMock, $this->eventDispatcherMock])
+        $this->gateMock            = m::mock('Illuminate\Contracts\Auth\Access\Gate');
+        $this->router              = m::mock(
+            'Gzero\Core\DynamicRouter',
+            [$this->repositoryMock, $this->eventDispatcherMock, $this->gateMock]
+        )
             ->shouldAllowMockingProtectedMethods()
             ->makePartial();
     }
@@ -79,6 +88,10 @@ class DynamicRouterTest extends \Codeception\Test\Unit {
             ->andReturn($content)
             ->once()
             ->getMock();
+        $this->gateMock
+            ->shouldReceive('denies')
+            ->andReturn(false)
+            ->getMock();
         $this->eventDispatcherMock
             ->shouldReceive('fire')
             ->with(
@@ -109,6 +122,30 @@ class DynamicRouterTest extends \Codeception\Test\Unit {
             );
         $result = $this->router->handleRequest('test-url', new Lang(), $request);
         $this->assertEquals($result, 'rendered');
+    }
+
+    /**
+     * @test
+     * @expectedException \Symfony\Component\HttpKernel\Exception\NotFoundHttpException
+     */
+    public function it_denies_access_to_unpublished_content_for_users_without_access()
+    {
+        $request = new Request();
+        $content = new Content(['is_active' => true, 'type' => 'category']);
+        $this->repositoryMock
+            ->shouldReceive('getByUrl')
+            ->andReturn($content)
+            ->once()
+            ->getMock();
+        $this->gateMock
+            ->shouldReceive('denies')
+            ->andReturn(true)
+            ->getMock();
+        $this->eventDispatcherMock
+            ->shouldReceive('fire')
+            ->never()
+            ->getMock();
+        $this->router->handleRequest('test-url', new Lang(), $request);
     }
 
 }
