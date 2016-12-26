@@ -74,4 +74,17 @@ class ContentPolicy {
         }
         return $user->hasPermission('content-delete');
     }
+
+    /**
+     * Policy for viewing single unpublished element
+     *
+     * @param User    $user    User trying to do it
+     * @param Content $content Content that we're trying to update
+     *
+     * @return boolean
+     */
+    public function viewUnpublished(User $user, Content $content)
+    {
+        return ($content->author->id === $user->id);
+    }
 }

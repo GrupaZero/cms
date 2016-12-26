@@ -3,7 +3,7 @@
 use Gzero\Core\Events\ContentRouteMatched;
 use Gzero\Entity\Content;
 use Gzero\Repository\ContentRepository;
-use Illuminate\Auth\Access\Gate;
+use Illuminate\Contracts\Auth\Access\Gate;
 use Illuminate\Events\Dispatcher;
 use Gzero\Entity\Lang;
 use Gzero\Core\Handler\Content\ContentTypeHandler;
@@ -113,6 +113,6 @@ class DynamicRouter {
      */
     protected function canBeShown(Content $content)
     {
-        return $content->canBeShown() || (!$content->canBeShown() && $this->gate->denies('XYZ', $content));
+        return $content->canBeShown() || (!$content->canBeShown() && $this->gate->allows('viewUnpublished', $content));
     }
 }
