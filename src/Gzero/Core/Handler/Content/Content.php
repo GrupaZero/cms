@@ -102,7 +102,7 @@ class Content implements ContentTypeHandler {
     public function render()
     {
         return View::make(
-            'content.content',
+            'contents.content',
             [
                 'content'      => $this->content,
                 'translations' => $this->translations,

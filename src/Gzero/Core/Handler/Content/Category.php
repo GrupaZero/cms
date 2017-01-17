@@ -57,7 +57,7 @@ class Category extends Content {
     public function render()
     {
         return View::make(
-            'content.category',
+            'contents.category',
             [
                 'content'      => $this->content,
                 'translations' => $this->translations,
