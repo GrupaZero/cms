@@ -16,8 +16,9 @@ class CreateBlock extends Migration {
         Schema::create(
             'block_types',
             function (Blueprint $table) {
-                $table->string('name')->index()->unique();
+                $table->string('name');
                 $table->boolean('is_active')->default(false);
+                $table->primary('name');
                 $table->timestamps();
             }
         );

@@ -16,8 +16,9 @@ class CreateContent extends Migration {
         Schema::create(
             'content_types',
             function (Blueprint $table) {
-                $table->string('name')->index()->unique();
+                $table->string('name');
                 $table->boolean('is_active')->default(false);
+                $table->primary('name');
                 $table->timestamps();
             }
         );

@@ -15,9 +15,10 @@ class CreateFilesTable extends Migration {
         Schema::create(
             'file_types',
             function (Blueprint $table) {
-                $table->string('name')->index()->unique();
+                $table->string('name');
                 $table->text('extensions')->nullable();
                 $table->boolean('is_active')->default(false);
+                $table->primary('name');
                 $table->timestamps();
             }
         );

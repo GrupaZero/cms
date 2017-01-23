@@ -16,10 +16,11 @@ class CreateLang extends Migration {
         Schema::create(
             'langs',
             function (Blueprint $table) {
-                $table->string('code', 2)->index();
+                $table->string('code', 2);
                 $table->string('i18n', 5);
                 $table->boolean('is_enabled')->default(false);
                 $table->boolean('is_default')->default(false);
+                $table->primary('code');
                 $table->timestamps();
             }
         );

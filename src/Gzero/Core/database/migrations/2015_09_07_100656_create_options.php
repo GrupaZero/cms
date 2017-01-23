@@ -17,7 +17,7 @@ class CreateOptions extends Migration {
         Schema::create(
             'option_categories',
             function (Blueprint $table) {
-                $table->string('key')->index();
+                $table->string('key');
                 $table->timestamps();
                 $table->primary('key');
             }
