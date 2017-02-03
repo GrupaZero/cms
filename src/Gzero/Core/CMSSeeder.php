@@ -499,7 +499,7 @@ class CMSSeeder extends Seeder {
             'created_by' => $user->id,
         ];
         // create file record in db
-        $file = File::firstOrCreate($input);
+        $file = File::create($input);
         // seed all languages translations
         foreach ($langs as $lang) {
             $translation = new FileTranslation();
@@ -519,16 +519,13 @@ class CMSSeeder extends Seeder {
      */
     private function truncate()
     {
-        DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-        $tables    = DB::select('SHOW TABLES');
-        $tableName = "Tables_in_" . config('database.connections.mysql.database');
+        $tables    = DB::select('SELECT tablename FROM pg_tables WHERE schemaname = \'public\'');
         foreach ($tables as $table) {
             // We don't want to truncate ACL tables too
-            if ($table->$tableName !== 'migrations' && !str_contains($table->$tableName, 'ACL')) {
-                DB::table($table->$tableName)->truncate();
+            if ($table->tablename !== 'migrations' && !str_contains($table->tablename, 'ACL')) {
+                DB::statement('TRUNCATE ' . $table->tablename . ' CASCADE;');
             }
         }
-        DB::statement('SET FOREIGN_KEY_CHECKS=1;');
     }
 
     /**

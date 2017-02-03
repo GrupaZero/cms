@@ -4,7 +4,7 @@ php:
   - 7.1
 
 addons:
-  mariadb: '10.1'
+  postgresql: '9.6'
 
 before_script:
   - cp .env.example .env.testing
@@ -13,7 +13,7 @@ before_script:
   - composer self-update
   - composer install --prefer-source --no-interaction
   - mv ~/xdebug.ini /home/travis/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini #enable xdebug
-  - mysql -e 'create database `gzero-tests`;'
+  - psql -c 'create database gzero-tests;' -U postgres
 
 script:
   - ./vendor/bin/phpmd src/ text phpmd.xml
