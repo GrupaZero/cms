@@ -4,7 +4,7 @@
 \Codeception\Configuration::$defaultSuiteSettings['modules']['config']['Db'] = [
     'dsn'      => 'pgsql:host=' . env('DB_HOST', 'localhost') .
         ';port=' . env('DB_PORT', 5432) .
-        ';dbname=' . env('DB_DATABASE', 'gzero_tests') .
+        ';dbname=' . env('DB_DATABASE', 'gzero_cms') .
         ';user=' . env('DB_USERNAME', 'postgres') .
         ';password=',
     'user'     => env('DB_USERNAME', 'postgres'),
