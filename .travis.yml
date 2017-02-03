@@ -7,7 +7,7 @@ addons:
   postgresql: "9.5"
 
 before_script:
-  - sudo psql -c 'create database gzero_tests;' -U postgres
+  - psql -c 'create database gzero_cms;' -U postgres
   - cp .env.example .env.testing
   - mkdir -p build/logs
   - mv /home/travis/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini ~/xdebug.ini #disable xdebug
