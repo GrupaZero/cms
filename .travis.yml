@@ -3,11 +3,8 @@ language: php
 php:
   - 7.1
 
-services:
-  - postgresql
-
 addons:
-  postgresql: "9.6"
+  postgresql: "9.5"
 
 before_script:
   - sudo psql -c 'create database gzero-tests;' -U postgres
