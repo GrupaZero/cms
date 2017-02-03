@@ -258,7 +258,7 @@ class UserRepository extends BaseRepository implements AuthenticatableContract {
         // search for duplicated url
         $count = $this->newQuery()
             ->table('users')
-            ->whereRaw("nick REGEXP '^$replacement($|-[0-9]+$)'")
+            ->whereRaw("nick ~ '^$replacement($|-[0-9]+$)'")
             ->count();
         return ($count) ? $replacement . '-' . $count : $replacement;
     }
