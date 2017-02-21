@@ -27,6 +27,8 @@ class Init {
      */
     public function handle($request, Closure $next)
     {
+        // Handle nginx reverse proxy
+        $request->setTrustedProxies([$request->getClientIp()]);
         if (str_contains($request->getRequestUri(), 'index.php')) {
             return new RedirectResponse(url(preg_replace('#index.php(/)?#', '', $request->fullUrl())), 301);
         }
