@@ -9,14 +9,14 @@ class MysqlRestore extends Command {
      *
      * @var string
      */
-    protected $name = 'db:restore';
+    protected $name = 'mysql:restore';
 
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'db:restore {dbName}';
+    protected $signature = 'mysql:restore {dbName}';
 
     /**
      * The console command description.

@@ -1,6 +1,7 @@
 <?php namespace Gzero\Core;
 
-use DaveJamesMiller\Breadcrumbs\Facade;
+use Bkwld\Croppa\ServiceProvider as CroppaServiceProvider;
+use DaveJamesMiller\Breadcrumbs\Facade as BreadcrumbsFacade;
 use DaveJamesMiller\Breadcrumbs\ServiceProvider as BreadcrumbServiceProvider;
 use Gzero\Core\Commands\MysqlDump;
 use Gzero\Core\Commands\MysqlRestore;
@@ -40,7 +41,8 @@ class ServiceProvider extends AbstractServiceProvider {
      */
     protected $providers = [
         PresenterServiceProvider::class,
-        BreadcrumbServiceProvider::class
+        BreadcrumbServiceProvider::class,
+        CroppaServiceProvider::class,
     ];
 
     /**
@@ -49,7 +51,7 @@ class ServiceProvider extends AbstractServiceProvider {
      * @var array
      */
     protected $aliases = [
-        'Breadcrumbs' => Facade::class,
+        'Breadcrumbs' => BreadcrumbsFacade::class,
         'options'     => OptionsService::class
     ];
 
@@ -126,7 +128,7 @@ class ServiceProvider extends AbstractServiceProvider {
     {
         $this->app->singleton(
             'user.menu',
-            function (Application $app) {
+            function () {
                 return new Register();
             }
         );
@@ -136,6 +138,13 @@ class ServiceProvider extends AbstractServiceProvider {
             'Gzero\Repository\LangRepository',
             function (Application $app) {
                 return new LangRepository($app->make('cache'));
+            }
+        );
+
+        $this->app->singleton(
+            'croppa.s3',
+            function () {
+                return app('filesystem')->disk('s3')->getDriver();
             }
         );
     }

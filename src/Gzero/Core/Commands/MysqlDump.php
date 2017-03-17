@@ -9,7 +9,7 @@ class MysqlDump extends Command {
      *
      * @var string
      */
-    protected $name = 'db:dump';
+    protected $name = 'mysql:dump';
 
     /**
      * The console command description.
