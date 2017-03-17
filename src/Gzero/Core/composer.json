@@ -15,7 +15,8 @@
         "illuminate/http": "5.3.*",
         "illuminate/routing": "5.3.*",
         "illuminate/support": "5.3.*",
-        "laravel/passport": "^1.0"
+        "laravel/passport": "^1.0",
+        "bkwld/croppa": "~4.0"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.6"
