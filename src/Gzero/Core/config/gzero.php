@@ -9,6 +9,10 @@ return [
         'alternative_desc'  => 'body',
         'desc_length'       => 160
     ],
+    'image' => [
+        'max_width'  => 1920,
+        'max_height' => 1080
+    ],
     'use_users_nicks'          => env('USE_USERS_NICKS', true),
     'multilang'                => [
         'enabled'   => env('MULTILANG_ENABLED', true),
