@@ -46,10 +46,10 @@ class FileRepository extends BaseRepository {
     /**
      * File repository constructor
      *
-     * @param File              $file     File model
-     * @param FileType          $fileType file type model
-     * @param Dispatcher        $events   Events dispatcher
-     * @param FilesystemManager $filesystem
+     * @param File              $file       File model
+     * @param FileType          $fileType   file type model
+     * @param Dispatcher        $events     Events dispatcher
+     * @param FilesystemManager $filesystem File system manager
      */
     public function __construct(File $file, FileType $fileType, Dispatcher $events, FilesystemManager $filesystem)
     {
@@ -98,7 +98,6 @@ class FileRepository extends BaseRepository {
 
                 $this->filesystem->putFileAs($file->getUploadPath(), $uploadedFile, $fileNameWithExtension);
                 return $this->getById($file->id);
-
             }
         );
 
@@ -114,8 +113,11 @@ class FileRepository extends BaseRepository {
      * @return EloquentCollection
      * @throws RepositoryValidationException
      */
-    public function attachContentFiles(Content $content, array $filesIds)
+    public function attachToContent(Content $content, array $filesIds)
     {
+        // @TODO Handle single file too
+        // @TODO Add info about passing additional arguments to pivot table
+        // @TODO Add syncWith
         if (empty($filesIds)) {
             throw new RepositoryValidationException('You must provide the files in order to add them to the content');
         }
@@ -144,7 +146,7 @@ class FileRepository extends BaseRepository {
      * @return EloquentCollection
      * @throws RepositoryValidationException
      */
-    public function attachBlockFiles(Block $block, array $filesIds)
+    public function attachToBlock(Block $block, array $filesIds)
     {
         if (empty($filesIds)) {
             throw new RepositoryValidationException('You must provide the files in order to add them to the block');
@@ -183,7 +185,7 @@ class FileRepository extends BaseRepository {
         $translation = $this->newQuery()->transaction(
             function () use ($file, $data) {
                 // Remove any existing translation in this language
-                $existingTranslation = $this->getFileTranslationByLangCode($file, $data['lang_code']);
+                $existingTranslation = $this->getTranslationByLangCode($file, $data['lang_code']);
                 if ($existingTranslation) {
                     $existingTranslation->delete();
                 }
@@ -192,7 +194,7 @@ class FileRepository extends BaseRepository {
                 $this->events->fire('file.translation.creating', [$file, $translation]);
                 $file->translations()->save($translation);
                 $this->events->fire('file.translation.created', [$file, $translation]);
-                return $this->getFileTranslationById($file, $translation->id);
+                return $this->getTranslationById($file, $translation->id);
             }
         );
         return $translation;
@@ -226,29 +228,25 @@ class FileRepository extends BaseRepository {
      * Updates file of specified content entity
      *
      * @param Content $content    Content entity
-     * @param integer $fileId     file id to update
+     * @param File    $file       file to update relation
      * @param array   $attributes files attributes to update
      *
      * @return File
      * @throws RepositoryValidationException
      */
-    public function updateContentFile(Content $content, $fileId, array $attributes)
+    public function updateContentFile(Content $content, File $file, array $attributes)
     {
-        if (!$fileId) {
-            throw new RepositoryValidationException('You must provide the file in order to update it');
-        }
-
         // New content query
-        $file = $this->newQuery()->transaction(
-            function () use ($content, $fileId, $attributes) {
-                $this->events->fire('content.files.updating', [$content, $fileId, $attributes]);
-                $content->files()->updateExistingPivot($fileId, $attributes);
-                $this->events->fire('content.files.updated', [$content, $fileId, $attributes]);
-                return $this->getById($fileId);
+        $result = $this->newQuery()->transaction(
+            function () use ($content, $file, $attributes) {
+                $this->events->fire('content.files.updating', [$content, $file, $attributes]);
+                $result = $content->files()->updateExistingPivot($file->id, $attributes);
+                $this->events->fire('content.files.updated', [$content, $file, $attributes]);
+                return $result;
             }
         );
 
-        return $file;
+        return $result;
     }
 
     /**
@@ -314,7 +312,7 @@ class FileRepository extends BaseRepository {
      * @return EloquentCollection
      * @throws RepositoryValidationException
      */
-    public function detachContentFiles(Content $content, array $filesIds)
+    public function detachFromContent(Content $content, array $filesIds)
     {
         if (empty($filesIds)) {
             throw new RepositoryValidationException(
@@ -352,7 +350,7 @@ class FileRepository extends BaseRepository {
      * @return EloquentCollection
      * @throws RepositoryValidationException
      */
-    public function detachBlockFiles(Block $block, array $filesIds)
+    public function detachFromBlock(Block $block, array $filesIds)
     {
         if (empty($filesIds)) {
             throw new RepositoryValidationException(
@@ -398,7 +396,7 @@ class FileRepository extends BaseRepository {
      *
      * @return FileTranslation
      */
-    public function getFileTranslationById(File $file, $id)
+    public function getTranslationById(File $file, $id)
     {
         return $file->translations()->where('id', '=', $id)->first();
     }
@@ -411,7 +409,7 @@ class FileRepository extends BaseRepository {
      *
      * @return FileTranslation
      */
-    public function getFileTranslationByLangCode(File $file, $langCode)
+    public function getTranslationByLangCode(File $file, $langCode)
     {
         return $file->translations()->where('lang_code', '=', $langCode)->first();
     }
