@@ -2,14 +2,10 @@
 
 use Gzero\Entity\Block;
 use Gzero\Entity\User;
-use Gzero\Entity\File;
-use Gzero\Entity\FileType;
 use Gzero\Repository\BlockRepository;
-use Gzero\Repository\FileRepository;
 use Illuminate\Cache\CacheManager;
 use Illuminate\Events\Dispatcher;
 use Gzero\Core\BlockFinder;
-use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 
@@ -46,11 +42,6 @@ class BlockRepositoryTest extends \TestCase {
     protected $finder;
 
     /**
-     * @var FileRepository
-     */
-    protected $fileRepository;
-
-    /**
      * files directory
      */
     protected $filesDir;
@@ -59,8 +50,7 @@ class BlockRepositoryTest extends \TestCase {
     {
         // Start the Laravel application
         $this->startApplication();
-        $this->fileRepository = new FileRepository(new File(), new FileType(), new Dispatcher());
-        $this->repository     = new BlockRepository(new Block(), new Dispatcher(), $this->fileRepository);
+        $this->repository     = new BlockRepository(new Block(), new Dispatcher());
         $this->finder         = new BlockFinder($this->repository, new CacheManager($this->app));
         $this->filesDir       = __DIR__ . '/../../resources';
         $this->seed('TestSeeder'); // Relative to tests/app/
@@ -68,10 +58,6 @@ class BlockRepositoryTest extends \TestCase {
 
     public function _after()
     {
-        $dirName = config('gzero.upload.directory');
-        if ($dirName) {
-            Storage::deleteDirectory($dirName);
-        }
         // Stop the Laravel application
         $this->stopApplication();
     }
@@ -805,354 +791,354 @@ class BlockRepositoryTest extends \TestCase {
      * @expectedException \Gzero\Repository\RepositoryValidationException
      * @expectedExceptionMessage File (id: 1) does not exist
      */
-    public function it_checks_existence_of_files_to_add()
-    {
-        // Create new block with first translation
-        $block = $this->repository->create(
-            [
-                'type'         => 'basic',
-                'weight'       => 0,
-                'is_active'    => 1,
-                'region'       => 'header',
-                'filter'       => ['+' => ['1/*']],
-                'translations' => [
-                    'lang_code' => 'en',
-                    'title'     => 'First block title'
-                ]
-            ]
-        );
-
-        $this->repository->addFiles($block, [1]);
-    }
+    //public function it_checks_existence_of_files_to_add()
+    //{
+    //    // Create new block with first translation
+    //    $block = $this->repository->create(
+    //        [
+    //            'type'         => 'basic',
+    //            'weight'       => 0,
+    //            'is_active'    => 1,
+    //            'region'       => 'header',
+    //            'filter'       => ['+' => ['1/*']],
+    //            'translations' => [
+    //                'lang_code' => 'en',
+    //                'title'     => 'First block title'
+    //            ]
+    //        ]
+    //    );
+    //
+    //    $this->repository->addFiles($block, [1]);
+    //}
 
     /**
      * @test
      * @expectedException \Gzero\Repository\RepositoryValidationException
      * @expectedExceptionMessage You must provide the files in order to add them to the block
      */
-    public function it_checks_for_empty_array_of_files_to_add()
-    {
-        // Create new block with first translation
-        $block = $this->repository->create(
-            [
-                'type'         => 'basic',
-                'weight'       => 0,
-                'is_active'    => 1,
-                'region'       => 'header',
-                'filter'       => ['+' => ['1/*']],
-                'translations' => [
-                    'lang_code' => 'en',
-                    'title'     => 'First block title'
-                ]
-            ]
-        );
-
-        $this->repository->addFiles($block, []);
-    }
-
-    /**
-     * @test
-     */
-    public function can_get_single_block_file()
-    {
-        // Create new block with first translation
-        $block = $this->repository->create(
-            [
-                'type'         => 'basic',
-                'weight'       => 0,
-                'is_active'    => 1,
-                'region'       => 'header',
-                'filter'       => ['+' => ['1/*']],
-                'translations' => [
-                    'lang_code' => 'en',
-                    'title'     => 'First block title'
-                ]
-            ]
-        );
-
-        // Create files
-        $uploadedFile = $this->getExampleImage();
-        $author       = User::find(1);
-        $file         = $this->fileRepository->create(
-            [
-                'type'         => 'image',
-                'is_active'    => true,
-                'info'         => ['key' => 'value'],
-                'translations' => [
-                    'lang_code'   => 'en',
-                    'title'       => 'Example file title',
-                    'description' => 'Example file description'
-                ]
-            ],
-            $uploadedFile,
-            $author
-        );
-
-        // Assign files
-        $this->repository->addFiles($block, [$file->id]);
-        $relatedFile = $this->repository->getBlockFileById($block, $file->id);
-
-        $this->assertNotEmpty($relatedFile);
-        $this->assertEquals($file->id, $relatedFile->id);
-        $this->assertEquals($file->name, $relatedFile->name);
-        $this->assertEquals($file->type, $relatedFile->type);
-        $this->assertEquals($file->is_active, $relatedFile->is_active);
-        $this->assertEquals($file->extension, $relatedFile->extension);
-        $this->assertEquals($file->mime_type, $relatedFile->mime_type);
-        $this->assertEquals($file->info, $relatedFile->info);
-        $this->assertEquals($file->translations[0]->lang_code, $relatedFile->translations[0]->lang_code);
-        $this->assertEquals($file->translations[0]->title, $relatedFile->translations[0]->title);
-        $this->assertEquals($file->translations[0]->description, $relatedFile->translations[0]->description);
-    }
+    //public function it_checks_for_empty_array_of_files_to_add()
+    //{
+    //    // Create new block with first translation
+    //    $block = $this->repository->create(
+    //        [
+    //            'type'         => 'basic',
+    //            'weight'       => 0,
+    //            'is_active'    => 1,
+    //            'region'       => 'header',
+    //            'filter'       => ['+' => ['1/*']],
+    //            'translations' => [
+    //                'lang_code' => 'en',
+    //                'title'     => 'First block title'
+    //            ]
+    //        ]
+    //    );
+    //
+    //    $this->repository->addFiles($block, []);
+    //}
 
     /**
      * @test
      */
-    public function can_add_block_files()
-    {
-        $fileIds = [];
+    //public function can_get_single_block_file()
+    //{
+    //    // Create new block with first translation
+    //    $block = $this->repository->create(
+    //        [
+    //            'type'         => 'basic',
+    //            'weight'       => 0,
+    //            'is_active'    => 1,
+    //            'region'       => 'header',
+    //            'filter'       => ['+' => ['1/*']],
+    //            'translations' => [
+    //                'lang_code' => 'en',
+    //                'title'     => 'First block title'
+    //            ]
+    //        ]
+    //    );
+    //
+    //    // Create files
+    //    $uploadedFile = $this->getExampleImage();
+    //    $author       = User::find(1);
+    //    $file         = $this->fileRepository->create(
+    //        [
+    //            'type'         => 'image',
+    //            'is_active'    => true,
+    //            'info'         => ['key' => 'value'],
+    //            'translations' => [
+    //                'lang_code'   => 'en',
+    //                'title'       => 'Example file title',
+    //                'description' => 'Example file description'
+    //            ]
+    //        ],
+    //        $uploadedFile,
+    //        $author
+    //    );
+    //
+    //    // Assign files
+    //    $this->repository->addFiles($block, [$file->id]);
+    //    $relatedFile = $this->repository->getBlockFileById($block, $file->id);
+    //
+    //    $this->assertNotEmpty($relatedFile);
+    //    $this->assertEquals($file->id, $relatedFile->id);
+    //    $this->assertEquals($file->name, $relatedFile->name);
+    //    $this->assertEquals($file->type, $relatedFile->type);
+    //    $this->assertEquals($file->is_active, $relatedFile->is_active);
+    //    $this->assertEquals($file->extension, $relatedFile->extension);
+    //    $this->assertEquals($file->mime_type, $relatedFile->mime_type);
+    //    $this->assertEquals($file->info, $relatedFile->info);
+    //    $this->assertEquals($file->translations[0]->lang_code, $relatedFile->translations[0]->lang_code);
+    //    $this->assertEquals($file->translations[0]->title, $relatedFile->translations[0]->title);
+    //    $this->assertEquals($file->translations[0]->description, $relatedFile->translations[0]->description);
+    //}
 
-        // Create new block with first translation
-        $block = $this->repository->create(
-            [
-                'type'         => 'basic',
-                'weight'       => 0,
-                'is_active'    => 1,
-                'region'       => 'header',
-                'filter'       => ['+' => ['1/*']],
-                'translations' => [
-                    'lang_code' => 'en',
-                    'title'     => 'First block title'
-                ]
-            ]
-        );
-
-        // Create files
-        $uploadedFile = $this->getExampleImage();
-        $author       = User::find(1);
-        for ($i = 0; $i < 3; $i++) {
-            $file = $this->fileRepository->create(
-                [
-                    'type'         => 'image',
-                    'is_active'    => true,
-                    'info'         => ['key' => 'value'],
-                    'translations' => [
-                        'lang_code'   => 'en',
-                        'title'       => 'Example file title',
-                        'description' => 'Example file description'
-                    ]
-                ],
-                $uploadedFile,
-                $author
-            );
-
-            $fileIds[] = $file->id;
-        }
-
-        // Assign files
-        $this->repository->addFiles($block, $fileIds);
-        $files = $block->files()->get();
-
-        $this->assertNotEmpty($files);
-        $this->assertEquals('example', $files[0]->name);
-        $this->assertEquals('example-1', $files[1]->name);
-        $this->assertEquals('example-2', $files[2]->name);
-
-        foreach ($files as $index => $file) {
-            $this->assertEquals($fileIds[$index], $file->id);
-            $this->assertEquals('image', $file->type);
-            $this->assertEquals(true, $file->is_active);
-            $this->assertEquals('png', $file->extension);
-            $this->assertEquals('image/png', $file->mime_type);
-            $this->assertEquals(['key' => 'value'], $file->info);
-            $this->assertEquals('en', $file->translations[0]->lang_code);
-            $this->assertEquals('Example file title', $file->translations[0]->title);
-            $this->assertEquals('Example file description', $file->translations[0]->description);
-        }
-    }
+    /**
+     * @test
+     */
+    //public function can_add_block_files()
+    //{
+    //    $fileIds = [];
+    //
+    //    // Create new block with first translation
+    //    $block = $this->repository->create(
+    //        [
+    //            'type'         => 'basic',
+    //            'weight'       => 0,
+    //            'is_active'    => 1,
+    //            'region'       => 'header',
+    //            'filter'       => ['+' => ['1/*']],
+    //            'translations' => [
+    //                'lang_code' => 'en',
+    //                'title'     => 'First block title'
+    //            ]
+    //        ]
+    //    );
+    //
+    //    // Create files
+    //    $uploadedFile = $this->getExampleImage();
+    //    $author       = User::find(1);
+    //    for ($i = 0; $i < 3; $i++) {
+    //        $file = $this->fileRepository->create(
+    //            [
+    //                'type'         => 'image',
+    //                'is_active'    => true,
+    //                'info'         => ['key' => 'value'],
+    //                'translations' => [
+    //                    'lang_code'   => 'en',
+    //                    'title'       => 'Example file title',
+    //                    'description' => 'Example file description'
+    //                ]
+    //            ],
+    //            $uploadedFile,
+    //            $author
+    //        );
+    //
+    //        $fileIds[] = $file->id;
+    //    }
+    //
+    //    // Assign files
+    //    $this->repository->addFiles($block, $fileIds);
+    //    $files = $block->files()->get();
+    //
+    //    $this->assertNotEmpty($files);
+    //    $this->assertEquals('example', $files[0]->name);
+    //    $this->assertEquals('example-1', $files[1]->name);
+    //    $this->assertEquals('example-2', $files[2]->name);
+    //
+    //    foreach ($files as $index => $file) {
+    //        $this->assertEquals($fileIds[$index], $file->id);
+    //        $this->assertEquals('image', $file->type);
+    //        $this->assertEquals(true, $file->is_active);
+    //        $this->assertEquals('png', $file->extension);
+    //        $this->assertEquals('image/png', $file->mime_type);
+    //        $this->assertEquals(['key' => 'value'], $file->info);
+    //        $this->assertEquals('en', $file->translations[0]->lang_code);
+    //        $this->assertEquals('Example file title', $file->translations[0]->title);
+    //        $this->assertEquals('Example file description', $file->translations[0]->description);
+    //    }
+    //}
 
 
     /**
      * @test
      */
-    public function can_sort_block_files_list()
-    {
-        $fileIds = [];
-
-        // Create new block with first translation
-        $block = $this->repository->create(
-            [
-                'type'         => 'basic',
-                'weight'       => 0,
-                'is_active'    => 1,
-                'region'       => 'header',
-                'filter'       => ['+' => ['1/*']],
-                'translations' => [
-                    'lang_code' => 'en',
-                    'title'     => 'First block title'
-                ]
-            ]
-        );
-
-        // Create files
-        $uploadedFile = $this->getExampleImage();
-        $author       = User::find(1);
-        for ($i = 0; $i < 3; $i++) {
-            $file = $this->fileRepository->create(
-                [
-                    'type'         => 'image',
-                    'is_active'    => true,
-                    'info'         => ['key' => 'value'],
-                    'translations' => [
-                        'lang_code'   => 'en',
-                        'title'       => 'Example file title ' . $i,
-                        'description' => 'Example file description'
-                    ]
-                ],
-                $uploadedFile,
-                $author
-            );
-
-            $fileIds[] = $file->id;
-        }
-
-        // Assign files
-        $this->repository->addFiles($block, $fileIds);
-        $files = $this->repository->getFiles(
-            $block,
-            [['translations.lang', '=', 'en']],
-            [['translations.title', 'ASC']]
-        );
-
-        $this->assertNotEmpty($files);
-        $this->assertEquals('example', $files[0]->name);
-        $this->assertEquals('Example file title 0', $files[0]->translations[0]->title);
-        $this->assertEquals('example-1', $files[1]->name);
-        $this->assertEquals('Example file title 1', $files[1]->translations[0]->title);
-        $this->assertEquals('example-2', $files[2]->name);
-        $this->assertEquals('Example file title 2', $files[2]->translations[0]->title);
-    }
+    //public function can_sort_block_files_list()
+    //{
+    //    $fileIds = [];
+    //
+    //    // Create new block with first translation
+    //    $block = $this->repository->create(
+    //        [
+    //            'type'         => 'basic',
+    //            'weight'       => 0,
+    //            'is_active'    => 1,
+    //            'region'       => 'header',
+    //            'filter'       => ['+' => ['1/*']],
+    //            'translations' => [
+    //                'lang_code' => 'en',
+    //                'title'     => 'First block title'
+    //            ]
+    //        ]
+    //    );
+    //
+    //    // Create files
+    //    $uploadedFile = $this->getExampleImage();
+    //    $author       = User::find(1);
+    //    for ($i = 0; $i < 3; $i++) {
+    //        $file = $this->fileRepository->create(
+    //            [
+    //                'type'         => 'image',
+    //                'is_active'    => true,
+    //                'info'         => ['key' => 'value'],
+    //                'translations' => [
+    //                    'lang_code'   => 'en',
+    //                    'title'       => 'Example file title ' . $i,
+    //                    'description' => 'Example file description'
+    //                ]
+    //            ],
+    //            $uploadedFile,
+    //            $author
+    //        );
+    //
+    //        $fileIds[] = $file->id;
+    //    }
+    //
+    //    // Assign files
+    //    $this->repository->addFiles($block, $fileIds);
+    //    $files = $this->repository->getFiles(
+    //        $block,
+    //        [['translations.lang', '=', 'en']],
+    //        [['translations.title', 'ASC']]
+    //    );
+    //
+    //    $this->assertNotEmpty($files);
+    //    $this->assertEquals('example', $files[0]->name);
+    //    $this->assertEquals('Example file title 0', $files[0]->translations[0]->title);
+    //    $this->assertEquals('example-1', $files[1]->name);
+    //    $this->assertEquals('Example file title 1', $files[1]->translations[0]->title);
+    //    $this->assertEquals('example-2', $files[2]->name);
+    //    $this->assertEquals('Example file title 2', $files[2]->translations[0]->title);
+    //}
 
     /**
      * @test
      */
-    public function can_filter_block_files_list()
-    {
-
-        // Create new block with first translation
-        $block = $this->repository->create(
-            [
-                'type'         => 'basic',
-                'weight'       => 0,
-                'is_active'    => 1,
-                'region'       => 'header',
-                'filter'       => ['+' => ['1/*']],
-                'translations' => [
-                    'lang_code' => 'en',
-                    'title'     => 'First block title'
-                ]
-            ]
-        );
-
-        // Create files
-        $uploadedFile = $this->getExampleImage();
-        $author       = User::find(1);
-        $file         = $this->fileRepository->create(
-            [
-                'type'         => 'image',
-                'is_active'    => false,
-                'info'         => ['key' => 'value'],
-                'translations' => [
-                    'lang_code'   => 'en',
-                    'title'       => 'Example file title',
-                    'description' => 'Example file description'
-                ]
-            ],
-            $uploadedFile,
-            $author
-        );
-
-        // Assign files
-        $this->repository->addFiles($block, [$file->id]);
-        $files = $this->repository->getFiles(
-            $block,
-            [['is_active', '=', true]],
-            []
-        );
-
-        $this->assertEmpty($files);
-    }
+    //public function can_filter_block_files_list()
+    //{
+    //
+    //    // Create new block with first translation
+    //    $block = $this->repository->create(
+    //        [
+    //            'type'         => 'basic',
+    //            'weight'       => 0,
+    //            'is_active'    => 1,
+    //            'region'       => 'header',
+    //            'filter'       => ['+' => ['1/*']],
+    //            'translations' => [
+    //                'lang_code' => 'en',
+    //                'title'     => 'First block title'
+    //            ]
+    //        ]
+    //    );
+    //
+    //    // Create files
+    //    $uploadedFile = $this->getExampleImage();
+    //    $author       = User::find(1);
+    //    $file         = $this->fileRepository->create(
+    //        [
+    //            'type'         => 'image',
+    //            'is_active'    => false,
+    //            'info'         => ['key' => 'value'],
+    //            'translations' => [
+    //                'lang_code'   => 'en',
+    //                'title'       => 'Example file title',
+    //                'description' => 'Example file description'
+    //            ]
+    //        ],
+    //        $uploadedFile,
+    //        $author
+    //    );
+    //
+    //    // Assign files
+    //    $this->repository->addFiles($block, [$file->id]);
+    //    $files = $this->repository->getFiles(
+    //        $block,
+    //        [['is_active', '=', true]],
+    //        []
+    //    );
+    //
+    //    $this->assertEmpty($files);
+    //}
 
     /**
      * @test
      * @expectedException \Gzero\Repository\RepositoryValidationException
      * @expectedExceptionMessage You must provide the file in order to update it
      */
-    public function it_checks_for_empty_file_id_to_update()
-    {
-        // Create new block with first translation
-        $block = $this->repository->create(
-            [
-                'type'         => 'basic',
-                'weight'       => 0,
-                'is_active'    => 1,
-                'region'       => 'header',
-                'filter'       => ['+' => ['1/*']],
-                'translations' => [
-                    'lang_code' => 'en',
-                    'title'     => 'First block title'
-                ]
-            ]
-        );
-
-        $this->repository->updateFile($block, null, []);
-    }
+    //public function it_checks_for_empty_file_id_to_update()
+    //{
+    //    // Create new block with first translation
+    //    $block = $this->repository->create(
+    //        [
+    //            'type'         => 'basic',
+    //            'weight'       => 0,
+    //            'is_active'    => 1,
+    //            'region'       => 'header',
+    //            'filter'       => ['+' => ['1/*']],
+    //            'translations' => [
+    //                'lang_code' => 'en',
+    //                'title'     => 'First block title'
+    //            ]
+    //        ]
+    //    );
+    //
+    //    $this->repository->updateFile($block, null, []);
+    //}
 
     /**
      * @test
      */
-    public function can_update_block_file()
-    {
-        // Create new block with first translation
-        $block = $this->repository->create(
-            [
-                'type'         => 'basic',
-                'weight'       => 0,
-                'is_active'    => 1,
-                'region'       => 'header',
-                'filter'       => ['+' => ['1/*']],
-                'translations' => [
-                    'lang_code' => 'en',
-                    'title'     => 'First block title'
-                ]
-            ]
-        );
-
-        // Create files
-        $uploadedFile = $this->getExampleImage();
-        $author       = User::find(1);
-        $file         = $this->fileRepository->create(
-            [
-                'type'         => 'image',
-                'is_active'    => true,
-                'info'         => ['key' => 'value'],
-                'translations' => [
-                    'lang_code'   => 'en',
-                    'title'       => 'Example file title',
-                    'description' => 'Example file description'
-                ]
-            ],
-            $uploadedFile,
-            $author
-        );
-
-        $this->repository->addFiles($block, [$file->id]);
-        $this->repository->updateFile($block, $file->id, ['weight' => 2]);
-        $files = $this->repository->getFiles($block, [], []);
-
-        $this->assertNotEmpty($files);
-        $this->assertEquals(2, $files[0]->pivot->weight);
-    }
+    //public function can_update_block_file()
+    //{
+    //    // Create new block with first translation
+    //    $block = $this->repository->create(
+    //        [
+    //            'type'         => 'basic',
+    //            'weight'       => 0,
+    //            'is_active'    => 1,
+    //            'region'       => 'header',
+    //            'filter'       => ['+' => ['1/*']],
+    //            'translations' => [
+    //                'lang_code' => 'en',
+    //                'title'     => 'First block title'
+    //            ]
+    //        ]
+    //    );
+    //
+    //    // Create files
+    //    $uploadedFile = $this->getExampleImage();
+    //    $author       = User::find(1);
+    //    $file         = $this->fileRepository->create(
+    //        [
+    //            'type'         => 'image',
+    //            'is_active'    => true,
+    //            'info'         => ['key' => 'value'],
+    //            'translations' => [
+    //                'lang_code'   => 'en',
+    //                'title'       => 'Example file title',
+    //                'description' => 'Example file description'
+    //            ]
+    //        ],
+    //        $uploadedFile,
+    //        $author
+    //    );
+    //
+    //    $this->repository->addFiles($block, [$file->id]);
+    //    $this->repository->updateFile($block, $file->id, ['weight' => 2]);
+    //    $files = $this->repository->getFiles($block, [], []);
+    //
+    //    $this->assertNotEmpty($files);
+    //    $this->assertEquals(2, $files[0]->pivot->weight);
+    //}
 
 
     /**
@@ -1160,85 +1146,79 @@ class BlockRepositoryTest extends \TestCase {
      * @expectedException \Gzero\Repository\RepositoryValidationException
      * @expectedExceptionMessage You must provide the files in order to remove them from the block
      */
-    public function it_checks_for_empty_array_of_files_to_remove()
-    {
-        // Create new block with first translation
-        $block = $this->repository->create(
-            [
-                'type'         => 'basic',
-                'weight'       => 0,
-                'is_active'    => 1,
-                'region'       => 'header',
-                'filter'       => ['+' => ['1/*']],
-                'translations' => [
-                    'lang_code' => 'en',
-                    'title'     => 'First block title'
-                ]
-            ]
-        );
-
-        $this->repository->removeFiles($block, []);
-    }
+    //public function it_checks_for_empty_array_of_files_to_remove()
+    //{
+    //    // Create new block with first translation
+    //    $block = $this->repository->create(
+    //        [
+    //            'type'         => 'basic',
+    //            'weight'       => 0,
+    //            'is_active'    => 1,
+    //            'region'       => 'header',
+    //            'filter'       => ['+' => ['1/*']],
+    //            'translations' => [
+    //                'lang_code' => 'en',
+    //                'title'     => 'First block title'
+    //            ]
+    //        ]
+    //    );
+    //
+    //    $this->repository->removeFiles($block, []);
+    //}
 
     /**
      * @test
      */
-    public function can_remove_block_files()
-    {
-        $fileIds = [];
-
-        // Create new block with first translation
-        $block = $this->repository->create(
-            [
-                'type'         => 'basic',
-                'weight'       => 0,
-                'is_active'    => 1,
-                'region'       => 'header',
-                'filter'       => ['+' => ['1/*']],
-                'translations' => [
-                    'lang_code' => 'en',
-                    'title'     => 'First block title'
-                ]
-            ]
-        );
-        // Create files
-        $uploadedFile = $this->getExampleImage();
-        $author       = User::find(1);
-        for ($i = 0; $i < 3; $i++) {
-            $file = $this->fileRepository->create(
-                [
-                    'type'         => 'image',
-                    'is_active'    => true,
-                    'info'         => ['key' => 'value'],
-                    'translations' => [
-                        'lang_code'   => 'en',
-                        'title'       => 'Example file title',
-                        'description' => 'Example file description'
-                    ]
-                ],
-                $uploadedFile,
-                $author
-            );
-
-            $fileIds[] = $file->id;
-        }
-
-        $this->repository->addFiles($block, $fileIds);
-        $this->repository->removeFiles($block, $fileIds);
-        $files = $block->files()->get();
-
-        $this->assertEmpty($files);
-    }
+    //public function can_remove_block_files()
+    //{
+    //    $fileIds = [];
+    //
+    //    // Create new block with first translation
+    //    $block = $this->repository->create(
+    //        [
+    //            'type'         => 'basic',
+    //            'weight'       => 0,
+    //            'is_active'    => 1,
+    //            'region'       => 'header',
+    //            'filter'       => ['+' => ['1/*']],
+    //            'translations' => [
+    //                'lang_code' => 'en',
+    //                'title'     => 'First block title'
+    //            ]
+    //        ]
+    //    );
+    //    // Create files
+    //    $uploadedFile = $this->getExampleImage();
+    //    $author       = User::find(1);
+    //    for ($i = 0; $i < 3; $i++) {
+    //        $file = $this->fileRepository->create(
+    //            [
+    //                'type'         => 'image',
+    //                'is_active'    => true,
+    //                'info'         => ['key' => 'value'],
+    //                'translations' => [
+    //                    'lang_code'   => 'en',
+    //                    'title'       => 'Example file title',
+    //                    'description' => 'Example file description'
+    //                ]
+    //            ],
+    //            $uploadedFile,
+    //            $author
+    //        );
+    //
+    //        $fileIds[] = $file->id;
+    //    }
+    //
+    //    $this->repository->addFiles($block, $fileIds);
+    //    $this->repository->removeFiles($block, $fileIds);
+    //    $files = $block->files()->get();
+    //
+    //    $this->assertEmpty($files);
+    //}
 
     /*
     |--------------------------------------------------------------------------
     | END Files tests
     |--------------------------------------------------------------------------
     */
-
-    private function getExampleImage()
-    {
-        return new UploadedFile($this->filesDir . '/example.png', 'example.png', 'image/jpeg', null, null, true);
-    }
-
 }

@@ -2,7 +2,6 @@
 
 use Gzero\Entity\Block;
 use Gzero\Entity\BlockTranslation;
-use Gzero\Entity\File;
 use Gzero\Entity\User;
 use Gzero\Entity\Widget;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
@@ -37,24 +36,15 @@ class BlockRepository extends BaseRepository {
     protected $events;
 
     /**
-     * File repository
-     *
-     * @var FileRepository
-     */
-    protected $fileRepository;
-
-    /**
      * Block repository constructor
      *
      * @param Block          $block          Block model
      * @param Dispatcher     $events         Events dispatcher
-     * @param FileRepository $fileRepository File repository
      */
-    public function __construct(Block $block, Dispatcher $events, FileRepository $fileRepository)
+    public function __construct(Block $block, Dispatcher $events)
     {
         $this->model          = $block;
         $this->events         = $events;
-        $this->fileRepository = $fileRepository;
     }
 
     /**
@@ -128,36 +118,6 @@ class BlockRepository extends BaseRepository {
     }
 
     /**
-     * Attaches selected files to specified block entity in database
-     *
-     * @param Block $block    Block entity
-     * @param array $filesIds files id's to attach
-     *
-     * @return Block
-     * @throws RepositoryValidationException
-     */
-    public function addFiles(Block $block, array $filesIds)
-    {
-        if (empty($filesIds)) {
-            throw new RepositoryValidationException('You must provide the files in order to add them to the block');
-        }
-
-        $this->checkIfFilesExists($filesIds);
-
-        // New block query
-        $block = $this->newQuery()->transaction(
-            function () use ($block, $filesIds) {
-                $this->events->fire('block.files.adding', [$block, $filesIds]);
-                $block->files()->sync($filesIds, false);
-                $this->events->fire('block.files.added', [$block, $filesIds]);
-                return $block;
-            }
-        );
-
-        return $this->getFiles($block);
-    }
-
-    /**
      * Update specific block entity
      *
      * @param Block     $block    Block entity
@@ -179,35 +139,6 @@ class BlockRepository extends BaseRepository {
                 return $this->getById($block->id);
             }
         );
-        return $block;
-    }
-
-    /**
-     * Updates file of specified block entity
-     *
-     * @param Block   $block      Block entity
-     * @param integer $fileId     file id to update
-     * @param array   $attributes files attributes to update
-     *
-     * @return Block
-     * @throws RepositoryValidationException
-     */
-    public function updateFile(Block $block, $fileId, array $attributes)
-    {
-        if (!$fileId) {
-            throw new RepositoryValidationException('You must provide the file in order to update it');
-        }
-
-        // New block query
-        $block = $this->newQuery()->transaction(
-            function () use ($block, $fileId, $attributes) {
-                $this->events->fire('block.files.updating', [$block, $fileId, $attributes]);
-                $block->files()->updateExistingPivot($fileId, $attributes);
-                $this->events->fire('block.files.updated', [$block, $fileId, $attributes]);
-                return $this->getBlockFileById($block, $fileId);
-            }
-        );
-
         return $block;
     }
 
@@ -274,35 +205,6 @@ class BlockRepository extends BaseRepository {
     }
 
     /**
-     * Detaches selected files from specified block entity in database
-     *
-     * @param Block $block    Block entity
-     * @param array $filesIds files id's to detach
-     *
-     * @return Block
-     * @throws RepositoryValidationException
-     */
-    public function removeFiles(Block $block, array $filesIds)
-    {
-        if (empty($filesIds)) {
-            throw new RepositoryValidationException(
-                'You must provide the files in order to remove them from the block'
-            );
-        }
-
-        // New block query
-        $block = $this->newQuery()->transaction(
-            function () use ($block, $filesIds) {
-                $this->events->fire('block.files.removing', [$block, $filesIds]);
-                $block->files()->detach($filesIds);
-                $this->events->fire('block.files.removed', [$block, $filesIds]);
-                return $block;
-            }
-        );
-        return $this->getFiles($block);
-    }
-
-    /**
      * Get translation of specified block by id.
      *
      * @param Block $block Block entity
@@ -313,54 +215,6 @@ class BlockRepository extends BaseRepository {
     public function getBlockTranslationById(Block $block, $id)
     {
         return $block->translations(false)->where('id', '=', $id)->first();
-    }
-
-    /**
-     * Get block file by id.
-     *
-     * @param Block $block Block entity
-     * @param int   $id    Block File id
-     *
-     * @return File
-     */
-    public function getBlockFileById(Block $block, $id)
-    {
-        return $block->files(false)->where('id', '=', $id)->withPivot('weight')->first();
-    }
-
-    /**
-     * Get all files to specific block
-     *
-     * @param Block    $block    Block block
-     * @param array    $criteria Filter criteria
-     * @param array    $orderBy  Array of columns
-     * @param int|null $page     Page number (if null == disabled pagination)
-     * @param int|null $pageSize Limit results
-     *
-     * @throws RepositoryException
-     * @return EloquentCollection
-     */
-    public function getFiles(
-        Block $block,
-        array $criteria = [],
-        array $orderBy = [],
-        $page = 1,
-        $pageSize = self::ITEMS_PER_PAGE
-    ) {
-        $query  = $block->files(false);
-        $parsed = $this->parseArgs($criteria, $orderBy);
-        $this->fileRepository->handleTranslationsJoin($parsed['filter'], $parsed['orderBy'], $query);
-        $this->handleFilterCriteria($this->getFilesTableName(), $query, $parsed['filter']);
-        $this->handleOrderBy(
-            $this->getFilesTableName(),
-            $parsed['orderBy'],
-            $query,
-            function ($query) {
-                // default order by
-                $query->orderBy('uploadables.weight', 'ASC');
-            }
-        );
-        return $this->handlePagination($this->getFilesTableName(), $query, $page, $pageSize);
     }
 
     /**

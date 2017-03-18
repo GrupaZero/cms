@@ -1,7 +1,5 @@
 <?php namespace Gzero\Core\Handler\File;
 
-use Gzero\Entity\File;
-
 /**
  * This file is part of the GZERO CMS package.
  *
@@ -16,17 +14,13 @@ use Gzero\Entity\File;
  */
 class Document implements FileTypeHandler {
 
-    // @codingStandardsIgnoreStart
     /**
      * {@inheritdoc}
      */
-    public function validateExtension(File $file)
+    public function validateExtension($extension)
     {
-        if (in_array($file->extension, config("gzero.allowed_file_extensions.$file->type"))) {
-            return true;
-        } else {
-            throw new FileHandlerException("The extension of this file (.$file->extension) is not allowed for $file->type files");
+        if (!in_array($extension, config("gzero.upload.allowed_file_extensions.document"))) {
+            throw new FileHandlerException("The extension of this file (.$extension) is not allowed for document files");
         }
     }
-    // @codingStandardsIgnoreEnd
 }

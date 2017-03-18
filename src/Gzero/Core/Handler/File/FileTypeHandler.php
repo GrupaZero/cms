@@ -1,7 +1,5 @@
 <?php namespace Gzero\Core\Handler\File;
 
-use Gzero\Entity\File;
-
 /**
  * This file is part of the GZERO CMS package.
  *
@@ -19,9 +17,9 @@ interface FileTypeHandler {
     /**
      * Validate file extension
      *
-     * @param File $file File entity
+     * @param string $extension File extension
      *
      * @return FileTypeHandler
      */
-    public function validateExtension(File $file);
+    public function validateExtension($extension);
 }

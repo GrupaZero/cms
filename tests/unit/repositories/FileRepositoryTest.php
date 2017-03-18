@@ -1,11 +1,14 @@
 <?php namespace functional;
 
 use Gzero\Entity\File;
+use Gzero\Entity\FileTranslation;
 use Gzero\Entity\FileType;
 use Gzero\Entity\User;
 use Gzero\Repository\FileRepository;
-use Illuminate\Support\Facades\Storage;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Illuminate\Filesystem\Filesystem;
+use Illuminate\Filesystem\FilesystemManager;
+use Illuminate\Http\UploadedFile;
+use Mockery as m;
 use Illuminate\Events\Dispatcher;
 
 require_once(__DIR__ . '/../../stub/TestSeeder.php');
@@ -40,25 +43,26 @@ class FileRepositoryTest extends \TestCase {
      */
     protected $filesDir;
 
+    /**
+     * @var m\MockInterface
+     */
+    protected $diskMock;
+
 
     protected function _before()
     {
+        $this->diskMock    = m::mock(Filesystem::class);
+        $filesystemManager = m::mock(FilesystemManager::class)->shouldReceive('disk')->andReturn($this->diskMock)->getMock();
         // Start the Laravel application
         $this->startApplication();
-        $this->repository = new FileRepository(new File(), new FileType(), new Dispatcher());
+        $this->repository = new FileRepository(new File(), new FileType(), new Dispatcher(), $filesystemManager);
         $this->filesDir   = __DIR__ . '/../../resources';
         $this->seed('TestSeeder'); // Relative to tests/app/
     }
 
-
-    public function _after()
+    protected function _after()
     {
-        $dirName = config('gzero.upload.directory');
-        if ($dirName) {
-            Storage::deleteDirectory($dirName);
-        }
-        // Stop the Laravel application
-        $this->stopApplication();
+        m::close();
     }
 
     /*
@@ -72,10 +76,12 @@ class FileRepositoryTest extends \TestCase {
      */
     public function can_create_file()
     {
-
         $uploadedFile = $this->getExampleImage();
-        $author       = User::find(1);
-        $file         = $this->repository->create(
+        $this->diskMock->shouldReceive('has')->once()->andReturn(false);
+        $this->diskMock->shouldReceive('putFileAs')->once()->withArgs(['images/', $uploadedFile, 'example.png']);
+
+        $author = User::find(1);
+        $file   = $this->repository->create(
             [
                 'type'         => 'image',
                 'is_active'    => true,
@@ -121,7 +127,10 @@ class FileRepositoryTest extends \TestCase {
     public function can_create_file_without_author()
     {
         $uploadedFile = $this->getExampleImage();
-        $file         = $this->repository->create(
+        $this->diskMock->shouldReceive('has')->once()->andReturn(false);
+        $this->diskMock->shouldReceive('putFileAs')->once()->withArgs(['images/', $uploadedFile, 'example.png']);
+
+        $file    = $this->repository->create(
             [
                 'type'         => 'image',
                 'is_active'    => true,
@@ -133,7 +142,7 @@ class FileRepositoryTest extends \TestCase {
             ],
             $uploadedFile
         );
-        $newFile      = $this->repository->getById($file->id);
+        $newFile = $this->repository->getById($file->id);
         $this->assertNotSame($file, $newFile);
         $this->assertEquals($file->name, $newFile->name);
     }
@@ -144,14 +153,17 @@ class FileRepositoryTest extends \TestCase {
     public function can_create_file_without_translation()
     {
         $uploadedFile = $this->getExampleImage();
-        $file         = $this->repository->create(
+        $this->diskMock->shouldReceive('has')->once()->andReturn(false);
+        $this->diskMock->shouldReceive('putFileAs')->once()->withArgs(['images/', $uploadedFile, 'example.png']);
+
+        $file    = $this->repository->create(
             [
                 'type'      => 'image',
                 'is_active' => true
             ],
             $uploadedFile
         );
-        $newFile      = $this->repository->getById($file->id);
+        $newFile = $this->repository->getById($file->id);
         $this->assertNotSame($file, $newFile);
         $this->assertEquals($file->name, $newFile->name);
     }
@@ -162,62 +174,31 @@ class FileRepositoryTest extends \TestCase {
     public function can_create_file_with_unique_name_if_file_name_is_already_taken()
     {
         $uploadedFile = $this->getExampleImage();
-        $file         = $this->repository->create(
+        $this->diskMock->shouldReceive('has')->andReturn(true);
+
+        $this->diskMock->shouldReceive('putFileAs')
+            ->withArgs(
+                [
+                    'images/',
+                    $uploadedFile,
+                    m::on(
+                        function ($fileName) {
+                            $this->assertRegExp('/^example_.+\.png$/', $fileName);
+                            return true;
+                        }
+                    )
+                ]
+            )
+            ->andReturn(true)
+            ->getMock();
+
+        $this->repository->create(
             [
                 'type'      => 'image',
                 'is_active' => true
             ],
             $uploadedFile
         );
-        $secondFile   = $this->repository->create(
-            [
-                'type'      => 'image',
-                'is_active' => true
-            ],
-            $uploadedFile
-        );
-        $thirdFile    = $this->repository->create(
-            [
-                'type'      => 'image',
-                'is_active' => true
-            ],
-            $uploadedFile
-        );
-        // Delete second file
-        $this->repository->delete($secondFile);
-        $fourthFile = $this->repository->create(
-            [
-                'type'      => 'image',
-                'is_active' => true
-            ],
-            $uploadedFile
-        );
-        // Delete first file
-        $this->repository->delete($file);
-        // Re upload first file
-        $fifthFile = $this->repository->create(
-            [
-                'type'      => 'image',
-                'is_active' => true
-            ],
-            $uploadedFile
-        );
-        // Document file
-        $documentFile = $this->repository->create(
-            [
-                'type'      => 'document',
-                'is_active' => true
-            ],
-            $this->getExampleDocument()
-        );
-        // Images file
-        $this->assertEquals('example', $file->name);
-        $this->assertEquals('example-1', $secondFile->name);
-        $this->assertEquals('example-2', $thirdFile->name);
-        $this->assertEquals('example-3', $fourthFile->name);
-        $this->assertEquals('example', $fifthFile->name);
-        // Document file
-        $this->assertEquals('example', $documentFile->name);
     }
 
     /**
@@ -225,19 +206,23 @@ class FileRepositoryTest extends \TestCase {
      */
     public function can_create_and_get_file_translation()
     {
-        $uploadedFile     = $this->getExampleImage();
-        $file             = $this->repository->create(
+        $file = File::create(
             [
-                'type'         => 'image',
-                'is_active'    => true,
-                'translations' => [
-                    'lang_code'   => 'en',
-                    'title'       => 'Example file title',
-                    'description' => 'New example body',
-                ]
-            ],
-            $uploadedFile
+                'type'      => 'image',
+                'is_active' => true
+            ]
         );
+
+        $translation = new FileTranslation();
+        $translation->fill(
+            [
+                'lang_code'   => 'en',
+                'title'       => 'Example file title',
+                'description' => 'New example body',
+            ]
+        );
+        $file->translations()->save($translation);
+
         $newFile          = $this->repository->getById($file->id);
         $firstTranslation = $newFile->translations[0];
         // Update english translation
@@ -286,18 +271,13 @@ class FileRepositoryTest extends \TestCase {
      */
     public function can_set_file_as_inactive()
     {
-        $uploadedFile = $this->getExampleImage();
-        $file         = $this->repository->create(
+        $file = File::create(
             [
-                'type'         => 'image',
-                'translations' => [
-                    'lang_code'   => 'en',
-                    'title'       => 'Example file title',
-                    'description' => 'Example file description'
-                ]
-            ],
-            $uploadedFile
+                'type'      => 'image',
+                'is_active' => true
+            ]
         );
+
         $this->repository->update(
             $file,
             [
@@ -317,18 +297,26 @@ class FileRepositoryTest extends \TestCase {
      */
     public function can_delete_file()
     {
-        $uploadedFile = $this->getExampleImage();
-        $file         = $this->repository->create(
+        $this->diskMock->shouldReceive('has')->once()->andReturn(true);
+        $this->diskMock->shouldReceive('delete')->once()->withArgs(['images/example.png']);
+
+        $file = File::create(
             [
-                'type'         => 'image',
-                'translations' => [
-                    'lang_code'   => 'en',
-                    'title'       => 'Example file title',
-                    'description' => 'Example file description'
-                ]
-            ],
-            $uploadedFile
+                'type'      => 'image',
+                'name'      => 'example',
+                'extension' => 'png',
+            ]
         );
+
+        $translation = new FileTranslation();
+        $translation->fill(
+            [
+                'lang_code'   => 'pl',
+                'title'       => 'New polish title',
+                'description' => 'New polish body',
+            ]
+        );
+        $file->translations()->save($translation);
 
         $newFile        = $this->repository->getById($file->id);
         $newTranslation = $newFile->translations[0];
@@ -353,8 +341,6 @@ class FileRepositoryTest extends \TestCase {
         $this->assertNull($foundTranslation);
         $foundTranslationPl = $this->repository->getFileTranslationById($newFile, $translationPl->id);
         $this->assertNull($foundTranslationPl);
-        // File itself
-        $this->assertFalse(Storage::exists($newFile->getUploadPath() . $newFile->getFileName()));
     }
 
     /**
@@ -362,18 +348,23 @@ class FileRepositoryTest extends \TestCase {
      */
     public function can_delete_file_translation()
     {
-        $uploadedFile = $this->getExampleImage();
-        $file         = $this->repository->create(
+        $file = File::create(
             [
-                'type'         => 'image',
-                'translations' => [
-                    'lang_code'   => 'en',
-                    'title'       => 'Example file title',
-                    'description' => 'Example file description'
-                ]
-            ],
-            $uploadedFile
+                'type'      => 'image',
+                'name'      => 'example',
+                'extension' => 'png',
+            ]
         );
+
+        $translation = new FileTranslation();
+        $translation->fill(
+            [
+                'lang_code'   => 'pl',
+                'title'       => 'New polish title',
+                'description' => 'New polish body',
+            ]
+        );
+        $file->translations()->save($translation);
 
         $newFile        = $this->repository->getById($file->id);
         $newTranslation = $newFile->translations[0];
@@ -392,6 +383,9 @@ class FileRepositoryTest extends \TestCase {
      */
     public function it_checks_existence_of_file_type()
     {
+        $this->diskMock->shouldNotHaveReceived('has');
+        $this->diskMock->shouldNotHaveReceived('putFileAs');
+
         $uploadedFile = $this->getExampleImage();
         $this->repository->create(
             [
@@ -413,6 +407,9 @@ class FileRepositoryTest extends \TestCase {
      */
     public function it_validates_allowed_file_extension()
     {
+        $this->diskMock->shouldNotHaveReceived('has');
+        $this->diskMock->shouldNotHaveReceived('putFileAs');
+
         $uploadedFile = $this->getExampleImage();
         $this->repository->create(
             [
@@ -440,33 +437,20 @@ class FileRepositoryTest extends \TestCase {
      */
     public function can_filter_files_list_by_type()
     {
-        $uploadedFile = $this->getExampleImage();
         // Image file
-        $firstFile = $this->repository->create(
+        $firstFile = File::create(
             [
-                'type'         => 'image',
-                'is_active'    => true,
-                'translations' => [
-                    'lang_code'   => 'en',
-                    'title'       => 'Example file title',
-                    'description' => 'Example file description'
-                ]
-            ],
-            $uploadedFile
+                'type'      => 'image',
+                'is_active' => true
+            ]
         );
 
         // Document file
-        $secondFile = $this->repository->create(
+        $secondFile = File::create(
             [
-                'type'         => 'document',
-                'is_active'    => true,
-                'translations' => [
-                    'lang_code'   => 'en',
-                    'title'       => 'Example file title',
-                    'description' => 'Example file description'
-                ]
-            ],
-            $this->getExampleDocument()
+                'type'      => 'document',
+                'is_active' => true
+            ]
         );
 
         // Get files
@@ -490,20 +474,24 @@ class FileRepositoryTest extends \TestCase {
      */
     public function can_sort_files_list()
     {
-        $uploadedFile = $this->getExampleImage();
-        $firstFile    = $this->repository->create(
+        $firstFile = File::create(
             [
-                'type'         => 'image',
-                'translations' => [
-                    'lang_code'   => 'en',
-                    'title'       => 'A file title',
-                    'description' => 'A file description'
-                ]
-            ],
-            $uploadedFile
+                'type' => 'image',
+            ]
         );
 
-        $secondFile = $this->repository->create(
+        $firstFileTranslation = new FileTranslation();
+        $firstFileTranslation->fill(
+            [
+                'lang_code'   => 'en',
+                'title'       => 'A file title',
+                'description' => 'A file description'
+            ]
+        );
+
+        $firstFile->translations()->save($firstFileTranslation);
+
+        $secondFile = File::create(
             [
                 'type'         => 'image',
                 'translations' => [
@@ -511,9 +499,19 @@ class FileRepositoryTest extends \TestCase {
                     'title'       => 'B file title',
                     'description' => 'B file description'
                 ]
-            ],
-            $uploadedFile
+            ]
         );
+
+        $secondFileTranslation = new FileTranslation();
+        $secondFileTranslation->fill(
+            [
+                'lang_code'   => 'en',
+                'title'       => 'B file title',
+                'description' => 'B file description'
+            ]
+        );
+
+        $secondFile->translations()->save($secondFileTranslation);
 
         // Ascending
         $files = $this->repository->getFiles(
@@ -551,30 +549,44 @@ class FileRepositoryTest extends \TestCase {
      */
     public function can_paginate_files_list()
     {
-        $uploadedFile = $this->getExampleImage();
-        $firstFile    = $this->repository->create(
+        $firstFile = File::create(
             [
-                'type'         => 'image',
-                'translations' => [
-                    'lang_code'   => 'en',
-                    'title'       => 'Example file title',
-                    'description' => 'Example file description'
-                ]
-            ],
-            $uploadedFile
+                'type' => 'image',
+            ]
         );
 
-        $secondFile = $this->repository->create(
+        $firstFileTranslation = new FileTranslation();
+        $firstFileTranslation->fill(
+            [
+                'lang_code'   => 'en',
+                'title'       => 'A file title',
+                'description' => 'A file description'
+            ]
+        );
+
+        $firstFile->translations()->save($firstFileTranslation);
+
+        $secondFile = File::create(
             [
                 'type'         => 'image',
                 'translations' => [
                     'lang_code'   => 'en',
-                    'title'       => 'Example file title',
-                    'description' => 'Example file description'
+                    'title'       => 'B file title',
+                    'description' => 'B file description'
                 ]
-            ],
-            $uploadedFile
+            ]
         );
+
+        $secondFileTranslation = new FileTranslation();
+        $secondFileTranslation->fill(
+            [
+                'lang_code'   => 'en',
+                'title'       => 'B file title',
+                'description' => 'B file description'
+            ]
+        );
+
+        $secondFile->translations()->save($secondFileTranslation);
 
         // First Page
         $files = $this->repository->getFiles(
@@ -618,10 +630,4 @@ class FileRepositoryTest extends \TestCase {
     {
         return new UploadedFile($this->filesDir . '/example.png', 'example.png', 'image/jpeg', null, null, true);
     }
-
-    private function getExampleDocument()
-    {
-        return new UploadedFile($this->filesDir . '/example.txt', 'example.txt', 'text/plain', null, null, true);
-    }
-
 }
