@@ -15,7 +15,12 @@
 class Image implements FileTypeHandler {
 
     /**
-     * {@inheritdoc}
+     * Validated extension
+     *
+     * @param string $extension extension
+     *
+     * @throws FileHandlerException
+     * @return void
      */
     public function validateExtension($extension)
     {

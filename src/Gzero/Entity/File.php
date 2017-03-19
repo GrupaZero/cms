@@ -1,6 +1,7 @@
 <?php namespace Gzero\Entity;
 
 use Gzero\Entity\Presenter\FilePresenter;
+use Illuminate\Support\Collection;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -152,14 +153,15 @@ class File extends Base {
     }
 
     /**
-     * Check if file exists
+     * Check if multiple files exists
      *
-     * @param int $fileId file id
+     * @param array $filesIds array with file ids
      *
-     * @return boolean
+     * @return Collection
      */
-    public static function checkIfExists($fileId)
+    public static function checkIfMultipleExists($filesIds)
     {
-        return self::where('id', $fileId)->exists();
+        $idsInDb = self::whereIn('id', $filesIds)->pluck('id');
+        return collect($filesIds)->diff($idsInDb);
     }
 }

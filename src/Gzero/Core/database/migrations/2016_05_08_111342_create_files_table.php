@@ -60,8 +60,8 @@ class CreateFilesTable extends Migration {
             'uploadables',
             function (Blueprint $table) {
                 $table->integer('file_id')->unsigned()->index();
-                $table->integer('uploadable_id')->unsigned()->nullable();
-                $table->string('uploadable_type')->nullable();
+                $table->integer('uploadable_id')->unsigned();
+                $table->string('uploadable_type');
                 $table->integer('weight')->default(0);
                 $table->timestamps();
                 $table->foreign('file_id')->references('id')->on('files')->onDelete('CASCADE');

@@ -38,13 +38,13 @@ class BlockRepository extends BaseRepository {
     /**
      * Block repository constructor
      *
-     * @param Block          $block          Block model
-     * @param Dispatcher     $events         Events dispatcher
+     * @param Block      $block  Block model
+     * @param Dispatcher $events Events dispatcher
      */
     public function __construct(Block $block, Dispatcher $events)
     {
-        $this->model          = $block;
-        $this->events         = $events;
+        $this->model  = $block;
+        $this->events = $events;
     }
 
     /**

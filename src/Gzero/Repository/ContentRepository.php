@@ -39,22 +39,15 @@ class ContentRepository extends BaseRepository {
     protected $events;
 
     /**
-     * File repository
-     *
-     * @var FileRepository
-     */
-    protected $fileRepository;
-
-    /**
      * Content repository constructor
      *
-     * @param Content        $content        Content model
-     * @param Dispatcher     $events         Events dispatcher
+     * @param Content    $content Content model
+     * @param Dispatcher $events  Events dispatcher
      */
     public function __construct(Content $content, Dispatcher $events)
     {
-        $this->model          = $content;
-        $this->events         = $events;
+        $this->model  = $content;
+        $this->events = $events;
     }
 
     /**

@@ -5,6 +5,7 @@ use Gzero\Entity\Content;
 use Gzero\Entity\File;
 use Gzero\Entity\FileTranslation;
 use Gzero\Entity\FileType;
+use Gzero\Entity\Uploadable;
 use Gzero\Entity\User;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Events\Dispatcher;
@@ -105,66 +106,35 @@ class FileRepository extends BaseRepository {
     }
 
     /**
-     * Attaches selected files to specified content entity in database
+     * Attaches selected files to specified uploadable entity in database
+     * HINT: use assoc array to pass arguments to pivot table
      *
-     * @param Content $content  Content entity
-     * @param array   $filesIds files id's to attach
-     *
-     * @return EloquentCollection
-     * @throws RepositoryValidationException
-     */
-    public function attachToContent(Content $content, array $filesIds)
-    {
-        // @TODO Handle single file too
-        // @TODO Add info about passing additional arguments to pivot table
-        // @TODO Add syncWith
-        if (empty($filesIds)) {
-            throw new RepositoryValidationException('You must provide the files in order to add them to the content');
-        }
-
-        $this->checkIfFilesExists($filesIds);
-
-        // New content query
-        $content = $this->newQuery()->transaction(
-            function () use ($content, $filesIds) {
-                $this->events->fire('content.files.adding', [$content, $filesIds]);
-                $content->files()->sync($filesIds, false);
-                $this->events->fire('content.files.added', [$content, $filesIds]);
-                return $content;
-            }
-        );
-
-        return $this->getContentFiles($content);
-    }
-
-    /**
-     * Attaches selected files to specified block entity in database
-     *
-     * @param Block $block    Block entity
-     * @param array $filesIds files id's to attach
+     * @param Uploadable $entity   Uploadable entity
+     * @param array      $filesIds files id's to attach
      *
      * @return EloquentCollection
      * @throws RepositoryValidationException
      */
-    public function attachToBlock(Block $block, array $filesIds)
+    public function syncWith(Uploadable $entity, array $filesIds)
     {
-        if (empty($filesIds)) {
-            throw new RepositoryValidationException('You must provide the files in order to add them to the block');
+        if (!$entity::checkIfExists($entity->id)) {
+            throw new RepositoryValidationException("Entity does not exist");
+        }
+        $notInDB = File::checkIfMultipleExists($filesIds);
+        if ($notInDB->count() > 0) {
+            throw new RepositoryValidationException("File ids [" . $notInDB->implode(', ') . "] does not exist");
         }
 
-        $this->checkIfFilesExists($filesIds);
-
-        // New block query
-        $block = $this->newQuery()->transaction(
-            function () use ($block, $filesIds) {
-                $this->events->fire('block.files.adding', [$block, $filesIds]);
-                $block->files()->sync($filesIds, false);
-                $this->events->fire('block.files.added', [$block, $filesIds]);
-                return $block;
+        $response = $this->newQuery()->transaction(
+            function () use ($entity, $filesIds) {
+                $this->events->fire('files.syncing', [$entity, $filesIds]);
+                $response = $entity->files()->sync($filesIds);
+                $this->events->fire('files.synced', [$entity, $filesIds]);
+                return $response;
             }
         );
 
-        return $this->getBlockFiles($block);
+        return $response;
     }
 
     /**
@@ -225,60 +195,6 @@ class FileRepository extends BaseRepository {
     }
 
     /**
-     * Updates file of specified content entity
-     *
-     * @param Content $content    Content entity
-     * @param File    $file       file to update relation
-     * @param array   $attributes files attributes to update
-     *
-     * @return File
-     * @throws RepositoryValidationException
-     */
-    public function updateContentFile(Content $content, File $file, array $attributes)
-    {
-        // New content query
-        $result = $this->newQuery()->transaction(
-            function () use ($content, $file, $attributes) {
-                $this->events->fire('content.files.updating', [$content, $file, $attributes]);
-                $result = $content->files()->updateExistingPivot($file->id, $attributes);
-                $this->events->fire('content.files.updated', [$content, $file, $attributes]);
-                return $result;
-            }
-        );
-
-        return $result;
-    }
-
-    /**
-     * Updates file of specified block entity
-     *
-     * @param Block   $block      Block entity
-     * @param integer $fileId     file id to update
-     * @param array   $attributes files attributes to update
-     *
-     * @return Block
-     * @throws RepositoryValidationException
-     */
-    public function updateBlockFile(Block $block, $fileId, array $attributes)
-    {
-        if (!$fileId) {
-            throw new RepositoryValidationException('You must provide the file in order to update it');
-        }
-
-        // New block query
-        $block = $this->newQuery()->transaction(
-            function () use ($block, $fileId, $attributes) {
-                $this->events->fire('block.files.updating', [$block, $fileId, $attributes]);
-                $block->files()->updateExistingPivot($fileId, $attributes);
-                $this->events->fire('block.files.updated', [$block, $fileId, $attributes]);
-                return $this->getById($fileId);
-            }
-        );
-
-        return $block;
-    }
-
-    /**
      * Delete specific file entity and removes file from storage
      *
      * @param File $file File entity to delete
@@ -301,73 +217,6 @@ class FileRepository extends BaseRepository {
                 return true;
             }
         );
-    }
-
-    /**
-     * Detaches selected files from specified content entity in database
-     *
-     * @param Content $content  Content entity
-     * @param array   $filesIds files id's to detach
-     *
-     * @return EloquentCollection
-     * @throws RepositoryValidationException
-     */
-    public function detachFromContent(Content $content, array $filesIds)
-    {
-        if (empty($filesIds)) {
-            throw new RepositoryValidationException(
-                'You must provide the files in order to remove them from the content'
-            );
-        }
-
-        // New content query
-        $content = $this->newQuery()->transaction(
-            function () use ($content, $filesIds) {
-                $this->events->fire('content.files.removing', [$content, $filesIds]);
-                $content->files()->detach($filesIds);
-                $this->events->fire('content.files.removed', [$content, $filesIds]);
-
-                // Remove related file
-                if (!empty($content->file_id) && in_array($content->file_id, $filesIds)) {
-                    $this->events->fire('content.related.file.removing', [$content]);
-                    $content->file_id = null;
-                    $content->save();
-                    $this->events->fire('content.related.file.removed', [$content]);
-                }
-
-                return $content;
-            }
-        );
-        return $this->getContentFiles($content);
-    }
-
-    /**
-     * Detaches selected files from specified block entity in database
-     *
-     * @param Block $block    Block entity
-     * @param array $filesIds files id's to detach
-     *
-     * @return EloquentCollection
-     * @throws RepositoryValidationException
-     */
-    public function detachFromBlock(Block $block, array $filesIds)
-    {
-        if (empty($filesIds)) {
-            throw new RepositoryValidationException(
-                'You must provide the files in order to remove them from the block'
-            );
-        }
-
-        // New block query
-        $block = $this->newQuery()->transaction(
-            function () use ($block, $filesIds) {
-                $this->events->fire('block.files.removing', [$block, $filesIds]);
-                $block->files()->detach($filesIds);
-                $this->events->fire('block.files.removed', [$block, $filesIds]);
-                return $block;
-            }
-        );
-        return $this->getBlockFiles($block);
     }
 
     /**
@@ -607,7 +456,7 @@ class FileRepository extends BaseRepository {
     /**
      * Returns file related data for database insertion
      *
-     * @param array        $data
+     * @param array        $data         file data
      * @param UploadedFile $uploadedFile The object returned by the Request file method
      *
      * @return array with file related fields
@@ -644,11 +493,13 @@ class FileRepository extends BaseRepository {
     }
 
     /**
-     * @param $allData
+     * Resolves file type based on type in data array
+     *
+     * @param array $allData data array
      *
      * @return \Gzero\Core\Handler\File\FileTypeHandler
      */
-    protected function resolveType($allData)
+    protected function resolveType(array $allData)
     {
         return $this->typeModel->resolveType($this->validateType($allData['type']));
     }

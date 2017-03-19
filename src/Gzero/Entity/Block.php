@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2015, Adrian Skierniewski
  */
-class Block extends Base {
+class Block extends Base implements Uploadable {
 
     use SoftDeletes;
 

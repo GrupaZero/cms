@@ -1,5 +1,7 @@
 <?php namespace functional;
 
+use Gzero\Entity\Block;
+use Gzero\Entity\Content;
 use Gzero\Entity\File;
 use Gzero\Entity\FileTranslation;
 use Gzero\Entity\FileType;
@@ -442,6 +444,133 @@ class FileRepositoryTest extends \TestCase {
             ],
             $uploadedFile
         );
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_sync_files_with_content()
+    {
+        $content = Content::create(['type' => 'content']);
+        $file1   = File::create(
+            [
+                'type'      => 'image',
+                'name'      => 'example',
+                'extension' => 'png',
+            ]
+        );
+        $file2   = File::create(
+            [
+                'type'      => 'image',
+                'name'      => 'example2',
+                'extension' => 'png',
+            ]
+        );
+
+        $response = $this->repository->syncWith($content, [$file1->id, $file2->id]);
+        $this->assertEquals(
+            [
+                "attached" => [
+                    $file1->id,
+                    $file2->id,
+                ],
+                "detached" => [],
+                "updated"  => []
+            ],
+            $response
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_sync_files_with_Block()
+    {
+        $block = Block::create(['type' => 'basic']);
+        $file1 = File::create(
+            [
+                'type'      => 'image',
+                'name'      => 'example',
+                'extension' => 'png',
+            ]
+        );
+        $file2 = File::create(
+            [
+                'type'      => 'image',
+                'name'      => 'example2',
+                'extension' => 'png',
+            ]
+        );
+
+        $response = $this->repository->syncWith($block, [$file1->id, $file2->id]);
+        $this->assertEquals(
+            [
+                "attached" => [
+                    $file1->id,
+                    $file2->id
+                ],
+                "detached" => [],
+                "updated"  => []
+            ],
+            $response
+        );
+    }
+
+    /**
+     * @test
+     * @expectedException \Gzero\Repository\RepositoryValidationException
+     * @expectedExceptionMessage File ids [2, 3, 70, 22] does not exist
+     */
+    public function it_checks_existence_of_file_during_sync()
+    {
+        $content = Content::create(['type' => 'content']);
+        $file1   = File::create(
+            [
+                'type'      => 'image',
+                'name'      => 'example',
+                'extension' => 'png',
+            ]
+        );
+
+        $this->repository->syncWith($content, [$file1->id, 2, 3, 70, 22]);
+    }
+
+    /**
+     * @test
+     * @expectedException \Gzero\Repository\RepositoryValidationException
+     * @expectedExceptionMessage Entity does not exist
+     */
+    public function it_checks_existence_of_content_during_sync()
+    {
+        $content = new Content(['type' => 'content']);
+        $file1   = File::create(
+            [
+                'type'      => 'image',
+                'name'      => 'example',
+                'extension' => 'png',
+            ]
+        );
+
+        $this->repository->syncWith($content, [$file1->id]);
+    }
+
+    /**
+     * @test
+     * @expectedException \Gzero\Repository\RepositoryValidationException
+     * @expectedExceptionMessage Entity does not exist
+     */
+    public function it_checks_existence_of_block_during_sync()
+    {
+        $block = new Block(['type' => 'basic']);
+        $file1   = File::create(
+            [
+                'type'      => 'image',
+                'name'      => 'example',
+                'extension' => 'png',
+            ]
+        );
+
+        $this->repository->syncWith($block, [$file1->id]);
     }
 
     /*
