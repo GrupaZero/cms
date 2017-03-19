@@ -120,7 +120,8 @@ class FileRepository extends BaseRepository {
         if (!$entity::checkIfExists($entity->id)) {
             throw new RepositoryValidationException("Entity does not exist");
         }
-        $notInDB = File::checkIfMultipleExists($filesIds);
+
+        $notInDB = File::checkIfMultipleExists($this->getFieldIdsFromSyncData($filesIds)->toArray());
         if ($notInDB->count() > 0) {
             throw new RepositoryValidationException("File ids [" . $notInDB->implode(', ') . "] does not exist");
         }
@@ -502,6 +503,27 @@ class FileRepository extends BaseRepository {
     protected function resolveType(array $allData)
     {
         return $this->typeModel->resolveType($this->validateType($allData['type']));
+    }
+
+    /**
+     * Extracts file id's from assoc array with mixed id's and arguments for sync call
+     * e.g: [1 => ['weight' => 3], 5, 8, 10 => ['weight' => 2]]
+     *
+     * @param array $filesIds array with id's and arguments to pivot table
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    protected function getFieldIdsFromSyncData(array $filesIds)
+    {
+        return collect($filesIds)->map(
+            function ($key, $value) {
+                if (is_array($key)) {
+                    return $value;
+                }
+
+                return $key;
+            }
+        );
     }
 
 }

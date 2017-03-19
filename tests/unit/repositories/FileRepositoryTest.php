@@ -518,6 +518,51 @@ class FileRepositoryTest extends \TestCase {
 
     /**
      * @test
+     */
+    public function it_should_set_weight_during_sync()
+    {
+        $content = Content::create(['type' => 'content']);
+        $file1   = File::create(
+            [
+                'type'      => 'image',
+                'name'      => 'example',
+                'extension' => 'png',
+                'is_active' => true
+            ]
+        );
+        $file2   = File::create(
+            [
+                'type'      => 'image',
+                'name'      => 'example',
+                'extension' => 'png',
+                'is_active' => true
+            ]
+        );
+
+        $syncData        = [$file1->id => ['weight' => 5], $file2->id => ['weight' => 6]];
+        $response        = $this->repository->syncWith($content, $syncData);
+        $filesWeightById = $content->files()->get()->mapWithKeys(
+            function ($file) {
+                return ['id-' . $file->id => $file->pivot->weight];
+            }
+        );
+        $this->assertEquals(
+            [
+                "attached" => [
+                    $file1->id,
+                    $file2->id
+                ],
+                "detached" => [],
+                "updated"  => []
+            ],
+            $response
+        );
+        $this->assertEquals(5, $filesWeightById['id-' . $file1->id]);
+        $this->assertEquals(6, $filesWeightById['id-' . $file2->id]);
+    }
+
+    /**
+     * @test
      * @expectedException \Gzero\Repository\RepositoryValidationException
      * @expectedExceptionMessage File ids [2, 3, 70, 22] does not exist
      */
@@ -533,6 +578,25 @@ class FileRepositoryTest extends \TestCase {
         );
 
         $this->repository->syncWith($content, [$file1->id, 2, 3, 70, 22]);
+    }
+
+    /**
+     * @test
+     * @expectedException \Gzero\Repository\RepositoryValidationException
+     * @expectedExceptionMessage File ids [2, 3, 70, 22] does not exist
+     */
+    public function it_checks_existence_of_file_during_sync_with_arguments_to_pivot_table()
+    {
+        $content  = Content::create(['type' => 'content']);
+        $file1    = File::create(
+            [
+                'type'      => 'image',
+                'name'      => 'example',
+                'extension' => 'png',
+            ]
+        );
+        $syncData = [$file1->id => ['weight' => 5], 2, 3, 70, 22];
+        $this->repository->syncWith($content, $syncData);
     }
 
     /**
@@ -562,7 +626,7 @@ class FileRepositoryTest extends \TestCase {
     public function it_checks_existence_of_block_during_sync()
     {
         $block = new Block(['type' => 'basic']);
-        $file1   = File::create(
+        $file1 = File::create(
             [
                 'type'      => 'image',
                 'name'      => 'example',
