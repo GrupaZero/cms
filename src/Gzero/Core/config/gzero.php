@@ -9,9 +9,13 @@ return [
         'alternative_desc'  => 'body',
         'desc_length'       => 160
     ],
-    'image' => [
+    'image'                    => [
         'max_width'  => 1920,
-        'max_height' => 1080
+        'max_height' => 1080,
+        'thumb'      => [
+            'width'  => 729,
+            'height' => 459
+        ],
     ],
     'use_users_nicks'          => env('USE_USERS_NICKS', true),
     'multilang'                => [
@@ -20,7 +24,14 @@ return [
         'subdomain' => env('MULTILANG_SUBDOMAIN', false)
     ],
     'upload'                   => [
-        'directory' => env('UPLOAD_DIR', 'uploads') // directory inside filesystem root directory (storage/app/ as default)
+        'disk'                    => env('UPLOAD_DISK', 'uploads'),
+        'allowed_file_extensions' => [
+            'image'    => ['png', 'jpg', 'jpeg', 'tif'],
+            'document' => ['pdf', 'odt', 'ods', 'doc', 'docx', 'xls', 'xlsx', 'txt'],
+            'video'    => ['mp4'],
+            'music'    => ['mp3']
+        ],
+
     ],
     'block_type'               => [
         'basic'   => 'Gzero\Core\Handler\Block\Basic',
@@ -38,12 +49,6 @@ return [
         'document' => 'Gzero\Core\Handler\File\Document',
         'video'    => 'Gzero\Core\Handler\File\Video',
         'music'    => 'Gzero\Core\Handler\File\Music'
-    ],
-    'allowed_file_extensions'  => [
-        'image'    => ['png', 'jpg', 'jpeg', 'tif'],
-        'document' => ['pdf', 'odt', 'ods', 'doc', 'docx', 'xls', 'xlsx', 'txt'],
-        'video'    => ['mp4'],
-        'music'    => ['mp3']
     ],
     'available_blocks_regions' => [
         'header',

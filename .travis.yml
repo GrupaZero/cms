@@ -1,10 +1,16 @@
 language: php
+dist: trusty
+sudo: false
+cache:
+  timeout: 1000
+  directories:
+  - vendor # Composer packages
 
 php:
   - 7.1
 
 addons:
-  postgresql: '9.5'
+  postgresql: '9.6'
 
 before_script:
   - psql -c 'create database gzero_cms;' -U postgres
@@ -12,7 +18,7 @@ before_script:
   - mkdir -p build/logs
   - mv /home/travis/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini ~/xdebug.ini #disable xdebug
   - composer self-update
-  - composer install --prefer-source --no-interaction
+  - composer install --prefer-dist --no-interaction --no-suggest --no-progress
   - mv ~/xdebug.ini /home/travis/.phpenv/versions/$(phpenv version-name)/etc/conf.d/xdebug.ini #enable xdebug
 
 script:

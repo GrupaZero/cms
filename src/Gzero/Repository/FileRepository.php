@@ -1,13 +1,17 @@
 <?php namespace Gzero\Repository;
 
+use Gzero\Entity\Block;
+use Gzero\Entity\Content;
 use Gzero\Entity\File;
 use Gzero\Entity\FileTranslation;
 use Gzero\Entity\FileType;
+use Gzero\Entity\Uploadable;
 use Gzero\Entity\User;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Events\Dispatcher;
-use Illuminate\Support\Facades\Storage;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Illuminate\Filesystem\FilesystemAdapter;
+use Illuminate\Filesystem\FilesystemManager;
+use Illuminate\Http\UploadedFile;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -36,17 +40,24 @@ class FileRepository extends BaseRepository {
     protected $events;
 
     /**
+     * @var FilesystemAdapter
+     */
+    protected $filesystem;
+
+    /**
      * File repository constructor
      *
-     * @param File       $file     File model
-     * @param FileType   $fileType file type model
-     * @param Dispatcher $events   Events dispatcher
+     * @param File              $file       File model
+     * @param FileType          $fileType   file type model
+     * @param Dispatcher        $events     Events dispatcher
+     * @param FilesystemManager $filesystem File system manager
      */
-    public function __construct(File $file, FileType $fileType, Dispatcher $events)
+    public function __construct(File $file, FileType $fileType, Dispatcher $events, FilesystemManager $filesystem)
     {
-        $this->model     = $file;
-        $this->typeModel = $fileType;
-        $this->events    = $events;
+        $this->model      = $file;
+        $this->typeModel  = $fileType;
+        $this->events     = $events;
+        $this->filesystem = $filesystem->disk(config('gzero.upload.disk'));
     }
 
     /**
@@ -61,57 +72,70 @@ class FileRepository extends BaseRepository {
      */
     public function create(array $data, UploadedFile $uploadedFile, User $author = null)
     {
-        if (!$uploadedFile->isValid()) {
-            throw new RepositoryValidationException("Error occurred while uploading the file to the server");
+        $allData = $this->getAllFileData($data, $uploadedFile);
+        if (empty($allData['type'])) {
+            throw new RepositoryValidationException("File type is required");
         }
-        $file = $this->newQuery()->transaction(
-            function () use ($data, $author, $uploadedFile) {
-                // File PHP resource for the resource put method, which will use Flysystem's underlying stream support.
-                $resource     = fopen($uploadedFile->getRealPath(), 'r');
-                $data         = array_merge($data, $this->getFileData($uploadedFile));
-                $translations = array_get($data, 'translations'); // Nested relation fields
-                if (array_key_exists('type', $data)) {
-                    $type = $this->typeModel->resolveType($this->validateType($data['type']));
-                    $file = new File();
-                    $file->fill($data);
-                    $type->validateExtension($file);
-                    // prepare file name
-                    $path = $file->getUploadPath() . $uploadedFile->getClientOriginalName();
-                    if (Storage::has($path)) {
-                        $file->name = $this->getUniqueFileName($file->getUploadPath(), $uploadedFile);
-                        $path       = $file->getUploadPath() . $file->name . '.' . $file->extension;
-                    }
-                    // put file in storage
-                    if (Storage::getDefaultDriver() === 's3') { // fix for the wrong mime types on s3
-                        Storage::disk('s3')->getDriver()->getAdapter()->getClient()->putObject(
-                            [
-                                'Bucket'      => config('filesystems.disks.s3.bucket'),
-                                'Key'         => $path,
-                                'Body'        => file_get_contents($uploadedFile),
-                                'ContentType' => $file->mime_type
-                            ]
-                        );
-                    } else {
-                        Storage::put($path, $resource);
-                    }
 
-                    $this->events->fire('file.creating', [$file, $author]);
-                    if ($author) {
-                        $file->author()->associate($author);
-                    }
-                    $file->save();
-                    // File translations
-                    if (!empty($translations)) {
-                        $this->createTranslation($file, $translations);
-                        $this->events->fire('file.created', [$file]);
-                    }
-                    return $this->getById($file->id);
-                } else {
-                    throw new RepositoryValidationException("File type is required");
+        $type = $this->resolveType($allData);
+        $type->validateExtension($uploadedFile->getClientOriginalExtension());
+
+        $file = $this->newQuery()->transaction(
+            function () use ($allData, $author, $uploadedFile) {
+                [$fileName, $fileNameWithExtension] = $this->getUniqueFileName($allData);
+                $file = new File();
+                $file->fill($allData);
+                $file->name = $fileName; // Split extension
+                $this->events->fire('file.creating', [$file, $author]);
+                if ($author) {
+                    $file->author()->associate($author);
                 }
+                $file->save();
+                // File translations
+                if (!empty($allData['translations'])) {
+                    $this->createTranslation($file, $allData['translations']);
+                    $this->events->fire('file.created', [$file]);
+                }
+
+                $this->filesystem->putFileAs($file->getUploadPath(), $uploadedFile, $fileNameWithExtension);
+                return $this->getById($file->id);
             }
         );
+
         return $file;
+    }
+
+    /**
+     * Attaches selected files to specified uploadable entity in database
+     * HINT: use assoc array to pass arguments to pivot table
+     *
+     * @param Uploadable $entity   Uploadable entity
+     * @param array      $filesIds files id's to attach
+     *
+     * @return EloquentCollection
+     * @throws RepositoryValidationException
+     */
+    public function syncWith(Uploadable $entity, array $filesIds)
+    {
+        if (!$entity::checkIfExists($entity->id)) {
+            throw new RepositoryValidationException("Entity does not exist");
+        }
+
+        $notInDB = File::checkIfMultipleExists($this->getFieldIdsFromSyncData($filesIds)->toArray());
+        if ($notInDB->count() > 0) {
+            throw new RepositoryValidationException("File ids [" . $notInDB->implode(', ') . "] does not exist");
+        }
+
+        $response = $this->newQuery()->transaction(
+            function () use ($entity, $filesIds) {
+                $this->events->fire('files.syncing', [$entity, $filesIds]);
+                $response = $entity->files()->sync($filesIds);
+                $this->events->fire('files.synced', [$entity, $filesIds]);
+                return $response;
+            }
+        );
+
+        return $response;
     }
 
     /**
@@ -132,7 +156,7 @@ class FileRepository extends BaseRepository {
         $translation = $this->newQuery()->transaction(
             function () use ($file, $data) {
                 // Remove any existing translation in this language
-                $existingTranslation = $this->getFileTranslationByLangCode($file, $data['lang_code']);
+                $existingTranslation = $this->getTranslationByLangCode($file, $data['lang_code']);
                 if ($existingTranslation) {
                     $existingTranslation->delete();
                 }
@@ -141,7 +165,7 @@ class FileRepository extends BaseRepository {
                 $this->events->fire('file.translation.creating', [$file, $translation]);
                 $file->translations()->save($translation);
                 $this->events->fire('file.translation.created', [$file, $translation]);
-                return $this->getFileTranslationById($file, $translation->id);
+                return $this->getTranslationById($file, $translation->id);
             }
         );
         return $translation;
@@ -171,7 +195,6 @@ class FileRepository extends BaseRepository {
         return $file;
     }
 
-
     /**
      * Delete specific file entity and removes file from storage
      *
@@ -184,12 +207,15 @@ class FileRepository extends BaseRepository {
         return $this->newQuery()->transaction(
             function () use ($file) {
                 $this->events->fire('file.deleting', [$file]);
-                $url = $file->getUploadPath() . $file->getFileName();
-                if (Storage::has($url)) {
-                    Storage::delete($url);
+                $path = $file->getFullPath();
+                if ($this->filesystem->has($path)) {
+                    $this->filesystem->delete($path);
                 }
+                $file->blocks()->detach($file);
+                $file->contents()->detach($file);
                 $file->delete();
                 $file->translations()->delete();
+                //@TODO remove croppa thumbnails
                 $this->events->fire('file.deleted', [$file]);
                 return true;
             }
@@ -222,7 +248,7 @@ class FileRepository extends BaseRepository {
      *
      * @return FileTranslation
      */
-    public function getFileTranslationById(File $file, $id)
+    public function getTranslationById(File $file, $id)
     {
         return $file->translations()->where('id', '=', $id)->first();
     }
@@ -235,7 +261,7 @@ class FileRepository extends BaseRepository {
      *
      * @return FileTranslation
      */
-    public function getFileTranslationByLangCode(File $file, $langCode)
+    public function getTranslationByLangCode(File $file, $langCode)
     {
         return $file->translations()->where('lang_code', '=', $langCode)->first();
     }
@@ -265,6 +291,42 @@ class FileRepository extends BaseRepository {
             $this->fileDefaultOrderBy()
         );
         return $this->handlePagination($this->getTableName(), $query, $page, $pageSize);
+    }
+
+    /**
+     * Get all files to specific content
+     *
+     * @param Uploadable $entity   Content content
+     * @param array      $criteria Filter criteria
+     * @param array      $orderBy  Array of columns
+     * @param int|null   $page     Page number (if null == disabled pagination)
+     * @param int|null   $pageSize Limit results
+     *
+     * @throws RepositoryException
+     * @return EloquentCollection
+     */
+    public function getEntityFiles(
+        Uploadable $entity,
+        array $criteria = [],
+        array $orderBy = [],
+        $page = 1,
+        $pageSize = self::ITEMS_PER_PAGE
+    ) {
+        $query  = $entity->files(false);
+        $table  = $query->getModel()->getTable();
+        $parsed = $this->parseArgs($criteria, $orderBy);
+        $this->handleTranslationsJoin($parsed['filter'], $parsed['orderBy'], $query);
+        $this->handleFilterCriteria($table, $query, $parsed['filter']);
+        $this->handleOrderBy(
+            $table,
+            $parsed['orderBy'],
+            $query,
+            function ($query) {
+                // default order by
+                $query->orderBy('uploadables.weight', 'ASC');
+            }
+        );
+        return $this->handlePagination($table, $query, $page, $pageSize);
     }
 
     /**
@@ -330,7 +392,7 @@ class FileRepository extends BaseRepository {
      * @return string
      * @throws RepositoryValidationException
      */
-    private function validateType($type, $message = "File type is invalid")
+    protected function validateType($type, $message = "File type is invalid")
     {
         if (in_array($type, $this->typeModel->getActiveTypes())) {
             return $type;
@@ -347,7 +409,7 @@ class FileRepository extends BaseRepository {
      * @return bool
      * @throws RepositoryValidationException
      */
-    private function orderByTranslation($parsedOrderBy)
+    protected function orderByTranslation($parsedOrderBy)
     {
         foreach ($parsedOrderBy as $order) {
             if (!array_key_exists('relation', $order)) {
@@ -363,44 +425,73 @@ class FileRepository extends BaseRepository {
     /**
      * Returns file related data for database insertion
      *
+     * @param array        $data         file data
      * @param UploadedFile $uploadedFile The object returned by the Request file method
      *
      * @return array with file related fields
      */
-    private function getFileData(UploadedFile $uploadedFile)
+    protected function getAllFileData(array $data, UploadedFile $uploadedFile)
     {
-        return [
-            'name'      => pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME),
-            'extension' => $uploadedFile->getClientOriginalExtension(),
-            'size'      => $uploadedFile->getSize(),
-            'mime_type' => $uploadedFile->getMimeType(),
-        ];
+        return array_merge(
+            $data,
+            [
+                'name'      => str_slug(pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME)),
+                'extension' => mb_strtolower($uploadedFile->getClientOriginalExtension()),
+                'size'      => $uploadedFile->getSize(),
+                'mime_type' => $uploadedFile->getMimeType(),
+            ]
+        );
     }
 
     /**
      * Function returns an unique file name based on files already located in provided storage directory
      *
-     * @param string       $directory    string storage directory to search in
-     * @param UploadedFile $uploadedFile The object returned by the Request file method
+     * @param array $data All data related to uploaded file
      *
-     * @return string $fileName an unique file name
+     * @return array [fileName, fileNameWithExtension]
      */
-    private function getUniqueFileName($directory, UploadedFile $uploadedFile)
+    protected function getUniqueFileName(array $data)
     {
-        $files    = Storage::files($directory);
-        $fileName = pathinfo($uploadedFile->getClientOriginalName(), PATHINFO_FILENAME);
-        $count    = 0;
-        foreach ($files as $file) {
-            if (preg_match("'^$fileName($|-[0-9]+$)'", pathinfo($file, PATHINFO_FILENAME))) {
-                $count++;
-            };
+        $uFileName = $data['name'] . '.' . $data['extension'];
+        $typeDir   = str_plural($data['type']);
+        if (!$this->filesystem->has($typeDir . '/' . $uFileName)) {
+            return [$data['name'], $uFileName];
         }
-        // check again for duplicated file name, which may be added manually e.g 'public/images/example-1.png'
-        $path = $directory . $fileName . '-' . $count . '.' . $uploadedFile->getClientOriginalExtension();
-        if (Storage::has($path)) {
-            $count++;
-        }
-        return ($count) ? $fileName . '-' . $count : $fileName;
+        $newName = uniqid($data['name'] . '_');
+        return [$newName, $newName . '.' . $data['extension']];
+    }
+
+    /**
+     * Resolves file type based on type in data array
+     *
+     * @param array $allData data array
+     *
+     * @return \Gzero\Core\Handler\File\FileTypeHandler
+     */
+    protected function resolveType(array $allData)
+    {
+        return $this->typeModel->resolveType($this->validateType($allData['type']));
+    }
+
+    /**
+     * Extracts file id's from assoc array with mixed id's and arguments for sync call
+     * e.g: [1 => ['weight' => 3], 5, 8, 10 => ['weight' => 2]]
+     *
+     * @param array $filesIds array with id's and arguments to pivot table
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    protected function getFieldIdsFromSyncData(array $filesIds)
+    {
+        return collect($filesIds)->map(
+            function ($key, $value) {
+                if (is_array($key)) {
+                    return $value;
+                }
+
+                return $key;
+            }
+        );
     }
 
 }

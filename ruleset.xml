@@ -15,6 +15,7 @@
     <exclude name="Squiz.PHP.DisallowComparisonAssignment"/>
     <exclude name="Squiz.PHP.DisallowInlineIf"/>
     <exclude name="Squiz.PHP.DisallowBooleanStatement"/>
+    <exclude name="Squiz.PHP.DisallowMultipleAssignments"/>
     <exclude name="Squiz.WhiteSpace.ControlStructureSpacing"/>
   </rule>
   <rule ref="Squiz.Scope"/>

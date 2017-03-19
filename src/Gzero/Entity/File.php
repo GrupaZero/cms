@@ -1,7 +1,7 @@
 <?php namespace Gzero\Entity;
 
 use Gzero\Entity\Presenter\FilePresenter;
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Collection;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -109,13 +109,13 @@ class File extends Base {
     }
 
     /**
-     * Returns file upload path based on upload directory name and file type plural name e.g. public/images/
+     * Returns file upload path based on file type plural name e.g. 'images', 'documents'
      *
      * @return string
      */
     public function getUploadPath()
     {
-        return config('gzero.upload.directory') . '/' . str_plural($this->type) . '/';
+        return str_plural($this->type) . '/';
     }
 
     /**
@@ -123,16 +123,9 @@ class File extends Base {
      *
      * @return string
      */
-    public function getUrl()
+    public function getFullPath()
     {
-        $url = $this->getUploadPath() . $this->getFileName();
-        if (Storage::getDefaultDriver() === 's3') {
-            return Storage::disk('s3')->getDriver()->getAdapter()->getClient()->getObjectUrl(
-                config('filesystems.disks.s3.bucket'),
-                $url
-            );
-        }
-        return asset($url);
+        return $this->getUploadPath() . $this->getFileName();
     }
 
     /**
@@ -160,14 +153,15 @@ class File extends Base {
     }
 
     /**
-     * Check if file exists
+     * Check if multiple files exists
      *
-     * @param int $fileId file id
+     * @param array $filesIds array with file ids
      *
-     * @return boolean
+     * @return Collection
      */
-    public static function checkIfExists($fileId)
+    public static function checkIfMultipleExists($filesIds)
     {
-        return self::where('id', $fileId)->exists();
+        $idsInDb = self::whereIn('id', $filesIds)->pluck('id');
+        return collect($filesIds)->diff($idsInDb);
     }
 }

@@ -25,4 +25,16 @@ abstract class BaseTree extends Tree {
      * @var string
      */
     protected $dateFormat = 'Y-m-d H:i:s';
+
+    /**
+     * Check if file exists
+     *
+     * @param int $entityId file id
+     *
+     * @return boolean
+     */
+    public static function checkIfExists($entityId): bool
+    {
+        return self::where('id', $entityId)->exists();
+    }
 }
