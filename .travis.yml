@@ -2,6 +2,7 @@ language: php
 dist: trusty
 sudo: false
 cache:
+  timeout: 1000
   directories:
   - vendor # Composer packages
 
