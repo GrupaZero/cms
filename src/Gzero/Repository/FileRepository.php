@@ -211,6 +211,8 @@ class FileRepository extends BaseRepository {
                 if ($this->filesystem->has($path)) {
                     $this->filesystem->delete($path);
                 }
+                $file->blocks()->detach($file);
+                $file->contents()->detach($file);
                 $file->delete();
                 $file->translations()->delete();
                 //@TODO remove croppa thumbnails
@@ -294,28 +296,29 @@ class FileRepository extends BaseRepository {
     /**
      * Get all files to specific content
      *
-     * @param Content  $content  Content content
-     * @param array    $criteria Filter criteria
-     * @param array    $orderBy  Array of columns
-     * @param int|null $page     Page number (if null == disabled pagination)
-     * @param int|null $pageSize Limit results
+     * @param Uploadable $entity   Content content
+     * @param array      $criteria Filter criteria
+     * @param array      $orderBy  Array of columns
+     * @param int|null   $page     Page number (if null == disabled pagination)
+     * @param int|null   $pageSize Limit results
      *
      * @throws RepositoryException
      * @return EloquentCollection
      */
-    public function getContentFiles(
-        Content $content,
+    public function getEntityFiles(
+        Uploadable $entity,
         array $criteria = [],
         array $orderBy = [],
         $page = 1,
         $pageSize = self::ITEMS_PER_PAGE
     ) {
-        $query  = $content->files(false);
+        $query  = $entity->files(false);
+        $table  = $query->getModel()->getTable();
         $parsed = $this->parseArgs($criteria, $orderBy);
         $this->handleTranslationsJoin($parsed['filter'], $parsed['orderBy'], $query);
-        $this->handleFilterCriteria($this->getFilesTableName(), $query, $parsed['filter']);
+        $this->handleFilterCriteria($table, $query, $parsed['filter']);
         $this->handleOrderBy(
-            $this->getFilesTableName(),
+            $table,
             $parsed['orderBy'],
             $query,
             function ($query) {
@@ -323,42 +326,7 @@ class FileRepository extends BaseRepository {
                 $query->orderBy('uploadables.weight', 'ASC');
             }
         );
-        return $this->handlePagination($this->getFilesTableName(), $query, $page, $pageSize);
-    }
-
-    /**
-     * Get all files to specific block
-     *
-     * @param Block    $block    Block block
-     * @param array    $criteria Filter criteria
-     * @param array    $orderBy  Array of columns
-     * @param int|null $page     Page number (if null == disabled pagination)
-     * @param int|null $pageSize Limit results
-     *
-     * @throws RepositoryException
-     * @return EloquentCollection
-     */
-    public function getBlockFiles(
-        Block $block,
-        array $criteria = [],
-        array $orderBy = [],
-        $page = 1,
-        $pageSize = self::ITEMS_PER_PAGE
-    ) {
-        $query  = $block->files(false);
-        $parsed = $this->parseArgs($criteria, $orderBy);
-        $this->handleTranslationsJoin($parsed['filter'], $parsed['orderBy'], $query);
-        $this->handleFilterCriteria($this->getFilesTableName(), $query, $parsed['filter']);
-        $this->handleOrderBy(
-            $this->getFilesTableName(),
-            $parsed['orderBy'],
-            $query,
-            function ($query) {
-                // default order by
-                $query->orderBy('uploadables.weight', 'ASC');
-            }
-        );
-        return $this->handlePagination($this->getFilesTableName(), $query, $page, $pageSize);
+        return $this->handlePagination($table, $query, $page, $pageSize);
     }
 
     /**

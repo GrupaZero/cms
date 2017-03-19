@@ -646,6 +646,8 @@ class ContentRepository extends BaseRepository {
                     $node->delete();
                 }
                 $this->events->fire('content.deleting', [$content]);
+                // Detach all files
+                $content->files()->sync([]);
                 $content->delete();
                 $this->events->fire('content.deleted', [$content]);
                 return true;

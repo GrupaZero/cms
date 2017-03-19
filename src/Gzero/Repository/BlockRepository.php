@@ -154,6 +154,8 @@ class BlockRepository extends BaseRepository {
         return $this->newQuery()->transaction(
             function () use ($block) {
                 $this->events->fire('block.deleting', [$block]);
+                // Detach all files
+                $block->files()->sync([]);
                 $block->delete();
                 $this->events->fire('block.deleted', [$block]);
                 $this->clearBlocksCache();

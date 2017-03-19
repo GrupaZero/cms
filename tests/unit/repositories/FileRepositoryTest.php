@@ -484,7 +484,7 @@ class FileRepositoryTest extends \TestCase {
     /**
      * @test
      */
-    public function it_should_sync_files_with_Block()
+    public function it_should_sync_files_with_block()
     {
         $block = Block::create(['type' => 'basic']);
         $file1 = File::create(
@@ -514,6 +514,46 @@ class FileRepositoryTest extends \TestCase {
             ],
             $response
         );
+    }
+
+    /**
+     * @test
+     */
+    public function it_should_detach_after_delete()
+    {
+        $this->diskMock->shouldReceive('has')->once()->andReturn(true);
+        $this->diskMock->shouldReceive('delete')->once()->withArgs(['images/example2.png']);
+
+        $block   = Block::create(['type' => 'basic']);
+        $content = Content::create(['type' => 'content']);
+        $file1   = File::create(
+            [
+                'type'      => 'image',
+                'name'      => 'example',
+                'extension' => 'png',
+                'is_active' => true,
+            ]
+        );
+        $file2   = File::create(
+            [
+                'type'      => 'image',
+                'name'      => 'example2',
+                'extension' => 'png',
+                'is_active' => true,
+            ]
+        );
+
+        $this->repository->syncWith($content, [$file1->id, $file2->id]);
+        $this->repository->syncWith($block, [$file2->id]);
+
+        $this->repository->delete($file2);
+
+        $blockFiles   = $block->files()->get();
+        $contentFiles = $content->files()->get();
+
+        $this->assertCount(0, $blockFiles);
+        $this->assertCount(1, $contentFiles);
+        $this->assertEquals($file1->name, $contentFiles->get(0)->name);
     }
 
     /**
@@ -832,6 +872,69 @@ class FileRepositoryTest extends \TestCase {
         $this->assertEquals($secondFile->type, $files[0]->type);
         $this->assertEquals($secondFile['translations'][0]['title'], $files[0]['translations'][0]['title']);
         $this->assertEquals($secondFile['translations'][0]['lang_code'], $files[0]['translations'][0]['lang_code']);
+    }
+
+    /**
+     * @test
+     */
+    public function can_get_entity_files_by_type()
+    {
+        $content = Content::create(['type' => 'content']);
+        $file1   = File::create(
+            [
+                'type'      => 'image',
+                'is_active' => true
+            ]
+        );
+        $file2   = File::create(
+            [
+                'type'      => 'document',
+                'is_active' => true
+            ]
+        );
+        $file3   = File::create(
+            [
+                'type'      => 'image',
+                'is_active' => false
+            ]
+        );
+
+        $content->files()->sync(
+            [
+                $file1->id => ['weight' => 2],
+                $file2->id => ['weight' => 3],
+                $file3->id => ['weight' => 1]
+            ]
+        );
+
+        $files = $this->repository->getEntityFiles(
+            $content,
+            [
+                ['type', '=', 'image'],
+                ['is_active', '=', true]
+            ]
+        );
+
+        $this->assertEquals(1, $files->count());
+        $this->assertEquals($file1->type, $files->get(0)->type);
+        $this->assertTrue($files->get(0)->is_active);
+
+        $files = $this->repository->getEntityFiles(
+            $content,
+            [
+                ['lang', '=', 'en'],
+                ['type', '=', 'image']
+            ],
+            [
+                ['pivot.weight', 'ASC'],
+            ]
+        );
+
+        $this->assertEquals(2, $files->count());
+        $this->assertEquals($file3->id, $files->get(0)->id);
+        $this->assertEquals($file1->id, $files->get(1)->id);
+        $this->assertFalse($files->get(0)->is_active);
+        $this->assertTrue($files->get(1)->is_active);
     }
 
     /*
