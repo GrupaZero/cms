@@ -512,6 +512,13 @@ class FileRepositoryTest extends \TestCase {
             ],
             $response2
         );
+
+        // Expected relations after test
+        $remainingFiles1 = $content1->files(false)->get();
+        $remainingFiles2 = $content2->files(false)->get();
+        $this->assertCount(3, $remainingFiles1);
+        $this->assertCount(1, $remainingFiles2);
+        $this->assertEquals($file1->id, $remainingFiles1->get(0)->id);
     }
 
     /**
