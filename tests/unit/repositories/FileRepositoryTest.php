@@ -451,34 +451,74 @@ class FileRepositoryTest extends \TestCase {
      */
     public function it_should_sync_files_with_content()
     {
-        $content = Content::create(['type' => 'content']);
-        $file1   = File::create(
+        $content1 = Content::create(['type' => 'content']);
+        $content2 = Content::create(['type' => 'content']);
+        $file1    = File::create(
             [
                 'type'      => 'image',
                 'name'      => 'example',
                 'extension' => 'png',
             ]
         );
-        $file2   = File::create(
+        $file2    = File::create(
             [
                 'type'      => 'image',
                 'name'      => 'example2',
                 'extension' => 'png',
             ]
         );
+        $file3    = File::create(
+            [
+                'type'      => 'image',
+                'name'      => 'example3',
+                'extension' => 'png',
+            ]
+        );
 
-        $response = $this->repository->syncWith($content, [$file1->id, $file2->id]);
+        $response1 = $this->repository->syncWith($content1, [$file1->id, $file2->id, $file3->id]);
+        $response2 = $this->repository->syncWith($content2, [$file1->id, $file2->id, $file3->id]);
         $this->assertEquals(
             [
                 "attached" => [
                     $file1->id,
                     $file2->id,
+                    $file3->id,
                 ],
                 "detached" => [],
                 "updated"  => []
             ],
-            $response
+            $response1
         );
+        $this->assertEquals(
+            [
+                "attached" => [
+                    $file1->id,
+                    $file2->id,
+                    $file3->id,
+                ],
+                "detached" => [],
+                "updated"  => []
+            ],
+            $response2
+        );
+
+        // Detaching & updating
+        $response2 = $this->repository->syncWith($content2, [$file1->id => ['weight' => 1]]);
+        $this->assertEquals(
+            [
+                "attached" => [],
+                "detached" => [1 => $file2->id, 2 => $file3->id], // @TODO Why key starts from 1?
+                "updated"  => [$file1->id]
+            ],
+            $response2
+        );
+
+        // Expected relations after test
+        $remainingFiles1 = $content1->files(false)->get();
+        $remainingFiles2 = $content2->files(false)->get();
+        $this->assertCount(3, $remainingFiles1);
+        $this->assertCount(1, $remainingFiles2);
+        $this->assertEquals($file1->id, $remainingFiles1->get(0)->id);
     }
 
     /**
