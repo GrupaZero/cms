@@ -113,6 +113,49 @@ class ValidatorTest extends \Codeception\Test\Unit {
     }
 
     /**
+     * @test
+     * @expectedException \Illuminate\Validation\ValidationException
+     */
+    public function it_throw_required_error_for_arrays()
+    {
+        $this->input['data'] = [[]];
+        try {
+            $this->validator->validate('testArrays', $this->input);
+        } catch (ValidationException $e) {
+            $this->assertEquals('The data.0.id field is required.', $e->validator->getMessageBag()->first('data.0.id'));
+            throw $e;
+        }
+    }
+
+    /**
+     * @test
+     * @expectedException \Illuminate\Validation\ValidationException
+     */
+    public function it_throw_numeric_error_for_arrays()
+    {
+        $this->input['data'] = [['id' => 1337], ['id' => 'asdas']];
+        try {
+            $this->validator->validate('testArrays', $this->input);
+        } catch (ValidationException $e) {
+            $this->assertEquals('The data.1.id must be a number.', $e->validator->getMessageBag()->first('data.1.id'));
+            throw $e;
+        }
+    }
+
+    /**
+     * @test
+     */
+    public function it_validates_arrays()
+    {
+        $this->input['data'] = [['id' => 1337], ['id' => 999]];
+
+        $result = $this->validator->validate('testArrays', $this->input);
+        $this->assertNotEmpty($result);
+        $this->assertContains(['id' => 1337], $result['data']);
+        $this->assertContains(['id' => 999], $result['data']);
+    }
+
+    /**
      * @return array
      */
     protected function initData()
