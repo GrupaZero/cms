@@ -142,9 +142,9 @@ class ServiceProvider extends AbstractServiceProvider {
         );
 
         $this->app->singleton(
-            'croppa.s3',
+            'croppa.src_dir',
             function () {
-                return app('filesystem')->disk('s3')->getDriver();
+                return app('filesystem')->disk(config('gzero.upload.disk'))->getDriver();
             }
         );
     }
