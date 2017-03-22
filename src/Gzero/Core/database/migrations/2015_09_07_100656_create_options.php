@@ -79,16 +79,8 @@ class CreateOptions extends Migration {
                     if ($categoryKey != 'general') {
                         $options[$categoryKey][$key][$lang['code']] = config('gzero.' . $categoryKey . '.' . $key);
                     } else {
-                        switch ($key) {
-                            case 'site_name':
-                                $value = config('app.name');
-                                break;
-                            case 'site_desc':
-                                $value = "GZERO-CMS Content management system.";
-                                break;
-                            default:
-                                $value = config('gzero.' . $key);
-                        }
+                        $value = $this->getDefaultValueForGeneral($key);
+
                         $options[$categoryKey][$key][$lang['code']] = $value;
                     }
                 }
@@ -104,5 +96,28 @@ class CreateOptions extends Migration {
                 );
             }
         }
+    }
+
+    /**
+     * It generates default value for general options
+     *
+     * @param $key
+     *
+     * @return mixed|string
+     */
+    private function getDefaultValueForGeneral($key)
+    {
+        switch ($key) {
+            case 'site_name':
+                $value = config('app.name');
+                break;
+            case 'site_desc':
+                $value = "GZERO-CMS Content management system.";
+                break;
+            default:
+                $value = config('gzero.' . $key);
+                return $value;
+        }
+        return $value;
     }
 }
