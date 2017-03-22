@@ -1,8 +1,6 @@
 <?php
 return [
     'domain'                   => env('DOMAIN', 'localhost'),
-    'site_name'                => env('SITE_NAME', 'G-ZERO CMS'),
-    'site_desc'                => env('SITE_DESC', 'Content management system.'),
     'default_page_size'        => 5,
     'seo'                      => [
         'alternative_title' => 'title',

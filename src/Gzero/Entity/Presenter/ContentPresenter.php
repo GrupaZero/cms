@@ -178,7 +178,7 @@ class ContentPresenter extends BasePresenter {
                     'publisher'        => [
                         '@type' => 'Brand',
                         'url'   => route('home'),
-                        'name'  => config('gzero.site_name'),
+                        'name'  => config('app.name'),
                         'logo'  => [
                             '@type' => 'ImageObject',
                             'url'   => asset('/images/logo.png')

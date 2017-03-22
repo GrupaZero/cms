@@ -127,7 +127,7 @@ class ServiceProvider extends AbstractServiceProvider {
     protected function bindRepositories()
     {
         $this->app->singleton(
-            'user.menu',
+            'gzero.menu.account',
             function () {
                 return new Register();
             }
