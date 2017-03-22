@@ -111,9 +111,38 @@ class OptionsServiceTest extends \TestCase {
         foreach ($this->expectedOptions as $categoryKey => $category) {
             foreach ($this->expectedOptions[$categoryKey] as $key => $option) {
                 foreach (Lang::all()->toArray() as $lang) {
-                    $this->expectedOptions[$categoryKey][$key][$lang['code']] = config('gzero.' . $key);
+                    if ($categoryKey != 'general') {
+                        $this->expectedOptions[$categoryKey][$key][$lang['code']] = config('gzero.' . $categoryKey . '.' . $key);
+                    } else {
+                        $value = $this->getDefaultValueForGeneral($key);
+
+                        $this->expectedOptions[$categoryKey][$key][$lang['code']] = $value;
+                    }
                 }
             }
         }
+    }
+
+    /**
+     * It generates default value for general options
+     *
+     * @param $key
+     *
+     * @return mixed|string
+     */
+    private static function getDefaultValueForGeneral($key)
+    {
+        switch ($key) {
+            case 'site_name':
+                $value = "GZERO-CMS"; // Hardcoded from default migration
+                break;
+            case 'site_desc':
+                $value = "GZERO-CMS Content management system.";
+                break;
+            default:
+                $value = config('gzero.' . $key);
+                return $value;
+        }
+        return $value;
     }
 }
