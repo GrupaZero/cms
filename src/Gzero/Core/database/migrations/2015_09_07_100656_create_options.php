@@ -79,7 +79,17 @@ class CreateOptions extends Migration {
                     if ($categoryKey != 'general') {
                         $options[$categoryKey][$key][$lang['code']] = config('gzero.' . $categoryKey . '.' . $key);
                     } else {
-                        $options[$categoryKey][$key][$lang['code']] = config('gzero.' . $key);
+                        switch ($key) {
+                            case 'site_name':
+                                $value = config('app.name');
+                                break;
+                            case 'site_desc':
+                                $value = "GZERO-CMS Content management system.";
+                                break;
+                            default:
+                                $value = config('gzero.' . $key);
+                        }
+                        $options[$categoryKey][$key][$lang['code']] = $value;
                     }
                 }
             }
