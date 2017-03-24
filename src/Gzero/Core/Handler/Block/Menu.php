@@ -2,7 +2,6 @@
 
 use Gzero\Entity\Block;
 use Gzero\Entity\Lang;
-use Gzero\Repository\MenuLinkRepository;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -18,46 +17,24 @@ use Gzero\Repository\MenuLinkRepository;
  */
 class Menu implements BlockTypeHandler {
 
-    /**
-     * @var
-     */
-    private $block;
+    use CacheBlockTrait;
 
     /**
-     * @var
-     */
-    private $translations;
-
-    /**
-     * Menu constructor
+     * Load block
      *
+     * @param Block $block Block entity
+     * @param Lang  $lang  Lang entity
+     *
+     * @return string
      */
-    public function __construct()
+    public function render(Block $block, Lang $lang)
     {
+        $html = $this->getFromCache($block, $lang);
+        if ($html !== null) {
+            return $html;
+        }
+        $html = view('blocks.menu', ['block' => $block])->render();
+        $this->putInCache($block, $lang, $html);
+        return $html;
     }
-
-    // @codingStandardsIgnoreStart
-
-    /**
-     * {@inheritdoc}
-     */
-    public function load(Block $block, Lang $lang)
-    {
-        $this->block        = $block;
-        $this->translations = $block->getPresenter()->translation($lang->code);
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function render()
-    {
-        return \View::make(
-            'blocks.menu',
-            ['block' => $this->block, 'translations' => $this->translations]
-        )->render();
-    }
-
-    // @codingStandardsIgnoreEnd
 }

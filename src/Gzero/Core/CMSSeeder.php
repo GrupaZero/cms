@@ -346,7 +346,7 @@ class CMSSeeder extends Seeder {
     private function seedBlockTypes()
     {
         $blockTypes = [];
-        foreach (['basic', 'menu', 'slider', 'content', 'widget'] as $type) {
+        foreach (['basic', 'menu', 'slider', 'widget'] as $type) {
             $blockTypes[$type] = BlockType::firstOrCreate(['name' => $type, 'is_active' => true]);
         }
         return $blockTypes;

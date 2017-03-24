@@ -32,21 +32,20 @@ return [
 
     ],
     'block_type'               => [
-        'basic'   => 'Gzero\Core\Handler\Block\Basic',
-        'content' => 'Gzero\Core\Handler\Block\Content',
-        'menu'    => 'Gzero\Core\Handler\Block\Menu',
-        'slider'  => 'Gzero\Core\Handler\Block\Slider',
-        'widget'  => 'Gzero\Core\Handler\Block\Widget'
+        'basic'  => Gzero\Core\Handler\Block\Basic::class,
+        'menu'   => Gzero\Core\Handler\Block\Menu::class,
+        'slider' => Gzero\Core\Handler\Block\Slider::class,
+        'widget' => Gzero\Core\Handler\Block\Widget::class
     ],
     'content_type'             => [
-        'content'  => 'Gzero\Core\Handler\Content\Content',
-        'category' => 'Gzero\Core\Handler\Content\Category'
+        'content'  => Gzero\Core\Handler\Content\Content::class,
+        'category' => Gzero\Core\Handler\Content\Category::class
     ],
     'file_type'                => [
-        'image'    => 'Gzero\Core\Handler\File\Image',
-        'document' => 'Gzero\Core\Handler\File\Document',
-        'video'    => 'Gzero\Core\Handler\File\Video',
-        'music'    => 'Gzero\Core\Handler\File\Music'
+        'image'    => Gzero\Core\Handler\File\Image::class,
+        'document' => Gzero\Core\Handler\File\Document::class,
+        'video'    => Gzero\Core\Handler\File\Video::class,
+        'music'    => Gzero\Core\Handler\File\Music::class
     ],
     'available_blocks_regions' => [
         'header',

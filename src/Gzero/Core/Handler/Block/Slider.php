@@ -2,6 +2,7 @@
 
 use Gzero\Entity\Block;
 use Gzero\Entity\Lang;
+use Gzero\Repository\FileRepository;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -17,37 +18,46 @@ use Gzero\Entity\Lang;
  */
 class Slider implements BlockTypeHandler {
 
-    /**
-     * @var
-     */
-    private $block;
+    use CacheBlockTrait;
 
     /**
-     * @var
+     * @var FileRepository
      */
-    private $translations;
-    // @codingStandardsIgnoreStart
+    private $fileRepo;
 
     /**
-     * {@inheritdoc}
+     * Slider constructor.
+     *
+     * @param FileRepository $fileRepo File repository
      */
-    public function load(Block $block, Lang $lang)
+    public function __construct(FileRepository $fileRepo)
     {
-        $this->block        = $block;
-        $this->translations = $block->getPresenter()->translation($lang->code);
-        return $this;
+        $this->fileRepo = $fileRepo;
     }
 
     /**
-     * {@inheritdoc}
+     * Load block
+     *
+     * @param Block $block Block entity
+     * @param Lang  $lang  Lang entity
+     *
+     * @return string
      */
-    public function render()
+    public function render(Block $block, Lang $lang)
     {
-        return \View::make(
-            'blocks.slider',
-            ['block' => $this->block, 'translations' => $this->translations]
-        )->render();
+        $html = $this->getFromCache($block, $lang);
+        if ($html !== null) {
+            return $html;
+        }
+        $images = $this->fileRepo->getEntityFiles(
+            $block,
+            [
+                ['type', '=', 'image'],
+                ['is_active', '=', true]
+            ]
+        );
+        $html   = view('blocks.slider', ['block' => $block, 'images' => $images])->render();
+        $this->putInCache($block, $lang, $html);
+        return $html;
     }
-
-    // @codingStandardsIgnoreEnd
 }

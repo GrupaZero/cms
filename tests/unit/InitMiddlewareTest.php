@@ -1,6 +1,6 @@
 <?php namespace unit;
 
-require __DIR__ . '../../../../src/Gzero/Core/helpers.php';
+require __DIR__ . '/../../src/Gzero/Core/helpers.php';
 
 use Illuminate\Http\Request;
 use \Mockery as m;

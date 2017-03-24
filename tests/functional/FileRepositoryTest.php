@@ -13,8 +13,8 @@ use Illuminate\Http\UploadedFile;
 use Mockery as m;
 use Illuminate\Events\Dispatcher;
 
-require_once(__DIR__ . '/../../stub/TestSeeder.php');
-require_once(__DIR__ . '/../../stub/TestTreeSeeder.php');
+require_once(__DIR__ . '/../stub/TestSeeder.php');
+require_once(__DIR__ . '/../stub/TestTreeSeeder.php');
 
 /**
  * This file is part of the GZERO CMS package.
@@ -58,7 +58,7 @@ class FileRepositoryTest extends \TestCase {
         // Start the Laravel application
         $this->startApplication();
         $this->repository = new FileRepository(new File(), new FileType(), new Dispatcher(), $filesystemManager);
-        $this->filesDir   = __DIR__ . '/../../resources';
+        $this->filesDir   = __DIR__ . '/../resources';
         $this->seed('TestSeeder'); // Relative to tests/app/
     }
 

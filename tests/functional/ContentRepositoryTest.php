@@ -7,8 +7,8 @@ use Gzero\Repository\FileRepository;
 use Illuminate\Events\Dispatcher;
 use Illuminate\Support\Facades\Storage;
 
-require_once(__DIR__ . '/../../stub/TestSeeder.php');
-require_once(__DIR__ . '/../../stub/TestTreeSeeder.php');
+require_once(__DIR__ . '/../stub/TestSeeder.php');
+require_once(__DIR__ . '/../stub/TestTreeSeeder.php');
 
 /**
  * This file is part of the GZERO CMS package.
