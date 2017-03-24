@@ -2,6 +2,7 @@
 
 use Gzero\Entity\Presenter\BlockPresenter;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Robbo\Presenter\PresentableInterface;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -15,7 +16,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2015, Adrian Skierniewski
  */
-class Block extends Base implements Uploadable {
+class Block extends Base implements Uploadable, PresentableInterface {
 
     use SoftDeletes;
 

@@ -2,6 +2,7 @@
 
 use Gzero\Entity\Presenter\FilePresenter;
 use Illuminate\Support\Collection;
+use Robbo\Presenter\PresentableInterface;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -15,7 +16,7 @@ use Illuminate\Support\Collection;
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2015, Adrian Skierniewski
  */
-class File extends Base {
+class File extends Base implements PresentableInterface {
 
     /**
      * @var array

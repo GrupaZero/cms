@@ -56,7 +56,7 @@ class Slider implements BlockTypeHandler {
                 ['is_active', '=', true]
             ]
         );
-        $html   = view('blocks.slider', ['block' => $block, 'images' => $images])->render();
+        $html   = view('blocks.slider', ['block' => $block, 'images' => $images, 'lang' => $lang])->render();
         $this->putInCache($block, $lang, $html);
         return $html;
     }

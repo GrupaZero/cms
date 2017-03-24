@@ -33,7 +33,7 @@ class Menu implements BlockTypeHandler {
         if ($html !== null) {
             return $html;
         }
-        $html = view('blocks.menu', ['block' => $block])->render();
+        $html = view('blocks.menu', ['block' => $block, 'lang' => $lang])->render();
         $this->putInCache($block, $lang, $html);
         return $html;
     }
