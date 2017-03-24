@@ -17,35 +17,24 @@ use Gzero\Entity\Lang;
  */
 class Widget implements BlockTypeHandler {
 
-    /**
-     * @var
-     */
-    private $block;
+    use CacheBlockTrait;
 
     /**
-     * @var
+     * Load block
+     *
+     * @param Block $block Block entity
+     * @param Lang  $lang  Lang entity
+     *
+     * @return string
      */
-    private $translations;
-    // @codingStandardsIgnoreStart
-    /**
-     * {@inheritdoc}
-     */
-    public function load(Block $block, Lang $lang)
+    public function render(Block $block, Lang $lang)
     {
-        $this->block        = $block;
-        $this->translations = $block->getPresenter()->translation($lang->code);
-        return $this;
+        $html = $this->getFromCache($block, $lang);
+        if ($html !== null) {
+            return $html;
+        }
+        $html = view('blocks.widget', ['block' => $block->getPresenter()])->render();
+        $this->putInCache($block, $lang, $html);
+        return $html;
     }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function render()
-    {
-        return \View::make(
-            'blocks.widget',
-            ['block' => $this->block, 'translations' => $this->translations]
-        )->render();
-    }
-    // @codingStandardsIgnoreEnd
 }

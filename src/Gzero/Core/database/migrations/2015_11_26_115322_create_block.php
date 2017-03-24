@@ -98,7 +98,7 @@ class CreateBlock extends Migration {
      */
     private function seedBlockTypes()
     {
-        foreach (['basic', 'menu', 'slider', 'content', 'widget'] as $type) {
+        foreach (['basic', 'menu', 'slider', 'widget'] as $type) {
             BlockType::firstOrCreate(['name' => $type, 'is_active' => true]);
         }
     }

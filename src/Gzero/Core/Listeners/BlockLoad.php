@@ -116,8 +116,8 @@ class BlockLoad {
     protected function handleBlockRendering($blocks)
     {
         foreach ($blocks as &$block) {
-            $type        = app()->make('block:type:' . $block->type);
-            $block->view = $type->load($block, $this->langRepository->getCurrent())->render();
+            $type        = app('block:type:' . $block->type);
+            $block->view = $type->render($block, $this->langRepository->getCurrent());
         }
     }
 
