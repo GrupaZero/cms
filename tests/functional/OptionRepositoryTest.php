@@ -5,8 +5,8 @@ use Gzero\Entity\Option;
 use Gzero\Entity\OptionCategory;
 use Gzero\Repository\OptionRepository;
 
-require_once(__DIR__ . '/../../stub/TestSeeder.php');
-require_once(__DIR__ . '/../../stub/TestTreeSeeder.php');
+require_once(__DIR__ . '/../stub/TestSeeder.php');
+require_once(__DIR__ . '/../stub/TestTreeSeeder.php');
 
 class OptionRepositoryTest extends \TestCase {
 

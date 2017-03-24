@@ -1,6 +1,6 @@
 <?php namespace unit;
 
-require_once(__DIR__ . '/../../stub/DummyValidator.php');
+require_once(__DIR__ . '/../stub/DummyValidator.php');
 
 use Aedart\Testing\Laravel\Traits\TestHelperTrait;
 use Illuminate\Validation\ValidationException;

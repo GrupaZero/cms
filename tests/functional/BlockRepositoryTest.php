@@ -6,11 +6,9 @@ use Gzero\Repository\BlockRepository;
 use Illuminate\Cache\CacheManager;
 use Illuminate\Events\Dispatcher;
 use Gzero\Core\BlockFinder;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-
-require_once(__DIR__ . '/../../stub/TestSeeder.php');
-require_once(__DIR__ . '/../../stub/TestTreeSeeder.php');
+require_once(__DIR__ . '/../stub/TestSeeder.php');
+require_once(__DIR__ . '/../stub/TestTreeSeeder.php');
 
 /**
  * This file is part of the GZERO CMS package.
