@@ -33,7 +33,7 @@ class Widget implements BlockTypeHandler {
         if ($html !== null) {
             return $html;
         }
-        $html = view('blocks.widget', ['block' => $block->getPresenter()])->render();
+        $html = view('blocks.widget', ['block' => $block])->render();
         $this->putInCache($block, $lang, $html);
         return $html;
     }

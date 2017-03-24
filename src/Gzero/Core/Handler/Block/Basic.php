@@ -33,7 +33,7 @@ class Basic implements BlockTypeHandler {
         if ($html !== null) {
             return $html;
         }
-        $html = view('blocks.basic', ['block' => $block->getPresenter()])->render();
+        $html = view('blocks.basic', ['block' => $block])->render();
         $this->putInCache($block, $lang, $html);
         return $html;
     }
