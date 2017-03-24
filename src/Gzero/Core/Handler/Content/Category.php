@@ -2,7 +2,8 @@
 
 use Gzero\Entity\Content as ContentEntity;
 use Gzero\Entity\Lang;
-use Illuminate\Support\Facades\View;
+use Illuminate\Support\Collection;
+use Illuminate\View\View;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -18,6 +19,9 @@ use Illuminate\Support\Facades\View;
  */
 class Category extends Content {
 
+    /**
+     * @var Collection
+     */
     protected $children;
 
     /**
@@ -56,12 +60,22 @@ class Category extends Content {
      */
     public function render()
     {
-        return View::make(
+        return view(
             'contents.category',
             [
                 'content'      => $this->content,
                 'translations' => $this->translations,
                 'author'       => $this->author,
+                'images'       => $this->files->filter(
+                    function ($file) {
+                        return $file->type === 'image';
+                    }
+                ),
+                'documents'    => $this->files->filter(
+                    function ($file) {
+                        return $file->type === 'document';
+                    }
+                ),
                 'children'     => $this->children
             ]
         );
@@ -74,7 +88,7 @@ class Category extends Content {
      *
      * @return void
      */
-    protected function buildBradcrumbsFromUrl($lang)
+    protected function buildBreadcrumbsFromUrl($lang)
     {
         $url = (config('gzero.multilang.enabled')) ? '/' . $lang->code : '';
         $this->breadcrumbs->register(
@@ -82,7 +96,7 @@ class Category extends Content {
             function ($breadcrumbs) use ($lang, $url) {
                 $breadcrumbs->push(trans('common.home'), $url);
                 foreach (explode('/', $this->content->getUrl($lang->code)) as $urlPart) {
-                    $url .= '/' . $urlPart;
+                    $url  .= '/' . $urlPart;
                     $name = ucwords(str_replace('-', ' ', $urlPart));
                     $breadcrumbs->push($name, $url);
                 }

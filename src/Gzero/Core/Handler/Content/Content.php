@@ -3,9 +3,10 @@
 use Gzero\Entity\Lang;
 use Gzero\Entity\Content as ContentEntity;
 use Gzero\Repository\ContentRepository;
-use Illuminate\Foundation\Application;
-use Illuminate\Support\Facades\View;
+use Gzero\Repository\FileRepository;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
+use Illuminate\View\View;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -22,19 +23,14 @@ use Illuminate\Http\Request;
 class Content implements ContentTypeHandler {
 
     /**
-     * @var Application
-     */
-    protected $app;
-
-    /**
-     * @var
-     */
-    protected $parents;
-
-    /**
-     * @var
+     * @var ContentEntity
      */
     protected $content;
+
+    /**
+     * @var Collection
+     */
+    protected $files;
 
     /**
      * @var
@@ -52,7 +48,12 @@ class Content implements ContentTypeHandler {
     protected $contentRepo;
 
     /**
-     * @var DaveJamesMiller\Breadcrumbs\Manager
+     * @var FileRepository
+     */
+    protected $fileRepo;
+
+    /**
+     * @var \DaveJamesMiller\Breadcrumbs\Manager
      */
     protected $breadcrumbs;
 
@@ -64,15 +65,15 @@ class Content implements ContentTypeHandler {
     /**
      * Content constructor
      *
-     * @param Application       $app         Laravel application
-     * @param ContentRepository $contentRepo content repository
+     * @param ContentRepository $contentRepo Content repository
+     * @param FileRepository    $fileRepo    File repository
      * @param Request           $request     Request object
      */
-    public function __construct(Application $app, ContentRepository $contentRepo, Request $request)
+    public function __construct(ContentRepository $contentRepo, FileRepository $fileRepo, Request $request)
     {
-        $this->app         = $app;
         $this->contentRepo = $contentRepo;
-        $this->breadcrumbs = $this->app->make('breadcrumbs');
+        $this->fileRepo    = $fileRepo;
+        $this->breadcrumbs = app('breadcrumbs');
         $this->request     = $request;
     }
 
@@ -89,7 +90,8 @@ class Content implements ContentTypeHandler {
         if ($lang) { // Right now we don't need lang
             $this->content = $content->load('route.translations', 'translations', 'author');
         }
-        $this->buildBradcrumbsFromUrl($lang);
+        $this->files = $this->fileRepo->getEntityFiles($content, [['is_active', '=', true]]);
+        $this->buildBreadcrumbsFromUrl($lang);
 
         return $this;
     }
@@ -101,13 +103,22 @@ class Content implements ContentTypeHandler {
      */
     public function render()
     {
-        return View::make(
+        return view(
             'contents.content',
             [
                 'content'      => $this->content,
                 'translations' => $this->translations,
                 'author'       => $this->author,
-                'parents'      => null
+                'images'       => $this->files->filter(
+                    function ($file) {
+                        return $file->type === 'image';
+                    }
+                ),
+                'documents'    => $this->files->filter(
+                    function ($file) {
+                        return $file->type === 'document';
+                    }
+                )
             ]
         );
     }
@@ -119,7 +130,7 @@ class Content implements ContentTypeHandler {
      *
      * @return void
      */
-    protected function buildBradcrumbsFromUrl($lang)
+    protected function buildBreadcrumbsFromUrl($lang)
     {
         $url = (config('gzero.multilang.enabled')) ? '/' . $lang->code : '';
         $this->breadcrumbs->register(
@@ -127,7 +138,7 @@ class Content implements ContentTypeHandler {
             function ($breadcrumbs) use ($lang, $url) {
                 $breadcrumbs->push(trans('common.home'), $url);
                 foreach (explode('/', $this->content->getUrl($lang->code)) as $urlPart) {
-                    $url .= '/' . $urlPart;
+                    $url  .= '/' . $urlPart;
                     $name = ucwords(str_replace('-', ' ', $urlPart));
                     $breadcrumbs->push($name, $url);
                 }

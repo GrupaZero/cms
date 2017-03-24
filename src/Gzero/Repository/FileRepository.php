@@ -1,7 +1,5 @@
 <?php namespace Gzero\Repository;
 
-use Gzero\Entity\Block;
-use Gzero\Entity\Content;
 use Gzero\Entity\File;
 use Gzero\Entity\FileTranslation;
 use Gzero\Entity\FileType;
@@ -367,7 +365,7 @@ class FileRepository extends BaseRepository {
      */
     protected function listEagerLoad($results)
     {
-        $results->load('translations', 'author', 'contents', 'blocks');
+        $results->load('translations');
     }
 
     /**
