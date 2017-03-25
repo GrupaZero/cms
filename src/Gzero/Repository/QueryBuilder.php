@@ -35,7 +35,7 @@ class QueryBuilder {
     /**
      * @var int
      */
-    protected $pageSize = self::ITEMS_PER_PAGE;
+    protected $pageSize;
 
     /**
      * Query constructor.

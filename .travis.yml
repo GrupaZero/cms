@@ -1,13 +1,13 @@
 language: php
 dist: trusty
 sudo: false
-#cache:
-#  timeout: 1000
-#  directories:
-#  - vendor # Composer packages
+cache:
+  timeout: 1000
+  directories:
+  - vendor # Composer packages
 
 php:
-  - 7.1.1
+  - 7.1
 
 addons:
   postgresql: '9.6'
