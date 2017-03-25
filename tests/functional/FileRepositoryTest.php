@@ -7,6 +7,7 @@ use Gzero\Entity\FileTranslation;
 use Gzero\Entity\FileType;
 use Gzero\Entity\User;
 use Gzero\Repository\FileRepository;
+use Gzero\Repository\QueryBuilder;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Filesystem\FilesystemManager;
 use Illuminate\Http\UploadedFile;
@@ -751,13 +752,15 @@ class FileRepositoryTest extends \TestCase {
             ]
         );
 
-        // Get files
-        $files = $this->repository->getFiles(
+        $query = QueryBuilder::build(
             [
                 ['type', '=', 'image'],
                 ['is_active', '=', true]
             ]
         );
+
+        // Get files
+        $files = $this->repository->getFiles($query);
 
         $files->each(
             function ($file) use ($firstFile, $secondFile) {
@@ -810,31 +813,25 @@ class FileRepositoryTest extends \TestCase {
         $firstFile->translations()->save($firstFileTranslation);
         $secondFile->translations()->save($secondFileTranslation);
 
+        $query = new QueryBuilder();
+        $query->addFilter('translations.lang', '=', 'en');
+        $query->addSort('created_at', 'ASC');
+        $query->addSort('translations.title', 'ASC');
+
         // Ascending
-        $files = $this->repository->getFiles(
-            [
-                ['translations.lang', '=', 'en']
-            ],
-            [
-                ['created_at', 'ASC'],
-                ['translations.title', 'ASC'],
-            ]
-        );
+        $files = $this->repository->getFiles($query);
         // Created at
         $this->assertEquals($firstFile->created_at, $files[0]['created_at']);
         // Translations title
         $this->assertEquals('A file title', $files[0]['translations'][0]['title']);
 
+        $query = new QueryBuilder();
+        $query->addFilter('translations.lang', '=', 'en');
+        $query->addSort('created_at');
+        $query->addSort('translations.title', 'DESC');
+
         // Descending
-        $files = $this->repository->getFiles(
-            [
-                ['translations.lang', '=', 'en']
-            ],
-            [
-                ['created_at', 'DESC'],
-                ['translations.title', 'DESC'],
-            ]
-        );
+        $files = $this->repository->getFiles($query);
         // Created at
         $this->assertEquals($secondFile->created_at, $files[0]['created_at']);
         // Translations title
@@ -882,15 +879,12 @@ class FileRepositoryTest extends \TestCase {
         $firstFile->translations()->save($firstFileTranslation);
         $secondFile->translations()->save($secondFileTranslation);
 
+        $query = new QueryBuilder();
+        $query->addSort('created_at', 'ASC');
+        $query->setPageSize(1);
+
         // First Page
-        $files = $this->repository->getFiles(
-            [],
-            [
-                ['created_at', 'ASC'],
-            ],
-            1, // Page
-            1 // Items per page
-        );
+        $files = $this->repository->getFiles($query, 1); // Page 1
 
         // First file
         $this->assertEquals(1, count($files)); // Items per page
@@ -899,14 +893,8 @@ class FileRepositoryTest extends \TestCase {
         $this->assertEquals($firstFile['translations'][0]['lang_code'], $files[0]['translations'][0]['lang_code']);
 
         // Second Page
-        $files = $this->repository->getFiles(
-            [],
-            [
-                ['created_at', 'ASC'],
-            ],
-            2, // Page
-            1 // Items per page
-        );
+        $files = $this->repository->getFiles($query, 2); // Page 2
+
         // Second file
         $this->assertEquals(1, count($files));
         $this->assertEquals($secondFile->type, $files[0]->type);

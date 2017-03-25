@@ -268,18 +268,15 @@ class FileRepository extends BaseRepository {
     /**
      * Get all files with specific criteria
      *
-     * @param array    $criteria Filter criteria
-     * @param array    $orderBy  Array of columns
-     * @param int|null $page     Page number (if null == disabled pagination)
-     * @param int|null $pageSize Limit results
+     * @param QueryBuilder $repoQuery Repository query object
+     * @param int|null     $page      Page number (if null == disabled pagination)
      *
-     * @throws RepositoryException
      * @return EloquentCollection
      */
-    public function getFiles(array $criteria = [], array $orderBy = [], $page = 1, $pageSize = self::ITEMS_PER_PAGE)
+    public function getFiles(QueryBuilder $repoQuery, $page = 1)
     {
         $query  = $this->newORMQuery();
-        $parsed = $this->parseArgs($criteria, $orderBy);
+        $parsed = $this->parseArgs($repoQuery->getFilters(), $repoQuery->getSorts());
         $this->handleTranslationsJoin($parsed['filter'], $parsed['orderBy'], $query);
         $this->handleFilterCriteria($this->getTableName(), $query, $parsed['filter']);
         $this->handleOrderBy(
@@ -288,7 +285,7 @@ class FileRepository extends BaseRepository {
             $query,
             $this->fileDefaultOrderBy()
         );
-        return $this->handlePagination($this->getTableName(), $query, $page, $pageSize);
+        return $this->handlePagination($this->getTableName(), $query, $page, $repoQuery->getPageSize());
     }
 
     /**
