@@ -285,6 +285,9 @@ class FileRepository extends BaseRepository {
             $query,
             $this->fileDefaultOrderBy()
         );
+        if ($repoQuery->hasSearchQuery()) {
+            $query->where('name', 'like', '%' . $repoQuery->getSearchQeury() . '%');
+        }
         return $this->handlePagination($this->getTableName(), $query, $page, $repoQuery->getPageSize());
     }
 

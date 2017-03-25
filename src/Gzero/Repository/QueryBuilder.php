@@ -45,12 +45,45 @@ class QueryBuilder {
      * @param null  $search   Search query
      * @param int   $pageSize Page size
      */
-    public function __construct(array $filters = [], array $sorts = [], $search = null, $pageSize = SELF::ITEMS_PER_PAGE)
+    public function __construct(array $filters = [], array $sorts = [], $search = null, $pageSize = self::ITEMS_PER_PAGE)
     {
         $this->filters     = collect($filters);
         $this->sorts       = collect($sorts);
         $this->searchQuery = $search;
         $this->pageSize    = $pageSize;
+    }
+
+    /**
+     * It resets query builder
+     *
+     * @return void
+     */
+    public function reset()
+    {
+        $this->filters     = collect([]);
+        $this->sorts       = collect([]);
+        $this->searchQuery = null;
+        $this->pageSize    = self::ITEMS_PER_PAGE;
+    }
+
+    /**
+     * It resets filters
+     *
+     * @return void
+     */
+    public function resetFilters()
+    {
+        $this->filters = collect([]);
+    }
+
+    /**
+     * It resets filters
+     *
+     * @return void
+     */
+    public function resetSorts()
+    {
+        $this->sorts = collect([]);
     }
 
     /**
@@ -109,13 +142,13 @@ class QueryBuilder {
      *
      * @return bool
      */
-    public function hasSearchQuery(): boolean
+    public function hasSearchQuery(): bool
     {
-        return $this->searchQuery;
+        return (bool) $this->searchQuery;
     }
 
     /**
-     * Get criteria coletion
+     * Get criteria collection
      *
      * @return \Illuminate\Support\Collection
      */
@@ -164,7 +197,7 @@ class QueryBuilder {
      *
      * @return QueryBuilder
      */
-    public static function build(array $filters = [], array $sorts = [], $search = null, $pageSize = SELF::ITEMS_PER_PAGE)
+    public static function with(array $filters = [], array $sorts = [], $search = null, $pageSize = self::ITEMS_PER_PAGE)
     {
         return new self($filters, $sorts, $search, $pageSize);
     }
@@ -178,8 +211,33 @@ class QueryBuilder {
      *
      * @return QueryBuilder
      */
-    public static function buildWithSort(array $sorts = [], $search = null, $pageSize = SELF::ITEMS_PER_PAGE)
+    public static function withSort(array $sorts = [], $search = null, $pageSize = self::ITEMS_PER_PAGE)
     {
         return new self([], $sorts, $search, $pageSize);
+    }
+
+    /**
+     * Query factory method
+     *
+     * @param null $search   Search query
+     * @param int  $pageSize Page size
+     *
+     * @return QueryBuilder
+     */
+    public static function withSearch($search = null, $pageSize = self::ITEMS_PER_PAGE)
+    {
+        return new self([], [], $search, $pageSize);
+    }
+
+    /**
+     * Query factory method
+     *
+     * @param int $pageSize Page size
+     *
+     * @return QueryBuilder
+     */
+    public static function withPageSize($pageSize = self::ITEMS_PER_PAGE)
+    {
+        return new self([], [], null, $pageSize);
     }
 }
