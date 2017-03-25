@@ -7,7 +7,7 @@ cache:
   - vendor # Composer packages
 
 php:
-  - 7.1
+  - 7.1.2
 
 addons:
   postgresql: '9.6'

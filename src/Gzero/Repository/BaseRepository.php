@@ -7,6 +7,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Connection;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\App;
 
 /**
@@ -323,8 +324,8 @@ abstract class BaseRepository {
     /**
      * This functions translate filter criteria and orderBy params to more extended version.
      *
-     * @param array $criteria Filter criteria
-     * @param array $orderBy  Array of columns
+     * @param array|SupportCollection $criteria Filter criteria
+     * @param array|SupportCollection $orderBy  Array of columns
      *
      * @return array
      */
@@ -339,7 +340,7 @@ abstract class BaseRepository {
     /**
      * Parse criteria to extended version
      *
-     * @param array $criteria Filter criteria
+     * @param array|SupportCollection $criteria Filter criteria
      *
      * @return array
      */
@@ -370,7 +371,7 @@ abstract class BaseRepository {
     /**
      * Parse orderBy to extended version
      *
-     * @param array $orderBy Array of columns
+     * @param array|SupportCollection $orderBy Array of columns
      *
      * @return array
      */
