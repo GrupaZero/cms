@@ -142,7 +142,7 @@ class QueryBuilder {
      *
      * @return bool
      */
-    public function hasSearchQuery(): bool
+    public function hasSearchQuery()
     {
         return (bool) $this->searchQuery;
     }
