@@ -27,7 +27,6 @@ class Block extends Base implements Uploadable, PresentableInterface {
         'type',
         'region',
         'theme',
-        'author_id',
         'weight',
         'filter',
         'options',
