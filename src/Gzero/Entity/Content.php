@@ -28,8 +28,6 @@ class Content extends BaseTree implements PresentableInterface, Uploadable {
     protected $fillable = [
         'type',
         'theme',
-        'file_id',
-        'author_id',
         'path',
         'weight',
         'rating',
@@ -139,6 +137,16 @@ class Content extends BaseTree implements PresentableInterface, Uploadable {
     public function author()
     {
         return $this->belongsTo(User::class, 'author_id', 'id');
+    }
+
+    /**
+     * Content thumb relation
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\belongsTo
+     */
+    public function thumb()
+    {
+        return $this->belongsTo(File::class, 'thumb_id', 'id');
     }
 
     /**

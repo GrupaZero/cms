@@ -14,8 +14,8 @@ class AddFileColumnToContentsTable extends Migration {
         Schema::table(
             'contents',
             function (Blueprint $table) {
-                $table->integer('file_id')->unsigned()->nullable()->after('parent_id');
-                $table->foreign('file_id')->references('id')->on('files')->onDelete('SET NULL');
+                $table->integer('thumb_id')->unsigned()->nullable()->after('parent_id');
+                $table->foreign('thumb_id')->references('id')->on('files')->onDelete('SET NULL');
             }
         );
     }
@@ -30,8 +30,8 @@ class AddFileColumnToContentsTable extends Migration {
         Schema::table(
             'contents',
             function (Blueprint $table) {
-                $table->dropForeign(['file_id']);
-                $table->dropColumn('file_id');
+                $table->dropForeign(['thumb_id']);
+                $table->dropColumn('thumb_id');
             }
         );
     }

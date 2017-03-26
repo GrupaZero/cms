@@ -5,6 +5,7 @@ use Gzero\EloquentTree\Model\Tree;
 use Gzero\Entity\ContentTranslation;
 use Gzero\Entity\ContentType;
 use Gzero\Entity\Content;
+use Gzero\Entity\File;
 use Gzero\Entity\Route;
 use Gzero\Entity\RouteTranslation;
 use Gzero\Entity\User;
@@ -618,6 +619,7 @@ class ContentRepository extends BaseRepository {
             function () use ($content, $data, $modifier) {
                 $content->fill($data);
                 $this->events->fire('content.updating', [$content]);
+                $this->handleThumbAssociation($data, $content);
                 if (!empty($data['parent_id'])) {
                     $this->handleParentUpdate($content, $data);
                 } else {
@@ -780,7 +782,7 @@ class ContentRepository extends BaseRepository {
      */
     protected function listEagerLoad($results)
     {
-        $results->load('route.translations', 'translations', 'author');
+        $results->load('route.translations', 'translations', 'author', 'thumb', 'thumb.translations');
     }
 
 
@@ -856,6 +858,28 @@ class ContentRepository extends BaseRepository {
             $content->setChildOf($parent);
         } else {
             $content->setAsRoot();
+        }
+    }
+
+    /**
+     * Handle associating thumb
+     *
+     * @param array   $data    Data array
+     * @param Content $content Content entity
+     *
+     * @throws RepositoryException
+     * @return void
+     */
+    private function handleThumbAssociation(array $data, Content $content)
+    {
+        if (!empty($data['thumb_id'])) {
+            $thumb = File::first($data['thumb_id']);
+            if (empty($thumb)) {
+                throw new RepositoryException('Thumb does not exist');
+            }
+            $content->thumb()->associate($thumb);
+        } else {
+            $content->thumb()->dissociate();
         }
     }
 
