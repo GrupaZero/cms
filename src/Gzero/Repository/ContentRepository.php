@@ -872,14 +872,16 @@ class ContentRepository extends BaseRepository {
      */
     private function handleThumbAssociation(array $data, Content $content)
     {
-        if (!empty($data['thumb_id'])) {
-            $thumb = File::first($data['thumb_id']);
-            if (empty($thumb)) {
-                throw new RepositoryException('Thumb does not exist');
+        if (array_key_exists('thumb_id', $data)) {
+            if (!empty($data['thumb_id'])) {
+                $thumb = File::find($data['thumb_id']);
+                if (empty($thumb)) {
+                    throw new RepositoryException('Thumb does not exist');
+                }
+                $content->thumb()->associate($thumb);
+            } else {
+                $content->thumb()->dissociate();
             }
-            $content->thumb()->associate($thumb);
-        } else {
-            $content->thumb()->dissociate();
         }
     }
 
