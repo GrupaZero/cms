@@ -50,8 +50,7 @@ class CreateLang extends Migration {
             [
                 'code'      => 'en',
                 'i18n'      => 'en_US',
-                'is_enabled' => true,
-                'is_default' => true
+                'is_enabled' => true
             ]
         );
 
@@ -78,5 +77,7 @@ class CreateLang extends Migration {
                 'is_enabled' => false
             ]
         );
+
+        Lang::where('code', config('app.locale'))->update(['is_default' => true]);
     }
 }
