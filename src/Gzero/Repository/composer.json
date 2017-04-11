@@ -10,8 +10,8 @@
     "require": {
         "php": ">=7.1.0",
         "gzero/entity": "self.version",
-        "illuminate/events": "5.3.*",
-        "illuminate/database": "5.3.*"
+        "illuminate/events": "5.4.*",
+        "illuminate/database": "5.4.*"
     },
     "autoload": {
         "psr-0": {
