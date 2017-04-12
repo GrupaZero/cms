@@ -18,8 +18,8 @@
         "davejamesmiller/laravel-breadcrumbs": "3.0.*",
         "filp/whoops": "2.1.*",
         "gzero/eloquent-tree": "3.*",
-        "laravel/framework": "5.3.*",
-        "laravel/passport": "^1.0",
+        "laravel/framework": "5.4.*",
+        "laravel/passport": "^2.0",
         "robclancy/presenter": "1.3.2",
         "bkwld/croppa": "~4.0"
     },
@@ -35,7 +35,7 @@
         "phpmd/phpmd": "2.*",
         "squizlabs/php_codesniffer": "2.*",
         "satooshi/php-coveralls": "^1.0",
-        "aedart/testing-laravel": "1.8.*",
+        "aedart/testing-laravel": "2.*",
         "gzero/testing": "3.*"
     },
     "autoload": {

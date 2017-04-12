@@ -179,17 +179,20 @@ class ServiceProvider extends AbstractServiceProvider {
      */
     public function bindCommands()
     {
-        $this->app['command.mysqldump'] = $this->app->share(
-            function ($app) {
+        $this->app->singleton(
+            'command.mysqldump',
+            function () {
                 return new MysqlDump();
             }
         );
 
-        $this->app['command.mysqlrestore'] = $this->app->share(
-            function ($app) {
+        $this->app->singleton(
+            'command.mysqlrestore',
+            function () {
                 return new MysqlRestore();
             }
         );
+
         $this->commands(['command.mysqldump', 'command.mysqlrestore']);
     }
 

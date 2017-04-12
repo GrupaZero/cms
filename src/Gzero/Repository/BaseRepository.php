@@ -288,15 +288,11 @@ abstract class BaseRepository {
     {
         if (method_exists($this->model, 'translations')) {
             $relation   = $this->model->translations();
-            $foreignKey = explode('.', $relation->getForeignKey());
-            if (isset($foreignKey[1])) {
-                return $relation->getModel()
-                    ->where($foreignKey[1], $id)
-                    ->where('lang_code', $langCode)
-                    ->update(['is_active' => false]);
-            } else {
-                throw new RepositoryException("Unable to find foreign key of related translations");
-            }
+            $foreignKey = $relation->getForeignKeyName();
+            return $relation->getModel()
+                ->where($foreignKey, $id)
+                ->where('lang_code', $langCode)
+                ->update(['is_active' => false]);
         }
         throw new RepositoryException("Entity '" . get_class($this->model) . "' doesn't have translations relation");
     }

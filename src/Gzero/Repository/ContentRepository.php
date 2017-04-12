@@ -56,7 +56,7 @@ class ContentRepository extends BaseRepository {
      *
      * @param int $name Content id
      *
-     * @return ContentType
+     * @return ContentType|Builder
      */
     public function getTypeByName($name)
     {
@@ -68,7 +68,7 @@ class ContentRepository extends BaseRepository {
      *
      * @param int $id Content Translation id
      *
-     * @return ContentTranslation
+     * @return ContentTranslation|Builder
      */
     public function getTranslationById($id)
     {
@@ -80,7 +80,7 @@ class ContentRepository extends BaseRepository {
      *
      * @param int $id Content route id
      *
-     * @return Route
+     * @return Route|Builder
      */
     public function getRouteById($id)
     {
@@ -673,8 +673,8 @@ class ContentRepository extends BaseRepository {
                 // First we need to delete all routes because it's polymorphic relation
                 $this->newQuery()
                     ->table($routeRelation->getModel()->getTable())
-                    ->where($routeRelation->getPlainMorphType(), '=', get_class($content))
-                    ->whereIn($routeRelation->getPlainForeignKey(), $descendantsIds)
+                    ->where($routeRelation->getMorphType(), '=', get_class($content))
+                    ->whereIn($routeRelation->getForeignKeyName(), $descendantsIds)
                     ->delete();
                 $this->events->fire('content.forceDeleting', [$content]);
                 $this->getByIdWithTrashed($content->id)->forceDelete();
