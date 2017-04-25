@@ -1,6 +1,7 @@
 <?php
 return [
     'domain'                   => env('DOMAIN', 'localhost'),
+    'app_version'              => env('APP_VERSION', 'latest'),
     'default_page_size'        => 5,
     'seo'                      => [
         'alternative_title' => 'title',
