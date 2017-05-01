@@ -255,11 +255,7 @@ class UserRepository extends BaseRepository implements AuthenticatableContract {
      */
     protected function buildUniqueNickname($replacement = 'anonymous')
     {
-        // search for duplicated url
-        $count = $this->newQuery()
-            ->table('users')
-            ->whereRaw("nick ~ '^$replacement($|-[0-9]+$)'")
-            ->count();
-        return ($count) ? $replacement . '-' . $count : $replacement;
+        $maxId = $this->newQuery()->table('users')->max('id');
+        return $replacement . '-' . uniqid($maxId);
     }
 }

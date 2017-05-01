@@ -83,62 +83,90 @@ class UserRepositoryTest extends \TestCase {
      */
     public function can_create_user_with_empty_nickname_as_anonymous()
     {
-
-        $firstUserData = [
+        $data1 = [
             'email'      => 'john.doe@example.com',
             'password'   => 'secret',
             'nick'       => '',
             'first_name' => 'John',
             'last_name'  => 'Doe',
         ];
-
-        $secondUserData = [
+        $data2 = [
             'email'      => 'jane.doe@example.com',
             'password'   => 'secret',
             'nick'       => '',
             'first_name' => 'Jane',
             'last_name'  => 'Doe',
         ];
+        $data3 = [
+            'email'      => 'jane.doe2@example.com',
+            'password'   => 'secret',
+            'nick'       => '',
+            'first_name' => 'Jane',
+            'last_name'  => 'Doe2',
+        ];
 
-        $firstUser  = $this->repository->create($firstUserData);
-        $secondUser = $this->repository->create($secondUserData);
+        $user1 = $this->repository->create($data1);
+        $user2 = $this->repository->create($data2);
 
-        $firstUserFromDb  = $this->repository->getById($firstUser->id);
-        $secondUserFromDb = $this->repository->getById($secondUser->id);
+        $user1Db = $this->repository->getById($user1->id);
+        $user2Db = $this->repository->getById($user2->id);
 
         $this->assertEquals(
             [
-                $firstUser->email,
-                $firstUser->id,
-                'anonymous',
-                $firstUser->first_name,
-                $firstUser->last_name
+                $user1->email,
+                $user1->id,
+                $user1->first_name,
+                $user1->last_name
             ],
             [
-                $firstUserFromDb->email,
-                $firstUserFromDb->id,
-                $firstUserFromDb->nick,
-                $firstUserFromDb->first_name,
-                $firstUserFromDb->last_name
+                $user1Db->email,
+                $user1Db->id,
+                $user1Db->first_name,
+                $user1Db->last_name
             ]
         );
 
         $this->assertEquals(
             [
-                $secondUser->email,
-                $secondUser->id,
-                'anonymous-1',
-                $secondUser->first_name,
-                $secondUser->last_name
+                $user2->email,
+                $user2->id,
+                $user2->first_name,
+                $user2->last_name
             ],
             [
-                $secondUserFromDb->email,
-                $secondUserFromDb->id,
-                $secondUserFromDb->nick,
-                $secondUserFromDb->first_name,
-                $secondUserFromDb->last_name
+                $user2Db->email,
+                $user2Db->id,
+                $user2Db->first_name,
+                $user2Db->last_name
             ]
         );
+
+        $this->assertRegExp('/^anonymous\-[a-z 0-9]{13}/', $user1Db->nick);
+        $this->assertRegExp('/^anonymous\-[a-z 0-9]{13}/', $user2Db->nick);
+
+        // Deleting user1 to make sure that we still return unique nick
+        $this->repository->delete($user1);
+
+        $user3   = $this->repository->create($data3);
+        $user3Db = $this->repository->getById($user3->id);
+
+        $this->assertEquals(
+            [
+                $user3->email,
+                $user3->id,
+                $user3->first_name,
+                $user3->last_name
+            ],
+            [
+                $user3Db->email,
+                $user3Db->id,
+                $user3Db->first_name,
+                $user3Db->last_name
+            ]
+        );
+
+        $this->assertRegExp('/^anonymous\-[a-z 0-9]{13}/', $user3Db->nick);
+        $this->assertCount(3, array_unique([$user1Db->nick, $user2Db->nick, $user3Db->nick]));
     }
 
     /**
