@@ -137,11 +137,22 @@ class Content implements ContentTypeHandler {
             'content',
             function ($breadcrumbs) use ($lang, $url) {
                 $breadcrumbs->push(trans('common.home'), $url);
-                foreach (explode('/', $this->content->getUrl($lang->code)) as $urlPart) {
+
+                $urlParts = collect(explode('/', $this->content->getUrl($lang->code)));
+
+                $urlToGetContent = '';
+
+                $urlParts->each(function ($urlPart) use ($lang, $url, $breadcrumbs, &$urlToGetContent) {
+                    $urlToGetContent .= $urlPart;
                     $url  .= '/' . $urlPart;
-                    $name = ucwords(str_replace('-', ' ', $urlPart));
+
+                    $name = $this->contentRepo->getByUrl($urlToGetContent, $lang->code)->getPresenter()
+                        ->translation($lang->code)->title;
+
+                    $urlToGetContent .= '/';
+
                     $breadcrumbs->push($name, $url);
-                }
+                });
             }
         );
     }
