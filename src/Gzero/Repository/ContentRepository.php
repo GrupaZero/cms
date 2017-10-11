@@ -78,7 +78,7 @@ class ContentRepository extends BaseRepository {
     /**
      * Get all content's titles translation from url slug.
      *
-     * @param string $url Content url
+     * @param string $url  Content url
      * @param string $lang Current lang in use
      *
      * @return array
