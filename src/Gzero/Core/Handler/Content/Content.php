@@ -143,9 +143,9 @@ class Content implements ContentTypeHandler {
 
                 foreach ($urlParts as $key => $urlPart) {
                     if (array_key_exists($key - 1, $urlParts)) {
-                        $breadcrumbs->push($titles[$key], $url . '/' . $urlParts[$key - 1] . '/' . $urlPart);
+                        $breadcrumbs->push($titles[$key]->title, $url . '/' . $urlParts[$key - 1] . '/' . $urlPart);
                     } else {
-                        $breadcrumbs->push($titles[$key], $url . '/' . $urlPart);
+                        $breadcrumbs->push($titles[$key]->title, $url . '/' . $urlPart);
                     }
                 }
             }

@@ -1541,6 +1541,51 @@ class ContentRepositoryTest extends \TestCase {
         $this->assertEquals('example-title', $newContentRoute['url']);
     }
 
+    /**
+     * @test
+     */
+    public function it_returns_titles_translation_based_on_url_and_lang()
+    {
+        $category1 = $this->repository->create(
+            [
+                'type'         => 'category',
+                'translations' => [
+                    'lang_code' => 'pl',
+                    'title'     => 'Example content title'
+                ]
+            ]
+        );
+
+        $category2 = $this->repository->create(
+            [
+                'type'         => 'category',
+                'parent_id'    => $category1->id,
+                'translations' => [
+                    'lang_code' => 'pl',
+                    'title'     => 'Zażółć żółcią gęślą jaźń'
+                ]
+            ]
+        );
+
+        $content3 = $this->repository->create(
+            [
+                'type'         => 'content',
+                'parent_id'    => $category2->id,
+                'translations' => [
+                    'lang_code' => 'pl',
+                    'title'     => 'Example content title'
+                ]
+            ]
+        );
+
+        $url = $content3->getUrl('pl');
+        $titles = $this->repository->getTitlesTranslationFromUrl($url, 'pl');
+
+        $this->assertEquals($category1->getPresenter()->translation('pl')->title, $titles[0]->title);
+        $this->assertEquals($category2->getPresenter()->translation('pl')->title, $titles[1]->title);
+        $this->assertEquals($content3->getPresenter()->translation('pl')->title, $titles[2]->title);
+    }
+
     /*
     |--------------------------------------------------------------------------
     | END Translations tests

@@ -85,20 +85,15 @@ class ContentRepository extends BaseRepository {
      */
     public function getTitlesTranslationFromUrl(string $url, string $lang)
     {
-        $urlParts = collect(explode('/', $url));
-        $titles = [];
-        $urlToGetContent = '';
+        $node = $this->getByUrl($url, $lang);
+        $contentIds = array_filter(explode('/', $node->path));
 
-        $urlParts->each(function ($urlPart) use ($lang, &$titles, &$urlToGetContent) {
-            $urlToGetContent .= $urlPart;
-
-            $titles[] = $this->getByUrl($urlToGetContent, $lang)->getPresenter()
-                ->translation($lang)->title;
-
-            $urlToGetContent .= '/';
-        });
-
-        return $titles;
+        return $this->newORMQuery()
+            ->getRelation('translations')->getQuery()
+            ->where('lang_code', $lang)
+            ->whereIn('content_id', $contentIds)
+            ->select('title')
+            ->get();
     }
 
     /**
