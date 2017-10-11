@@ -76,6 +76,32 @@ class ContentRepository extends BaseRepository {
     }
 
     /**
+     * Get all content's titles translation from url slug.
+     *
+     * @param string $url Content url
+     * @param string $lang Current lang in use
+     *
+     * @return array
+     */
+    public function getTitlesTranslationFromUrl(string $url, string $lang)
+    {
+        $urlParts = collect(explode('/', $url));
+        $titles = [];
+        $urlToGetContent = '';
+
+        $urlParts->each(function ($urlPart) use ($lang, &$titles, &$urlToGetContent) {
+            $urlToGetContent .= $urlPart;
+
+            $titles[] = $this->getByUrl($urlToGetContent, $lang)->getPresenter()
+                ->translation($lang)->title;
+
+            $urlToGetContent .= '/';
+        });
+
+        return $titles;
+    }
+
+    /**
      * Get content route by id.
      *
      * @param int $id Content route id
