@@ -5,7 +5,6 @@ use Gzero\Entity\User;
 use Gzero\Repository\ContentRepository;
 use Gzero\Repository\FileRepository;
 use Illuminate\Events\Dispatcher;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 require_once(__DIR__ . '/../stub/TestSeeder.php');

@@ -2,9 +2,6 @@
 
 use Gzero\Entity\Content as ContentEntity;
 use Gzero\Entity\Lang;
-use Gzero\Repository\ContentRepository;
-use Gzero\Repository\FileRepository;
-use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
