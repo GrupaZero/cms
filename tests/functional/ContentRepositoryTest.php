@@ -1598,7 +1598,7 @@ class ContentRepositoryTest extends \TestCase {
             ]
         );
 
-        $content3 = $this->repository->create(
+        $content1 = $this->repository->create(
             [
                 'type'          => 'content',
                 'parent_id'     => $category2->id,
@@ -1609,18 +1609,31 @@ class ContentRepositoryTest extends \TestCase {
             ]
         );
 
-        $url = $content3->getUrl($lang);
+        // It should not be in $titles array.
+        $content2 = $this->repository->create(
+            [
+                'type'          => 'content',
+                'parent_id'     => $category1->id,
+                'translations'  => [
+                    'lang_code' => $lang,
+                    'title'     => 'Przykładowy tytuł zawartości 4.'
+                ]
+            ]
+        );
+
+        $url = $content1->getUrl($lang);
         $titles = $this->repository->getTitlesTranslationFromUrl($url, $lang);
 
         $this->assertCount(3, $titles);
         $this->assertEquals($category1->getPresenter()->translation($lang)->title, $titles[0]->title);
         $this->assertEquals($category2->getPresenter()->translation($lang)->title, $titles[1]->title);
-        $this->assertEquals($content3->getPresenter()->translation($lang)->title, $titles[2]->title);
+        $this->assertEquals($content1->getPresenter()->translation($lang)->title, $titles[2]->title);
 
         foreach ($titles as $key => $value) {
             $this->assertNotEquals($category1->getPresenter()->translation('en')->title, $value->title);
             $this->assertNotEquals($notActiveTitleTranslation, $value->title);
             $this->assertNotEquals($category2->getPresenter()->translation('en')->title, $value->title);
+            $this->assertNotEquals($content2->getPresenter()->translation($lang)->title, $value->title);
         }
     }
 
