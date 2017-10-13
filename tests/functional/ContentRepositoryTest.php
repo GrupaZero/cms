@@ -1636,6 +1636,50 @@ class ContentRepositoryTest extends \TestCase {
             $this->assertNotEquals('Example, active, nested title category 2.', $value->title);
             $this->assertNotEquals('Przykładowy tytuł zawartości 2.', $value->title);
         }
+
+        // We should check what happens for url like 'blog/blog/blog'.
+        $blogCategory1 = $this->repository->create(
+            [
+                'type'          => 'category',
+                'translations'  => [
+                    'lang_code' => 'pl',
+                    'title'     => 'blog'
+                ]
+            ]
+        );
+
+        $blogCategory2 = $this->repository->create(
+            [
+                'type'          => 'category',
+                'parent_id'     => $blogCategory1->id,
+                'translations'  => [
+                    'lang_code' => 'pl',
+                    'title'     => 'blog'
+                ]
+            ]
+        );
+
+        $blogContent1 = $this->repository->create(
+            [
+                'type'          => 'content',
+                'parent_id'     => $blogCategory2->id,
+                'translations'  => [
+                    'lang_code' => 'pl',
+                    'title'     => 'blog'
+                ]
+            ]
+        );
+
+        $blogUrl = $blogContent1->getUrl('pl');
+        $this->assertEquals('blog/blog/blog', $blogUrl);
+
+        $blogTitles = $this->repository->getTitlesTranslationFromUrl($blogUrl, 'pl');
+
+        $this->assertCount(3, $titles);
+
+        foreach ($blogTitles as $blogValue) {
+            $this->assertEquals('blog', $blogValue->title);
+        }
     }
 
     /*
