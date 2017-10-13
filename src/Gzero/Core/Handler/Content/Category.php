@@ -2,6 +2,9 @@
 
 use Gzero\Entity\Content as ContentEntity;
 use Gzero\Entity\Lang;
+use Gzero\Repository\ContentRepository;
+use Gzero\Repository\FileRepository;
+use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
 
@@ -23,6 +26,24 @@ class Category extends Content {
      * @var Collection
      */
     protected $children;
+
+    /**
+     * @var
+     */
+    protected $type;
+
+    /**
+     * Content constructor
+     *
+     * @param ContentRepository $contentRepo Content repository
+     * @param FileRepository    $fileRepo    File repository
+     * @param Request           $request     Request object
+     */
+    public function __construct(ContentRepository $contentRepo, FileRepository $fileRepo, Request $request)
+    {
+        parent::__construct($contentRepo, $fileRepo, $request);
+        $this->type = 'category';
+    }
 
     /**
      * Load data from database
@@ -78,36 +99,6 @@ class Category extends Content {
                 ),
                 'children'     => $this->children
             ]
-        );
-    }
-
-    /**
-     * Register breadcrumbs
-     *
-     * @param Lang $lang Current lang entity
-     *
-     * @return void
-     */
-    protected function buildBreadcrumbsFromUrl($lang)
-    {
-        $url = (config('gzero.multilang.enabled')) ? '/' . $lang->code : '';
-        $this->breadcrumbs->register(
-            'category',
-            function ($breadcrumbs) use ($lang, $url) {
-                $breadcrumbs->push(trans('common.home'), $url);
-
-                $contentUrl = $this->content->getUrl($lang->code);
-                $urlParts = explode('/', $contentUrl);
-                $titles = $this->contentRepo->getTitlesTranslationFromUrl($contentUrl, $lang->code);
-
-                foreach ($urlParts as $key => $urlPart) {
-                    if (array_key_exists($key - 1, $urlParts)) {
-                        $breadcrumbs->push($titles[$key]->title, $url . '/' . $urlParts[$key - 1] . '/' . $urlPart);
-                    } else {
-                        $breadcrumbs->push($titles[$key]->title, $url . '/' . $urlPart);
-                    }
-                }
-            }
         );
     }
 }
