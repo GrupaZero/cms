@@ -5,6 +5,7 @@ use Gzero\Entity\User;
 use Gzero\Repository\ContentRepository;
 use Gzero\Repository\FileRepository;
 use Illuminate\Events\Dispatcher;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
 require_once(__DIR__ . '/../stub/TestSeeder.php');
@@ -1546,44 +1547,81 @@ class ContentRepositoryTest extends \TestCase {
      */
     public function it_returns_titles_translation_based_on_url_and_lang()
     {
+        $lang = 'pl';
+
         $category1 = $this->repository->create(
             [
-                'type'         => 'category',
-                'translations' => [
-                    'lang_code' => 'pl',
-                    'title'     => 'Example content title'
+                'type'          => 'category',
+                'translations'  => [
+                    'lang_code' => $lang,
+                    'title'     => 'Przykładowy tytuł kategorii 1.'
                 ]
             ]
         );
 
+        // It should not be in $titles array.
+        $this->repository->createTranslation(
+            $category1,
+            [
+                'lang_code' => 'en',
+                'title'     => 'Example title category 1.'
+            ]
+        );
+
+        // It should not be in $titles array.
+        $notActiveTitleTranslation = 'Przykładowy, nieaktywny, zagnieżdżony tytuł kategorii 2.';
         $category2 = $this->repository->create(
             [
                 'type'         => 'category',
                 'parent_id'    => $category1->id,
                 'translations' => [
-                    'lang_code' => 'pl',
-                    'title'     => 'Zażółć żółcią gęślą jaźń'
+                    'lang_code' => $lang,
+                    'title'     => $notActiveTitleTranslation
                 ]
+            ]
+        );
+
+        // It should not be in $titles array.
+        $this->repository->createTranslation(
+            $category2,
+            [
+                'lang_code' => 'en',
+                'title'     => 'Example, active, nested title category 2.'
+            ]
+        );
+
+        $this->repository->createTranslation(
+            $category2,
+            [
+                'lang_code' => $lang,
+                'title'     => 'Przykładowy, aktywny, zagnieżdżony tytuł kategorii 2.'
             ]
         );
 
         $content3 = $this->repository->create(
             [
-                'type'         => 'content',
-                'parent_id'    => $category2->id,
-                'translations' => [
-                    'lang_code' => 'pl',
-                    'title'     => 'Example content title'
+                'type'          => 'content',
+                'parent_id'     => $category2->id,
+                'translations'  => [
+                    'lang_code' => $lang,
+                    'title'     => 'Przykładowy tytuł zawartości 3.'
                 ]
             ]
         );
 
-        $url = $content3->getUrl('pl');
-        $titles = $this->repository->getTitlesTranslationFromUrl($url, 'pl');
+        $url = $content3->getUrl($lang);
+        $titles = $this->repository->getTitlesTranslationFromUrl($url, $lang);
 
-        $this->assertEquals($category1->getPresenter()->translation('pl')->title, $titles[0]->title);
-        $this->assertEquals($category2->getPresenter()->translation('pl')->title, $titles[1]->title);
-        $this->assertEquals($content3->getPresenter()->translation('pl')->title, $titles[2]->title);
+        $this->assertCount(3, $titles);
+        $this->assertEquals($category1->getPresenter()->translation($lang)->title, $titles[0]->title);
+        $this->assertEquals($category2->getPresenter()->translation($lang)->title, $titles[1]->title);
+        $this->assertEquals($content3->getPresenter()->translation($lang)->title, $titles[2]->title);
+
+        foreach ($titles as $key => $value) {
+            $this->assertNotEquals($category1->getPresenter()->translation('en')->title, $value->title);
+            $this->assertNotEquals($notActiveTitleTranslation, $value->title);
+            $this->assertNotEquals($category2->getPresenter()->translation('en')->title, $value->title);
+        }
     }
 
     /*

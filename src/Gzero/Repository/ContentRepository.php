@@ -90,8 +90,9 @@ class ContentRepository extends BaseRepository {
 
         return $this->newORMQuery()
             ->getRelation('translations')->getQuery()
-            ->where('lang_code', $lang)
             ->whereIn('content_id', $contentIds)
+            ->where('lang_code', $lang)
+            ->where('is_active', true)
             ->select('title')
             ->get();
     }

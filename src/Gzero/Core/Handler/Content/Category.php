@@ -95,10 +95,17 @@ class Category extends Content {
             'category',
             function ($breadcrumbs) use ($lang, $url) {
                 $breadcrumbs->push(trans('common.home'), $url);
-                foreach (explode('/', $this->content->getUrl($lang->code)) as $urlPart) {
-                    $url  .= '/' . $urlPart;
-                    $name = ucwords(str_replace('-', ' ', $urlPart));
-                    $breadcrumbs->push($name, $url);
+
+                $contentUrl = $this->content->getUrl($lang->code);
+                $urlParts = explode('/', $contentUrl);
+                $titles = $this->contentRepo->getTitlesTranslationFromUrl($contentUrl, $lang->code);
+
+                foreach ($urlParts as $key => $urlPart) {
+                    if (array_key_exists($key - 1, $urlParts)) {
+                        $breadcrumbs->push($titles[$key]->title, $url . '/' . $urlParts[$key - 1] . '/' . $urlPart);
+                    } else {
+                        $breadcrumbs->push($titles[$key]->title, $url . '/' . $urlPart);
+                    }
                 }
             }
         );
