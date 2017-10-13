@@ -1547,13 +1547,11 @@ class ContentRepositoryTest extends \TestCase {
      */
     public function it_returns_titles_translation_based_on_url_and_lang()
     {
-        $lang = 'pl';
-
         $category1 = $this->repository->create(
             [
                 'type'          => 'category',
                 'translations'  => [
-                    'lang_code' => $lang,
+                    'lang_code' => 'pl',
                     'title'     => 'Przykładowy tytuł kategorii 1.'
                 ]
             ]
@@ -1569,14 +1567,13 @@ class ContentRepositoryTest extends \TestCase {
         );
 
         // It should not be in $titles array.
-        $notActiveTitleTranslation = 'Przykładowy, nieaktywny, zagnieżdżony tytuł kategorii 2.';
         $category2 = $this->repository->create(
             [
                 'type'         => 'category',
                 'parent_id'    => $category1->id,
                 'translations' => [
-                    'lang_code' => $lang,
-                    'title'     => $notActiveTitleTranslation
+                    'lang_code' => 'pl',
+                    'title'     => 'Przykładowy, nieaktywny, zagnieżdżony tytuł kategorii 2.'
                 ]
             ]
         );
@@ -1593,7 +1590,7 @@ class ContentRepositoryTest extends \TestCase {
         $this->repository->createTranslation(
             $category2,
             [
-                'lang_code' => $lang,
+                'lang_code' => 'pl',
                 'title'     => 'Przykładowy, aktywny, zagnieżdżony tytuł kategorii 2.'
             ]
         );
@@ -1603,37 +1600,41 @@ class ContentRepositoryTest extends \TestCase {
                 'type'          => 'content',
                 'parent_id'     => $category2->id,
                 'translations'  => [
-                    'lang_code' => $lang,
-                    'title'     => 'Przykładowy tytuł zawartości 3.'
+                    'lang_code' => 'pl',
+                    'title'     => 'Przykładowy tytuł zawartości 1.'
                 ]
             ]
         );
 
         // It should not be in $titles array.
-        $content2 = $this->repository->create(
+        $this->repository->create(
             [
                 'type'          => 'content',
                 'parent_id'     => $category1->id,
                 'translations'  => [
-                    'lang_code' => $lang,
-                    'title'     => 'Przykładowy tytuł zawartości 4.'
+                    'lang_code' => 'pl',
+                    'title'     => 'Przykładowy tytuł zawartości 2.'
                 ]
             ]
         );
 
-        $url = $content1->getUrl($lang);
-        $titles = $this->repository->getTitlesTranslationFromUrl($url, $lang);
+        $url = $content1->getUrl('pl');
+        // We get title from not active translation in second segment because routes are created only once for given lang.
+        $this->assertEquals('przykladowy-tytul-kategorii-1/przykladowy-nieaktywny-zagniezdzony-tytul-kategorii-2/przykladowy-tytul-zawartosci-1', $url);
+
+        $titles = $this->repository->getTitlesTranslationFromUrl($url, 'pl');
 
         $this->assertCount(3, $titles);
-        $this->assertEquals($category1->getPresenter()->translation($lang)->title, $titles[0]->title);
-        $this->assertEquals($category2->getPresenter()->translation($lang)->title, $titles[1]->title);
-        $this->assertEquals($content1->getPresenter()->translation($lang)->title, $titles[2]->title);
+
+        $this->assertEquals('Przykładowy tytuł kategorii 1.', $titles[0]->title);
+        $this->assertEquals('Przykładowy, aktywny, zagnieżdżony tytuł kategorii 2.', $titles[1]->title);
+        $this->assertEquals('Przykładowy tytuł zawartości 1.', $titles[2]->title);
 
         foreach ($titles as $key => $value) {
-            $this->assertNotEquals($category1->getPresenter()->translation('en')->title, $value->title);
-            $this->assertNotEquals($notActiveTitleTranslation, $value->title);
-            $this->assertNotEquals($category2->getPresenter()->translation('en')->title, $value->title);
-            $this->assertNotEquals($content2->getPresenter()->translation($lang)->title, $value->title);
+            $this->assertNotEquals('Example title category 1.', $value->title);
+            $this->assertNotEquals('Przykładowy, nieaktywny, zagnieżdżony tytuł kategorii 2.', $value->title);
+            $this->assertNotEquals('Example, active, nested title category 2.', $value->title);
+            $this->assertNotEquals('Przykładowy tytuł zawartości 2.', $value->title);
         }
     }
 
