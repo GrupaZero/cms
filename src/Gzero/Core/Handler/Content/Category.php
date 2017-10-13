@@ -28,24 +28,6 @@ class Category extends Content {
     protected $children;
 
     /**
-     * @var
-     */
-    protected $type;
-
-    /**
-     * Content constructor
-     *
-     * @param ContentRepository $contentRepo Content repository
-     * @param FileRepository    $fileRepo    File repository
-     * @param Request           $request     Request object
-     */
-    public function __construct(ContentRepository $contentRepo, FileRepository $fileRepo, Request $request)
-    {
-        parent::__construct($contentRepo, $fileRepo, $request);
-        $this->type = 'category';
-    }
-
-    /**
      * Load data from database
      *
      * @param ContentEntity $content Content entity

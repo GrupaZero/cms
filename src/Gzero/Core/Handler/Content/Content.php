@@ -63,11 +63,6 @@ class Content implements ContentTypeHandler {
     protected $request;
 
     /**
-     * @var
-     */
-    protected $type;
-
-    /**
      * Content constructor
      *
      * @param ContentRepository $contentRepo Content repository
@@ -80,7 +75,6 @@ class Content implements ContentTypeHandler {
         $this->fileRepo    = $fileRepo;
         $this->breadcrumbs = app('breadcrumbs');
         $this->request     = $request;
-        $this->type        = 'content';
     }
 
     /**
@@ -140,7 +134,7 @@ class Content implements ContentTypeHandler {
     {
         $url = (config('gzero.multilang.enabled')) ? '/' . $lang->code : '';
         $this->breadcrumbs->register(
-            $this->type,
+            $this->content->type,
             function ($breadcrumbs) use ($lang, $url) {
                 $breadcrumbs->push(trans('common.home'), $url);
 
