@@ -102,9 +102,9 @@ class ContentRepository extends BaseRepository {
     /**
      * Match content titles with urls.
      *
-     * @param array  $titles
-     * @param string             $contentUrl
-     * @param string             $lang
+     * @param array  $titles     Content titles
+     * @param string $contentUrl Content url
+     * @param string $lang       Current lang in use
      *
      * @return array
      */
