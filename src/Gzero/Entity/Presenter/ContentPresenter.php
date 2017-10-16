@@ -1,5 +1,7 @@
 <?php namespace Gzero\Entity\Presenter;
 
+use Illuminate\Support\Facades\Storage;
+
 /**
  * This file is part of the GZERO CMS package.
  *
@@ -176,7 +178,7 @@ class ContentPresenter extends BasePresenter {
                     '@context'         => 'http://schema.org',
                     '@type'            => $type,
                     'publisher'        => [
-                        '@type' => 'Brand',
+                        '@type' => 'Organization',
                         'url'   => route('home'),
                         'name'  => config('app.name'),
                         'logo'  => [
@@ -210,14 +212,16 @@ class ContentPresenter extends BasePresenter {
             }
         }
 
-        //@TODO use content thumbnail
-        if (!empty($firstImageUrl)) {
-            $tags['image'] = [
-                '@type'  => 'ImageObject',
-                'url'    => $firstImageUrl,
-                'width'  => $imageDimensions[0],
-                'height' => $imageDimensions[1]
-            ];
+        $tags['image'] = [
+            '@type'  => 'ImageObject',
+            'width'  => config('gzero.image.thumb.width'),
+            'height' => 'auto'
+        ];
+
+        if (!empty($this->thumb)) {
+            $tags['image']['url'] = asset(croppaUrl($this->thumb->getFullPath()));
+        } else {
+            $tags['image']['url'] = asset('images/share-logo.png');
         }
 
         if (!empty($tags)) {
