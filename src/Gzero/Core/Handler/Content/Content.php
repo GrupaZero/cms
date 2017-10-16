@@ -142,7 +142,7 @@ class Content implements ContentTypeHandler {
                 $titles = $this->contentRepo->getTitlesTranslationFromUrl($contentUrl, $lang->code);
                 $titlesAndUrls = $this->contentRepo->matchTitlesWithUrls($titles, $contentUrl, $lang->code);
 
-                foreach ($titlesAndUrls as $key => $item) {
+                foreach ($titlesAndUrls as $key) {
                     $breadcrumbs->push($titlesAndUrls[$key]['title'], $titlesAndUrls[$key]['url']);
                 }
             }
