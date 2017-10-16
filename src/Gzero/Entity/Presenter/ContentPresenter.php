@@ -1,6 +1,6 @@
 <?php namespace Gzero\Entity\Presenter;
 
-use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -218,16 +218,23 @@ class ContentPresenter extends BasePresenter {
             $tags['image'] = [
                 '@type'  => 'ImageObject',
                 'url'    => asset(croppaUrl($this->thumb->getFullPath())),
-                'width'  => config('gzero.image.thumb.width'),
-                'height' => 'auto'
+                'width'  => $imageDimensions[0],
+                'height' => 'aasd'
+            ];
+        } elseif (!empty($firstImageUrl)) {
+            $tags['image'] = [
+                '@type'  => 'ImageObject',
+                'url'    => $firstImageUrl,
+                'width'  => $imageDimensions[0],
+                'height' => $imageDimensions[1]
             ];
         } else {
             $tags['image'] = [
                 '@type'  => 'ImageObject',
-                'width'  => config('gzero.image.thumb.width'),
-                'height' => 'auto'
+                'width'  => $imageDimensions[0],
+                'height' => $imageDimensions[1]
             ];
-            if (Storage::disk('public')->exists('images/share-logo.png')) {
+            if (File::exists(base_path('public/images/share-logo.png'))) {
                 $tags['image']['url'] = asset('images/share-logo.png');
             } else {
                 $tags['image']['url'] = asset('gzero/cms/img/share-logo.png');
