@@ -176,7 +176,7 @@ class ContentPresenter extends BasePresenter {
                     '@context'         => 'http://schema.org',
                     '@type'            => $type,
                     'publisher'        => [
-                        '@type' => 'Brand',
+                        '@type' => 'Organization',
                         'url'   => route('home'),
                         'name'  => config('app.name'),
                         'logo'  => [
@@ -194,7 +194,7 @@ class ContentPresenter extends BasePresenter {
                         'name'  => $this->authorName()
                     ],
                     'datePublished'    => $this->created_at,
-                    'dateModified'     => $this->updated_at,
+                    'dateModified'     => $this->updated_at->toDateTimeString(),
                     'url'              => $this->routeUrl($langCode),
                 ];
 
@@ -210,11 +210,24 @@ class ContentPresenter extends BasePresenter {
             }
         }
 
-        //@TODO use content thumbnail
-        if (!empty($firstImageUrl)) {
+        if (!empty($this->thumb)) {
+            $tags['image'] = [
+                '@type'  => 'ImageObject',
+                'url'    => $this->thumb->getFullPath(),
+                'width'  => $imageDimensions[0],
+                'height' => $imageDimensions[1]
+            ];
+        } elseif (!empty($firstImageUrl)) {
             $tags['image'] = [
                 '@type'  => 'ImageObject',
                 'url'    => $firstImageUrl,
+                'width'  => $imageDimensions[0],
+                'height' => $imageDimensions[1]
+            ];
+        } else {
+            $tags['image'] = [
+                '@type'  => 'ImageObject',
+                'url'    => "images/g-zero_grupa-zero_logo.png",
                 'width'  => $imageDimensions[0],
                 'height' => $imageDimensions[1]
             ];
