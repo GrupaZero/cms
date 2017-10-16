@@ -183,7 +183,7 @@ class ContentPresenter extends BasePresenter {
                         'name'  => config('app.name'),
                         'logo'  => [
                             '@type' => 'ImageObject',
-                            'url'   => asset('/images/logo.png')
+                            'url'   => asset('/images/share-logo.png')
                         ]
                     ],
                     'mainEntityOfPage' => [
@@ -212,16 +212,26 @@ class ContentPresenter extends BasePresenter {
             }
         }
 
-        $tags['image'] = [
-            '@type'  => 'ImageObject',
-            'width'  => config('gzero.image.thumb.width'),
-            'height' => 'auto'
-        ];
+
 
         if (!empty($this->thumb)) {
-            $tags['image']['url'] = asset(croppaUrl($this->thumb->getFullPath()));
+            $tags['image'] = [
+                '@type'  => 'ImageObject',
+                'url'    => asset(croppaUrl($this->thumb->getFullPath())),
+                'width'  => config('gzero.image.thumb.width'),
+                'height' => 'auto'
+            ];
         } else {
-            $tags['image']['url'] = asset('images/share-logo.png');
+            $tags['image'] = [
+                '@type'  => 'ImageObject',
+                'width'  => config('gzero.image.thumb.width'),
+                'height' => 'auto'
+            ];
+            if (Storage::disk('public')->exists('images/share-logo.png')) {
+                $tags['image']['url'] = asset('images/share-logo.png');
+            } else {
+                $tags['image']['url'] = asset('gzero/cms/img/share-logo.png');
+            }
         }
 
         if (!empty($tags)) {
