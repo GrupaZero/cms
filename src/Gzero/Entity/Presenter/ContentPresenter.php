@@ -194,7 +194,7 @@ class ContentPresenter extends BasePresenter {
                         'name'  => $this->authorName()
                     ],
                     'datePublished'    => $this->created_at,
-                    'dateModified'     => $this->updated_at,
+                    'dateModified'     => $this->updated_at->toDateTimeString(),
                     'url'              => $this->routeUrl($langCode),
                 ];
 
