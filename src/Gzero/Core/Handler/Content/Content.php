@@ -139,15 +139,11 @@ class Content implements ContentTypeHandler {
                 $breadcrumbs->push(trans('common.home'), $url);
 
                 $contentUrl = $this->content->getUrl($lang->code);
-                $urlParts = explode('/', $contentUrl);
                 $titles = $this->contentRepo->getTitlesTranslationFromUrl($contentUrl, $lang->code);
+                $titlesAndUrls = $this->contentRepo->matchTitlesWithUrls($titles, $contentUrl, $lang->code);
 
-                foreach ($urlParts as $key => $urlPart) {
-                    if (array_key_exists($key - 1, $urlParts)) {
-                        $breadcrumbs->push($titles[$key]->title, $url . '/' . $urlParts[$key - 1] . '/' . $urlPart);
-                    } else {
-                        $breadcrumbs->push($titles[$key]->title, $url . '/' . $urlPart);
-                    }
+                foreach ($titlesAndUrls as $key => $item) {
+                    $breadcrumbs->push($titlesAndUrls[$key]['title'], $titlesAndUrls[$key]['url']);
                 }
             }
         );

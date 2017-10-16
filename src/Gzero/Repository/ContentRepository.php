@@ -97,6 +97,39 @@ class ContentRepository extends BaseRepository {
             ->get();
     }
 
+
+    /**
+     * Match content titles with urls.
+     *
+     * @param EloquentCollection $titles
+     * @param string             $contentUrl
+     * @param string             $lang
+     *
+     * @return array
+     */
+    public function matchTitlesWithUrls(EloquentCollection $titles, string $contentUrl, string $lang)
+    {
+        $urlParts = explode('/', $contentUrl);
+        $fullUrl = '';
+        $titlesAndUrls = [];
+
+        foreach ($urlParts as $key => $urlPart) {
+            if (array_key_exists($key - 1, $urlParts)) {
+                $titlesAndUrls[$key]['title'] = $titles[$key]->title;
+                $titlesAndUrls[$key]['url'] = $fullUrl . '/' . $urlPart;
+
+                $fullUrl = $titlesAndUrls[$key]['url'];
+            } else {
+                $titlesAndUrls[$key]['title'] = $titles[$key]->title;
+                $titlesAndUrls[$key]['url'] = '/' . $lang . '/' . $urlPart;
+
+                $fullUrl = $titlesAndUrls[$key]['url'];
+            }
+        }
+
+        return $titlesAndUrls;
+    }
+
     /**
      * Get content route by id.
      *

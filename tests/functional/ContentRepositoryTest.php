@@ -1681,6 +1681,61 @@ class ContentRepositoryTest extends \TestCase {
         }
     }
 
+    /**
+     * @test
+     */
+    public function it_returns_titles_with_matched_urls_array()
+    {
+        $category1 = $this->repository->create(
+            [
+                'type'          => 'category',
+                'translations'  => [
+                    'lang_code' => 'pl',
+                    'title'     => 'Przykładowy tytuł kategorii 1.'
+                ]
+            ]
+        );
+
+        $category2 = $this->repository->create(
+            [
+                'type'         => 'category',
+                'parent_id'    => $category1->id,
+                'translations' => [
+                    'lang_code' => 'pl',
+                    'title'     => 'Przykładowy tytuł kategorii 2.'
+                ]
+            ]
+        );
+
+        $content1 = $this->repository->create(
+            [
+                'type'          => 'content',
+                'parent_id'     => $category2->id,
+                'translations'  => [
+                    'lang_code' => 'pl',
+                    'title'     => 'Przykładowy tytuł zawartości 1.'
+                ]
+            ]
+        );
+
+        $url = $content1->getUrl('pl');
+
+        $titles = $this->repository->getTitlesTranslationFromUrl($url, 'pl');
+        $titlesAndUrls = $this->repository->matchTitlesWithUrls($titles, $url, 'pl');
+
+        $this->assertInternalType('array', $titlesAndUrls);
+        $this->assertCount(3, $titlesAndUrls);
+
+        $this->assertEquals('Przykładowy tytuł kategorii 1.', $titlesAndUrls[0]['title']);
+        $this->assertEquals('/pl/przykladowy-tytul-kategorii-1', $titlesAndUrls[0]['url']);
+
+        $this->assertEquals('Przykładowy tytuł kategorii 2.', $titlesAndUrls[1]['title']);
+        $this->assertEquals('/pl/przykladowy-tytul-kategorii-1/przykladowy-tytul-kategorii-2', $titlesAndUrls[1]['url']);
+
+        $this->assertEquals('Przykładowy tytuł zawartości 1.', $titlesAndUrls[2]['title']);
+        $this->assertEquals('/pl/przykladowy-tytul-kategorii-1/przykladowy-tytul-kategorii-2/przykladowy-tytul-zawartosci-1', $titlesAndUrls[2]['url']);
+    }
+
     /*
     |--------------------------------------------------------------------------
     | END Translations tests
