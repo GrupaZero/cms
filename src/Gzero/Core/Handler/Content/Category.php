@@ -80,27 +80,4 @@ class Category extends Content {
             ]
         );
     }
-
-    /**
-     * Register breadcrumbs
-     *
-     * @param Lang $lang Current lang entity
-     *
-     * @return void
-     */
-    protected function buildBreadcrumbsFromUrl($lang)
-    {
-        $url = (config('gzero.multilang.enabled')) ? '/' . $lang->code : '';
-        $this->breadcrumbs->register(
-            'category',
-            function ($breadcrumbs) use ($lang, $url) {
-                $breadcrumbs->push(trans('common.home'), $url);
-                foreach (explode('/', $this->content->getUrl($lang->code)) as $urlPart) {
-                    $url  .= '/' . $urlPart;
-                    $name = ucwords(str_replace('-', ' ', $urlPart));
-                    $breadcrumbs->push($name, $url);
-                }
-            }
-        );
-    }
 }

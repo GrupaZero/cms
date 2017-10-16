@@ -76,6 +76,62 @@ class ContentRepository extends BaseRepository {
     }
 
     /**
+     * Get all content's titles translation from url slug.
+     *
+     * @param string $url  Content url
+     * @param string $lang Current lang in use
+     *
+     * @return array
+     */
+    public function getTitlesTranslationFromUrl(string $url, string $lang)
+    {
+        $node = $this->getByUrl($url, $lang);
+        $contentIds = array_filter(explode('/', $node->path));
+
+        return $this->newORMQuery()
+            ->getRelation('translations')->getQuery()
+            ->whereIn('content_id', $contentIds)
+            ->where('lang_code', $lang)
+            ->where('is_active', true)
+            ->select('title')
+            ->get()
+            ->toArray();
+    }
+
+
+    /**
+     * Match content titles with urls.
+     *
+     * @param array  $titles     Content titles
+     * @param string $contentUrl Content url
+     * @param string $lang       Current lang in use
+     *
+     * @return array
+     */
+    public function matchTitlesWithUrls(array $titles, string $contentUrl, string $lang)
+    {
+        $urlParts = explode('/', $contentUrl);
+        $fullUrl = '';
+        $titlesAndUrls = [];
+
+        foreach ($urlParts as $key => $urlPart) {
+            if (array_key_exists($key - 1, $urlParts)) {
+                $titlesAndUrls[$key]['title'] = $titles[$key]['title'];
+                $titlesAndUrls[$key]['url'] = $fullUrl . '/' . $urlPart;
+
+                $fullUrl = $titlesAndUrls[$key]['url'];
+            } else {
+                $titlesAndUrls[$key]['title'] = $titles[$key]['title'];
+                $titlesAndUrls[$key]['url'] = '/' . $lang . '/' . $urlPart;
+
+                $fullUrl = $titlesAndUrls[$key]['url'];
+            }
+        }
+
+        return $titlesAndUrls;
+    }
+
+    /**
      * Get content route by id.
      *
      * @param int $id Content route id

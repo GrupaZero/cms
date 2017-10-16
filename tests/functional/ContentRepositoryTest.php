@@ -1541,6 +1541,174 @@ class ContentRepositoryTest extends \TestCase {
         $this->assertEquals('example-title', $newContentRoute['url']);
     }
 
+    /**
+     * @test
+     */
+    public function it_returns_titles_translation_based_on_url_and_lang()
+    {
+        $category1 = $this->repository->create(
+            [
+                'type'          => 'category',
+                'translations'  => [
+                    'lang_code' => 'pl',
+                    'title'     => 'Przykładowy tytuł kategorii 1.'
+                ]
+            ]
+        );
+
+        // It should not be in $titles array.
+        $this->repository->createTranslation(
+            $category1,
+            [
+                'lang_code' => 'en',
+                'title'     => 'Example title category 1.'
+            ]
+        );
+
+        // It should not be in $titles array.
+        $category2 = $this->repository->create(
+            [
+                'type'         => 'category',
+                'parent_id'    => $category1->id,
+                'translations' => [
+                    'lang_code' => 'pl',
+                    'title'     => 'Przykładowy, nieaktywny, zagnieżdżony tytuł kategorii 2.'
+                ]
+            ]
+        );
+
+        // It should not be in $titles array.
+        $this->repository->createTranslation(
+            $category2,
+            [
+                'lang_code' => 'en',
+                'title'     => 'Example, active, nested title category 2.'
+            ]
+        );
+
+        $this->repository->createTranslation(
+            $category2,
+            [
+                'lang_code' => 'pl',
+                'title'     => 'Przykładowy, aktywny, zagnieżdżony tytuł kategorii 2.'
+            ]
+        );
+
+        $content1 = $this->repository->create(
+            [
+                'type'          => 'content',
+                'parent_id'     => $category2->id,
+                'translations'  => [
+                    'lang_code' => 'pl',
+                    'title'     => 'Przykładowy tytuł zawartości 1.'
+                ]
+            ]
+        );
+
+        // It should not be in $titles array.
+        $this->repository->create(
+            [
+                'type'          => 'content',
+                'parent_id'     => $category1->id,
+                'translations'  => [
+                    'lang_code' => 'pl',
+                    'title'     => 'Przykładowy tytuł zawartości 2.'
+                ]
+            ]
+        );
+
+        $url = $content1->getUrl('pl');
+        // We get title from not active translation in second segment because routes are created only once for given lang.
+        $this->assertEquals('przykladowy-tytul-kategorii-1/przykladowy-nieaktywny-zagniezdzony-tytul-kategorii-2/przykladowy-tytul-zawartosci-1', $url);
+
+        $titles = $this->repository->getTitlesTranslationFromUrl($url, 'pl');
+
+        $this->assertCount(3, $titles);
+
+        $this->assertEquals('Przykładowy tytuł kategorii 1.', $titles[0]['title']);
+        $this->assertEquals('Przykładowy, aktywny, zagnieżdżony tytuł kategorii 2.', $titles[1]['title']);
+        $this->assertEquals('Przykładowy tytuł zawartości 1.', $titles[2]['title']);
+
+        foreach ($titles as $key => $value) {
+            $this->assertNotEquals('Example title category 1.', $value['title']);
+            $this->assertNotEquals('Przykładowy, nieaktywny, zagnieżdżony tytuł kategorii 2.', $value['title']);
+            $this->assertNotEquals('Example, active, nested title category 2.', $value['title']);
+            $this->assertNotEquals('Przykładowy tytuł zawartości 2.', $value['title']);
+        }
+
+        // We should check what happens for url like 'blog/blog/blog'.
+        $blogCategory1 = $this->repository->create(
+            [
+                'type'          => 'category',
+                'translations'  => [
+                    'lang_code' => 'pl',
+                    'title'     => 'blog'
+                ]
+            ]
+        );
+
+        $blogCategory2 = $this->repository->create(
+            [
+                'type'          => 'category',
+                'parent_id'     => $blogCategory1->id,
+                'translations'  => [
+                    'lang_code' => 'pl',
+                    'title'     => 'blog'
+                ]
+            ]
+        );
+
+        $blogContent1 = $this->repository->create(
+            [
+                'type'          => 'content',
+                'parent_id'     => $blogCategory2->id,
+                'translations'  => [
+                    'lang_code' => 'pl',
+                    'title'     => 'blog'
+                ]
+            ]
+        );
+
+        $blogUrl = $blogContent1->getUrl('pl');
+        $this->assertEquals('blog/blog/blog', $blogUrl);
+
+        $blogTitles = $this->repository->getTitlesTranslationFromUrl($blogUrl, 'pl');
+
+        $this->assertCount(3, $titles);
+
+        foreach ($blogTitles as $blogValue) {
+            $this->assertEquals('blog', $blogValue['title']);
+        }
+    }
+
+    /**
+     * @test
+     */
+    public function it_returns_titles_with_matched_urls_array()
+    {
+        $url = 'przykladowy-tytul-kategorii-1/przykladowy-tytul-kategorii-2/przykladowy-tytul-zawartosci-1';
+
+        $titles = [
+            ['title' => 'Przykładowy tytuł kategorii 1.'],
+            ['title' => 'Przykładowy tytuł kategorii 2.'],
+            ['title' => 'Przykładowy tytuł zawartości 1.']
+        ];
+
+        $titlesAndUrls = $this->repository->matchTitlesWithUrls($titles, $url, 'pl');
+
+        $this->assertInternalType('array', $titlesAndUrls);
+        $this->assertCount(3, $titlesAndUrls);
+
+        $this->assertEquals('Przykładowy tytuł kategorii 1.', $titlesAndUrls[0]['title']);
+        $this->assertEquals('/pl/przykladowy-tytul-kategorii-1', $titlesAndUrls[0]['url']);
+
+        $this->assertEquals('Przykładowy tytuł kategorii 2.', $titlesAndUrls[1]['title']);
+        $this->assertEquals('/pl/przykladowy-tytul-kategorii-1/przykladowy-tytul-kategorii-2', $titlesAndUrls[1]['url']);
+
+        $this->assertEquals('Przykładowy tytuł zawartości 1.', $titlesAndUrls[2]['title']);
+        $this->assertEquals('/pl/przykladowy-tytul-kategorii-1/przykladowy-tytul-kategorii-2/przykladowy-tytul-zawartosci-1', $titlesAndUrls[2]['url']);
+    }
+
     /*
     |--------------------------------------------------------------------------
     | END Translations tests

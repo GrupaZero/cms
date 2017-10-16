@@ -134,13 +134,16 @@ class Content implements ContentTypeHandler {
     {
         $url = (config('gzero.multilang.enabled')) ? '/' . $lang->code : '';
         $this->breadcrumbs->register(
-            'content',
+            $this->content->type,
             function ($breadcrumbs) use ($lang, $url) {
                 $breadcrumbs->push(trans('common.home'), $url);
-                foreach (explode('/', $this->content->getUrl($lang->code)) as $urlPart) {
-                    $url  .= '/' . $urlPart;
-                    $name = ucwords(str_replace('-', ' ', $urlPart));
-                    $breadcrumbs->push($name, $url);
+
+                $contentUrl = $this->content->getUrl($lang->code);
+                $titles = $this->contentRepo->getTitlesTranslationFromUrl($contentUrl, $lang->code);
+                $titlesAndUrls = $this->contentRepo->matchTitlesWithUrls($titles, $contentUrl, $lang->code);
+
+                foreach ($titlesAndUrls as $key) {
+                    $breadcrumbs->push($titlesAndUrls[$key]['title'], $titlesAndUrls[$key]['url']);
                 }
             }
         );
