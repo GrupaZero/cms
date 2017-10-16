@@ -1625,15 +1625,15 @@ class ContentRepositoryTest extends \TestCase {
 
         $this->assertCount(3, $titles);
 
-        $this->assertEquals('Przykładowy tytuł kategorii 1.', $titles[0]->title);
-        $this->assertEquals('Przykładowy, aktywny, zagnieżdżony tytuł kategorii 2.', $titles[1]->title);
-        $this->assertEquals('Przykładowy tytuł zawartości 1.', $titles[2]->title);
+        $this->assertEquals('Przykładowy tytuł kategorii 1.', $titles[0]['title']);
+        $this->assertEquals('Przykładowy, aktywny, zagnieżdżony tytuł kategorii 2.', $titles[1]['title']);
+        $this->assertEquals('Przykładowy tytuł zawartości 1.', $titles[2]['title']);
 
         foreach ($titles as $key => $value) {
-            $this->assertNotEquals('Example title category 1.', $value->title);
-            $this->assertNotEquals('Przykładowy, nieaktywny, zagnieżdżony tytuł kategorii 2.', $value->title);
-            $this->assertNotEquals('Example, active, nested title category 2.', $value->title);
-            $this->assertNotEquals('Przykładowy tytuł zawartości 2.', $value->title);
+            $this->assertNotEquals('Example title category 1.', $value['title']);
+            $this->assertNotEquals('Przykładowy, nieaktywny, zagnieżdżony tytuł kategorii 2.', $value['title']);
+            $this->assertNotEquals('Example, active, nested title category 2.', $value['title']);
+            $this->assertNotEquals('Przykładowy tytuł zawartości 2.', $value['title']);
         }
 
         // We should check what happens for url like 'blog/blog/blog'.
@@ -1677,7 +1677,7 @@ class ContentRepositoryTest extends \TestCase {
         $this->assertCount(3, $titles);
 
         foreach ($blogTitles as $blogValue) {
-            $this->assertEquals('blog', $blogValue->title);
+            $this->assertEquals('blog', $blogValue['title']);
         }
     }
 
@@ -1686,41 +1686,14 @@ class ContentRepositoryTest extends \TestCase {
      */
     public function it_returns_titles_with_matched_urls_array()
     {
-        $category1 = $this->repository->create(
-            [
-                'type'          => 'category',
-                'translations'  => [
-                    'lang_code' => 'pl',
-                    'title'     => 'Przykładowy tytuł kategorii 1.'
-                ]
-            ]
-        );
+        $url = 'przykladowy-tytul-kategorii-1/przykladowy-tytul-kategorii-2/przykladowy-tytul-zawartosci-1';
 
-        $category2 = $this->repository->create(
-            [
-                'type'         => 'category',
-                'parent_id'    => $category1->id,
-                'translations' => [
-                    'lang_code' => 'pl',
-                    'title'     => 'Przykładowy tytuł kategorii 2.'
-                ]
-            ]
-        );
+        $titles = [
+            ['title' => 'Przykładowy tytuł kategorii 1.'],
+            ['title' => 'Przykładowy tytuł kategorii 2.'],
+            ['title' => 'Przykładowy tytuł zawartości 1.']
+        ];
 
-        $content1 = $this->repository->create(
-            [
-                'type'          => 'content',
-                'parent_id'     => $category2->id,
-                'translations'  => [
-                    'lang_code' => 'pl',
-                    'title'     => 'Przykładowy tytuł zawartości 1.'
-                ]
-            ]
-        );
-
-        $url = $content1->getUrl('pl');
-
-        $titles = $this->repository->getTitlesTranslationFromUrl($url, 'pl');
         $titlesAndUrls = $this->repository->matchTitlesWithUrls($titles, $url, 'pl');
 
         $this->assertInternalType('array', $titlesAndUrls);

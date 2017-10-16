@@ -94,20 +94,21 @@ class ContentRepository extends BaseRepository {
             ->where('lang_code', $lang)
             ->where('is_active', true)
             ->select('title')
-            ->get();
+            ->get()
+            ->toArray();
     }
 
 
     /**
      * Match content titles with urls.
      *
-     * @param EloquentCollection $titles
+     * @param array  $titles
      * @param string             $contentUrl
      * @param string             $lang
      *
      * @return array
      */
-    public function matchTitlesWithUrls(EloquentCollection $titles, string $contentUrl, string $lang)
+    public function matchTitlesWithUrls(array $titles, string $contentUrl, string $lang)
     {
         $urlParts = explode('/', $contentUrl);
         $fullUrl = '';
@@ -115,12 +116,12 @@ class ContentRepository extends BaseRepository {
 
         foreach ($urlParts as $key => $urlPart) {
             if (array_key_exists($key - 1, $urlParts)) {
-                $titlesAndUrls[$key]['title'] = $titles[$key]->title;
+                $titlesAndUrls[$key]['title'] = $titles[$key]['title'];
                 $titlesAndUrls[$key]['url'] = $fullUrl . '/' . $urlPart;
 
                 $fullUrl = $titlesAndUrls[$key]['url'];
             } else {
-                $titlesAndUrls[$key]['title'] = $titles[$key]->title;
+                $titlesAndUrls[$key]['title'] = $titles[$key]['title'];
                 $titlesAndUrls[$key]['url'] = '/' . $lang . '/' . $urlPart;
 
                 $fullUrl = $titlesAndUrls[$key]['url'];
