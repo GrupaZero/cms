@@ -41,5 +41,12 @@
     "scripts": {
         "test": "./vendor/bin/codecept run"
     },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Gzero\\Cms\\ServiceProvider"
+            ]
+        }
+    },
     "minimum-stability": "stable"
 }
