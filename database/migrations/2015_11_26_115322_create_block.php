@@ -1,6 +1,6 @@
 <?php
 
-use Gzero\Entity\BlockType;
+use Gzero\Cms\Model\BlockType;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
@@ -50,7 +50,7 @@ class CreateBlock extends Migration {
             'block_translations',
             function (Blueprint $table) {
                 $table->increments('id');
-                $table->string('lang_code', 2);
+                $table->string('language_code', 2);
                 $table->integer('block_id')->unsigned();
                 $table->string('title');
                 $table->text('body')->nullable();
@@ -58,7 +58,7 @@ class CreateBlock extends Migration {
                 $table->boolean('is_active')->default(false);
                 $table->timestamps();
                 $table->foreign('block_id')->references('id')->on('blocks')->onDelete('CASCADE');
-                $table->foreign('lang_code')->references('code')->on('langs')->onDelete('CASCADE');
+                $table->foreign('language_code')->references('code')->on('languages')->onDelete('CASCADE');
             }
         );
 

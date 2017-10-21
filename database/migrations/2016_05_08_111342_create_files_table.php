@@ -1,6 +1,6 @@
 <?php
 
-use Gzero\Entity\FileType;
+use Gzero\Cms\Model\FileType;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
@@ -45,14 +45,14 @@ class CreateFilesTable extends Migration {
             'file_translations',
             function (Blueprint $table) {
                 $table->increments('id');
-                $table->string('lang_code', 2);
+                $table->string('language_code', 2);
                 $table->integer('file_id')->unsigned();
                 $table->string('title')->nullable();
                 $table->text('description')->nullable();
                 $table->timestamps();
-                $table->unique(['file_id', 'lang_code']);
+                $table->unique(['file_id', 'language_code']);
                 $table->foreign('file_id')->references('id')->on('files')->onDelete('CASCADE');
-                $table->foreign('lang_code')->references('code')->on('langs')->onDelete('CASCADE');
+                $table->foreign('language_code')->references('code')->on('languages')->onDelete('CASCADE');
             }
         );
 

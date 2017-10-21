@@ -1,6 +1,6 @@
 <?php
 
-use Gzero\Entity\ContentType;
+use Gzero\Cms\Model\ContentType;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
@@ -55,7 +55,7 @@ class CreateContent extends Migration {
             'content_translations',
             function (Blueprint $table) {
                 $table->increments('id');
-                $table->string('lang_code', 2);
+                $table->string('language_code', 2);
                 $table->integer('content_id')->unsigned();
                 $table->string('title')->nullable();
                 $table->text('teaser')->nullable();
@@ -65,7 +65,7 @@ class CreateContent extends Migration {
                 $table->boolean('is_active')->default(false);
                 $table->timestamps();
                 $table->foreign('content_id')->references('id')->on('contents')->onDelete('CASCADE');
-                $table->foreign('lang_code')->references('code')->on('langs')->onDelete('CASCADE');
+                $table->foreign('language_code')->references('code')->on('languages')->onDelete('CASCADE');
             }
         );
 
