@@ -5,7 +5,7 @@ use Gzero\Entity\ContentType;
 use Gzero\Entity\Lang;
 use Gzero\Entity\User;
 use Gzero\Entity\Content;
-use Gzero\Repository\ContentRepository;
+use Gzero\Repository\ContentService;
 use Illuminate\Database\Seeder;
 
 /**
@@ -22,9 +22,9 @@ class TestTreeSeeder extends Seeder {
     /**
      * CMSSeeder constructor
      *
-     * @param ContentRepository $content Content repository
+     * @param ContentService $content Content repository
      */
-    public function __construct(ContentRepository $content)
+    public function __construct(ContentService $content)
     {
         $this->faker      = Factory::create();
         $this->repository = $content;

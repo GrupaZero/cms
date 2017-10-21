@@ -2,7 +2,7 @@
 
 use Gzero\Entity\Block;
 use Gzero\Entity\User;
-use Gzero\Repository\BlockRepository;
+use Gzero\Repository\BlockService;
 use Illuminate\Cache\CacheManager;
 use Illuminate\Events\Dispatcher;
 use Gzero\Core\BlockFinder;
@@ -30,7 +30,7 @@ class BlockRepositoryTest extends \TestCase {
     protected $tester;
 
     /**
-     * @var BlockRepository
+     * @var BlockService
      */
     protected $repository;
 
@@ -48,7 +48,7 @@ class BlockRepositoryTest extends \TestCase {
     {
         // Start the Laravel application
         $this->startApplication();
-        $this->repository     = new BlockRepository(new Block(), new Dispatcher());
+        $this->repository     = new BlockService(new Block(), new Dispatcher());
         $this->finder         = new BlockFinder($this->repository, new CacheManager($this->app));
         $this->filesDir       = __DIR__ . '/../../resources';
         $this->seed('TestSeeder'); // Relative to tests/app/

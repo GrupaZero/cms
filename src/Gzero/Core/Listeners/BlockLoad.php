@@ -2,7 +2,7 @@
 
 use Gzero\Core\BlockFinder;
 use Gzero\Core\Events\ContentRouteMatched;
-use Gzero\Repository\BlockRepository;
+use Gzero\Repository\BlockService;
 use Gzero\Repository\LangRepository;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Routing\Events\RouteMatched;
@@ -27,7 +27,7 @@ class BlockLoad {
     protected $blockFinder;
 
     /**
-     * @var BlockRepository
+     * @var BlockService
      */
     protected $blockRepository;
 
@@ -39,11 +39,11 @@ class BlockLoad {
     /**
      * Event constructor.
      *
-     * @param BlockFinder     $blockFinder     Block Finder
-     * @param BlockRepository $blockRepository Block Repository
-     * @param LangRepository  $langRepository  Lang Repository
+     * @param BlockFinder    $blockFinder     Block Finder
+     * @param BlockService   $blockRepository Block Repository
+     * @param LangRepository $langRepository  Lang Repository
      */
-    public function __construct(BlockFinder $blockFinder, BlockRepository $blockRepository, LangRepository $langRepository)
+    public function __construct(BlockFinder $blockFinder, BlockService $blockRepository, LangRepository $langRepository)
     {
         $this->blockFinder     = $blockFinder;
         $this->blockRepository = $blockRepository;

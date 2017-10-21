@@ -1,7 +1,7 @@
 <?php namespace Gzero\Core;
 
 use Gzero\Core\Events\ContentRouteMatched;
-use Gzero\Repository\ContentRepository;
+use Gzero\Repository\ContentService;
 use Illuminate\Contracts\Auth\Access\Gate;
 use Illuminate\Events\Dispatcher;
 use Gzero\Entity\Lang;
@@ -25,7 +25,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 class DynamicRouter {
 
     /**
-     * @var ContentRepository
+     * @var ContentService
      */
     private $repository;
 
@@ -39,11 +39,11 @@ class DynamicRouter {
     /**
      * DynamicRouter constructor
      *
-     * @param ContentRepository $repository Content repository
-     * @param Dispatcher        $events     Events dispatcher
-     * @param Gate              $gate       Gate
+     * @param ContentService $repository Content repository
+     * @param Dispatcher     $events     Events dispatcher
+     * @param Gate           $gate       Gate
      */
-    public function __construct(ContentRepository $repository, Dispatcher $events, Gate $gate)
+    public function __construct(ContentService $repository, Dispatcher $events, Gate $gate)
     {
         $this->repository = $repository;
         $this->events     = $events;

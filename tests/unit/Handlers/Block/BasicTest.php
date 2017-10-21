@@ -35,7 +35,7 @@ class BlockFinderTest extends \Codeception\Test\Unit {
     {
         // Start the Laravel application
         $this->startApplication();
-        $this->repo   = m::mock('Gzero\Repository\BlockRepository');
+        $this->repo   = m::mock('Gzero\Repository\BlockService');
         $this->finder = new BlockFinder($this->repo, new CacheManager($this->app));
     }
 

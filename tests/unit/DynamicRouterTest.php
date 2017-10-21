@@ -43,7 +43,7 @@ class DynamicRouterTest extends \Codeception\Test\Unit {
     protected function _before()
     {
         $this->eventDispatcherMock = m::mock('Illuminate\Events\Dispatcher');
-        $this->repositoryMock      = m::mock('Gzero\Repository\ContentRepository');
+        $this->repositoryMock      = m::mock('Gzero\Repository\ContentService');
         $this->gateMock            = m::mock('Illuminate\Contracts\Auth\Access\Gate');
         $this->router              = m::mock(
             'Gzero\Core\DynamicRouter',

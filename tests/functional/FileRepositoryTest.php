@@ -6,7 +6,7 @@ use Gzero\Entity\File;
 use Gzero\Entity\FileTranslation;
 use Gzero\Entity\FileType;
 use Gzero\Entity\User;
-use Gzero\Repository\FileRepository;
+use Gzero\Repository\FileService;
 use Gzero\Repository\QueryBuilder;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Filesystem\FilesystemManager;
@@ -37,7 +37,7 @@ class FileRepositoryTest extends \TestCase {
     protected $tester;
 
     /**
-     * @var FileRepository
+     * @var FileService
      */
     protected $repository;
 
@@ -58,7 +58,7 @@ class FileRepositoryTest extends \TestCase {
         $filesystemManager = m::mock(FilesystemManager::class)->shouldReceive('disk')->andReturn($this->diskMock)->getMock();
         // Start the Laravel application
         $this->startApplication();
-        $this->repository = new FileRepository(new File(), new FileType(), new Dispatcher(), $filesystemManager);
+        $this->repository = new FileService(new File(), new FileType(), new Dispatcher(), $filesystemManager);
         $this->filesDir   = __DIR__ . '/../resources';
         $this->seed('TestSeeder'); // Relative to tests/app/
     }

@@ -1,7 +1,7 @@
 <?php namespace Gzero\Core;
 
 use Gzero\Entity\Block;
-use Gzero\Repository\BlockRepository;
+use Gzero\Repository\BlockService;
 use Illuminate\Cache\CacheManager;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -20,7 +20,7 @@ use Illuminate\Database\Eloquent\Collection;
 class BlockFinder {
 
     /**
-     * @var BlockRepository
+     * @var BlockService
      */
     protected $blockRepository;
 
@@ -32,10 +32,10 @@ class BlockFinder {
     /**
      * BlockFinder constructor
      *
-     * @param BlockRepository $block Block repository
-     * @param CacheManager    $cache Cache
+     * @param BlockService $block Block repository
+     * @param CacheManager $cache Cache
      */
-    public function __construct(BlockRepository $block, CacheManager $cache)
+    public function __construct(BlockService $block, CacheManager $cache)
     {
         $this->blockRepository = $block;
         $this->cache           = $cache;

@@ -13,8 +13,8 @@ use Gzero\Entity\FileType;
 use Gzero\Entity\Lang;
 use Gzero\Entity\OptionCategory;
 use Gzero\Entity\User;
-use Gzero\Repository\BlockRepository;
-use Gzero\Repository\ContentRepository;
+use Gzero\Repository\BlockService;
+use Gzero\Repository\ContentService;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
@@ -45,22 +45,22 @@ class CMSSeeder extends Seeder {
     protected $faker;
 
     /**
-     * @var ContentRepository
+     * @var ContentService
      */
     protected $contentRepository;
 
     /**
-     * @var BlockRepository
+     * @var BlockService
      */
     protected $blockRepository;
 
     /**
      * CMSSeeder constructor
      *
-     * @param ContentRepository $contentRepository Content repository
-     * @param BlockRepository   $blockRepository   Block repository
+     * @param ContentService $contentRepository Content repository
+     * @param BlockService   $blockRepository   Block repository
      */
-    public function __construct(ContentRepository $contentRepository, BlockRepository $blockRepository)
+    public function __construct(ContentService $contentRepository, BlockService $blockRepository)
     {
         $this->faker             = Factory::create();
         $this->contentRepository = $contentRepository;

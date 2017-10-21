@@ -2,7 +2,7 @@
 
 use Gzero\Entity\Block;
 use Gzero\Entity\Lang;
-use Gzero\Repository\FileRepository;
+use Gzero\Repository\FileService;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -21,16 +21,16 @@ class Slider implements BlockTypeHandler {
     use CacheBlockTrait;
 
     /**
-     * @var FileRepository
+     * @var FileService
      */
     private $fileRepo;
 
     /**
      * Slider constructor.
      *
-     * @param FileRepository $fileRepo File repository
+     * @param FileService $fileRepo File repository
      */
-    public function __construct(FileRepository $fileRepo)
+    public function __construct(FileService $fileRepo)
     {
         $this->fileRepo = $fileRepo;
     }

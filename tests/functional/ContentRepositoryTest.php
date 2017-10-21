@@ -2,8 +2,8 @@
 
 use Gzero\Entity\Content;
 use Gzero\Entity\User;
-use Gzero\Repository\ContentRepository;
-use Gzero\Repository\FileRepository;
+use Gzero\Repository\ContentService;
+use Gzero\Repository\FileService;
 use Illuminate\Events\Dispatcher;
 use Illuminate\Support\Facades\Storage;
 
@@ -30,12 +30,12 @@ class ContentRepositoryTest extends \TestCase {
     protected $tester;
 
     /**
-     * @var ContentRepository
+     * @var ContentService
      */
     protected $repository;
 
     /**
-     * @var FileRepository
+     * @var FileService
      */
     protected $fileRepository;
 
@@ -48,7 +48,7 @@ class ContentRepositoryTest extends \TestCase {
     {
         // Start the Laravel application
         $this->startApplication();
-        $this->repository     = new ContentRepository(new Content(), new Dispatcher());
+        $this->repository     = new ContentService(new Content(), new Dispatcher());
         $this->filesDir       = __DIR__ . '/../../resources';
     }
 

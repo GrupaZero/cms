@@ -4,15 +4,13 @@ use Bkwld\Croppa\ServiceProvider as CroppaServiceProvider;
 use DaveJamesMiller\Breadcrumbs\Facade as BreadcrumbsFacade;
 use DaveJamesMiller\Breadcrumbs\ServiceProvider as BreadcrumbServiceProvider;
 use Gzero\Base\AbstractServiceProvider;
-use Gzero\Core\Menu\Register;
+use Gzero\Cms\Model\Block;
+use Gzero\Cms\Model\Content;
+use Gzero\Cms\Model\File;
 use Gzero\Core\Policies\BlockPolicy;
 use Gzero\Core\Policies\ContentPolicy;
 use Gzero\Core\Policies\FilePolicy;
-use Gzero\Entity\Block;
-use Gzero\Entity\Content;
-use Gzero\Entity\File;
 use Gzero\Repository\LangRepository;
-use Illuminate\Foundation\Application;
 
 class ServiceProvider extends AbstractServiceProvider {
 
@@ -77,20 +75,15 @@ class ServiceProvider extends AbstractServiceProvider {
      */
     protected function bindRepositories()
     {
+        /*
         $this->app->singleton(
+
             'gzero.menu.account',
             function () {
                 return new Register();
             }
         );
-
-        // We need only one LangRepository
-        $this->app->singleton(
-            'Gzero\Repository\LangRepository',
-            function (Application $app) {
-                return new LangRepository($app->make('cache'));
-            }
-        );
+        */
 
         $this->app->singleton(
             'croppa.src_dir',
@@ -124,6 +117,8 @@ class ServiceProvider extends AbstractServiceProvider {
     }
 
     /**
+     *
+     * @TODO How about running this in multiple service providers?
      * Register polices
      *
      * @return void

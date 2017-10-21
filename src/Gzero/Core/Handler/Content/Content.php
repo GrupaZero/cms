@@ -2,8 +2,8 @@
 
 use Gzero\Entity\Lang;
 use Gzero\Entity\Content as ContentEntity;
-use Gzero\Repository\ContentRepository;
-use Gzero\Repository\FileRepository;
+use Gzero\Repository\ContentService;
+use Gzero\Repository\FileService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
@@ -43,12 +43,12 @@ class Content implements ContentTypeHandler {
     protected $author;
 
     /**
-     * @var ContentRepository
+     * @var ContentService
      */
     protected $contentRepo;
 
     /**
-     * @var FileRepository
+     * @var FileService
      */
     protected $fileRepo;
 
@@ -65,11 +65,11 @@ class Content implements ContentTypeHandler {
     /**
      * Content constructor
      *
-     * @param ContentRepository $contentRepo Content repository
-     * @param FileRepository    $fileRepo    File repository
-     * @param Request           $request     Request object
+     * @param ContentService $contentRepo Content repository
+     * @param FileService    $fileRepo    File repository
+     * @param Request        $request     Request object
      */
-    public function __construct(ContentRepository $contentRepo, FileRepository $fileRepo, Request $request)
+    public function __construct(ContentService $contentRepo, FileService $fileRepo, Request $request)
     {
         $this->contentRepo = $contentRepo;
         $this->fileRepo    = $fileRepo;
