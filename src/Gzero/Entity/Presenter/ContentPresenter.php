@@ -225,8 +225,10 @@ class ContentPresenter extends BasePresenter {
     }
 
     /**
-     * @param array $dimensions
-     * @param string $langCode
+     * Returns the JSON-LD Structured Data Markup for ImageObject type
+     *
+     * @param array  $dimensions image dimensions
+     * @param string $langCode   translation lang code to get tags for
      *
      * @return array
      */
