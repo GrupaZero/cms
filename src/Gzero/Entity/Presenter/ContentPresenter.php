@@ -234,11 +234,8 @@ class ContentPresenter extends BasePresenter {
                 'width'  => $imageDimensions[0],
                 'height' => $imageDimensions[1]
             ];
-            if (File::exists(base_path('public/images/share-logo.png'))) {
-                $tags['image']['url'] = asset('images/share-logo.png');
-            } else {
-                $tags['image']['url'] = asset('gzero/cms/img/share-logo.png');
-            }
+            $tags['image']['url'] = File::exists(base_path('public/images/share-logo.png')) ?
+                asset('images/share-logo.png') : asset('gzero/cms/img/share-logo.png');
         }
 
         if (!empty($tags)) {
