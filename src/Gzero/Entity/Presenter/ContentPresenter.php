@@ -156,13 +156,14 @@ class ContentPresenter extends BasePresenter {
     /**
      * This function returns the JSON-LD Structured Data Markup for specified language
      *
-     * @param string $langCode        translation lang code to get tags for
-     * @param string $type            schema.org hierarchy type for the content - 'Article' as default
-     * @param array  $imageDimensions optional image dimensions
+     * @param string $langCode    translation lang code to get tags for
+     * @param string $type        schema.org hierarchy type for the content - 'Article' as default
+     * @param int|number $imageWidth  optional image width
+     * @param int|number $imageHeight optional image width
      *
      * @return string first image url
      */
-    public function stDataMarkup($langCode, $type = 'Article', $imageDimensions = ['729', '486'])
+    public function stDataMarkup($langCode, $type = 'Article', int $imageWidth = 729, int $imageHeight = 486)
     {
         $html = [];
         $tags = null;
@@ -172,8 +173,6 @@ class ContentPresenter extends BasePresenter {
             $routeTranslation = $this->routeTranslation($langCode);
 
             if (!empty($translation)) {
-                $firstImageUrl = $this->getFirstImageUrl($translation->teaser);
-
                 $tags = [
                     '@context'         => 'http://schema.org',
                     '@type'            => $type,
@@ -212,20 +211,13 @@ class ContentPresenter extends BasePresenter {
             }
         }
 
-
-        $tags['image'] = [
-            '@type'  => 'ImageObject',
-            'width'  => isset($imageDimensions[0]) ? $imageDimensions[0] : config('gzero.image.thumb.width'),
-            'height' => isset($imageDimensions[1]) ? $imageDimensions[1] : 'auto'
-        ];
         if (!empty($this->thumb)) {
-            $tags['image']['url'] = asset(croppaUrl($this->thumb->getFullPath()));
-        } elseif (!empty($firstImageUrl)) {
-            $tags['image']['url'] = $firstImageUrl;
-        } elseif (File::exists(base_path('public/images/share-logo.png'))) {
-            $tags['image']['url'] = asset('images/share-logo.png');
-        } else {
-            $tags['image']['url'] = asset('gzero/cms/img/share-logo.png');
+            $tags['image'] = [
+                '@type'  => 'ImageObject',
+                'url'    => asset(croppaUrl($this->thumb->getFullPath())),
+                'width'  => $imageWidth,
+                'height' => $imageHeight
+            ];
         }
 
         if (!empty($tags)) {
