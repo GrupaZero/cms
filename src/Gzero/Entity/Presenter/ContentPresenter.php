@@ -219,7 +219,7 @@ class ContentPresenter extends BasePresenter {
                 '@type'  => 'ImageObject',
                 'url'    => asset(croppaUrl($this->thumb->getFullPath())),
                 'width'  => $imageDimensions[0],
-                'height' => 'aasd'
+                'height' => $imageDimensions[1]
             ];
         } elseif (!empty($firstImageUrl)) {
             $tags['image'] = [
