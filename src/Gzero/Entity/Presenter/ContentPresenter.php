@@ -243,7 +243,8 @@ class ContentPresenter extends BasePresenter {
             'height' => isset($dimensions[1]) ? $dimensions[1] : 'auto'
         ];
         if (!empty($this->thumb)) {
-            $tags['image']['url'] = asset(croppaUrl($this->thumb->getFullPath()));
+            $tags['image']['url'] = asset(croppaUrl($this->thumb->getFullPath(),
+                config('gzero.image.thumb.width'), config('gzero.image.thumb.height'), ['resize']));
         } elseif (!empty($firstImageUrl)) {
             $tags['image']['url'] = $firstImageUrl;
         } elseif (File::exists(base_path('public/images/share-logo.png'))) {
