@@ -158,8 +158,8 @@ class ContentPresenter extends BasePresenter {
      *
      * @param string $langCode    translation lang code to get tags for
      * @param string $type        schema.org hierarchy type for the content - 'Article' as default
-     * @param int|number $imageWidth  optional image width
-     * @param int|number $imageHeight optional image width
+     * @param int $imageWidth  optional image width
+     * @param int $imageHeight optional image width
      *
      * @return string first image url
      */
