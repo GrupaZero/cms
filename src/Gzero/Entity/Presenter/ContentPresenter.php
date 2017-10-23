@@ -213,29 +213,19 @@ class ContentPresenter extends BasePresenter {
         }
 
 
-
+        $tags['image'] = [
+            '@type'  => 'ImageObject',
+            'width'  => isset($imageDimensions[0]) ? $imageDimensions[0] : config('gzero.image.thumb.width'),
+            'height' => isset($imageDimensions[1]) ? $imageDimensions[1] : 'auto'
+        ];
         if (!empty($this->thumb)) {
-            $tags['image'] = [
-                '@type'  => 'ImageObject',
-                'url'    => asset(croppaUrl($this->thumb->getFullPath())),
-                'width'  => $imageDimensions[0],
-                'height' => $imageDimensions[1]
-            ];
+            $tags['image']['url'] = asset(croppaUrl($this->thumb->getFullPath()));
         } elseif (!empty($firstImageUrl)) {
-            $tags['image'] = [
-                '@type'  => 'ImageObject',
-                'url'    => $firstImageUrl,
-                'width'  => $imageDimensions[0],
-                'height' => $imageDimensions[1]
-            ];
+            $tags['image']['url'] = $firstImageUrl;
+        } elseif (File::exists(base_path('public/images/share-logo.png'))) {
+            $tags['image']['url'] = asset('images/share-logo.png');
         } else {
-            $tags['image'] = [
-                '@type'  => 'ImageObject',
-                'width'  => $imageDimensions[0],
-                'height' => $imageDimensions[1]
-            ];
-            $tags['image']['url'] = File::exists(base_path('public/images/share-logo.png')) ?
-                asset('images/share-logo.png') : asset('gzero/cms/img/share-logo.png');
+            $tags['image']['url'] = asset('gzero/cms/img/share-logo.png');
         }
 
         if (!empty($tags)) {
