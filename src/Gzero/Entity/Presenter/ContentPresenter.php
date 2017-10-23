@@ -1,6 +1,7 @@
 <?php namespace Gzero\Entity\Presenter;
 
 use Illuminate\Support\Facades\File;
+use function Symfony\Component\Debug\Tests\testHeader;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -156,14 +157,13 @@ class ContentPresenter extends BasePresenter {
     /**
      * This function returns the JSON-LD Structured Data Markup for specified language
      *
-     * @param string $langCode    translation lang code to get tags for
-     * @param string $type        schema.org hierarchy type for the content - 'Article' as default
-     * @param int $imageWidth  optional image width
-     * @param int $imageHeight optional image width
+     * @param string $langCode        translation lang code to get tags for
+     * @param string $type            schema.org hierarchy type for the content - 'Article' as default
+     * @param array  $imageDimensions optional image dimensions
      *
      * @return string first image url
      */
-    public function stDataMarkup($langCode, $type = 'Article', int $imageWidth = 729, int $imageHeight = 486)
+    public function stDataMarkup($langCode, $type = 'Article', $imageDimensions = ['729', '486'])
     {
         $html = [];
         $tags = null;
@@ -211,14 +211,7 @@ class ContentPresenter extends BasePresenter {
             }
         }
 
-        if (!empty($this->thumb)) {
-            $tags['image'] = [
-                '@type'  => 'ImageObject',
-                'url'    => asset(croppaUrl($this->thumb->getFullPath())),
-                'width'  => $imageWidth,
-                'height' => $imageHeight
-            ];
-        }
+        $tags = $tags + $this->getImageObjectStDataMarkup($imageDimensions, $langCode);
 
         if (!empty($tags)) {
             $html = [
@@ -229,6 +222,35 @@ class ContentPresenter extends BasePresenter {
         }
 
         return implode('', $html);
+    }
+
+    /**
+     * @param array $dimensions
+     * @param string $langCode
+     *
+     * @return array
+     */
+    public function getImageObjectStDataMarkup(array $dimensions, string $langCode)
+    {
+        $translation      = $this->translation($langCode);
+        $firstImageUrl = !empty($translation) ? $this->getFirstImageUrl($translation->teaser) : null;
+
+        $tags['image'] = [
+            '@type'  => 'ImageObject',
+            'width'  => isset($dimensions[0]) ? $dimensions[0] : config('gzero.image.thumb.width'),
+            'height' => isset($dimensions[1]) ? $dimensions[1] : 'auto'
+        ];
+        if (!empty($this->thumb)) {
+            $tags['image']['url'] = asset(croppaUrl($this->thumb->getFullPath()));
+        } elseif (!empty($firstImageUrl)) {
+            $tags['image']['url'] = $firstImageUrl;
+        } elseif (File::exists(base_path('public/images/share-logo.png'))) {
+            $tags['image']['url'] = asset('images/share-logo.png');
+        } else {
+            $tags['image']['url'] = asset('gzero/cms/img/share-logo.png');
+        }
+
+        return $tags;
     }
 
 }
