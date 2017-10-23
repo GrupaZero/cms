@@ -242,6 +242,7 @@ class ContentPresenter extends BasePresenter {
             'width'  => isset($dimensions[0]) ? $dimensions[0] : config('gzero.image.thumb.width'),
             'height' => isset($dimensions[1]) ? $dimensions[1] : 'auto'
         ];
+        
         if (!empty($this->thumb)) {
             $tags['image']['url'] = asset(croppaUrl($this->thumb->getFullPath(),
                 config('gzero.image.thumb.width'), config('gzero.image.thumb.height'), ['resize']));
