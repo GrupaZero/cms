@@ -237,18 +237,21 @@ class ContentPresenter extends BasePresenter {
         $translation      = $this->translation($langCode);
         $firstImageUrl = !empty($translation) ? $this->getFirstImageUrl($translation->teaser) : null;
 
+        $width = isset($dimensions[0]) ? $dimensions[0] : config('gzero.image.thumb.width');
+        $height = isset($dimensions[1]) ? $dimensions[1] : 'auto';
+
         $tags['image'] = [
             '@type'  => 'ImageObject',
-            'width'  => isset($dimensions[0]) ? $dimensions[0] : config('gzero.image.thumb.width'),
-            'height' => isset($dimensions[1]) ? $dimensions[1] : 'auto'
+            'width'  => $width,
+            'height' => $height
         ];
 
         if (!empty($this->thumb)) {
             $tags['image']['url'] = asset(
                 croppaUrl(
                     $this->thumb->getFullPath(),
-                    config('gzero.image.thumb.width'),
-                    config('gzero.image.thumb.height'),
+                    $width,
+                    $height,
                     ['resize']
                 )
             );
