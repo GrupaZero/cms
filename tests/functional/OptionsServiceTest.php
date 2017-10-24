@@ -103,7 +103,7 @@ class OptionsServiceTest extends \TestCase {
             ],
             'seo'     => [
                 'seo_desc_length'     => [],
-                'google_analytics_id' => [],
+                'google_tag_manager_id' => [],
             ]
         ];
 
