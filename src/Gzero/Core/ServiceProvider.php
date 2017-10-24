@@ -91,6 +91,13 @@ class ServiceProvider extends AbstractServiceProvider {
      */
     public function boot()
     {
+        $this->publishes(
+            [
+                __DIR__ . '/../../../public' => public_path('gzero/cms'),
+            ],
+            'public'
+        );
+
         $this->detectLanguage();
         $this->registerCommands();
         $this->registerPolicies();

@@ -1,5 +1,8 @@
 <?php namespace Gzero\Entity\Presenter;
 
+use Illuminate\Support\Facades\File;
+use function Symfony\Component\Debug\Tests\testHeader;
+
 /**
  * This file is part of the GZERO CMS package.
  *
@@ -170,18 +173,16 @@ class ContentPresenter extends BasePresenter {
             $routeTranslation = $this->routeTranslation($langCode);
 
             if (!empty($translation)) {
-                $firstImageUrl = $this->getFirstImageUrl($translation->teaser);
-
                 $tags = [
                     '@context'         => 'http://schema.org',
                     '@type'            => $type,
                     'publisher'        => [
-                        '@type' => 'Brand',
+                        '@type' => 'Organization',
                         'url'   => route('home'),
                         'name'  => config('app.name'),
                         'logo'  => [
                             '@type' => 'ImageObject',
-                            'url'   => asset('/images/logo.png')
+                            'url'   => asset('/images/share-logo.png')
                         ]
                     ],
                     'mainEntityOfPage' => [
@@ -194,7 +195,7 @@ class ContentPresenter extends BasePresenter {
                         'name'  => $this->authorName()
                     ],
                     'datePublished'    => $this->created_at,
-                    'dateModified'     => $this->updated_at,
+                    'dateModified'     => $this->updated_at->toDateTimeString(),
                     'url'              => $this->routeUrl($langCode),
                 ];
 
@@ -210,15 +211,7 @@ class ContentPresenter extends BasePresenter {
             }
         }
 
-        //@TODO use content thumbnail
-        if (!empty($firstImageUrl)) {
-            $tags['image'] = [
-                '@type'  => 'ImageObject',
-                'url'    => $firstImageUrl,
-                'width'  => $imageDimensions[0],
-                'height' => $imageDimensions[1]
-            ];
-        }
+        $tags = $tags + $this->getImageObjectStDataMarkup($imageDimensions, $langCode);
 
         if (!empty($tags)) {
             $html = [
@@ -229,6 +222,48 @@ class ContentPresenter extends BasePresenter {
         }
 
         return implode('', $html);
+    }
+
+    /**
+     * Returns the JSON-LD Structured Data Markup for ImageObject type
+     *
+     * @param array  $dimensions image dimensions
+     * @param string $langCode   translation lang code to get tags for
+     *
+     * @return array
+     */
+    public function getImageObjectStDataMarkup(array $dimensions, string $langCode)
+    {
+        $translation      = $this->translation($langCode);
+        $firstImageUrl = !empty($translation) ? $this->getFirstImageUrl($translation->teaser) : null;
+
+        $width = isset($dimensions[0]) ? $dimensions[0] : config('gzero.image.thumb.width');
+        $height = isset($dimensions[1]) ? $dimensions[1] : 'auto';
+
+        $tags['image'] = [
+            '@type'  => 'ImageObject',
+            'width'  => $width,
+            'height' => $height
+        ];
+
+        if (!empty($this->thumb)) {
+            $tags['image']['url'] = asset(
+                croppaUrl(
+                    $this->thumb->getFullPath(),
+                    $width,
+                    $height,
+                    ['resize']
+                )
+            );
+        } elseif (!empty($firstImageUrl)) {
+            $tags['image']['url'] = $firstImageUrl;
+        } elseif (File::exists(base_path('public/images/share-logo.png'))) {
+            $tags['image']['url'] = asset('images/share-logo.png');
+        } else {
+            $tags['image']['url'] = asset('gzero/cms/img/share-logo.png');
+        }
+
+        return $tags;
     }
 
 }
