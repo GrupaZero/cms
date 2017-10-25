@@ -163,6 +163,38 @@ class OptionRepositoryTest extends \TestCase {
     /**
      * @test
      */
+    public function it_gets_option_from_seo_category()
+    {
+        $optionName   = 'google_tag_manager_id';
+        $categoryName = 'seo';
+
+        $this->assertEquals(
+            $this->expectedOptions[$categoryName][$optionName]['en'],
+            $this->repository->getOption($categoryName, $optionName)['en']
+        );
+
+        $this->tester->seeInDatabase('options', ['key' => $optionName]);
+        $this->tester->seeInDatabase('option_categories', ['key' => $categoryName]);
+    }
+
+    /**
+     * @test
+     */
+    public function it_gets_all_options_from_seo_category()
+    {
+        $categoryName = 'seo';
+
+        $this->assertEquals(
+            $this->expectedOptions[$categoryName],
+            $this->repository->getOptions($categoryName)
+        );
+
+        $this->tester->seeInDatabase('option_categories', ['key' => $categoryName]);
+    }
+
+    /**
+     * @test
+     */
     public function can_create_category()
     {
         $categoryName = 'New category';
@@ -246,8 +278,8 @@ class OptionRepositoryTest extends \TestCase {
                 'cookies_policy_url' => [],
             ],
             'seo'     => [
-                'seoDescLength'     => [],
-                'googleAnalyticsId' => [],
+                'desc_length'     => [],
+                'google_tag_manager_id' => [],
             ]
         ];
 
