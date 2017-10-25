@@ -133,16 +133,13 @@ class OptionRepositoryTest extends \TestCase {
      */
     public function it_gets_option_from_general_category()
     {
-        $optionName   = 'site_name';
-        $categoryName = 'general';
+        $this->tester->seeInDatabase('option_categories', ['key' => 'general']);
+        $this->tester->seeInDatabase('options', ['key' => 'site_name']);
 
         $this->assertEquals(
-            $this->expectedOptions[$categoryName][$optionName]['en'],
-            $this->repository->getOption($categoryName, $optionName)['en']
+            "GZERO-CMS",
+            $this->repository->getOption('general', 'site_name')['en']
         );
-
-        $this->tester->seeInDatabase('options', ['key' => $optionName]);
-        $this->tester->seeInDatabase('option_categories', ['key' => $categoryName]);
     }
 
     /**
@@ -165,16 +162,15 @@ class OptionRepositoryTest extends \TestCase {
      */
     public function it_gets_option_from_seo_category()
     {
-        $optionName   = 'google_tag_manager_id';
-        $categoryName = 'seo';
+        $this->tester->seeInDatabase('option_categories', ['key' => 'seo']);
+        $this->tester->seeInDatabase('options', ['key' => 'google_tag_manager_id']);
+
+        $this->repository->updateOrCreateOption('seo', 'google_tag_manager_id', ['en' => 'GTM-XXXXXXX']);
 
         $this->assertEquals(
-            $this->expectedOptions[$categoryName][$optionName]['en'],
-            $this->repository->getOption($categoryName, $optionName)['en']
+            'GTM-XXXXXXX',
+            $this->repository->getOption('seo', 'google_tag_manager_id')['en']
         );
-
-        $this->tester->seeInDatabase('options', ['key' => $optionName]);
-        $this->tester->seeInDatabase('option_categories', ['key' => $categoryName]);
     }
 
     /**
