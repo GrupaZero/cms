@@ -133,16 +133,13 @@ class OptionRepositoryTest extends \TestCase {
      */
     public function it_gets_option_from_general_category()
     {
-        $optionName   = 'site_name';
-        $categoryName = 'general';
+        $this->tester->seeInDatabase('option_categories', ['key' => 'general']);
+        $this->tester->seeInDatabase('options', ['key' => 'site_name']);
 
         $this->assertEquals(
-            $this->expectedOptions[$categoryName][$optionName]['en'],
-            $this->repository->getOption($categoryName, $optionName)['en']
+            "GZERO-CMS",
+            $this->repository->getOption('general', 'site_name')['en']
         );
-
-        $this->tester->seeInDatabase('options', ['key' => $optionName]);
-        $this->tester->seeInDatabase('option_categories', ['key' => $categoryName]);
     }
 
     /**
@@ -151,6 +148,37 @@ class OptionRepositoryTest extends \TestCase {
     public function it_gets_all_options_from_general_category()
     {
         $categoryName = 'general';
+
+        $this->assertEquals(
+            $this->expectedOptions[$categoryName],
+            $this->repository->getOptions($categoryName)
+        );
+
+        $this->tester->seeInDatabase('option_categories', ['key' => $categoryName]);
+    }
+
+    /**
+     * @test
+     */
+    public function it_gets_option_from_seo_category()
+    {
+        $this->tester->seeInDatabase('option_categories', ['key' => 'seo']);
+        $this->tester->seeInDatabase('options', ['key' => 'google_tag_manager_id']);
+
+        $this->repository->updateOrCreateOption('seo', 'google_tag_manager_id', ['en' => 'GTM-XXXXXXX']);
+
+        $this->assertEquals(
+            'GTM-XXXXXXX',
+            $this->repository->getOption('seo', 'google_tag_manager_id')['en']
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function it_gets_all_options_from_seo_category()
+    {
+        $categoryName = 'seo';
 
         $this->assertEquals(
             $this->expectedOptions[$categoryName],
@@ -246,8 +274,8 @@ class OptionRepositoryTest extends \TestCase {
                 'cookies_policy_url' => [],
             ],
             'seo'     => [
-                'seoDescLength'     => [],
-                'googleAnalyticsId' => [],
+                'desc_length'     => [],
+                'google_tag_manager_id' => [],
             ]
         ];
 

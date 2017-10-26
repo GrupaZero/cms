@@ -3084,16 +3084,16 @@
         },
         {
             "name": "gzero/testing",
-            "version": "v3.1.0",
+            "version": "v3.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/GrupaZero/testing.git",
-                "reference": "3e747e3b1ab12f4a35a75c09a93a1ec6abb30086"
+                "reference": "b228f667687c13fc5fe156373acba4bdf26f63ae"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/GrupaZero/testing/zipball/3e747e3b1ab12f4a35a75c09a93a1ec6abb30086",
-                "reference": "3e747e3b1ab12f4a35a75c09a93a1ec6abb30086",
+                "url": "https://api.github.com/repos/GrupaZero/testing/zipball/b228f667687c13fc5fe156373acba4bdf26f63ae",
+                "reference": "b228f667687c13fc5fe156373acba4bdf26f63ae",
                 "shasum": ""
             },
             "type": "library",
@@ -3108,7 +3108,7 @@
                 }
             ],
             "description": "Package that helps testing across our packages",
-            "time": "2017-03-26T14:02:17+00:00"
+            "time": "2017-10-25T12:15:17+00:00"
         },
         {
             "name": "hamcrest/hamcrest-php",
@@ -3160,12 +3160,12 @@
             "version": "0.9.9",
             "source": {
                 "type": "git",
-                "url": "https://github.com/mockery/mockery.git",
+                "url": "https://github.com/padraic/mockery.git",
                 "reference": "6fdb61243844dc924071d3404bb23994ea0b6856"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mockery/mockery/zipball/6fdb61243844dc924071d3404bb23994ea0b6856",
+                "url": "https://api.github.com/repos/padraic/mockery/zipball/6fdb61243844dc924071d3404bb23994ea0b6856",
                 "reference": "6fdb61243844dc924071d3404bb23994ea0b6856",
                 "shasum": ""
             },

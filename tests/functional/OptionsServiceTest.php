@@ -102,8 +102,8 @@ class OptionsServiceTest extends \TestCase {
                 'cookies_policy_url' => [],
             ],
             'seo'     => [
-                'seo_desc_length'     => [],
-                'google_analytics_id' => [],
+                'desc_length'     => [],
+                'google_tag_manager_id' => [],
             ]
         ];
 
