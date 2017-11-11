@@ -16,7 +16,7 @@
     "require": {
         "php": ">=7.1.0",
         "davejamesmiller/laravel-breadcrumbs": "3.0.*",
-        "gzero/base": "dev-master",
+        "gzero/base": "dev-more_refactor",
         "bkwld/croppa": "~4.0"
     },
     "require-dev": {
@@ -32,11 +32,6 @@
         "psr-4": {
             "Gzero\\": "src/Gzero"
         }
-    },
-    "autoload-dev": {
-        "classmap": [
-            "tests/TestCase.php"
-        ]
     },
     "scripts": {
         "test": "./vendor/bin/codecept run"
