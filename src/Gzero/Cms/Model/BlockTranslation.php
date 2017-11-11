@@ -1,7 +1,7 @@
 <?php namespace Gzero\Cms\Model;
 
-use Gzero\Base\Model\Base;
-use Gzero\Base\Model\Language;
+use Gzero\Base\Models\Base;
+use Gzero\Base\Models\Language;
 use Gzero\Cms\Model\Presenter\BlockTranslationPresenter;
 use Robbo\Presenter\PresentableInterface;
 use Robbo\Presenter\Robbo;
@@ -12,7 +12,7 @@ class BlockTranslation extends Base implements PresentableInterface {
      * @var array
      */
     protected $fillable = [
-        'lang_code',
+        'language_code',
         'title',
         'body',
         'custom_fields',

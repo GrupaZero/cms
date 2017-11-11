@@ -1,6 +1,6 @@
-<?php namespace Gzero\Repository;
+<?php namespace Gzero\Cms\Service;
 
-use Gzero\Base\Model\User;
+use Gzero\Base\Models\User;
 use Gzero\Base\Service\BaseService;
 use Gzero\Base\Service\RepositoryException;
 use Gzero\Base\Service\RepositoryValidationException;
@@ -32,7 +32,8 @@ class ContentService extends BaseService {
      * Content repository constructor
      *
      * @param Content    $content Content model
-     * @param Dispatcher $events  Events dispatcher
+     *
+     * @param Dispatcher $events Events dispatcher
      */
     public function __construct(Content $content, Dispatcher $events)
     {
@@ -80,7 +81,7 @@ class ContentService extends BaseService {
         return $this->newORMQuery()
             ->getRelation('translations')->getQuery()
             ->whereIn('content_id', $contentIds)
-            ->where('lang_code', $lang)
+            ->where('language_code', $lang)
             ->where('is_active', true)
             ->select('title')
             ->get()
@@ -155,7 +156,7 @@ class ContentService extends BaseService {
                 'route_translations',
                 function ($join) use ($langCode) {
                     $join->on('routes.id', '=', 'route_translations.route_id')
-                        ->where('route_translations.lang_code', '=', $langCode);
+                        ->where('route_translations.language_code', '=', $langCode);
                 }
             )
             ->where('route_translations.url', '=', $url)
@@ -575,19 +576,19 @@ class ContentService extends BaseService {
      */
     public function createTranslation(Content $content, array $data)
     {
-        if (!array_key_exists('lang_code', $data) || !array_key_exists('title', $data)) {
+        if (!array_key_exists('language_code', $data) || !array_key_exists('title', $data)) {
             throw new RepositoryValidationException('Language code and title of translation is required');
         }
         // Create route only for the first translation
-        if ($content->translations()->where('lang_code', $data['lang_code'])->first() === null) {
-            $this->createRoute($content, $data['lang_code'], $data['title']);
+        if ($content->translations()->where('language_code', $data['language_code'])->first() === null) {
+            $this->createRoute($content, $data['language_code'], $data['title']);
         };
 
         // New translation query
         $translation = $this->newQuery()->transaction(
             function () use ($content, $data) {
                 // Set all translation of this content as inactive
-                $this->disableActiveTranslations($content->id, $data['lang_code']);
+                $this->disableActiveTranslations($content->id, $data['language_code']);
                 $translation = new ContentTranslation();
                 $translation->fill($data);
                 $translation->is_active = 1; // Because only recent translation is active
@@ -633,7 +634,7 @@ class ContentService extends BaseService {
                 $content->route()->save($route);
                 //  Search for route translations, or instantiate a new instance
                 $routeTranslation      = RouteTranslation::firstOrNew(
-                    ['route_id' => $route->id, 'lang_code' => $langCode, 'is_active' => 1]
+                    ['route_id' => $route->id, 'language_code' => $langCode, 'is_active' => 1]
                 );
                 $routeTranslation->url = $this->buildUniqueUrl(
                     $url . str_slug($urlString),
@@ -789,7 +790,7 @@ class ContentService extends BaseService {
                 'content_translations',
                 function ($join) use ($parsedCriteria) {
                     $join->on('contents.id', '=', 'content_translations.content_id')
-                        ->where('content_translations.lang_code', '=', $parsedCriteria['lang']['value'])
+                        ->where('content_translations.language_code', '=', $parsedCriteria['lang']['value'])
                         ->where('content_translations.is_active', '=', 1);
                 }
             );

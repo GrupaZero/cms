@@ -1,6 +1,6 @@
 <?php namespace Gzero\Cms\Model;
 
-use Gzero\Base\Model\Base;
+use Gzero\Base\Models\Base;
 
 class BlockType extends Base {
 

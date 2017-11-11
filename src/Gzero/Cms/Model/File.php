@@ -1,6 +1,7 @@
 <?php namespace Gzero\Cms\Model;
 
-use Gzero\Base\Model\Base;
+use Gzero\Base\Models\Base;
+use Gzero\Base\Models\User;
 use Gzero\Cms\Model\Presenter\FilePresenter;
 use Illuminate\Support\Collection;
 use Robbo\Presenter\PresentableInterface;

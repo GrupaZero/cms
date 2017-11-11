@@ -1,7 +1,7 @@
 <?php namespace Gzero\Cms\Model;
 
-use Gzero\Base\Model\Base;
-use Gzero\Base\Model\Language;
+use Gzero\Base\Models\Base;
+use Gzero\Base\Models\Language;
 
 class FileTranslation extends Base {
 
@@ -9,7 +9,7 @@ class FileTranslation extends Base {
      * @var array
      */
     protected $fillable = [
-        'lang_code',
+        'language_code',
         'title',
         'description'
     ];

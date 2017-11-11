@@ -77,7 +77,7 @@ class ContentRepositoryTest extends \TestCase {
             [
                 'type'         => 'content',
                 'translations' => [
-                    'lang_code' => 'en',
+                    'language_code' => 'en',
                     'title'     => 'Example title'
                 ]
             ]
@@ -103,7 +103,7 @@ class ContentRepositoryTest extends \TestCase {
                 'is_active'          => true,
                 'published_at'       => date('Y-m-d H:i:s'),
                 'translations'       => [
-                    'lang_code' => 'en',
+                    'language_code' => 'en',
                     'title'     => 'Example title'
                 ]
             ],
@@ -127,7 +127,7 @@ class ContentRepositoryTest extends \TestCase {
         $this->assertEquals($author->id, $newContent->author_id);
         $this->assertEquals($author->email, $newContentAuthor['email']);
         // Route
-        $this->assertEquals('en', $newContentRoute['lang_code']);
+        $this->assertEquals('en', $newContentRoute['language_code']);
         $this->assertEquals('example-title', $newContentRoute['url']);
     }
 
@@ -140,7 +140,7 @@ class ContentRepositoryTest extends \TestCase {
             [
                 'type'         => 'content',
                 'translations' => [
-                    'lang_code' => 'en',
+                    'language_code' => 'en',
                     'title'     => 'Example title'
                 ]
             ]
@@ -159,7 +159,7 @@ class ContentRepositoryTest extends \TestCase {
             [
                 'type'         => 'content',
                 'translations' => [
-                    'lang_code' => 'en',
+                    'language_code' => 'en',
                     'title'     => 'Example title'
                 ]
             ]
@@ -168,7 +168,7 @@ class ContentRepositoryTest extends \TestCase {
         $translation      = $this->repository->createTranslation(
             $newContent,
             [
-                'lang_code'      => 'en',
+                'language_code'      => 'en',
                 'title'          => 'New example title',
                 'body'           => 'New example body',
                 'seo_title'       => 'New example seo_title',
@@ -182,7 +182,7 @@ class ContentRepositoryTest extends \TestCase {
         // Check if previous translation are inactive
         $this->assertFalse((bool) $firstTranslation->is_active);
         // Check if a new translation has been added
-        $this->assertEquals('en', $newTranslation->lang_code);
+        $this->assertEquals('en', $newTranslation->language_code);
         $this->assertEquals('New example title', $newTranslation->title);
         $this->assertEquals('New example body', $newTranslation->body);
         $this->assertEquals('New example seo_title', $newTranslation->seo_title);
@@ -200,7 +200,7 @@ class ContentRepositoryTest extends \TestCase {
                 'type'         => 'content',
                 'is_on_home'   => false,
                 'translations' => [
-                    'lang_code' => 'en',
+                    'language_code' => 'en',
                     'title'     => 'Example title'
                 ]
             ]
@@ -228,7 +228,7 @@ class ContentRepositoryTest extends \TestCase {
             [
                 'type'         => 'content',
                 'translations' => [
-                    'lang_code' => 'en',
+                    'language_code' => 'en',
                     'title'     => 'Example title'
                 ]
             ]
@@ -250,7 +250,7 @@ class ContentRepositoryTest extends \TestCase {
             [
                 'type'         => 'content',
                 'translations' => [
-                    'lang_code' => 'en',
+                    'language_code' => 'en',
                     'title'     => 'Example title'
                 ]
             ]
@@ -260,7 +260,7 @@ class ContentRepositoryTest extends \TestCase {
             [
                 'type'         => 'content',
                 'translations' => [
-                    'lang_code' => 'en',
+                    'language_code' => 'en',
                     'title'     => 'Other title'
                 ]
             ]
@@ -298,7 +298,7 @@ class ContentRepositoryTest extends \TestCase {
             [
                 'type'         => 'content',
                 'translations' => [
-                    'lang_code' => 'en',
+                    'language_code' => 'en',
                     'title'     => 'Example title'
                 ]
             ]
@@ -308,7 +308,7 @@ class ContentRepositoryTest extends \TestCase {
             [
                 'type'         => 'content',
                 'translations' => [
-                    'lang_code' => 'en',
+                    'language_code' => 'en',
                     'title'     => 'Other title'
                 ]
             ]
@@ -347,7 +347,7 @@ class ContentRepositoryTest extends \TestCase {
             [
                 'type'         => 'content',
                 'translations' => [
-                    'lang_code' => 'en',
+                    'language_code' => 'en',
                     'title'     => 'Example title',
                     'body'      => 'Example body'
                 ]
@@ -359,7 +359,7 @@ class ContentRepositoryTest extends \TestCase {
         $this->repository->createTranslation(
             $content,
             [
-                'lang_code' => 'en',
+                'language_code' => 'en',
                 'title'     => 'English translation 2'
             ]
         );
@@ -380,7 +380,7 @@ class ContentRepositoryTest extends \TestCase {
             [
                 'type'         => 'content',
                 'translations' => [
-                    'lang_code' => 'en',
+                    'language_code' => 'en',
                     'title'     => 'Example title',
                     'body'      => 'Example body'
                 ]
@@ -395,7 +395,7 @@ class ContentRepositoryTest extends \TestCase {
             [
                 'type'         => 'content',
                 'translations' => [
-                    'lang_code' => 'en',
+                    'language_code' => 'en',
                     'title'     => 'Example title',
                     'body'      => 'Example body'
                 ]
@@ -421,7 +421,7 @@ class ContentRepositoryTest extends \TestCase {
             [
                 'type'         => 'fakeType',
                 'translations' => [
-                    'lang_code' => 'en',
+                    'language_code' => 'en',
                     'title'     => 'Example category title'
                 ]
             ]
@@ -460,7 +460,7 @@ class ContentRepositoryTest extends \TestCase {
             [
                 'type'         => 'category',
                 'translations' => [
-                    'lang_code' => 'en',
+                    'language_code' => 'en',
                     'title'     => 'Example category title'
                 ]
             ]
@@ -471,7 +471,7 @@ class ContentRepositoryTest extends \TestCase {
                 'type'         => 'content',
                 'parent_id'    => $newCategory->id,
                 'translations' => [
-                    'lang_code' => 'pl',
+                    'language_code' => 'pl',
                     'title'     => 'Example content title'
                 ]
             ]
@@ -491,7 +491,7 @@ class ContentRepositoryTest extends \TestCase {
                 'type'         => 'content',
                 'parent_id'    => 1,
                 'translations' => [
-                    'lang_code' => 'pl',
+                    'language_code' => 'pl',
                     'title'     => 'Example content title'
                 ]
             ]
@@ -510,7 +510,7 @@ class ContentRepositoryTest extends \TestCase {
             [
                 'type'         => 'content',
                 'translations' => [
-                    'lang_code' => 'pl',
+                    'language_code' => 'pl',
                     'title'     => 'Example category title'
                 ]
             ]
@@ -521,7 +521,7 @@ class ContentRepositoryTest extends \TestCase {
                 'type'         => 'content',
                 'parent_id'    => $newCategory->id,
                 'translations' => [
-                    'lang_code' => 'pl',
+                    'language_code' => 'pl',
                     'title'     => 'Example content title'
                 ]
             ]
@@ -545,7 +545,7 @@ class ContentRepositoryTest extends \TestCase {
                 'is_active'          => true,
                 'published_at'       => date('Y-m-d H:i:s'),
                 'translations'       => [
-                    'lang_code' => 'en',
+                    'language_code' => 'en',
                     'title'     => 'Example title'
                 ]
             ],
@@ -561,7 +561,7 @@ class ContentRepositoryTest extends \TestCase {
                 'is_active'          => true,
                 'published_at'       => date('Y-m-d H:i:s'),
                 'translations'       => [
-                    'lang_code' => 'en',
+                    'language_code' => 'en',
                     'title'     => 'Example title'
                 ]
             ],
@@ -592,7 +592,7 @@ class ContentRepositoryTest extends \TestCase {
                 'type'         => 'content',
                 'is_active'    => 1,
                 'translations' => [
-                    'lang_code'      => 'en',
+                    'language_code'      => 'en',
                     'title'          => 'Fake title',
                     'teaser'         => '<p>Super fake...</p>',
                     'body'           => '<p>Super fake body of some post!</p>',
@@ -617,7 +617,7 @@ class ContentRepositoryTest extends \TestCase {
                 'type'         => 'content',
                 'is_active'    => 1,
                 'translations' => [
-                    'lang_code'      => 'en',
+                    'language_code'      => 'en',
                     'title'          => 'Fake title',
                     'teaser'         => '<p>Super fake...</p>',
                     'body'           => '<p>Super fake body of some post!</p>',
@@ -643,7 +643,7 @@ class ContentRepositoryTest extends \TestCase {
                 'type'         => 'content',
                 'is_active'    => 1,
                 'translations' => [
-                    'lang_code'      => 'en',
+                    'language_code'      => 'en',
                     'title'          => 'Fake title',
                     'teaser'         => '<p>Super fake...</p>',
                     'body'           => '<p>Super fake body of some post!</p>',
@@ -734,7 +734,7 @@ class ContentRepositoryTest extends \TestCase {
                 'type'         => 'content',
                 'parent_id'    => $category->id,
                 'translations' => [
-                    'lang_code' => 'en',
+                    'language_code' => 'en',
                     'title'     => 'Example content title'
                 ]
             ]
@@ -748,7 +748,7 @@ class ContentRepositoryTest extends \TestCase {
         // path
         $this->assertEquals($category->path . $newContent->id . '/', $newContent->path);
         // route
-        $this->assertEquals('en', $newContentRoute['lang_code']);
+        $this->assertEquals('en', $newContentRoute['language_code']);
         $this->assertEquals($categoryRoute->url . '/' . 'example-content-title', $newContentRoute['url']);
     }
 
@@ -792,7 +792,7 @@ class ContentRepositoryTest extends \TestCase {
             [
                 'type'         => 'category',
                 'translations' => [
-                    'lang_code' => 'en',
+                    'language_code' => 'en',
                     'title'     => 'Example title'
                 ]
             ]
@@ -831,7 +831,7 @@ class ContentRepositoryTest extends \TestCase {
         $updatedContentRoute = $updatedContent->route->translations()->first();
 
         // Check single route
-        $this->assertEquals('en', $updatedContentRoute['lang_code']);
+        $this->assertEquals('en', $updatedContentRoute['language_code']);
         $this->assertEquals('single-content-url', $updatedContentRoute['url']);
 
         // Nested content
@@ -842,7 +842,7 @@ class ContentRepositoryTest extends \TestCase {
                 'type'         => 'content',
                 'parent_id'    => $category->id,
                 'translations' => [
-                    'lang_code' => 'en',
+                    'language_code' => 'en',
                     'title'     => 'Example content title'
                 ]
             ]
@@ -855,7 +855,7 @@ class ContentRepositoryTest extends \TestCase {
         $updatedContentRoute = $updatedContent->route->translations()->first();
 
         // Check nested route
-        $this->assertEquals('en', $updatedContentRoute['lang_code']);
+        $this->assertEquals('en', $updatedContentRoute['language_code']);
         $this->assertEquals($categoryRoute->url . '/' . 'nested-content-url', $updatedContentRoute['url']);
 
         // Crate unique route
@@ -864,7 +864,7 @@ class ContentRepositoryTest extends \TestCase {
         $updatedContentRoute = $updatedContent->route->translations()->first();
 
         // Check unique route
-        $this->assertEquals('en', $updatedContentRoute['lang_code']);
+        $this->assertEquals('en', $updatedContentRoute['language_code']);
         $this->assertEquals($categoryRoute->url . '/' . 'nested-content-url-1', $updatedContentRoute['url']);
     }
 
@@ -878,7 +878,7 @@ class ContentRepositoryTest extends \TestCase {
                 'type'         => 'category',
                 'weight'       => 3,
                 'translations' => [
-                    'lang_code' => 'en',
+                    'language_code' => 'en',
                     'title'     => 'A title'
                 ]
             ]
@@ -890,7 +890,7 @@ class ContentRepositoryTest extends \TestCase {
                 'parent_id'    => $category->id,
                 'weight'       => 2,
                 'translations' => [
-                    'lang_code' => 'en',
+                    'language_code' => 'en',
                     'title'     => 'A title'
                 ]
             ]
@@ -902,7 +902,7 @@ class ContentRepositoryTest extends \TestCase {
                 'parent_id'    => $category->id,
                 'weight'       => 0,
                 'translations' => [
-                    'lang_code' => 'en',
+                    'language_code' => 'en',
                     'title'     => 'B title'
                 ]
             ]
@@ -948,7 +948,7 @@ class ContentRepositoryTest extends \TestCase {
                 'type'         => 'category',
                 'weight'       => 3,
                 'translations' => [
-                    'lang_code' => 'en',
+                    'language_code' => 'en',
                     'title'     => 'A title'
                 ]
             ]
@@ -960,7 +960,7 @@ class ContentRepositoryTest extends \TestCase {
                 'parent_id'    => $category->id,
                 'weight'       => 2,
                 'translations' => [
-                    'lang_code' => 'en',
+                    'language_code' => 'en',
                     'title'     => 'A title'
                 ]
             ]
@@ -972,7 +972,7 @@ class ContentRepositoryTest extends \TestCase {
                 'parent_id'    => $category->id,
                 'weight'       => 0,
                 'translations' => [
-                    'lang_code' => 'en',
+                    'language_code' => 'en',
                     'title'     => 'B title'
                 ]
             ]
@@ -1122,7 +1122,7 @@ class ContentRepositoryTest extends \TestCase {
             $this->repository->createTranslation(
                 $category,
                 [
-                    'lang_code' => 'pl',
+                    'language_code' => 'pl',
                     'title'     => 'New example title',
                     'body'      => 'New example body'
                 ]
@@ -1189,7 +1189,7 @@ class ContentRepositoryTest extends \TestCase {
                 'type'         => 'category',
                 'weight'       => 10,
                 'translations' => [
-                    'lang_code' => 'en',
+                    'language_code' => 'en',
                     'title'     => 'C title'
                 ]
             ]
@@ -1200,7 +1200,7 @@ class ContentRepositoryTest extends \TestCase {
                 'parent_id'    => $category->id,
                 'weight'       => 0,
                 'translations' => [
-                    'lang_code' => 'en',
+                    'language_code' => 'en',
                     'title'     => 'A title'
                 ]
             ]
@@ -1211,7 +1211,7 @@ class ContentRepositoryTest extends \TestCase {
                 'parent_id'    => $category->id,
                 'weight'       => 1,
                 'translations' => [
-                    'lang_code' => 'en',
+                    'language_code' => 'en',
                     'title'     => 'B title'
                 ]
             ]
@@ -1326,7 +1326,7 @@ class ContentRepositoryTest extends \TestCase {
      * @expectedException \Gzero\Repository\RepositoryException
      * @expectedExceptionMessage Error: 'lang' criteria is required
      */
-    public function it_checks_existence_of_lang_code_on_translations_join()
+    public function it_checks_existence_of_language_code_on_translations_join()
     {
         // Tree seeds
         $this->seed('TestSeeder');
@@ -1339,7 +1339,7 @@ class ContentRepositoryTest extends \TestCase {
      * @expectedException \Gzero\Repository\RepositoryException
      * @expectedExceptionMessage Error: 'lang' criteria is required
      */
-    public function it_checks_existence_of_lang_code_on_translations_join_tree()
+    public function it_checks_existence_of_language_code_on_translations_join_tree()
     {
         // Tree seeds
         $this->seed('TestTreeSeeder');
@@ -1354,7 +1354,7 @@ class ContentRepositoryTest extends \TestCase {
     /**
      * @test
      */
-    public function it_doesnt_check_existence_of_lang_code_for_core_order_by_params()
+    public function it_doesnt_check_existence_of_language_code_for_core_order_by_params()
     {
         // Tree seeds
         $this->seed('TestTreeSeeder');
@@ -1384,7 +1384,7 @@ class ContentRepositoryTest extends \TestCase {
             [
                 'type'         => 'category',
                 'translations' => [
-                    'lang_code' => 'pl',
+                    'language_code' => 'pl',
                     'title'     => 'Example content title'
                 ]
             ]
@@ -1395,7 +1395,7 @@ class ContentRepositoryTest extends \TestCase {
                 'type'         => 'category',
                 'parent_id'    => $category1->id,
                 'translations' => [
-                    'lang_code' => 'pl',
+                    'language_code' => 'pl',
                     'title'     => 'Example content title'
                 ]
             ]
@@ -1406,7 +1406,7 @@ class ContentRepositoryTest extends \TestCase {
                 'type'         => 'category',
                 'parent_id'    => $category2->id,
                 'translations' => [
-                    'lang_code' => 'pl',
+                    'language_code' => 'pl',
                     'title'     => 'Example content title'
                 ]
             ]
@@ -1435,7 +1435,7 @@ class ContentRepositoryTest extends \TestCase {
                 'is_active'          => true,
                 'published_at'       => date('Y-m-d H:i:s'),
                 'translations'       => [
-                    'lang_code' => 'en',
+                    'language_code' => 'en',
                     'title'     => 'English translation 1'
                 ]
             ],
@@ -1446,7 +1446,7 @@ class ContentRepositoryTest extends \TestCase {
         $translation = $this->repository->createTranslation(
             $content,
             [
-                'lang_code' => 'en',
+                'language_code' => 'en',
                 'title'     => 'English translation 2'
             ]
         );
@@ -1492,7 +1492,7 @@ class ContentRepositoryTest extends \TestCase {
                 'is_active'          => true,
                 'published_at'       => date('Y-m-d H:i:s'),
                 'translations'       => [
-                    'lang_code' => 'en',
+                    'language_code' => 'en',
                     'title'     => 'English translation 1'
                 ]
             ],
@@ -1519,7 +1519,7 @@ class ContentRepositoryTest extends \TestCase {
             [
                 'type'         => 'content',
                 'translations' => [
-                    'lang_code' => 'en',
+                    'language_code' => 'en',
                     'title'     => 'Example title',
                 ]
             ]
@@ -1529,7 +1529,7 @@ class ContentRepositoryTest extends \TestCase {
         $this->repository->createTranslation(
             $content,
             [
-                'lang_code' => 'en',
+                'language_code' => 'en',
                 'title'     => 'Modified example title',
             ]
         );
@@ -1537,7 +1537,7 @@ class ContentRepositoryTest extends \TestCase {
         $newContent      = $this->repository->getById($content->id);
         $newContentRoute = $newContent->route->translations()->first();
         // Route translation should not be changed
-        $this->assertEquals('en', $newContentRoute['lang_code']);
+        $this->assertEquals('en', $newContentRoute['language_code']);
         $this->assertEquals('example-title', $newContentRoute['url']);
     }
 
@@ -1550,7 +1550,7 @@ class ContentRepositoryTest extends \TestCase {
             [
                 'type'          => 'category',
                 'translations'  => [
-                    'lang_code' => 'pl',
+                    'language_code' => 'pl',
                     'title'     => 'Przykładowy tytuł kategorii 1.'
                 ]
             ]
@@ -1560,7 +1560,7 @@ class ContentRepositoryTest extends \TestCase {
         $this->repository->createTranslation(
             $category1,
             [
-                'lang_code' => 'en',
+                'language_code' => 'en',
                 'title'     => 'Example title category 1.'
             ]
         );
@@ -1571,7 +1571,7 @@ class ContentRepositoryTest extends \TestCase {
                 'type'         => 'category',
                 'parent_id'    => $category1->id,
                 'translations' => [
-                    'lang_code' => 'pl',
+                    'language_code' => 'pl',
                     'title'     => 'Przykładowy, nieaktywny, zagnieżdżony tytuł kategorii 2.'
                 ]
             ]
@@ -1581,7 +1581,7 @@ class ContentRepositoryTest extends \TestCase {
         $this->repository->createTranslation(
             $category2,
             [
-                'lang_code' => 'en',
+                'language_code' => 'en',
                 'title'     => 'Example, active, nested title category 2.'
             ]
         );
@@ -1589,7 +1589,7 @@ class ContentRepositoryTest extends \TestCase {
         $this->repository->createTranslation(
             $category2,
             [
-                'lang_code' => 'pl',
+                'language_code' => 'pl',
                 'title'     => 'Przykładowy, aktywny, zagnieżdżony tytuł kategorii 2.'
             ]
         );
@@ -1599,7 +1599,7 @@ class ContentRepositoryTest extends \TestCase {
                 'type'          => 'content',
                 'parent_id'     => $category2->id,
                 'translations'  => [
-                    'lang_code' => 'pl',
+                    'language_code' => 'pl',
                     'title'     => 'Przykładowy tytuł zawartości 1.'
                 ]
             ]
@@ -1611,7 +1611,7 @@ class ContentRepositoryTest extends \TestCase {
                 'type'          => 'content',
                 'parent_id'     => $category1->id,
                 'translations'  => [
-                    'lang_code' => 'pl',
+                    'language_code' => 'pl',
                     'title'     => 'Przykładowy tytuł zawartości 2.'
                 ]
             ]
@@ -1641,7 +1641,7 @@ class ContentRepositoryTest extends \TestCase {
             [
                 'type'          => 'category',
                 'translations'  => [
-                    'lang_code' => 'pl',
+                    'language_code' => 'pl',
                     'title'     => 'blog'
                 ]
             ]
@@ -1652,7 +1652,7 @@ class ContentRepositoryTest extends \TestCase {
                 'type'          => 'category',
                 'parent_id'     => $blogCategory1->id,
                 'translations'  => [
-                    'lang_code' => 'pl',
+                    'language_code' => 'pl',
                     'title'     => 'blog'
                 ]
             ]
@@ -1663,7 +1663,7 @@ class ContentRepositoryTest extends \TestCase {
                 'type'          => 'content',
                 'parent_id'     => $blogCategory2->id,
                 'translations'  => [
-                    'lang_code' => 'pl',
+                    'language_code' => 'pl',
                     'title'     => 'blog'
                 ]
             ]

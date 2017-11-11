@@ -1,7 +1,7 @@
 <?php namespace Gzero\Cms\Model;
 
 use Faker\Provider\Base;
-use Gzero\Base\Model\User;
+use Gzero\Base\Models\User;
 
 class Role extends Base {
 

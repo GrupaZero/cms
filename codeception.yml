@@ -11,12 +11,8 @@ coverage:
     include:
         - src/*
     exclude:
-        - src/Gzero/**/*.json
-        - src/Gzero/Core/CMSSeeder.php
-        - src/Gzero/Core/database/migrations/*
-        - src/Gzero/Core/config/gzero.php
-        - src/Gzero/Core/helpers.php
-        - src/Gzero/Core/laravel_helpers.php
+        - database/migrations/*
+        - config/config.php
 settings:
     bootstrap: _bootstrap.php
     lint: true

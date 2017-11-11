@@ -1,6 +1,6 @@
 <?php namespace Gzero\Cms\Model;
 
-use Gzero\Base\Model\Base;
+use Gzero\Base\Models\Base;
 use Gzero\Cms\Model\Presenter\ContentTranslationPresenter;
 use Robbo\Presenter\PresentableInterface;
 use Robbo\Presenter\Robbo;
@@ -11,7 +11,7 @@ class ContentTranslation extends Base implements PresentableInterface {
      * @var array
      */
     protected $fillable = [
-        'lang_code',
+        'language_code',
         'title',
         'teaser',
         'body',

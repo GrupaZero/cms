@@ -1,6 +1,7 @@
 <?php namespace Gzero\Cms\Model;
 
-use Gzero\Base\Model\Base;
+use Gzero\Base\Models\Base;
+use Gzero\Base\Models\User;
 use Gzero\Cms\Model\Presenter\BlockPresenter;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Robbo\Presenter\PresentableInterface;
@@ -96,6 +97,20 @@ class Block extends Base implements Uploadable, PresentableInterface {
     public function author()
     {
         return $this->belongsTo(User::class, 'author_id', 'id');
+    }
+
+    /**
+     * It disables active translation for specific language
+     *
+     * @param string $languageCode language code
+     *
+     * @return void
+     */
+    public function disableAllActiveTranslations($languageCode)
+    {
+        $this->translations()
+            ->where('language_code', $languageCode)
+            ->update(['is_active' => false]);
     }
 
     /**

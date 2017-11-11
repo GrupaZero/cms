@@ -129,7 +129,7 @@ class TestTreeSeeder extends Seeder {
             'type'         => $type->name,
             'is_active'    => true,
             'translations' => [
-                'lang_code' => 'en',
+                'language_code' => 'en',
                 'title'     => $this->faker->sentence(5),
                 'body'      => $this->faker->text(rand(100, 255)),
                 'is_active' => true

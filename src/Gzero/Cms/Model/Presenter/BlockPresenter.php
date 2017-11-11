@@ -17,7 +17,7 @@ class BlockPresenter extends BasePresenter {
         if (!empty($this->translations) && !empty($langCode)) {
             $translation = $this->translations->filter(
                 function ($translation) use ($langCode) {
-                    return $translation->lang_code === $langCode;
+                    return $translation->language_code === $langCode;
                 }
             )->first();
         }

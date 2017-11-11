@@ -1,7 +1,7 @@
 <?php namespace Gzero\Core;
 
-use Gzero\Entity\Block;
-use Gzero\Repository\BlockService;
+use Gzero\Cms\Model\Block;
+use Gzero\Cms\Service\BlockService;
 use Illuminate\Cache\CacheManager;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -83,7 +83,7 @@ class BlockFinder {
             $parentPath = '';
             foreach ($ids as $index => $id) {
                 $parentPath .= $id . '/';
-                $pathMatch = ($index + 1 < $idsCount) ? $parentPath . '*' : $parentPath;
+                $pathMatch  = ($index + 1 < $idsCount) ? $parentPath . '*' : $parentPath;
                 if (isset($filter['paths'][$pathMatch])) {
                     // Order of operation is important! We want to override $allIds be lower level filter (left overrides right)
                     $allIds = $filter['paths'][$pathMatch] + $allIds;

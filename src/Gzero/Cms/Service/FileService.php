@@ -1,6 +1,6 @@
-<?php namespace Gzero\Repository;
+<?php namespace Gzero\Cms\Service;
 
-use Gzero\Base\Model\User;
+use Gzero\Base\Models\User;
 use Gzero\Base\QueryBuilder;
 use Gzero\Base\Service\BaseService;
 use Gzero\Base\Service\RepositoryException;
@@ -139,14 +139,14 @@ class FileService extends BaseService {
      */
     public function createTranslation(File $file, array $data)
     {
-        if (!array_key_exists('lang_code', $data) || !array_key_exists('title', $data)) {
+        if (!array_key_exists('language_code', $data) || !array_key_exists('title', $data)) {
             throw new RepositoryValidationException("Language code and title of translation is required");
         }
         // New translation query
         $translation = $this->newQuery()->transaction(
             function () use ($file, $data) {
                 // Remove any existing translation in this language
-                $existingTranslation = $this->getTranslationByLangCode($file, $data['lang_code']);
+                $existingTranslation = $this->getTranslationByLangCode($file, $data['language_code']);
                 if ($existingTranslation) {
                     $existingTranslation->delete();
                 }
@@ -253,7 +253,7 @@ class FileService extends BaseService {
      */
     public function getTranslationByLangCode(File $file, $langCode)
     {
-        return $file->translations()->where('lang_code', '=', $langCode)->first();
+        return $file->translations()->where('language_code', '=', $langCode)->first();
     }
 
 
@@ -336,7 +336,7 @@ class FileService extends BaseService {
                 'file_translations',
                 function ($join) use ($parsedCriteria) {
                     $join->on('files.id', '=', 'file_translations.file_id')
-                        ->where('file_translations.lang_code', '=', $parsedCriteria['lang']['value']);
+                        ->where('file_translations.language_code', '=', $parsedCriteria['lang']['value']);
                 }
             );
             unset($parsedCriteria['lang']);

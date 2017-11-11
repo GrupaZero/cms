@@ -1,40 +1,49 @@
-<?php namespace Gzero\Repository;
+<?php namespace Gzero\Cms\Service;
 
-use Gzero\Base\Model\User;
+use Gzero\Base\Models\User;
 use Gzero\Base\Service\BaseService;
 use Gzero\Base\Service\RepositoryException;
 use Gzero\Base\Service\RepositoryValidationException;
 use Gzero\Cms\Model\Block;
 use Gzero\Cms\Model\BlockTranslation;
+use Gzero\Cms\Model\Widget;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Events\Dispatcher;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class BlockService extends BaseService {
 
     /**
-     * @var Block
-     */
-    protected $model;
-
-    /**
-     * The events dispatcher
+     * @param int $id
      *
-     * @var Dispatcher
+     * @return mixed
      */
-    protected $events;
-
-    /**
-     * Block repository constructor
-     *
-     * @param Block      $block  Block model
-     * @param Dispatcher $events Events dispatcher
-     */
-    public function __construct(Block $block, Dispatcher $events)
+    public function getById($id)
     {
-        $this->model  = $block;
-        $this->events = $events;
+        return Block::find($id);
+    }
+
+    /**
+     * Get single softDeleted entity
+     *
+     * @param integer $id Entity id
+     *
+     * @return mixed
+     */
+    public function getByIdWithTrashed($id)
+    {
+        return Block::withTrashed()->find($id);
+    }
+
+    /**
+     * Returns model table name
+     *
+     * @return string
+     */
+    protected function getTableName()
+    {
+        return (new Block)->getTable();
     }
 
     /**
@@ -47,59 +56,71 @@ class BlockService extends BaseService {
      */
     public function create(array $data, User $author = null)
     {
-        $block = $this->newQuery()->transaction(
-            function () use ($data, $author) {
-                $translations = array_get($data, 'translations'); // Nested relation fields
-                if (empty($translations) || !array_key_exists('type', $data)) {
-                    throw new RepositoryValidationException("Block type and translation is required");
-                }
-                /** @TODO get registered types */
-                $this->validateType($data['type'], ['basic', 'menu', 'slider', 'widget', 'content']);
-                $block = new Block();
-                $block->fill($data);
-                $this->events->fire('block.creating', [$block, $author]);
-                /** @TODO How to set blockable polymorphic relation here, based on type ? */
-                if ($data['type'] === 'widget') {
-                    $this->createWidget($block, $data);
-                }
-                if ($author) {
-                    $block->author()->associate($author);
-                }
-                $block->save();
-                // Block translations
-                $this->createTranslation($block, $translations);
-                $this->events->fire('block.created', [$block]);
-                return $this->getById($block->id);
-            }
-        );
-        return $block;
+        //$rules = [
+        //    ''
+        //];
+        //
+        //if(){
+        //
+        //}
+        //
+        //if(){
+        //
+        //}
+        //
+        //if(){
+        //
+        //}
+
+        $translations = array_get($data, 'translations'); // Nested relation fields
+        if (empty($translations) || !array_key_exists('type', $data)) {
+            throw new RepositoryValidationException("Block type and translation is required");
+        }
+        /** @TODO get registered types */
+        $this->validateType($data['type'], ['basic', 'menu', 'slider', 'widget', 'content']);
+        $block = new Block();
+        $block->fill($data);
+        event('block.creating', [$block, $author]);
+        /** @TODO How to set blockable polymorphic relation here, based on type ? */
+        if ($data['type'] === 'widget') {
+            $this->createWidget($block, $data);
+        }
+        if ($author) {
+            $block->author()->associate($author);
+        }
+        $block->save();
+        // Block translations
+        $this->createTranslation($block, $translations);
+        event('block.created', [$block]);
+        return $this->getById($block->id);
     }
 
     /**
-     * Creates translation for specified block entity
-     *
+     * Cxists('language_code', $data) || !array_key_exists('title', $data)) {
+            throw new Repreates translation for specified block entity
+            *
      * @param Block $block Block entity
-     * @param array $data  new data to save
-     *
+            * @param array $data  new data to save
+            *
      * @return BlockTranslation
-     * @throws RepositoryValidationException
-     */
+                * @throws RepositoryValidationException
+            */
     public function createTranslation(Block $block, array $data)
     {
         if (!array_key_exists('lang_code', $data) || !array_key_exists('title', $data)) {
             throw new RepositoryValidationException("Language code and title of translation is required");
         }
         // New translation query
-        $translation = $this->newQuery()->transaction(
+        $translation = DB::transaction(
             function () use ($block, $data) {
                 // Set all translation of this block as inactive
-                $this->disableActiveTranslations($block->id, $data['lang_code']);
+                $block->disableAllActiveTranslations($data['language_code']);
                 $translation = new BlockTranslation();
                 $translation->fill($data);
-                $this->events->fire('block.translation.creating', [$block, $translation]);
+                event('block.translation.creating', [$block, $translation]);
                 $translation->is_active = 1; // Because only recent translation is active
                 $block->translations()->save($translation);
-                $this->events->fire('block.translation.created', [$block, $translation]);
+                event('block.translation.created', [$block, $translation]);
                 $this->clearBlocksCache();
                 return $this->getBlockTranslationById($block, $translation->id);
             }
@@ -119,17 +140,29 @@ class BlockService extends BaseService {
      */
     public function update(Block $block, array $data, User $modifier = null)
     {
-        $block = $this->newQuery()->transaction(
+        $block = DB::transaction(
             function () use ($block, $data, $modifier) {
-                $this->events->fire('block.updating', [$block, $data, $modifier]);
+                event('block.updating', [$block, $data, $modifier]);
                 $block->fill($data);
                 $block->save();
-                $this->events->fire('block.updated', [$block]);
+                event('block.updated', [$block]);
                 $this->clearBlocksCache();
-                return $this->getById($block->id);
+                return Block::find($block->id);
             }
         );
         return $block;
+    }
+
+    /**
+     * Get single softDeleted entity
+     *
+     * @param integer $id Entity id
+     *
+     * @return mixed
+     */
+    public function getDeletedById($id)
+    {
+        return Block::onlyTrashed()->find($id);
     }
 
     /**
@@ -141,13 +174,13 @@ class BlockService extends BaseService {
      */
     public function delete(Block $block)
     {
-        return $this->newQuery()->transaction(
+        return DB::transaction(
             function () use ($block) {
-                $this->events->fire('block.deleting', [$block]);
+                event('block.deleting', [$block]);
                 // Detach all files
                 $block->files()->sync([]);
                 $block->delete();
-                $this->events->fire('block.deleted', [$block]);
+                event('block.deleted', [$block]);
                 $this->clearBlocksCache();
                 return true;
             }
@@ -163,12 +196,12 @@ class BlockService extends BaseService {
      */
     public function forceDelete(Block $block)
     {
-        return $this->newQuery()->transaction(
+        return DB::transaction(
             function () use ($block) {
-                $this->events->fire('block.forceDeleting', [$block]);
+                event('block.forceDeleting', [$block]);
                 /** @TODO handling delete other stuff like a menu etc. */
                 $this->getByIdWithTrashed($block->id)->forceDelete();
-                $this->events->fire('block.forceDeleted', [$block]);
+                event('block.forceDeleted', [$block]);
                 $this->clearBlocksCache();
                 return true;
             }
@@ -188,7 +221,7 @@ class BlockService extends BaseService {
         if ($translation->is_active) {
             throw new RepositoryValidationException('Cannot delete active translation');
         }
-        return $this->newQuery()->transaction(
+        return DB::transaction(
             function () use ($translation) {
                 return $translation->delete();
             }
@@ -221,7 +254,7 @@ class BlockService extends BaseService {
      */
     public function getBlocks(array $criteria = [], array $orderBy = [], $page = 1, $pageSize = self::ITEMS_PER_PAGE)
     {
-        $query  = $this->newORMQuery();
+        $query  = Block::query();
         $parsed = $this->parseArgs($criteria, $orderBy);
         $this->handleTranslationsJoin($parsed['filter'], $parsed['orderBy'], $query);
         $this->handleFilterCriteria($this->getTableName(), $query, $parsed['filter']);
@@ -245,7 +278,7 @@ class BlockService extends BaseService {
      */
     public function getVisibleBlocks(array $ids, $onlyPublic = true)
     {
-        $query = $this->newORMQuery();
+        $query = Block::query();
         if (!empty($ids)) {
             $query->whereIn('id', $ids)
                 ->orWhere('filter', null)
@@ -279,7 +312,7 @@ class BlockService extends BaseService {
         $page = 1,
         $pageSize = self::ITEMS_PER_PAGE
     ) {
-        $query  = $this->newORMQuery()->onlyTrashed();
+        $query  = Block::onlyTrashed();
         $parsed = $this->parseArgs($criteria, $orderBy);
         $this->handleFilterCriteria($this->getTableName(), $query, $parsed['filter']);
         $this->handleOrderBy(
@@ -333,7 +366,7 @@ class BlockService extends BaseService {
                 'block_translations',
                 function ($join) use ($parsedCriteria) {
                     $join->on('blocks.id', '=', 'block_translations.block_id')
-                        ->where('block_translations.lang_code', '=', $parsedCriteria['lang']['value'])
+                        ->where('block_translations.language_code', '=', $parsedCriteria['lang']['value'])
                         ->where('block_translations.is_active', '=', 1);
                 }
             );
@@ -414,4 +447,8 @@ class BlockService extends BaseService {
         Cache::forget('blocks:filter:public');
         Cache::forget('blocks:filter:admin');
     }
+
+
+    // @TODO REFACTOR
+
 }

@@ -17,7 +17,7 @@ class ContentPresenter extends BasePresenter {
         if (!empty($this->translations) && !empty($langCode)) {
             $translation = $this->translations->filter(
                 function ($translation) use ($langCode) {
-                    return $translation->lang_code === $langCode;
+                    return $translation->language_code === $langCode;
                 }
             )->first();
         }
@@ -37,7 +37,7 @@ class ContentPresenter extends BasePresenter {
         if (!empty($this->route) && !empty($langCode)) {
             $routeTranslation = $this->route->translations->filter(
                 function ($translation) use ($langCode) {
-                    return $translation->lang_code === $langCode;
+                    return $translation->language_code === $langCode;
                 }
             )->first();
         }
@@ -57,13 +57,13 @@ class ContentPresenter extends BasePresenter {
         if (!empty($this->route) && !empty($langCode)) {
             $route = $this->route->translations->filter(
                 function ($translation) use ($langCode) {
-                    return $translation->lang_code === $langCode;
+                    return $translation->language_code === $langCode;
                 }
             )->first();
 
             if (!empty($route)) {
                 if (config('gzero.multilang.enabled')) {
-                    $routeUrl = url('/') . '/' . $route->lang_code . '/' . $route->url;
+                    $routeUrl = url('/') . '/' . $route->language_code . '/' . $route->url;
                 } else {
                     $routeUrl = url('/') . '/' . $route->url;
                 }

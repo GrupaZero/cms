@@ -1,38 +1,21 @@
-<?php namespace functional;
+<?php namespace Cms;
 
-use Gzero\Entity\Block;
-use Gzero\Entity\User;
-use Gzero\Repository\BlockService;
+use Gzero\Base\Models\User;
+use Gzero\Cms\Service\BlockService;
 use Illuminate\Cache\CacheManager;
-use Illuminate\Events\Dispatcher;
 use Gzero\Core\BlockFinder;
 
-require_once(__DIR__ . '/../stub/TestSeeder.php');
-require_once(__DIR__ . '/../stub/TestTreeSeeder.php');
-
-/**
- * This file is part of the GZERO CMS package.
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- *
- * Class BlockRepositoryTest
- *
- * @package    functional
- * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
- * @copyright  Copyright (c) 2015, Adrian Skierniewski
- */
-class BlockRepositoryTest extends \TestCase {
+class BlockServiceTest extends \Codeception\Test\Unit {
 
     /**
-     * @var \UnitTester
+     * @var UnitTester
      */
     protected $tester;
 
     /**
      * @var BlockService
      */
-    protected $repository;
+    protected $service;
 
     /**
      * @var BlockFinder
@@ -46,33 +29,22 @@ class BlockRepositoryTest extends \TestCase {
 
     protected function _before()
     {
-        // Start the Laravel application
-        $this->startApplication();
-        $this->repository     = new BlockService(new Block(), new Dispatcher());
-        $this->finder         = new BlockFinder($this->repository, new CacheManager($this->app));
-        $this->filesDir       = __DIR__ . '/../../resources';
-        $this->seed('TestSeeder'); // Relative to tests/app/
+        $this->service  = new BlockService();
+        $this->finder   = new BlockFinder($this->service, new CacheManager(app()));
+        $this->filesDir = __DIR__ . '/../../resources';
     }
 
-    public function _after()
-    {
-        // Stop the Laravel application
-        $this->stopApplication();
-    }
-
-    /*
-     |--------------------------------------------------------------------------
-     | START Block tests
-     |--------------------------------------------------------------------------
-     */
-
-    /**
-     * @test
-     */
-    public function can_create_block()
+    /** @test */
+    public function canCreateBlock()
     {
         $author = User::find(1);
-        $block  = $this->repository->create(
+
+        $block = $this->service->create(['is_active' => true], [
+            'pl' => [],
+            'de' => []
+        ], $author);
+
+        $block  = $this->service->create(
             [
                 'type'         => 'menu',
                 'region'       => 'test',
@@ -82,14 +54,13 @@ class BlockRepositoryTest extends \TestCase {
                 'is_active'    => true,
                 'is_cacheable' => true,
                 'translations' => [
-                    'lang_code' => 'en',
-                    'title'     => 'Example block title'
+                    'en' => ['title' => 'Example block title', 'url' => 'asdasfasfasfas']
                 ]
             ],
             $author
         );
 
-        $newBlock       = $this->repository->getById($block->id);
+        $newBlock       = $this->service->getById($block->id);
         $newBlockAuthor = $newBlock->author;
         $newTranslation = $newBlock->translations[0];
 
@@ -106,16 +77,14 @@ class BlockRepositoryTest extends \TestCase {
         $this->assertEquals($author->id, $newBlock->author_id);
         $this->assertEquals($author->email, $newBlockAuthor['email']);
         // Translation
-        $this->assertEquals($newTranslation->lang_code, 'en');
+        $this->assertEquals($newTranslation->language_code, 'en');
         $this->assertEquals($newTranslation->title, 'Example block title');
     }
 
-    /**
-     * @test
-     */
-    public function can_create_block_type_widget()
+    /** @test */
+    public function canCreateBlockTypeWidget()
     {
-        $block    = $this->repository->create(
+        $block    = $this->service->create(
             [
                 'type'         => 'widget',
                 'widget'       => [
@@ -125,12 +94,12 @@ class BlockRepositoryTest extends \TestCase {
                     'is_cacheable' => 1,
                 ],
                 'translations' => [
-                    'lang_code' => 'en',
-                    'title'     => 'Example title'
+                    'language_code' => 'en',
+                    'title'         => 'Example title'
                 ]
             ]
         );
-        $newBlock = $this->repository->getById($block->id);
+        $newBlock = $this->service->getById($block->id);
         // Block
         $this->assertNotSame($block, $newBlock);
         $this->assertEquals($block->type, $newBlock->type);
@@ -139,74 +108,68 @@ class BlockRepositoryTest extends \TestCase {
         $this->assertSame($block->blockable->args, $newBlock->blockable->args);
     }
 
-    /**
-     * @test
-     */
-    public function can_create_block_without_author()
+    /** @test */
+    public function canCreateBlockWithoutAuthor()
     {
-        $block    = $this->repository->create(
+        $block    = $this->service->create(
             [
                 'type'         => 'slider',
                 'translations' => [
-                    'lang_code' => 'en',
-                    'title'     => 'Example title'
+                    'language_code' => 'en',
+                    'title'         => 'Example title'
                 ]
             ]
         );
-        $newBlock = $this->repository->getById($block->id);
+        $newBlock = $this->service->getById($block->id);
         $this->assertNotSame($block, $newBlock);
         $this->assertNull($newBlock->author);
     }
 
-    /**
-     * @test
-     */
-    public function can_create_and_get_block_translation()
+    /** @test */
+    public function canCreateAndGetBlockTranslation()
     {
-        $block            = $this->repository->create(
+        $block            = $this->service->create(
             [
                 'type'         => 'slider',
                 'translations' => [
-                    'lang_code' => 'en',
-                    'title'     => 'Example title'
+                    'language_code' => 'en',
+                    'title'         => 'Example title'
                 ]
             ]
         );
-        $newBlock         = $this->repository->getById($block->id);
-        $translation      = $this->repository->createTranslation(
-            $newBlock,
+        $old              = $block->translations()->first();
+        $new              = $this->service->createTranslation(
+            $block,
             [
-                'lang_code' => 'en',
-                'title'     => 'New example title',
-                'body'      => 'New example body',
+                'language_code' => 'en',
+                'title'         => 'New example title',
+                'body'          => 'New example body',
             ]
         );
-        $firstTranslation = $this->repository->getBlockTranslationById($newBlock, 1);
-        $newTranslation   = $this->repository->getBlockTranslationById($newBlock, 2);
-        $this->assertNotSame($block, $newBlock);
-        $this->assertNotSame($translation, $firstTranslation);
+        $firstTranslation = $this->service->getBlockTranslationById($block, $old->id);
+        $newTranslation   = $this->service->getBlockTranslationById($block, $new->id);
         // Check if previous translation are inactive
         $this->assertFalse((bool) $firstTranslation->is_active);
         // Check if a new translation has been added
-        $this->assertEquals('en', $newTranslation->lang_code);
+        $this->assertEquals('en', $newTranslation->language_code);
         $this->assertEquals('New example title', $newTranslation->title);
         $this->assertEquals('New example body', $newTranslation->body);
-        $this->assertEquals($newBlock->id, $newTranslation->block_id);
+        $this->assertEquals($block->id, $newTranslation->block_id);
     }
 
     /**
      * @test
-     * @expectedException \Gzero\Repository\RepositoryException
+     * @expectedException \Gzero\Base\Service\RepositoryException
      * @expectedExceptionMessage Block type doesn't exist
      */
-    public function it_checks_existence_of_block_type()
+    public function itChecksExistenceOfBlockType()
     {
-        $this->repository->create(
+        $this->service->create(
             [
                 'type'         => 'fakeType',
                 'translations' => [
-                    'lang_code' => 'en',
-                    'title'     => 'Example block title'
+                    'language_code' => 'en',
+                    'title'         => 'Example block title'
                 ]
             ]
         );
@@ -214,61 +177,56 @@ class BlockRepositoryTest extends \TestCase {
 
     /**
      * @test
-     * @expectedException \Gzero\Repository\RepositoryException
+     * @expectedException \Gzero\Base\Service\RepositoryException
      * @expectedExceptionMessage Widget is required
      */
-    public function it_checks_existence_of_widget()
+    public function itChecksExistenceOfWidget()
     {
-        $this->repository->create(
+        $this->service->create(
             [
                 'type'         => 'widget',
                 'translations' => [
-                    'lang_code' => 'en',
-                    'title'     => 'Example block title'
+                    'language_code' => 'en',
+                    'title'         => 'Example block title'
                 ]
             ]
         );
     }
 
-    /**
-     * @test
-     */
-    public function can_set_block_filter_as_null()
+    /** @test */
+    public function canSetBlockFilterAsNull()
     {
         $author = User::find(1);
-        $block  = $this->repository->create(
+        $block  = $this->service->create(
             [
                 'type'         => 'menu',
                 'region'       => 'test',
                 'filter'       => ['+' => ['1/2/3']],
                 'translations' => [
-                    'lang_code' => 'en',
-                    'title'     => 'Example block title'
+                    'language_code' => 'en',
+                    'title'         => 'Example block title'
                 ]
             ],
             $author
         );
-        $this->repository->update(
+        $this->service->update(
             $block,
             [
                 'filter' => null,
             ],
             $author
         );
-        $newBlock = $this->repository->getById($block->id);
-
+        $newBlock = $this->service->getById($block->id);
 
         // Block
         $this->assertNull($newBlock->filter);
     }
 
-    /**
-     * @test
-     */
-    public function it_should_force_delete_one_block()
+    /** @test */
+    public function itShouldForceDeleteOneBlock()
     {
         $author = User::find(1);
-        $block  = $this->repository->create(
+        $block  = $this->service->create(
             [
                 'type'         => 'menu',
                 'region'       => 'test',
@@ -278,13 +236,13 @@ class BlockRepositoryTest extends \TestCase {
                 'is_active'    => true,
                 'is_cacheable' => true,
                 'translations' => [
-                    'lang_code' => 'en',
-                    'title'     => 'Example block title'
+                    'language_code' => 'en',
+                    'title'         => 'Example block title'
                 ]
             ],
             $author
         );
-        $block2 = $this->repository->create(
+        $block2 = $this->service->create(
             [
                 'type'         => 'menu',
                 'region'       => 'test',
@@ -294,32 +252,30 @@ class BlockRepositoryTest extends \TestCase {
                 'is_active'    => true,
                 'is_cacheable' => true,
                 'translations' => [
-                    'lang_code' => 'en',
-                    'title'     => 'Example block title'
+                    'language_code' => 'en',
+                    'title'         => 'Example block title'
                 ]
             ],
             $author
         );
 
-        $this->repository->delete($block);
-        $this->repository->delete($block2);
+        $this->service->delete($block);
+        $this->service->delete($block2);
 
-        $this->assertNull($this->repository->getById($block->id));
-        $this->assertNull($this->repository->getById($block2->id));
+        $this->assertNull($this->service->getById($block->id));
+        $this->assertNull($this->service->getById($block2->id));
 
-        $this->repository->forceDelete($block);
-        $this->assertNull($this->repository->getDeletedById($block->id));
+        $this->service->forceDelete($block);
+        $this->assertNull($this->service->getDeletedById($block->id));
 
         // Block2 should exist
-        $this->assertNotNull($this->repository->getDeletedById($block2->id));
+        $this->assertNotNull($this->service->getDeletedById($block2->id));
     }
 
-    /**
-     * @test
-     */
-    public function it_should_retrive_non_trashed_block()
+    /** @test */
+    public function itShouldRetrieveNonTrashedBlock()
     {
-        $block    = $this->repository->create(
+        $block    = $this->service->create(
             [
                 'type'         => 'menu',
                 'region'       => 'test',
@@ -329,21 +285,19 @@ class BlockRepositoryTest extends \TestCase {
                 'is_active'    => true,
                 'is_cacheable' => true,
                 'translations' => [
-                    'lang_code' => 'en',
-                    'title'     => 'Example block title'
+                    'language_code' => 'en',
+                    'title'         => 'Example block title'
                 ]
             ]
         );
-        $newBlock = $this->repository->getByIdWithTrashed($block->id);
+        $newBlock = $this->service->getByIdWithTrashed($block->id);
         $this->assertEquals($block->id, $newBlock->id);
     }
 
-    /**
-     * @test
-     */
-    public function it_should_retrive_trashed_block()
+    /** @test */
+    public function itShouldRetrieveTrashedBlock()
     {
-        $block = $this->repository->create(
+        $block = $this->service->create(
             [
                 'type'         => 'menu',
                 'region'       => 'test',
@@ -353,22 +307,20 @@ class BlockRepositoryTest extends \TestCase {
                 'is_active'    => true,
                 'is_cacheable' => true,
                 'translations' => [
-                    'lang_code' => 'en',
-                    'title'     => 'Example block title'
+                    'language_code' => 'en',
+                    'title'         => 'Example block title'
                 ]
             ]
         );
-        $this->repository->delete($block);
-        $trashedBlock = $this->repository->getByIdWithTrashed($block->id);
+        $this->service->delete($block);
+        $trashedBlock = $this->service->getByIdWithTrashed($block->id);
         $this->assertEquals($block->id, $trashedBlock->id);
     }
 
-    /**
-     * @test
-     */
-    public function it_should_not_retrive_force_deleted_block()
+    /** @test */
+    public function itShouldNotRetrieveForceDeletedBlock()
     {
-        $block = $this->repository->create(
+        $block = $this->service->create(
             [
                 'type'         => 'menu',
                 'region'       => 'test',
@@ -378,34 +330,20 @@ class BlockRepositoryTest extends \TestCase {
                 'is_active'    => true,
                 'is_cacheable' => true,
                 'translations' => [
-                    'lang_code' => 'en',
-                    'title'     => 'Example block title'
+                    'language_code' => 'en',
+                    'title'         => 'Example block title'
                 ]
             ]
         );
-        $this->repository->forcedelete($block);
-        $this->assertNull($this->repository->getByIdWithTrashed($block->id));
+        $this->service->forcedelete($block);
+        $this->assertNull($this->service->getByIdWithTrashed($block->id));
     }
 
-    /*
-     |--------------------------------------------------------------------------
-     | END Block tests
-     |--------------------------------------------------------------------------
-     */
-
-    /*
-    |--------------------------------------------------------------------------
-    | START List tests
-    |--------------------------------------------------------------------------
-    */
-
-    /**
-     * @test
-     */
-    public function can_filter_blocks_list_by_type()
+    /** @test */
+    public function canFilterBlocksListByType()
     {
         // Widget type block
-        $this->repository->create(
+        $this->service->create(
             [
                 'type'         => 'widget',
                 'is_active'    => 1,
@@ -416,26 +354,26 @@ class BlockRepositoryTest extends \TestCase {
                     'is_cacheable' => 1,
                 ],
                 'translations' => [
-                    'lang_code' => 'en',
-                    'title'     => 'Example block title'
+                    'language_code' => 'en',
+                    'title'         => 'Example block title'
                 ]
             ]
         );
 
         // Slider type block
-        $this->repository->create(
+        $this->service->create(
             [
                 'type'         => 'slider',
                 'is_active'    => 1,
                 'translations' => [
-                    'lang_code' => 'en',
-                    'title'     => 'Example block title'
+                    'language_code' => 'en',
+                    'title'         => 'Example block title'
                 ]
             ]
         );
 
         // Get widgets block
-        $blocks = $this->repository->getBlocks(
+        $blocks = $this->service->getBlocks(
             [
                 ['type', '=', 'widget'],
                 ['is_active', '=', true]
@@ -450,39 +388,37 @@ class BlockRepositoryTest extends \TestCase {
         }
     }
 
-    /**
-     * @test
-     */
-    public function can_filter_blocks_list_by_region()
+    /** @test */
+    public function canFilterBlocksListByRegion()
     {
         // Block in header region
-        $this->repository->create(
+        $this->service->create(
             [
                 'type'         => 'basic',
                 'is_active'    => 1,
                 'region'       => 'header',
                 'translations' => [
-                    'lang_code' => 'en',
-                    'title'     => 'Example block title'
+                    'language_code' => 'en',
+                    'title'         => 'Example block title'
                 ]
             ]
         );
 
         // Block in footer region
-        $this->repository->create(
+        $this->service->create(
             [
                 'type'         => 'basic',
                 'is_active'    => 1,
                 'region'       => 'footer',
                 'translations' => [
-                    'lang_code' => 'en',
-                    'title'     => 'Example block title'
+                    'language_code' => 'en',
+                    'title'         => 'Example block title'
                 ]
             ]
         );
 
         // Get widgets block
-        $blocks = $this->repository->getBlocks(
+        $blocks = $this->service->getBlocks(
             [
                 ['region', '=', 'header'],
                 ['is_active', '=', true]
@@ -497,41 +433,39 @@ class BlockRepositoryTest extends \TestCase {
         }
     }
 
-    /**
-     * @test
-     */
-    public function can_sort_blocks_list()
+    /** @test */
+    public function canSortBlocksList()
     {
         // Block in header region
-        $this->repository->create(
+        $this->service->create(
             [
                 'type'         => 'basic',
                 'weight'       => 0,
                 'is_active'    => 1,
                 'region'       => 'header',
                 'translations' => [
-                    'lang_code' => 'en',
-                    'title'     => 'A title'
+                    'language_code' => 'en',
+                    'title'         => 'A title'
                 ]
             ]
         );
 
         // Block in footer region
-        $this->repository->create(
+        $this->service->create(
             [
                 'type'         => 'basic',
                 'weight'       => 1,
                 'is_active'    => 1,
                 'region'       => 'footer',
                 'translations' => [
-                    'lang_code' => 'en',
-                    'title'     => 'B title'
+                    'language_code' => 'en',
+                    'title'         => 'B title'
                 ]
             ]
         );
 
         // Ascending
-        $blocks = $this->repository->getBlocks(
+        $blocks = $this->service->getBlocks(
             [
                 ['translations.lang', '=', 'en']
             ],
@@ -546,7 +480,7 @@ class BlockRepositoryTest extends \TestCase {
         $this->assertEquals('A title', $blocks[0]['translations'][0]['title']);
 
         // Descending
-        $blocks = $this->repository->getBlocks(
+        $blocks = $this->service->getBlocks(
             [
                 ['translations.lang', '=', 'en']
             ],
@@ -561,41 +495,39 @@ class BlockRepositoryTest extends \TestCase {
         $this->assertEquals('B title', $blocks[0]['translations'][0]['title']);
     }
 
-    /**
-     * @test
-     */
-    public function can_paginate_blocks_list()
+    /** @test */
+    public function canPaginateBlocksList()
     {
         // Block in header region
-        $firstBlock = $this->repository->create(
+        $firstBlock = $this->service->create(
             [
                 'type'         => 'basic',
                 'weight'       => 0,
                 'is_active'    => 1,
                 'region'       => 'header',
                 'translations' => [
-                    'lang_code' => 'en',
-                    'title'     => 'A title'
+                    'language_code' => 'en',
+                    'title'         => 'A title'
                 ]
             ]
         );
 
         // Block in footer region
-        $secondBlock = $this->repository->create(
+        $secondBlock = $this->service->create(
             [
                 'type'         => 'basic',
                 'weight'       => 1,
                 'is_active'    => 1,
                 'region'       => 'footer',
                 'translations' => [
-                    'lang_code' => 'en',
-                    'title'     => 'B title'
+                    'language_code' => 'en',
+                    'title'         => 'B title'
                 ]
             ]
         );
 
         // First Page
-        $blocks = $this->repository->getBlocks(
+        $blocks = $this->service->getBlocks(
             [],
             [
                 ['weight', 'ASC'],
@@ -609,10 +541,10 @@ class BlockRepositoryTest extends \TestCase {
         $this->assertEquals($firstBlock->type, $blocks[0]->type);
         $this->assertEquals($firstBlock->region, $blocks[0]->region);
         $this->assertEquals($firstBlock['translations'][0]['title'], $blocks[0]['translations'][0]['title']);
-        $this->assertEquals($firstBlock['translations'][0]['lang_code'], $blocks[0]['translations'][0]['lang_code']);
+        $this->assertEquals($firstBlock['translations'][0]['language_code'], $blocks[0]['translations'][0]['language_code']);
 
         // Second Page
-        $blocks = $this->repository->getBlocks(
+        $blocks = $this->service->getBlocks(
             [],
             [
                 ['weight', 'ASC'],
@@ -625,18 +557,16 @@ class BlockRepositoryTest extends \TestCase {
         $this->assertEquals($secondBlock->type, $blocks[0]->type);
         $this->assertEquals($secondBlock->region, $blocks[0]->region);
         $this->assertEquals($secondBlock['translations'][0]['title'], $blocks[0]['translations'][0]['title']);
-        $this->assertEquals($secondBlock['translations'][0]['lang_code'], $blocks[0]['translations'][0]['lang_code']);
+        $this->assertEquals($secondBlock['translations'][0]['language_code'], $blocks[0]['translations'][0]['language_code']);
     }
 
-    /**
-     * @test
-     */
-    public function can_find_blocks_for_content()
+    /** @test */
+    public function canFindBlocksForContent()
     {
         // Our content path
         $contentPath = '1/2/3/4/5/6/';
         // Block in header region
-        $firstBlock = $this->repository->create(
+        $firstBlock = $this->service->create(
             [
                 'type'         => 'basic',
                 'weight'       => 0,
@@ -644,14 +574,14 @@ class BlockRepositoryTest extends \TestCase {
                 'region'       => 'header',
                 'filter'       => ['+' => ['1/*']],
                 'translations' => [
-                    'lang_code' => 'en',
-                    'title'     => 'First block title'
+                    'language_code' => 'en',
+                    'title'         => 'First block title'
                 ]
             ]
         );
 
         // Block in footer region
-        $secondBlock = $this->repository->create(
+        $secondBlock = $this->service->create(
             [
                 'type'         => 'basic',
                 'weight'       => 1,
@@ -659,14 +589,14 @@ class BlockRepositoryTest extends \TestCase {
                 'region'       => 'footer',
                 'filter'       => ['+' => ['1/*']],
                 'translations' => [
-                    'lang_code' => 'en',
-                    'title'     => 'Second block title'
+                    'language_code' => 'en',
+                    'title'         => 'Second block title'
                 ]
             ]
         );
 
         // Block not in this page
-        $thirdBlock = $this->repository->create(
+        $thirdBlock = $this->service->create(
             [
                 'type'         => 'basic',
                 'weight'       => 1,
@@ -674,14 +604,14 @@ class BlockRepositoryTest extends \TestCase {
                 'region'       => 'footer',
                 'filter'       => ['+' => ['1/2/3/']],
                 'translations' => [
-                    'lang_code' => 'en',
-                    'title'     => 'Third block title'
+                    'language_code' => 'en',
+                    'title'         => 'Third block title'
                 ]
             ]
         );
 
         // Block from one of the content parents
-        $fourthBlock = $this->repository->create(
+        $fourthBlock = $this->service->create(
             [
                 'type'         => 'basic',
                 'weight'       => 1,
@@ -689,14 +619,14 @@ class BlockRepositoryTest extends \TestCase {
                 'region'       => 'sidebar',
                 'filter'       => ['+' => ['1/2/3/*']],
                 'translations' => [
-                    'lang_code' => 'en',
-                    'title'     => 'Fourth block title'
+                    'language_code' => 'en',
+                    'title'         => 'Fourth block title'
                 ]
             ]
         );
 
         // Block for this specific content
-        $fifthBlock = $this->repository->create(
+        $fifthBlock = $this->service->create(
             [
                 'type'         => 'basic',
                 'weight'       => 1,
@@ -704,14 +634,14 @@ class BlockRepositoryTest extends \TestCase {
                 'region'       => 'sidebar',
                 'filter'       => ['+' => ['1/2/3/4/5/6/']],
                 'translations' => [
-                    'lang_code' => 'en',
-                    'title'     => 'Fifth block title'
+                    'language_code' => 'en',
+                    'title'         => 'Fifth block title'
                 ]
             ]
         );
 
         // Block shown and hidden on this specific content, should remain hidden
-        $sixthBlock = $this->repository->create(
+        $sixthBlock = $this->service->create(
             [
                 'type'         => 'basic',
                 'weight'       => 1,
@@ -719,28 +649,28 @@ class BlockRepositoryTest extends \TestCase {
                 'region'       => 'footer',
                 'filter'       => ['+' => ['1/2/3/4/5/6/'], '-' => ['1/2/3/4/5/6/']],
                 'translations' => [
-                    'lang_code' => 'en',
-                    'title'     => 'Sixth block title'
+                    'language_code' => 'en',
+                    'title'         => 'Sixth block title'
                 ]
             ]
         );
 
         // Block shown on all pages
-        $seventhBlock = $this->repository->create(
+        $seventhBlock = $this->service->create(
             [
                 'type'         => 'basic',
                 'weight'       => 1,
                 'is_active'    => 1,
                 'region'       => 'header',
                 'translations' => [
-                    'lang_code' => 'en',
-                    'title'     => 'Seventh block title'
+                    'language_code' => 'en',
+                    'title'         => 'Seventh block title'
                 ]
             ]
         );
 
         $blockIds = $this->finder->getBlocksIds($contentPath);
-        $blocks   = $this->repository->getVisibleBlocks($blockIds);
+        $blocks   = $this->service->getVisibleBlocks($blockIds);
 
         // Available blocks number
         $this->assertEquals(5, count($blocks));
@@ -749,32 +679,27 @@ class BlockRepositoryTest extends \TestCase {
         $this->assertEquals($firstBlock->type, $blocks[0]->type);
         $this->assertEquals($firstBlock->region, $blocks[0]->region);
         $this->assertEquals($firstBlock['translations'][0]['title'], $blocks[0]['translations'][0]['title']);
-        $this->assertEquals($firstBlock['translations'][0]['lang_code'], $blocks[0]['translations'][0]['lang_code']);
+        $this->assertEquals($firstBlock['translations'][0]['language_code'], $blocks[0]['translations'][0]['language_code']);
         // Second block
         $this->assertEquals($secondBlock->type, $blocks[1]->type);
         $this->assertEquals($secondBlock->region, $blocks[1]->region);
         $this->assertEquals($secondBlock['translations'][0]['title'], $blocks[1]['translations'][0]['title']);
-        $this->assertEquals($secondBlock['translations'][0]['lang_code'], $blocks[1]['translations'][0]['lang_code']);
+        $this->assertEquals($secondBlock['translations'][0]['language_code'], $blocks[1]['translations'][0]['language_code']);
         // Fourth block
         $this->assertEquals($fourthBlock->type, $blocks[2]->type);
         $this->assertEquals($fourthBlock->region, $blocks[2]->region);
         $this->assertEquals($fourthBlock['translations'][0]['title'], $blocks[2]['translations'][0]['title']);
-        $this->assertEquals($fourthBlock['translations'][0]['lang_code'], $blocks[2]['translations'][0]['lang_code']);
+        $this->assertEquals($fourthBlock['translations'][0]['language_code'], $blocks[2]['translations'][0]['language_code']);
         // Fifth block
         $this->assertEquals($fifthBlock->type, $blocks[3]->type);
         $this->assertEquals($fifthBlock->region, $blocks[3]->region);
         $this->assertEquals($fifthBlock['translations'][0]['title'], $blocks[3]['translations'][0]['title']);
-        $this->assertEquals($fifthBlock['translations'][0]['lang_code'], $blocks[3]['translations'][0]['lang_code']);
+        $this->assertEquals($fifthBlock['translations'][0]['language_code'], $blocks[3]['translations'][0]['language_code']);
         // Seventh block
         $this->assertEquals($seventhBlock->type, $blocks[4]->type);
         $this->assertEquals($seventhBlock->region, $blocks[4]->region);
         $this->assertEquals($seventhBlock['translations'][0]['title'], $blocks[4]['translations'][0]['title']);
-        $this->assertEquals($seventhBlock['translations'][0]['lang_code'], $blocks[4]['translations'][0]['lang_code']);
+        $this->assertEquals($seventhBlock['translations'][0]['language_code'], $blocks[4]['translations'][0]['language_code']);
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | END List tests
-    |--------------------------------------------------------------------------
-    */
 }

@@ -1,7 +1,7 @@
 <?php namespace Gzero\Cms\Model;
 
-use Gzero\Base\Model\BaseTree;
-use Gzero\Base\Model\User;
+use Gzero\Base\Models\BaseTree;
+use Gzero\Base\Models\User;
 use Gzero\Cms\Model\Presenter\ContentPresenter;
 use Gzero\Core\Exception;
 use Robbo\Presenter\PresentableInterface;
@@ -59,7 +59,7 @@ class Content extends BaseTree implements PresentableInterface, Uploadable {
     {
         $routeTranslation = $this->route->translations->filter(
             function ($translation) use ($langCode) {
-                return $translation->lang_code == $langCode;
+                return $translation->language_code == $langCode;
             }
         )->first();
         if (empty($routeTranslation->url)) {

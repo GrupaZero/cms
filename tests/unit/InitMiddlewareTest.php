@@ -47,7 +47,7 @@ class InitMiddlewareTest extends \Codeception\Test\Unit {
             function () {
             }
         );
-        $this->assertEquals($request->all(), ['is_active' => 1, 'lang_code' => 'en']);
+        $this->assertEquals($request->all(), ['is_active' => 1, 'language_code' => 'en']);
     }
 
     /**
@@ -79,10 +79,10 @@ class InitMiddlewareTest extends \Codeception\Test\Unit {
             [
                 'is_active'    => 1,
                 'translations' => [
-                    ['lang_code' => 'en'],
-                    ['lang_code' => 'pl'],
+                    ['language_code' => 'en'],
+                    ['language_code' => 'pl'],
                     [
-                        'lang_code'     => 'de',
+                        'language_code'     => 'de',
                         'custom_fields' => ['lol' => 1]
                     ]
                 ]

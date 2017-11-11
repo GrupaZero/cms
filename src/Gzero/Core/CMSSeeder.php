@@ -166,12 +166,12 @@ class CMSSeeder extends Seeder {
                 'is_active'         => 1,
                 'published_at'      => date('Y-m-d H:i:s'),
                 'translations'      => [
-                    'lang_code' => 'en',
+                    'language_code' => 'en',
                     'title'     => 'News',
                     'is_active' => 1
                 ],
                 'polishTranslation' => [
-                    'lang_code' => 'pl',
+                    'language_code' => 'pl',
                     'title'     => 'Aktualności',
                     'is_active' => 1
                 ],
@@ -182,12 +182,12 @@ class CMSSeeder extends Seeder {
                 'is_active'         => 1,
                 'published_at'      => date('Y-m-d H:i:s'),
                 'translations'      => [
-                    'lang_code' => 'en',
+                    'language_code' => 'en',
                     'title'     => 'Offer',
                     'is_active' => 1
                 ],
                 'polishTranslation' => [
-                    'lang_code' => 'pl',
+                    'language_code' => 'pl',
                     'title'     => 'Oferta',
                     'is_active' => 1
                 ]
@@ -543,7 +543,7 @@ class CMSSeeder extends Seeder {
         if ($lang) {
             $faker = Factory::create($lang->i18n);
             return [
-                'lang_code'       => $lang->code,
+                'language_code'       => $lang->code,
                 'title'           => ($title) ? $title : $faker->realText(38, 1),
                 'teaser'          => '<p>' . $faker->realText(300) . '</p>',
                 'body'            => $this->generateBodyHTML($faker),
@@ -570,7 +570,7 @@ class CMSSeeder extends Seeder {
         if ($lang) {
             $faker = Factory::create($lang->i18n);
             return [
-                'lang_code'     => $lang->code,
+                'language_code'     => $lang->code,
                 'title'         => ($title) ? $title : $faker->realText(38, 1),
                 'body'          => $faker->realText(300),
                 'custom_fields' => array_combine($this->faker->words(), $this->faker->words()),
@@ -594,7 +594,7 @@ class CMSSeeder extends Seeder {
         if ($lang) {
             $faker = Factory::create($lang->i18n);
             return [
-                'lang_code'   => $lang->code,
+                'language_code'   => $lang->code,
                 'title'       => ($title) ? $title : $faker->realText(38, 1),
                 'description' => $faker->realText(300)
             ];
