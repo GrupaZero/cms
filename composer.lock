@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "650401a24ae4d23ecbb18ce729014aa5",
+    "content-hash": "a68c106eb311630185bab229ac3b0cc1",
     "packages": [
         {
             "name": "barryvdh/laravel-cors",
@@ -687,17 +687,17 @@
             "time": "2017-03-20T17:10:46+00:00"
         },
         {
-            "name": "gzero/base",
-            "version": "dev-more_refactor",
+            "name": "gzero/core",
+            "version": "dev-master",
             "source": {
                 "type": "git",
-                "url": "https://github.com/GrupaZero/base.git",
-                "reference": "4b281e2796e1e94af3585f215fb184d84882db88"
+                "url": "https://github.com/GrupaZero/core.git",
+                "reference": "8795f00628d339ef28a4bf2debcfe5f22cb74228"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/GrupaZero/base/zipball/4b281e2796e1e94af3585f215fb184d84882db88",
-                "reference": "4b281e2796e1e94af3585f215fb184d84882db88",
+                "url": "https://api.github.com/repos/GrupaZero/core/zipball/8795f00628d339ef28a4bf2debcfe5f22cb74228",
+                "reference": "8795f00628d339ef28a4bf2debcfe5f22cb74228",
                 "shasum": ""
             },
             "require": {
@@ -745,7 +745,7 @@
                     "email": "adrian.skierniewski@gmail.com"
                 }
             ],
-            "time": "2017-11-11 12:36:34"
+            "time": "2017-11-12 12:46:15"
         },
         {
             "name": "gzero/eloquent-tree",
@@ -3345,12 +3345,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/GrupaZero/testing.git",
-                "reference": "0ab597ce61b203cb08013fc0dbbaaf0a64c65aa7"
+                "reference": "b620f4c3bff319c0ae25e959cce3aea6fab7acf9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/GrupaZero/testing/zipball/0ab597ce61b203cb08013fc0dbbaaf0a64c65aa7",
-                "reference": "0ab597ce61b203cb08013fc0dbbaaf0a64c65aa7",
+                "url": "https://api.github.com/repos/GrupaZero/testing/zipball/b620f4c3bff319c0ae25e959cce3aea6fab7acf9",
+                "reference": "b620f4c3bff319c0ae25e959cce3aea6fab7acf9",
                 "shasum": ""
             },
             "type": "library",
@@ -3365,7 +3365,7 @@
                 }
             ],
             "description": "Package that helps testing across our packages",
-            "time": "2017-11-08T17:07:37+00:00"
+            "time": "2017-11-12T11:41:57+00:00"
         },
         {
             "name": "myclabs/deep-copy",
@@ -5551,7 +5551,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
-        "gzero/base": 20,
+        "gzero/core": 20,
         "gzero/testing": 20
     },
     "prefer-stable": false,

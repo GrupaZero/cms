@@ -15,8 +15,8 @@
     ],
     "require": {
         "php": ">=7.1.0",
-        "davejamesmiller/laravel-breadcrumbs": "3.0.*",
-        "gzero/base": "dev-more_refactor",
+        "davejamesmiller/laravel-brecomposer tesadcrumbs": "3.0.*",
+        "gzero/core": "dev-master",
         "bkwld/croppa": "~4.0"
     },
     "require-dev": {
