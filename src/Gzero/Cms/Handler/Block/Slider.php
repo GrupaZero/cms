@@ -1,7 +1,5 @@
-<?php namespace Gzero\Core\Handler\Block;
+<?php namespace Gzero\Cms\Handler\Block;
 
-use Gzero\Cms\Handler\Block\BlockTypeHandler;
-use Gzero\Cms\Handler\Block\CacheBlockTrait;
 use Gzero\Cms\Models\Block;
 use Gzero\Cms\Services\FileService;
 use Gzero\Core\Models\Language;
