@@ -3,36 +3,23 @@
 use Config;
 use Faker\Factory;
 use Faker\Generator;
-use Gzero\Entity\Block;
-use Gzero\Entity\BlockType;
-use Gzero\Entity\Content;
-use Gzero\Entity\ContentType;
-use Gzero\Entity\File;
-use Gzero\Entity\FileTranslation;
-use Gzero\Entity\FileType;
-use Gzero\Entity\Lang;
-use Gzero\Entity\OptionCategory;
-use Gzero\Entity\User;
-use Gzero\Repository\BlockService;
-use Gzero\Repository\ContentService;
+use Gzero\Cms\Models\Block;
+use Gzero\Cms\Models\BlockType;
+use Gzero\Cms\Models\Content;
+use Gzero\Cms\Models\ContentType;
+use Gzero\Cms\Models\File;
+use Gzero\Cms\Models\FileTranslation;
+use Gzero\Cms\Models\FileType;
+use Gzero\Cms\Services\BlockService;
+use Gzero\Cms\Services\ContentService;
+use Gzero\Core\Models\Language;
+use Gzero\Core\Models\OptionCategory;
+use Gzero\Core\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 
-/**
- * This file is part of the GZERO CMS package.
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- *
- * Class CMSSeeder
- *
- * @package    Gzero\Core
- * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
- * @copyright  Copyright (c) 2014, Adrian Skierniewski
- * @SuppressWarnings("PHPMD")
- */
 class CMSSeeder extends Seeder {
 
     const RANDOM_USERS = 12;
@@ -96,7 +83,7 @@ class CMSSeeder extends Seeder {
     private function seedLangs()
     {
         $langs       = [];
-        $langs['en'] = Lang::firstOrCreate(
+        $langs['en'] = Language::firstOrCreate(
             [
                 'code'       => 'en',
                 'i18n'       => 'en_US',
@@ -105,7 +92,7 @@ class CMSSeeder extends Seeder {
             ]
         );
 
-        $langs['pl'] = Lang::firstOrCreate(
+        $langs['pl'] = Language::firstOrCreate(
             [
                 'code'       => 'pl',
                 'i18n'       => 'pl_PL',
@@ -113,7 +100,7 @@ class CMSSeeder extends Seeder {
             ]
         );
 
-        $langs['de'] = Lang::firstOrCreate(
+        $langs['de'] = Language::firstOrCreate(
             [
                 'code'       => 'de',
                 'i18n'       => 'de_DE',
@@ -121,7 +108,7 @@ class CMSSeeder extends Seeder {
             ]
         );
 
-        $langs['fr'] = Lang::firstOrCreate(
+        $langs['fr'] = Language::firstOrCreate(
             [
                 'code'       => 'fr',
                 'i18n'       => 'fr_FR',
@@ -167,13 +154,13 @@ class CMSSeeder extends Seeder {
                 'published_at'      => date('Y-m-d H:i:s'),
                 'translations'      => [
                     'language_code' => 'en',
-                    'title'     => 'News',
-                    'is_active' => 1
+                    'title'         => 'News',
+                    'is_active'     => 1
                 ],
                 'polishTranslation' => [
                     'language_code' => 'pl',
-                    'title'     => 'Aktualności',
-                    'is_active' => 1
+                    'title'         => 'Aktualności',
+                    'is_active'     => 1
                 ],
             ],
             [
@@ -183,13 +170,13 @@ class CMSSeeder extends Seeder {
                 'published_at'      => date('Y-m-d H:i:s'),
                 'translations'      => [
                     'language_code' => 'en',
-                    'title'     => 'Offer',
-                    'is_active' => 1
+                    'title'         => 'Offer',
+                    'is_active'     => 1
                 ],
                 'polishTranslation' => [
                     'language_code' => 'pl',
-                    'title'     => 'Oferta',
-                    'is_active' => 1
+                    'title'         => 'Oferta',
+                    'is_active'     => 1
                 ]
             ],
             [
@@ -392,7 +379,7 @@ class CMSSeeder extends Seeder {
      */
     private function seedRandomBlock(BlockType $type, $langs, $users, $contents)
     {
-        $isActive   = (bool) rand(0, 1);
+        $isActive    = (bool) rand(0, 1);
         $isCacheable = (bool) rand(0, 1);
         $filter      = (rand(0, 1)) ? [
             '+' => [$this->getRandomBlockFilter($contents)],
@@ -485,10 +472,10 @@ class CMSSeeder extends Seeder {
     private function seedRandomFiles(FileType $type, $langs, $users, $entity)
     {
         $isActive = (bool) rand(0, 1);
-        $faker     = Factory::create($langs['en']->i18n);
-        $user      = $users[array_rand($users)];
-        $entity    = $entity[array_rand($entity)];
-        $input     = [
+        $faker    = Factory::create($langs['en']->i18n);
+        $user     = $users[array_rand($users)];
+        $entity   = $entity[array_rand($entity)];
+        $input    = [
             'type'       => $type->name,
             'name'       => $faker->word,
             'extension'  => $faker->fileExtension,
@@ -519,7 +506,7 @@ class CMSSeeder extends Seeder {
      */
     private function truncate()
     {
-        $tables    = DB::select('SELECT tablename FROM pg_tables WHERE schemaname = \'public\'');
+        $tables = DB::select('SELECT tablename FROM pg_tables WHERE schemaname = \'public\'');
         foreach ($tables as $table) {
             // We don't want to truncate ACL tables too
             if ($table->tablename !== 'migrations' && !str_contains($table->tablename, 'ACL')) {
@@ -531,19 +518,19 @@ class CMSSeeder extends Seeder {
     /**
      * Function generates translation for specified language
      *
-     * @param Lang $lang     language of translation
-     * @param null $title    optional title value
-     * @param null $isActive optional is_active value
+     * @param Language $lang     language of translation
+     * @param null     $title    optional title value
+     * @param null     $isActive optional is_active value
      *
      * @return array
      * @throws Exception
      */
-    private function prepareContentTranslation(Lang $lang, $title = null, $isActive = null)
+    private function prepareContentTranslation(Language $lang, $title = null, $isActive = null)
     {
         if ($lang) {
             $faker = Factory::create($lang->i18n);
             return [
-                'language_code'       => $lang->code,
+                'language_code'   => $lang->code,
                 'title'           => ($title) ? $title : $faker->realText(38, 1),
                 'teaser'          => '<p>' . $faker->realText(300) . '</p>',
                 'body'            => $this->generateBodyHTML($faker),
@@ -558,19 +545,19 @@ class CMSSeeder extends Seeder {
     /**
      * Function generates translation for specified language
      *
-     * @param Lang $lang     language of translation
-     * @param null $title    optional title value
-     * @param null $isActive optional is_active value
+     * @param Language $lang     language of translation
+     * @param null     $title    optional title value
+     * @param null     $isActive optional is_active value
      *
      * @return array
      * @throws Exception
      */
-    private function prepareBlockTranslation(Lang $lang, $title = null, $isActive = null)
+    private function prepareBlockTranslation(Language $lang, $title = null, $isActive = null)
     {
         if ($lang) {
             $faker = Factory::create($lang->i18n);
             return [
-                'language_code'     => $lang->code,
+                'language_code' => $lang->code,
                 'title'         => ($title) ? $title : $faker->realText(38, 1),
                 'body'          => $faker->realText(300),
                 'custom_fields' => array_combine($this->faker->words(), $this->faker->words()),
@@ -583,20 +570,20 @@ class CMSSeeder extends Seeder {
     /**
      * Function generates translation for specified language
      *
-     * @param Lang $lang  language of translation
-     * @param null $title optional title value
+     * @param Language $lang  language of translation
+     * @param null     $title optional title value
      *
      * @return array
      * @throws Exception
      */
-    private function prepareFileTranslation(Lang $lang, $title = null)
+    private function prepareFileTranslation(Language $lang, $title = null)
     {
         if ($lang) {
             $faker = Factory::create($lang->i18n);
             return [
-                'language_code'   => $lang->code,
-                'title'       => ($title) ? $title : $faker->realText(38, 1),
-                'description' => $faker->realText(300)
+                'language_code' => $lang->code,
+                'title'         => ($title) ? $title : $faker->realText(38, 1),
+                'description'   => $faker->realText(300)
             ];
         }
         throw new Exception("Translation language is required!");

@@ -1,8 +1,8 @@
 <?php namespace Gzero\Cms\Models\Presenter;
 
-use Gzero\Cms\Models\Presenter\BasePresenter;
+use Robbo\Presenter\Presenter;
 
-class ContentTranslationPresenter extends BasePresenter {
+class ContentTranslationPresenter extends Presenter {
 
     /**
      * Return seoTitle of translation if exists

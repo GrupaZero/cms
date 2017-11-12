@@ -1,14 +1,18 @@
 <?php namespace Gzero\Cms\Models;
 
 use Gzero\Core\Models\BaseTree;
+use Gzero\Core\Models\Language;
+use Gzero\Core\Models\Routable;
+use Gzero\Core\Models\Route;
 use Gzero\Core\Models\User;
 use Gzero\Cms\Models\Presenter\ContentPresenter;
 use Gzero\Core\Exception;
+use Illuminate\Http\Response;
 use Robbo\Presenter\PresentableInterface;
 use Robbo\Presenter\Robbo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Content extends BaseTree implements PresentableInterface, Uploadable {
+class Content extends BaseTree implements PresentableInterface, Uploadable, Routable {
 
     use SoftDeletes;
 
@@ -168,5 +172,16 @@ class Content extends BaseTree implements PresentableInterface, Uploadable {
     {
         return static::withTrashed()->where($this->getTreeColumn('path'), 'LIKE', $this->{$this->getTreeColumn('path')} . '%')
             ->orderBy($this->getTreeColumn('level'), 'ASC');
+    }
+
+    /**
+     * @param Route    $route Route
+     * @param Language $lang  Language
+     *
+     * @return Response
+     */
+    public function handle(Route $route, Language $lang): Response
+    {
+        return response('content?');
     }
 }

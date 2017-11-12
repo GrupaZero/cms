@@ -1,8 +1,8 @@
 <?php namespace Gzero\Cms\Models\Presenter;
 
-use Gzero\Cms\Models\Presenter\BasePresenter;
+use Robbo\Presenter\Presenter;
 
-class FilePresenter extends BasePresenter {
+class FilePresenter extends Presenter {
 
     /**
      * This function get single translation
