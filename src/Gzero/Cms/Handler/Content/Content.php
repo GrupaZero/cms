@@ -1,4 +1,4 @@
-<?php namespace Gzero\Core\Handler\Content;
+<?php namespace Gzero\Cms\Handler\Content;
 
 use Gzero\Cms\Models\Content as ContentEntity;
 use Gzero\Cms\Service\ContentService;
