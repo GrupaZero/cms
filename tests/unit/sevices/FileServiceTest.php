@@ -1,13 +1,13 @@
 <?php namespace functional;
 
-use Gzero\Entity\Block;
-use Gzero\Entity\Content;
-use Gzero\Entity\File;
-use Gzero\Entity\FileTranslation;
-use Gzero\Entity\FileType;
-use Gzero\Entity\User;
-use Gzero\Repository\FileService;
-use Gzero\Repository\QueryBuilder;
+use Gzero\Cms\Models\Block;
+use Gzero\Cms\Models\Content;
+use Gzero\Cms\Models\File;
+use Gzero\Cms\Models\FileTranslation;
+use Gzero\Cms\Models\FileType;
+use Gzero\Cms\Models\User;
+use Gzero\Cms\Services\FileService;
+use Gzero\Core\Query\QueryBuilder;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Filesystem\FilesystemManager;
 use Illuminate\Http\UploadedFile;
@@ -29,7 +29,7 @@ require_once(__DIR__ . '/../stub/TestTreeSeeder.php');
  * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
  * @copyright  Copyright (c) 2015, Adrian Skierniewski
  */
-class FileRepositoryTest extends \TestCase {
+class FileServiceTest extends \TestCase {
 
     /**
      * @var \UnitTester
@@ -90,9 +90,9 @@ class FileRepositoryTest extends \TestCase {
                 'is_active'    => true,
                 'info'         => ['key' => 'value'],
                 'translations' => [
-                    'language_code'   => 'en',
-                    'title'       => 'Example file title',
-                    'description' => 'Example file description'
+                    'language_code' => 'en',
+                    'title'         => 'Example file title',
+                    'description'   => 'Example file description'
                 ]
             ],
             $uploadedFile,
@@ -138,9 +138,9 @@ class FileRepositoryTest extends \TestCase {
                 'type'         => 'image',
                 'is_active'    => true,
                 'translations' => [
-                    'language_code'   => 'en',
-                    'title'       => 'Example file title',
-                    'description' => 'Example file description'
+                    'language_code' => 'en',
+                    'title'         => 'Example file title',
+                    'description'   => 'Example file description'
                 ]
             ],
             $uploadedFile
@@ -220,9 +220,9 @@ class FileRepositoryTest extends \TestCase {
         $translation = new FileTranslation();
         $translation->fill(
             [
-                'language_code'   => 'en',
-                'title'       => 'Example file title',
-                'description' => 'New example body',
+                'language_code' => 'en',
+                'title'         => 'Example file title',
+                'description'   => 'New example body',
             ]
         );
         $file->translations()->save($translation);
@@ -233,18 +233,18 @@ class FileRepositoryTest extends \TestCase {
         $translationEn = $this->repository->createTranslation(
             $newFile,
             [
-                'language_code'   => 'en',
-                'title'       => 'Updated example title',
-                'description' => 'Updated example body',
+                'language_code' => 'en',
+                'title'         => 'Updated example title',
+                'description'   => 'Updated example body',
             ]
         );
         // Add new polish translation
         $translationPl    = $this->repository->createTranslation(
             $newFile,
             [
-                'language_code'   => 'pl',
-                'title'       => 'New polish title',
-                'description' => 'New polish body',
+                'language_code' => 'pl',
+                'title'         => 'New polish title',
+                'description'   => 'New polish body',
             ]
         );
         $newTranslationEn = $this->repository->getTranslationById($newFile, $translationEn->id);
@@ -312,9 +312,9 @@ class FileRepositoryTest extends \TestCase {
         $translation = new FileTranslation();
         $translation->fill(
             [
-                'language_code'   => 'pl',
-                'title'       => 'New polish title',
-                'description' => 'New polish body',
+                'language_code' => 'pl',
+                'title'         => 'New polish title',
+                'description'   => 'New polish body',
             ]
         );
         $file->translations()->save($translation);
@@ -351,9 +351,9 @@ class FileRepositoryTest extends \TestCase {
         $translation = new FileTranslation();
         $translation->fill(
             [
-                'language_code'   => 'pl',
-                'title'       => 'New polish title',
-                'description' => 'New polish body',
+                'language_code' => 'pl',
+                'title'         => 'New polish title',
+                'description'   => 'New polish body',
             ]
         );
         $file->translations()->save($translation);
@@ -387,9 +387,9 @@ class FileRepositoryTest extends \TestCase {
         $translation = new FileTranslation();
         $translation->fill(
             [
-                'language_code'   => 'pl',
-                'title'       => 'New polish title',
-                'description' => 'New polish body',
+                'language_code' => 'pl',
+                'title'         => 'New polish title',
+                'description'   => 'New polish body',
             ]
         );
         $file->translations()->save($translation);
@@ -419,9 +419,9 @@ class FileRepositoryTest extends \TestCase {
             [
                 'type'         => 'fakeType',
                 'translations' => [
-                    'language_code'   => 'en',
-                    'title'       => 'Example file title',
-                    'description' => 'Example file description'
+                    'language_code' => 'en',
+                    'title'         => 'Example file title',
+                    'description'   => 'Example file description'
                 ]
             ],
             $uploadedFile
@@ -785,9 +785,9 @@ class FileRepositoryTest extends \TestCase {
             [
                 'type'         => 'image',
                 'translations' => [
-                    'language_code'   => 'en',
-                    'title'       => 'B file title',
-                    'description' => 'B file description'
+                    'language_code' => 'en',
+                    'title'         => 'B file title',
+                    'description'   => 'B file description'
                 ]
             ]
         );
@@ -795,18 +795,18 @@ class FileRepositoryTest extends \TestCase {
         $firstFileTranslation = new FileTranslation();
         $firstFileTranslation->fill(
             [
-                'language_code'   => 'en',
-                'title'       => 'A file title',
-                'description' => 'A file description'
+                'language_code' => 'en',
+                'title'         => 'A file title',
+                'description'   => 'A file description'
             ]
         );
 
         $secondFileTranslation = new FileTranslation();
         $secondFileTranslation->fill(
             [
-                'language_code'   => 'en',
-                'title'       => 'B file title',
-                'description' => 'B file description'
+                'language_code' => 'en',
+                'title'         => 'B file title',
+                'description'   => 'B file description'
             ]
         );
 
@@ -849,17 +849,17 @@ class FileRepositoryTest extends \TestCase {
         $firstFileTranslation = new FileTranslation();
         $firstFileTranslation->fill(
             [
-                'language_code'   => 'en',
-                'title'       => 'A file title',
-                'description' => 'A file description'
+                'language_code' => 'en',
+                'title'         => 'A file title',
+                'description'   => 'A file description'
             ]
         );
         $secondFileTranslation = new FileTranslation();
         $secondFileTranslation->fill(
             [
-                'language_code'   => 'en',
-                'title'       => 'B file title',
-                'description' => 'B file description'
+                'language_code' => 'en',
+                'title'         => 'B file title',
+                'description'   => 'B file description'
             ]
         );
 

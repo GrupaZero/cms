@@ -1,4 +1,4 @@
-<?php namespace Gzero\Cms\Service;
+<?php namespace Gzero\Cms\Services;
 
 use Gzero\Core\Models\User;
 use Gzero\Cms\Models\Content;
@@ -32,7 +32,7 @@ class ContentService extends BaseService {
      *
      * @param Content    $content Content model
      *
-     * @param Dispatcher $events Events dispatcher
+     * @param Dispatcher $events  Events dispatcher
      */
     public function __construct(Content $content, Dispatcher $events)
     {
@@ -74,7 +74,7 @@ class ContentService extends BaseService {
      */
     public function getTitlesTranslationFromUrl(string $url, string $lang)
     {
-        $node = $this->getByUrl($url, $lang);
+        $node       = $this->getByUrl($url, $lang);
         $contentIds = array_filter(explode('/', $node->path));
 
         return $this->newORMQuery()
@@ -99,19 +99,19 @@ class ContentService extends BaseService {
      */
     public function matchTitlesWithUrls(array $titles, string $contentUrl, string $lang)
     {
-        $urlParts = explode('/', $contentUrl);
-        $fullUrl = '';
+        $urlParts      = explode('/', $contentUrl);
+        $fullUrl       = '';
         $titlesAndUrls = [];
 
         foreach ($urlParts as $key => $urlPart) {
             if (array_key_exists($key - 1, $urlParts)) {
                 $titlesAndUrls[$key]['title'] = $titles[$key]['title'];
-                $titlesAndUrls[$key]['url'] = $fullUrl . '/' . $urlPart;
+                $titlesAndUrls[$key]['url']   = $fullUrl . '/' . $urlPart;
 
                 $fullUrl = $titlesAndUrls[$key]['url'];
             } else {
                 $titlesAndUrls[$key]['title'] = $titles[$key]['title'];
-                $titlesAndUrls[$key]['url'] = '/' . $lang . '/' . $urlPart;
+                $titlesAndUrls[$key]['url']   = '/' . $lang . '/' . $urlPart;
 
                 $fullUrl = $titlesAndUrls[$key]['url'];
             }
@@ -158,7 +158,7 @@ class ContentService extends BaseService {
                         ->where('route_translations.language_code', '=', $langCode);
                 }
             )
-            ->where('route_translations.url', '=', $url)
+            ->where('route_translations.path', '=', $url)
             ->where('routes.is_active', '=', 1)// We only need content with active route
             ->first(['contents.*']);
     }

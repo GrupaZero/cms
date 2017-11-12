@@ -10,7 +10,6 @@ use Gzero\Cms\Models\File;
 use Gzero\Core\Policies\BlockPolicy;
 use Gzero\Core\Policies\ContentPolicy;
 use Gzero\Core\Policies\FilePolicy;
-use Gzero\Repository\LangRepository;
 
 class ServiceProvider extends AbstractServiceProvider {
 

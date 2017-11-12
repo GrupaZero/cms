@@ -1,6 +1,6 @@
 <?php namespace Gzero\Cms\Listeners;
 
-use Gzero\Cms\Service\BlockService;
+use Gzero\Cms\Services\BlockService;
 use Gzero\Cms\BlockFinder;
 use Gzero\Cms\Events\ContentRouteMatched;
 use Gzero\Core\Services\LanguageService;

@@ -1,28 +1,16 @@
 <?php namespace functional;
 
-use Gzero\Entity\Content;
-use Gzero\Entity\User;
-use Gzero\Repository\ContentService;
-use Gzero\Repository\FileService;
+use Gzero\Cms\Models\Content;
+use Gzero\Cms\Services\ContentService;
+use Gzero\Cms\Services\FileService;
+use Gzero\Core\Models\User;
 use Illuminate\Events\Dispatcher;
 use Illuminate\Support\Facades\Storage;
 
-require_once(__DIR__ . '/../stub/TestSeeder.php');
-require_once(__DIR__ . '/../stub/TestTreeSeeder.php');
+require_once(__DIR__ . '/../../stub/TestSeeder.php');
+require_once(__DIR__ . '/../../stub/TestTreeSeeder.php');
 
-/**
- * This file is part of the GZERO CMS package.
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- *
- * Class ContentRepositoryTest
- *
- * @package    functional
- * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
- * @copyright  Copyright (c) 2015, Adrian Skierniewski
- */
-class ContentRepositoryTest extends \TestCase {
+class ContentServiceTest extends \Codeception\Test\Unit {
 
     /**
      * @var \UnitTester
@@ -44,12 +32,11 @@ class ContentRepositoryTest extends \TestCase {
      */
     protected $filesDir;
 
-    protected function _before()
+    public function _before()
     {
         // Start the Laravel application
-        $this->startApplication();
-        $this->repository     = new ContentService(new Content(), new Dispatcher());
-        $this->filesDir       = __DIR__ . '/../../resources';
+        $this->repository = new ContentService(new Content(), new Dispatcher());
+        $this->filesDir   = __DIR__ . '/../../resources';
     }
 
     public function _after()
@@ -59,7 +46,6 @@ class ContentRepositoryTest extends \TestCase {
             Storage::deleteDirectory($dirName);
         }
         // Stop the Laravel application
-        $this->stopApplication();
     }
 
     /*
@@ -78,7 +64,7 @@ class ContentRepositoryTest extends \TestCase {
                 'type'         => 'content',
                 'translations' => [
                     'language_code' => 'en',
-                    'title'     => 'Example title'
+                    'title'         => 'Example title'
                 ]
             ]
         );
@@ -104,7 +90,7 @@ class ContentRepositoryTest extends \TestCase {
                 'published_at'       => date('Y-m-d H:i:s'),
                 'translations'       => [
                     'language_code' => 'en',
-                    'title'     => 'Example title'
+                    'title'         => 'Example title'
                 ]
             ],
             $author
@@ -141,7 +127,7 @@ class ContentRepositoryTest extends \TestCase {
                 'type'         => 'content',
                 'translations' => [
                     'language_code' => 'en',
-                    'title'     => 'Example title'
+                    'title'         => 'Example title'
                 ]
             ]
         );
@@ -160,7 +146,7 @@ class ContentRepositoryTest extends \TestCase {
                 'type'         => 'content',
                 'translations' => [
                     'language_code' => 'en',
-                    'title'     => 'Example title'
+                    'title'         => 'Example title'
                 ]
             ]
         );
@@ -168,9 +154,9 @@ class ContentRepositoryTest extends \TestCase {
         $translation      = $this->repository->createTranslation(
             $newContent,
             [
-                'language_code'      => 'en',
-                'title'          => 'New example title',
-                'body'           => 'New example body',
+                'language_code'   => 'en',
+                'title'           => 'New example title',
+                'body'            => 'New example body',
                 'seo_title'       => 'New example seo_title',
                 'seo_description' => 'New example seo_description'
             ]
@@ -201,7 +187,7 @@ class ContentRepositoryTest extends \TestCase {
                 'is_on_home'   => false,
                 'translations' => [
                     'language_code' => 'en',
-                    'title'     => 'Example title'
+                    'title'         => 'Example title'
                 ]
             ]
         );
@@ -223,13 +209,13 @@ class ContentRepositoryTest extends \TestCase {
      */
     public function can_delete_content()
     {
-        $this->seed('TestSeeder');
+        (new \TestSeeder())->run();
         $content    = $this->repository->create(
             [
                 'type'         => 'content',
                 'translations' => [
                     'language_code' => 'en',
-                    'title'     => 'Example title'
+                    'title'         => 'Example title'
                 ]
             ]
         );
@@ -245,13 +231,13 @@ class ContentRepositoryTest extends \TestCase {
      */
     public function can_force_delete_content()
     {
-        $this->seed('TestSeeder');
+        (new \TestSeeder())->run();
         $content = $this->repository->create(
             [
                 'type'         => 'content',
                 'translations' => [
                     'language_code' => 'en',
-                    'title'     => 'Example title'
+                    'title'         => 'Example title'
                 ]
             ]
         );
@@ -261,7 +247,7 @@ class ContentRepositoryTest extends \TestCase {
                 'type'         => 'content',
                 'translations' => [
                     'language_code' => 'en',
-                    'title'     => 'Other title'
+                    'title'         => 'Other title'
                 ]
             ]
         );
@@ -293,13 +279,13 @@ class ContentRepositoryTest extends \TestCase {
      */
     public function can_force_delete_soft_deleted_content()
     {
-        $this->seed('TestSeeder');
+        (new \TestSeeder())->run();
         $content = $this->repository->create(
             [
                 'type'         => 'content',
                 'translations' => [
                     'language_code' => 'en',
-                    'title'     => 'Example title'
+                    'title'         => 'Example title'
                 ]
             ]
         );
@@ -309,7 +295,7 @@ class ContentRepositoryTest extends \TestCase {
                 'type'         => 'content',
                 'translations' => [
                     'language_code' => 'en',
-                    'title'     => 'Other title'
+                    'title'         => 'Other title'
                 ]
             ]
         );
@@ -341,15 +327,15 @@ class ContentRepositoryTest extends \TestCase {
      */
     public function can_delete_content_translation()
     {
-        $this->seed('TestSeeder');
+        (new \TestSeeder())->run();
         $withActive = false;
         $content    = $this->repository->create(
             [
                 'type'         => 'content',
                 'translations' => [
                     'language_code' => 'en',
-                    'title'     => 'Example title',
-                    'body'      => 'Example body'
+                    'title'         => 'Example title',
+                    'body'          => 'Example body'
                 ]
             ]
         );
@@ -360,7 +346,7 @@ class ContentRepositoryTest extends \TestCase {
             $content,
             [
                 'language_code' => 'en',
-                'title'     => 'English translation 2'
+                'title'         => 'English translation 2'
             ]
         );
         $this->assertEquals($content->translations($withActive)->count(), 2);
@@ -375,14 +361,14 @@ class ContentRepositoryTest extends \TestCase {
      */
     public function can_create_content_with_same_title_as_one_of_soft_deleted_contents()
     {
-        $this->seed('TestSeeder');
+        (new \TestSeeder())->run();
         $content1 = $this->repository->create(
             [
                 'type'         => 'content',
                 'translations' => [
                     'language_code' => 'en',
-                    'title'     => 'Example title',
-                    'body'      => 'Example body'
+                    'title'         => 'Example title',
+                    'body'          => 'Example body'
                 ]
             ]
         );
@@ -396,8 +382,8 @@ class ContentRepositoryTest extends \TestCase {
                 'type'         => 'content',
                 'translations' => [
                     'language_code' => 'en',
-                    'title'     => 'Example title',
-                    'body'      => 'Example body'
+                    'title'         => 'Example title',
+                    'body'          => 'Example body'
                 ]
             ]
         );
@@ -411,18 +397,18 @@ class ContentRepositoryTest extends \TestCase {
 
     /**
      * @test
-     * @expectedException \Gzero\Repository\RepositoryValidationException
+     * @expectedException \Gzero\Core\Repositories\RepositoryValidationException
      * @expectedExceptionMessage Content type doesn't exist
      */
     public function it_checks_existence_of_content_type()
     {
-        $this->seed('TestSeeder');
+        (new \TestSeeder())->run();
         $this->repository->create(
             [
                 'type'         => 'fakeType',
                 'translations' => [
                     'language_code' => 'en',
-                    'title'     => 'Example category title'
+                    'title'         => 'Example category title'
                 ]
             ]
         );
@@ -433,35 +419,35 @@ class ContentRepositoryTest extends \TestCase {
      */
     public function it_checks_existence_of_content_url()
     {
-        $this->seed('TestSeeder');
+        (new \TestSeeder())->run();
         $this->assertNull($this->repository->getByUrl('example-title', 'en'));
     }
 
     /**
      * @test
-     * @expectedException \Gzero\Repository\RepositoryValidationException
+     * @expectedException \Gzero\Core\Repositories\RepositoryValidationException
      * @expectedExceptionMessage Content type and translation is required
      */
     public function it_checks_existence_of_content_translation()
     {
-        $this->seed('TestSeeder');
+        (new \TestSeeder())->run();
         $this->repository->create(['type' => 'category']);
     }
 
     /**
      * @test
-     * @expectedException \Gzero\Repository\RepositoryValidationException
+     * @expectedException \Gzero\Core\Repositories\RepositoryValidationException
      * @expectedExceptionMessage Parent has not been translated in this language, translate it first!
      */
     public function it_checks_existence_of_parent_route_translation()
     {
-        $this->seed('TestSeeder');
+        (new \TestSeeder())->run();
         $category    = $this->repository->create(
             [
                 'type'         => 'category',
                 'translations' => [
                     'language_code' => 'en',
-                    'title'     => 'Example category title'
+                    'title'         => 'Example category title'
                 ]
             ]
         );
@@ -472,7 +458,7 @@ class ContentRepositoryTest extends \TestCase {
                 'parent_id'    => $newCategory->id,
                 'translations' => [
                     'language_code' => 'pl',
-                    'title'     => 'Example content title'
+                    'title'         => 'Example content title'
                 ]
             ]
         );
@@ -480,19 +466,20 @@ class ContentRepositoryTest extends \TestCase {
 
     /**
      * @test
-     * @expectedException \Gzero\Repository\RepositoryValidationException
+     * @expectedException \Gzero\Core\Repositories\RepositoryValidationException
      * @expectedExceptionMessage Parent node id: 1 doesn't exist
      */
     public function it_checks_existence_of_parent()
     {
-        $this->seed('TestSeeder');
+        (new \TestSeeder())->run();
+
         $this->repository->create(
             [
                 'type'         => 'content',
                 'parent_id'    => 1,
                 'translations' => [
                     'language_code' => 'pl',
-                    'title'     => 'Example content title'
+                    'title'         => 'Example content title'
                 ]
             ]
         );
@@ -500,18 +487,19 @@ class ContentRepositoryTest extends \TestCase {
 
     /**
      * @test
-     * @expectedException \Gzero\Repository\RepositoryValidationException
+     * @expectedException \Gzero\Core\Repositories\RepositoryValidationException
      * @expectedExceptionMessage Content type 'content' is not allowed for the parent type
      */
     public function it_checks_if_parent_is_proper_type()
     {
-        $this->seed('TestSeeder');
+        (new \TestSeeder())->run();
+
         $content     = $this->repository->create(
             [
                 'type'         => 'content',
                 'translations' => [
                     'language_code' => 'pl',
-                    'title'     => 'Example category title'
+                    'title'         => 'Example category title'
                 ]
             ]
         );
@@ -522,7 +510,7 @@ class ContentRepositoryTest extends \TestCase {
                 'parent_id'    => $newCategory->id,
                 'translations' => [
                     'language_code' => 'pl',
-                    'title'     => 'Example content title'
+                    'title'         => 'Example content title'
                 ]
             ]
         );
@@ -533,7 +521,7 @@ class ContentRepositoryTest extends \TestCase {
      */
     public function it_should_force_delete_one_content()
     {
-        $this->seed('TestSeeder');
+        (new \TestSeeder())->run();
         $author   = User::find(1);
         $content  = $this->repository->create(
             [
@@ -546,7 +534,7 @@ class ContentRepositoryTest extends \TestCase {
                 'published_at'       => date('Y-m-d H:i:s'),
                 'translations'       => [
                     'language_code' => 'en',
-                    'title'     => 'Example title'
+                    'title'         => 'Example title'
                 ]
             ],
             $author
@@ -562,7 +550,7 @@ class ContentRepositoryTest extends \TestCase {
                 'published_at'       => date('Y-m-d H:i:s'),
                 'translations'       => [
                     'language_code' => 'en',
-                    'title'     => 'Example title'
+                    'title'         => 'Example title'
                 ]
             ],
             $author
@@ -586,19 +574,19 @@ class ContentRepositoryTest extends \TestCase {
      */
     public function it_should_retrive_non_trashed_content()
     {
-        $this->seed('TestSeeder');
+        (new \TestSeeder())->run();
         $content    = $this->repository->create(
             [
                 'type'         => 'content',
                 'is_active'    => 1,
                 'translations' => [
-                    'language_code'      => 'en',
-                    'title'          => 'Fake title',
-                    'teaser'         => '<p>Super fake...</p>',
-                    'body'           => '<p>Super fake body of some post!</p>',
+                    'language_code'   => 'en',
+                    'title'           => 'Fake title',
+                    'teaser'          => '<p>Super fake...</p>',
+                    'body'            => '<p>Super fake body of some post!</p>',
                     'seo_title'       => 'fake-title',
                     'seo_description' => 'desc-demonstrate-fake',
-                    'is_active'      => 1
+                    'is_active'       => 1
                 ]
             ]
         );
@@ -611,19 +599,19 @@ class ContentRepositoryTest extends \TestCase {
      */
     public function it_should_retrive_trashed_content()
     {
-        $this->seed('TestSeeder');
+        (new \TestSeeder())->run();
         $content = $this->repository->create(
             [
                 'type'         => 'content',
                 'is_active'    => 1,
                 'translations' => [
-                    'language_code'      => 'en',
-                    'title'          => 'Fake title',
-                    'teaser'         => '<p>Super fake...</p>',
-                    'body'           => '<p>Super fake body of some post!</p>',
+                    'language_code'   => 'en',
+                    'title'           => 'Fake title',
+                    'teaser'          => '<p>Super fake...</p>',
+                    'body'            => '<p>Super fake body of some post!</p>',
                     'seo_title'       => 'fake-title',
                     'seo_description' => 'desc-demonstrate-fake',
-                    'is_active'      => 1
+                    'is_active'       => 1
                 ]
             ]
         );
@@ -637,19 +625,19 @@ class ContentRepositoryTest extends \TestCase {
      */
     public function it_should_not_retrive_force_deleted_content()
     {
-        $this->seed('TestSeeder');
+        (new \TestSeeder())->run();
         $content = $this->repository->create(
             [
                 'type'         => 'content',
                 'is_active'    => 1,
                 'translations' => [
-                    'language_code'      => 'en',
-                    'title'          => 'Fake title',
-                    'teaser'         => '<p>Super fake...</p>',
-                    'body'           => '<p>Super fake body of some post!</p>',
+                    'language_code'   => 'en',
+                    'title'           => 'Fake title',
+                    'teaser'          => '<p>Super fake...</p>',
+                    'body'            => '<p>Super fake body of some post!</p>',
                     'seo_title'       => 'fake-title',
                     'seo_description' => 'desc-demonstrate-fake',
-                    'is_active'      => 1
+                    'is_active'       => 1
                 ]
             ]
         );
@@ -675,8 +663,8 @@ class ContentRepositoryTest extends \TestCase {
     public function can_get_roots()
     {
         // Tree seeds
-        $this->seed('TestSeeder');
-        $this->seed('TestTreeSeeder');
+        (new \TestSeeder())->run();
+        //(new \TestTreeSeeder())->run();
 
         $roots = $this->repository->getRoots(
             [],
@@ -695,8 +683,8 @@ class ContentRepositoryTest extends \TestCase {
     public function can_get_tree()
     {
         // Tree seeds
-        $this->seed('TestSeeder');
-        $this->seed('TestTreeSeeder');
+        (new \TestSeeder())->run();
+        //(new \TestTreeSeeder())->run();
 
         $category = $this->repository->getById(1);
         $tree     = $this->repository->getTree(
@@ -724,8 +712,8 @@ class ContentRepositoryTest extends \TestCase {
     public function can_create_content_as_child()
     {
         // Tree seeds
-        $this->seed('TestSeeder');
-        $this->seed('TestTreeSeeder');
+        (new \TestSeeder())->run();
+        //(new \TestTreeSeeder())->run();
 
         $category        = $this->repository->getById(1);
         $categoryRoute   = $category->route->translations()->first();
@@ -735,7 +723,7 @@ class ContentRepositoryTest extends \TestCase {
                 'parent_id'    => $category->id,
                 'translations' => [
                     'language_code' => 'en',
-                    'title'     => 'Example content title'
+                    'title'         => 'Example content title'
                 ]
             ]
         );
@@ -758,8 +746,8 @@ class ContentRepositoryTest extends \TestCase {
     public function can_update_content_parent()
     {
         // Tree seeds
-        $this->seed('TestSeeder');
-        $this->seed('TestTreeSeeder');
+        (new \TestSeeder())->run();
+        //(new \TestTreeSeeder())->run();
 
         $category       = $this->repository->getById(1);
         $content        = $this->repository->getById(5);
@@ -784,8 +772,8 @@ class ContentRepositoryTest extends \TestCase {
     public function can_update_parent_for_category_without_children()
     {
         // Tree seeds
-        $this->seed('TestSeeder');
-        $this->seed('TestTreeSeeder');
+        (new \TestSeeder())->run();
+        //(new \TestTreeSeeder())->run();
 
         // Create new category without children
         $category        = $this->repository->create(
@@ -793,7 +781,7 @@ class ContentRepositoryTest extends \TestCase {
                 'type'         => 'category',
                 'translations' => [
                     'language_code' => 'en',
-                    'title'     => 'Example title'
+                    'title'         => 'Example title'
                 ]
             ]
         );
@@ -820,7 +808,7 @@ class ContentRepositoryTest extends \TestCase {
     public function can_create_route()
     {
         // Tree seeds
-        $this->seed('TestTreeSeeder');
+        //(new \TestTreeSeeder())->run();
 
         // Single content
         $singleContent = $this->repository->getById(2);
@@ -843,7 +831,7 @@ class ContentRepositoryTest extends \TestCase {
                 'parent_id'    => $category->id,
                 'translations' => [
                     'language_code' => 'en',
-                    'title'     => 'Example content title'
+                    'title'         => 'Example content title'
                 ]
             ]
         );
@@ -879,7 +867,7 @@ class ContentRepositoryTest extends \TestCase {
                 'weight'       => 3,
                 'translations' => [
                     'language_code' => 'en',
-                    'title'     => 'A title'
+                    'title'         => 'A title'
                 ]
             ]
         );
@@ -891,7 +879,7 @@ class ContentRepositoryTest extends \TestCase {
                 'weight'       => 2,
                 'translations' => [
                     'language_code' => 'en',
-                    'title'     => 'A title'
+                    'title'         => 'A title'
                 ]
             ]
         );
@@ -903,7 +891,7 @@ class ContentRepositoryTest extends \TestCase {
                 'weight'       => 0,
                 'translations' => [
                     'language_code' => 'en',
-                    'title'     => 'B title'
+                    'title'         => 'B title'
                 ]
             ]
         );
@@ -949,7 +937,7 @@ class ContentRepositoryTest extends \TestCase {
                 'weight'       => 3,
                 'translations' => [
                     'language_code' => 'en',
-                    'title'     => 'A title'
+                    'title'         => 'A title'
                 ]
             ]
         );
@@ -961,7 +949,7 @@ class ContentRepositoryTest extends \TestCase {
                 'weight'       => 2,
                 'translations' => [
                     'language_code' => 'en',
-                    'title'     => 'A title'
+                    'title'         => 'A title'
                 ]
             ]
         );
@@ -973,7 +961,7 @@ class ContentRepositoryTest extends \TestCase {
                 'weight'       => 0,
                 'translations' => [
                     'language_code' => 'en',
-                    'title'     => 'B title'
+                    'title'         => 'B title'
                 ]
             ]
         );
@@ -1015,7 +1003,7 @@ class ContentRepositoryTest extends \TestCase {
     public function can_delete_content_with_children()
     {
         // Tree seeds
-        $this->seed('TestTreeSeeder');
+        //(new \TestTreeSeeder())->run();
 
         $content = $this->repository->getById(1);
         $this->repository->delete($content);
@@ -1029,7 +1017,7 @@ class ContentRepositoryTest extends \TestCase {
     public function can_force_delete_content_with_children()
     {
         // Tree seeds
-        $this->seed('TestTreeSeeder');
+        //(new \TestTreeSeeder())->run();
 
         $content = $this->repository->getById(1);
         $this->repository->forceDelete($content);
@@ -1043,7 +1031,7 @@ class ContentRepositoryTest extends \TestCase {
     public function can_force_delete_soft_deleted_content_with_children()
     {
         // Tree seeds
-        $this->seed('TestTreeSeeder');
+        //(new \TestTreeSeeder())->run();
 
         $content = $this->repository->getById(1);
         $this->repository->delete($content);
@@ -1054,13 +1042,13 @@ class ContentRepositoryTest extends \TestCase {
 
     /**
      * @test
-     * @expectedException \Gzero\Repository\RepositoryException
+     * @expectedException \Gzero\Core\Repositories\RepositoryException
      * @expectedExceptionMessage You cannot change parent of not empty category
      */
     public function it_does_not_allow_to_update_parent_for_category_with_children()
     {
         // Tree seeds
-        $this->seed('TestTreeSeeder');
+        //(new \TestTreeSeeder())->run();
 
         // Get category with children
         $category = $this->repository->getById(1);
@@ -1093,7 +1081,8 @@ class ContentRepositoryTest extends \TestCase {
     public function can_get_content_children_list()
     {
         // Tree seeds
-        $this->seed('TestTreeSeeder');
+        //(new \TestTreeSeeder())->run();
+
         $category = $this->repository->getById(1);
 
         $contents = $this->repository->getChildren(
@@ -1115,7 +1104,8 @@ class ContentRepositoryTest extends \TestCase {
     public function can_get_content_translations_list()
     {
         // Tree seeds
-        $this->seed('TestTreeSeeder');
+        //(new \TestTreeSeeder())->run();
+
         $category = $this->repository->getById(1);
         // New translations
         for ($i = 0; $i < 3; $i++) {
@@ -1123,8 +1113,8 @@ class ContentRepositoryTest extends \TestCase {
                 $category,
                 [
                     'language_code' => 'pl',
-                    'title'     => 'New example title',
-                    'body'      => 'New example body'
+                    'title'         => 'New example title',
+                    'body'          => 'New example body'
                 ]
             );
         }
@@ -1148,7 +1138,7 @@ class ContentRepositoryTest extends \TestCase {
     public function can_filter_contents_list()
     {
         // Tree seeds
-        $this->seed('TestTreeSeeder');
+        //(new \TestTreeSeeder())->run();
 
         $contents = $this->repository->getContents(
             [
@@ -1190,7 +1180,7 @@ class ContentRepositoryTest extends \TestCase {
                 'weight'       => 10,
                 'translations' => [
                     'language_code' => 'en',
-                    'title'     => 'C title'
+                    'title'         => 'C title'
                 ]
             ]
         );
@@ -1201,7 +1191,7 @@ class ContentRepositoryTest extends \TestCase {
                 'weight'       => 0,
                 'translations' => [
                     'language_code' => 'en',
-                    'title'     => 'A title'
+                    'title'         => 'A title'
                 ]
             ]
         );
@@ -1212,7 +1202,7 @@ class ContentRepositoryTest extends \TestCase {
                 'weight'       => 1,
                 'translations' => [
                     'language_code' => 'en',
-                    'title'     => 'B title'
+                    'title'         => 'B title'
                 ]
             ]
         );
@@ -1323,26 +1313,26 @@ class ContentRepositoryTest extends \TestCase {
 
     /**
      * @test                     Change tree seeder to seeder
-     * @expectedException \Gzero\Repository\RepositoryException
+     * @expectedException \Gzero\Core\Repositories\RepositoryException
      * @expectedExceptionMessage Error: 'lang' criteria is required
      */
     public function it_checks_existence_of_language_code_on_translations_join()
     {
         // Tree seeds
-        $this->seed('TestSeeder');
+        (new \TestSeeder())->run();
 
         $this->repository->getContents([], [['translations.title', 'DESC']], null);
     }
 
     /**
      * @test
-     * @expectedException \Gzero\Repository\RepositoryException
+     * @expectedException \Gzero\Core\Repositories\RepositoryException
      * @expectedExceptionMessage Error: 'lang' criteria is required
      */
     public function it_checks_existence_of_language_code_on_translations_join_tree()
     {
         // Tree seeds
-        $this->seed('TestTreeSeeder');
+        //(new \TestTreeSeeder())->run();
 
         $this->repository->getContentsByLevel(
             [],
@@ -1357,7 +1347,7 @@ class ContentRepositoryTest extends \TestCase {
     public function it_doesnt_check_existence_of_language_code_for_core_order_by_params()
     {
         // Tree seeds
-        $this->seed('TestTreeSeeder');
+        //(new \TestTreeSeeder())->run();
 
         $nodes = $this->repository->getContents(
             [],
@@ -1385,7 +1375,7 @@ class ContentRepositoryTest extends \TestCase {
                 'type'         => 'category',
                 'translations' => [
                     'language_code' => 'pl',
-                    'title'     => 'Example content title'
+                    'title'         => 'Example content title'
                 ]
             ]
         );
@@ -1396,7 +1386,7 @@ class ContentRepositoryTest extends \TestCase {
                 'parent_id'    => $category1->id,
                 'translations' => [
                     'language_code' => 'pl',
-                    'title'     => 'Example content title'
+                    'title'         => 'Example content title'
                 ]
             ]
         );
@@ -1407,7 +1397,7 @@ class ContentRepositoryTest extends \TestCase {
                 'parent_id'    => $category2->id,
                 'translations' => [
                     'language_code' => 'pl',
-                    'title'     => 'Example content title'
+                    'title'         => 'Example content title'
                 ]
             ]
         );
@@ -1436,21 +1426,21 @@ class ContentRepositoryTest extends \TestCase {
                 'published_at'       => date('Y-m-d H:i:s'),
                 'translations'       => [
                     'language_code' => 'en',
-                    'title'     => 'English translation 1'
+                    'title'         => 'English translation 1'
                 ]
             ],
             $author
         );
-        $this->assertInstanceOf('Gzero\Entity\Content', $content);
+        $this->assertInstanceOf('Gzero\Cms\Models\Content', $content);
 
         $translation = $this->repository->createTranslation(
             $content,
             [
                 'language_code' => 'en',
-                'title'     => 'English translation 2'
+                'title'         => 'English translation 2'
             ]
         );
-        $this->assertInstanceOf('Gzero\Entity\ContentTranslation', $translation);
+        $this->assertInstanceOf('Gzero\Cms\Models\ContentTranslation', $translation);
 
         $translatedContent = $this->repository->getContents(
             [
@@ -1493,16 +1483,16 @@ class ContentRepositoryTest extends \TestCase {
                 'published_at'       => date('Y-m-d H:i:s'),
                 'translations'       => [
                     'language_code' => 'en',
-                    'title'     => 'English translation 1'
+                    'title'         => 'English translation 1'
                 ]
             ],
             $author
         );
-        $this->assertInstanceOf('Gzero\Entity\Content', $content);
+        $this->assertInstanceOf('Gzero\Cms\Models\Content', $content);
 
         $translations = $this->repository->getTranslations($content, []);
         $translation  = $translations->first();
-        $this->assertInstanceOf('Gzero\Entity\ContentTranslation', $translation);
+        $this->assertInstanceOf('Gzero\Cms\Models\ContentTranslation', $translation);
         $this->assertEquals($translation->is_active, 1);
 
         $this->setExpectedException('Gzero\Repository\RepositoryException');
@@ -1520,7 +1510,7 @@ class ContentRepositoryTest extends \TestCase {
                 'type'         => 'content',
                 'translations' => [
                     'language_code' => 'en',
-                    'title'     => 'Example title',
+                    'title'         => 'Example title',
                 ]
             ]
         );
@@ -1530,7 +1520,7 @@ class ContentRepositoryTest extends \TestCase {
             $content,
             [
                 'language_code' => 'en',
-                'title'     => 'Modified example title',
+                'title'         => 'Modified example title',
             ]
         );
 
@@ -1548,10 +1538,10 @@ class ContentRepositoryTest extends \TestCase {
     {
         $category1 = $this->repository->create(
             [
-                'type'          => 'category',
-                'translations'  => [
+                'type'         => 'category',
+                'translations' => [
                     'language_code' => 'pl',
-                    'title'     => 'Przykładowy tytuł kategorii 1.'
+                    'title'         => 'Przykładowy tytuł kategorii 1.'
                 ]
             ]
         );
@@ -1561,7 +1551,7 @@ class ContentRepositoryTest extends \TestCase {
             $category1,
             [
                 'language_code' => 'en',
-                'title'     => 'Example title category 1.'
+                'title'         => 'Example title category 1.'
             ]
         );
 
@@ -1572,7 +1562,7 @@ class ContentRepositoryTest extends \TestCase {
                 'parent_id'    => $category1->id,
                 'translations' => [
                     'language_code' => 'pl',
-                    'title'     => 'Przykładowy, nieaktywny, zagnieżdżony tytuł kategorii 2.'
+                    'title'         => 'Przykładowy, nieaktywny, zagnieżdżony tytuł kategorii 2.'
                 ]
             ]
         );
@@ -1582,7 +1572,7 @@ class ContentRepositoryTest extends \TestCase {
             $category2,
             [
                 'language_code' => 'en',
-                'title'     => 'Example, active, nested title category 2.'
+                'title'         => 'Example, active, nested title category 2.'
             ]
         );
 
@@ -1590,17 +1580,17 @@ class ContentRepositoryTest extends \TestCase {
             $category2,
             [
                 'language_code' => 'pl',
-                'title'     => 'Przykładowy, aktywny, zagnieżdżony tytuł kategorii 2.'
+                'title'         => 'Przykładowy, aktywny, zagnieżdżony tytuł kategorii 2.'
             ]
         );
 
         $content1 = $this->repository->create(
             [
-                'type'          => 'content',
-                'parent_id'     => $category2->id,
-                'translations'  => [
+                'type'         => 'content',
+                'parent_id'    => $category2->id,
+                'translations' => [
                     'language_code' => 'pl',
-                    'title'     => 'Przykładowy tytuł zawartości 1.'
+                    'title'         => 'Przykładowy tytuł zawartości 1.'
                 ]
             ]
         );
@@ -1608,11 +1598,11 @@ class ContentRepositoryTest extends \TestCase {
         // It should not be in $titles array.
         $this->repository->create(
             [
-                'type'          => 'content',
-                'parent_id'     => $category1->id,
-                'translations'  => [
+                'type'         => 'content',
+                'parent_id'    => $category1->id,
+                'translations' => [
                     'language_code' => 'pl',
-                    'title'     => 'Przykładowy tytuł zawartości 2.'
+                    'title'         => 'Przykładowy tytuł zawartości 2.'
                 ]
             ]
         );
@@ -1639,32 +1629,32 @@ class ContentRepositoryTest extends \TestCase {
         // We should check what happens for url like 'blog/blog/blog'.
         $blogCategory1 = $this->repository->create(
             [
-                'type'          => 'category',
-                'translations'  => [
+                'type'         => 'category',
+                'translations' => [
                     'language_code' => 'pl',
-                    'title'     => 'blog'
+                    'title'         => 'blog'
                 ]
             ]
         );
 
         $blogCategory2 = $this->repository->create(
             [
-                'type'          => 'category',
-                'parent_id'     => $blogCategory1->id,
-                'translations'  => [
+                'type'         => 'category',
+                'parent_id'    => $blogCategory1->id,
+                'translations' => [
                     'language_code' => 'pl',
-                    'title'     => 'blog'
+                    'title'         => 'blog'
                 ]
             ]
         );
 
         $blogContent1 = $this->repository->create(
             [
-                'type'          => 'content',
-                'parent_id'     => $blogCategory2->id,
-                'translations'  => [
+                'type'         => 'content',
+                'parent_id'    => $blogCategory2->id,
+                'translations' => [
                     'language_code' => 'pl',
-                    'title'     => 'blog'
+                    'title'         => 'blog'
                 ]
             ]
         );

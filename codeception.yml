@@ -1,4 +1,4 @@
-actor: Tester
+actor_suffix: Tester
 namespace: Cms
 paths:
     tests: tests

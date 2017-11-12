@@ -1,7 +1,7 @@
 <?php namespace Gzero\Cms;
 
 use Gzero\Cms\Models\Block;
-use Gzero\Cms\Service\BlockService;
+use Gzero\Cms\Services\BlockService;
 use Illuminate\Cache\CacheManager;
 use Illuminate\Database\Eloquent\Collection;
 

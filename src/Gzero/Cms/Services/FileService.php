@@ -1,4 +1,4 @@
-<?php namespace Gzero\Cms\Service;
+<?php namespace Gzero\Cms\Services;
 
 use Gzero\Core\Models\User;
 use Gzero\Core\Query\QueryBuilder;

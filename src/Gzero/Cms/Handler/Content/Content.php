@@ -1,8 +1,8 @@
 <?php namespace Gzero\Core\Handler\Content;
 
 use Gzero\Cms\Models\Content as ContentEntity;
-use Gzero\Cms\Service\ContentService;
-use Gzero\Cms\Service\FileService;
+use Gzero\Cms\Services\ContentService;
+use Gzero\Cms\Services\FileService;
 use Gzero\Core\Models\Language;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;

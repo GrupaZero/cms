@@ -1,4 +1,4 @@
-<?php namespace Gzero\Cms\Service;
+<?php namespace Gzero\Cms\Services;
 
 use BadMethodCallException;
 use Gzero\Core\Models\Base;
