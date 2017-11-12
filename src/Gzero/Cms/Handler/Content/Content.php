@@ -92,7 +92,7 @@ class Content implements ContentTypeHandler {
     public function render()
     {
         return view(
-            'contents.content',
+            'gzero-cms::contents.content',
             [
                 'content'      => $this->content,
                 'translations' => $this->translations,

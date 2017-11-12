@@ -61,7 +61,7 @@ class Category extends Content {
     public function render()
     {
         return view(
-            'contents.category',
+            'gzero-cms::contents.category',
             [
                 'content'      => $this->content,
                 'translations' => $this->translations,

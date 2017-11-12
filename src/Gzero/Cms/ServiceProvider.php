@@ -65,6 +65,8 @@ class ServiceProvider extends AbstractServiceProvider {
     {
         $this->registerPolicies();
         $this->registerMigrations();
+        $this->registerViews();
+        $this->registerPublishes();
     }
 
     /**
@@ -162,6 +164,32 @@ class ServiceProvider extends AbstractServiceProvider {
     protected function registerMigrations()
     {
         $this->loadMigrationsFrom(__DIR__ . '/../../../database/migrations');
+    }
+
+    /**
+     * It register all views
+     *
+     * @return void
+     */
+    protected function registerViews()
+    {
+        $this->loadViewsFrom(__DIR__ . '/../../../resources/views', 'gzero-cms');
+    }
+
+    /**
+     * It registers all assets to publish
+     *
+     * @return void
+     */
+    protected function registerPublishes()
+    {
+        // Views
+        $this->publishes(
+            [
+                __DIR__ . '/../../../resources/views' => resource_path('views/vendor/gzero-cms'),
+            ],
+            'gzero-cms views'
+        );
     }
 
 }
