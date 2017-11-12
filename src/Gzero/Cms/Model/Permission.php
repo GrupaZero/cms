@@ -1,7 +1,7 @@
 <?php namespace Gzero\Cms\Model;
 
-use Gzero\Base\Models\Base;
-use Gzero\Base\Models\User;
+use Gzero\Core\Models\Base;
+use Gzero\Core\Models\User;
 
 class Permission extends Base {
 

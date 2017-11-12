@@ -1,6 +1,6 @@
 <?php namespace Gzero\Cms\Model;
 
-use Gzero\Base\Models\Base;
+use Gzero\Core\Models\Base;
 use Gzero\Cms\Model\Presenter\ContentTranslationPresenter;
 use Robbo\Presenter\PresentableInterface;
 use Robbo\Presenter\Robbo;

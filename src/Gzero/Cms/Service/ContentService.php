@@ -1,9 +1,9 @@
 <?php namespace Gzero\Cms\Service;
 
-use Gzero\Base\Models\User;
-use Gzero\Base\Service\BaseService;
-use Gzero\Base\Service\RepositoryException;
-use Gzero\Base\Service\RepositoryValidationException;
+use Gzero\Core\Models\User;
+use Gzero\Core\Service\BaseService;
+use Gzero\Core\Service\RepositoryException;
+use Gzero\Core\Service\RepositoryValidationException;
 use Gzero\Cms\Model\Content;
 use Gzero\Cms\Model\ContentTranslation;
 use Gzero\Cms\Model\ContentType;

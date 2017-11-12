@@ -1,7 +1,7 @@
 <?php namespace Gzero\Cms\Model;
 
-use Gzero\Base\Models\Base;
-use Gzero\Base\Models\Language;
+use Gzero\Core\Models\Base;
+use Gzero\Core\Models\Language;
 
 class FileTranslation extends Base {
 

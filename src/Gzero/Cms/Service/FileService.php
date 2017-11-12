@@ -1,10 +1,10 @@
 <?php namespace Gzero\Cms\Service;
 
-use Gzero\Base\Models\User;
-use Gzero\Base\QueryBuilder;
-use Gzero\Base\Service\BaseService;
-use Gzero\Base\Service\RepositoryException;
-use Gzero\Base\Service\RepositoryValidationException;
+use Gzero\Core\Models\User;
+use Gzero\Core\QueryBuilder;
+use Gzero\Core\Service\BaseService;
+use Gzero\Core\Service\RepositoryException;
+use Gzero\Core\Service\RepositoryValidationException;
 use Gzero\Cms\Model\File;
 use Gzero\Cms\Model\FileTranslation;
 use Gzero\Cms\Model\FileType;

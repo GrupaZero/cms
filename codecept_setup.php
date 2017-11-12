@@ -4,8 +4,8 @@ namespace App;
 
 use Barryvdh\Cors\ServiceProvider as CORSServiceProvider;
 use Dotenv\Dotenv;
-use Gzero\Base\Exceptions\Handler;
-use Gzero\Base\ServiceProvider as BaseServiceProvider;
+use Gzero\Core\Exceptions\Handler;
+use Gzero\Core\ServiceProvider as BaseServiceProvider;
 use Gzero\Cms\ServiceProvider;
 use Illuminate\Contracts\Debug\ExceptionHandler;
 use Laravel\Passport\Passport;

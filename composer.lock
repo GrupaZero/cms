@@ -692,12 +692,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/GrupaZero/core.git",
-                "reference": "8795f00628d339ef28a4bf2debcfe5f22cb74228"
+                "reference": "ea7811a9edec95af9d24cf89bac1cb870be3c0e5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/GrupaZero/core/zipball/8795f00628d339ef28a4bf2debcfe5f22cb74228",
-                "reference": "8795f00628d339ef28a4bf2debcfe5f22cb74228",
+                "url": "https://api.github.com/repos/GrupaZero/core/zipball/ea7811a9edec95af9d24cf89bac1cb870be3c0e5",
+                "reference": "ea7811a9edec95af9d24cf89bac1cb870be3c0e5",
                 "shasum": ""
             },
             "require": {
@@ -725,7 +725,7 @@
             "extra": {
                 "laravel": {
                     "providers": [
-                        "Gzero\\Base\\ServiceProvider"
+                        "Gzero\\Core\\ServiceProvider"
                     ]
                 }
             },
@@ -745,7 +745,7 @@
                     "email": "adrian.skierniewski@gmail.com"
                 }
             ],
-            "time": "2017-11-12 12:46:15"
+            "time": "2017-11-12 13:11:43"
         },
         {
             "name": "gzero/eloquent-tree",
@@ -3365,7 +3365,7 @@
                 }
             ],
             "description": "Package that helps testing across our packages",
-            "time": "2017-11-12T11:41:57+00:00"
+            "time": "2017-11-12 11:41:57"
         },
         {
             "name": "myclabs/deep-copy",

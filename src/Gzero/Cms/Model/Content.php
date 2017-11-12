@@ -1,7 +1,7 @@
 <?php namespace Gzero\Cms\Model;
 
-use Gzero\Base\Models\BaseTree;
-use Gzero\Base\Models\User;
+use Gzero\Core\Models\BaseTree;
+use Gzero\Core\Models\User;
 use Gzero\Cms\Model\Presenter\ContentPresenter;
 use Gzero\Core\Exception;
 use Robbo\Presenter\PresentableInterface;

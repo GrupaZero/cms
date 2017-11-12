@@ -3,7 +3,7 @@
 use Bkwld\Croppa\ServiceProvider as CroppaServiceProvider;
 use DaveJamesMiller\Breadcrumbs\Facade as BreadcrumbsFacade;
 use DaveJamesMiller\Breadcrumbs\ServiceProvider as BreadcrumbServiceProvider;
-use Gzero\Base\AbstractServiceProvider;
+use Gzero\Core\AbstractServiceProvider;
 use Gzero\Cms\Model\Block;
 use Gzero\Cms\Model\Content;
 use Gzero\Cms\Model\File;

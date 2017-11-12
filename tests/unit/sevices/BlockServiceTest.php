@@ -1,6 +1,6 @@
 <?php namespace Cms;
 
-use Gzero\Base\Models\User;
+use Gzero\Core\Models\User;
 use Gzero\Cms\Service\BlockService;
 use Illuminate\Cache\CacheManager;
 use Gzero\Core\BlockFinder;
