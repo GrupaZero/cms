@@ -64,6 +64,7 @@ class ServiceProvider extends AbstractServiceProvider {
     public function boot()
     {
         $this->registerPolicies();
+        $this->registerFactories();
         $this->registerMigrations();
         $this->registerViews();
         $this->registerPublishes();
@@ -154,6 +155,16 @@ class ServiceProvider extends AbstractServiceProvider {
             __DIR__ . '/../../../config/config.php',
             'gzero-cms'
         );
+    }
+
+    /**
+     * It registers factories
+     *
+     * @return void
+     */
+    protected function registerFactories()
+    {
+        resolve(Factory::class)->load(__DIR__ . '/../../../database/factories');
     }
 
     /**
