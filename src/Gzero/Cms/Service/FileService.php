@@ -1,14 +1,13 @@
 <?php namespace Gzero\Cms\Service;
 
 use Gzero\Core\Models\User;
-use Gzero\Core\QueryBuilder;
-use Gzero\Core\Service\BaseService;
-use Gzero\Core\Service\RepositoryException;
-use Gzero\Core\Service\RepositoryValidationException;
-use Gzero\Cms\Model\File;
-use Gzero\Cms\Model\FileTranslation;
-use Gzero\Cms\Model\FileType;
-use Gzero\Cms\Model\Uploadable;
+use Gzero\Core\Query\QueryBuilder;
+use Gzero\Cms\Models\File;
+use Gzero\Cms\Models\FileTranslation;
+use Gzero\Cms\Models\FileType;
+use Gzero\Cms\Models\Uploadable;
+use Gzero\Core\Repositories\RepositoryException;
+use Gzero\Core\Repositories\RepositoryValidationException;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Events\Dispatcher;
 use Illuminate\Filesystem\FilesystemAdapter;

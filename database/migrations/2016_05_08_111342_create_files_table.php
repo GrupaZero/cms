@@ -1,6 +1,6 @@
 <?php
 
-use Gzero\Cms\Model\FileType;
+use Gzero\Cms\Models\FileType;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 

@@ -1,14 +1,13 @@
 <?php namespace Gzero\Cms\Service;
 
 use Gzero\Core\Models\User;
-use Gzero\Core\Service\BaseService;
-use Gzero\Core\Service\RepositoryException;
-use Gzero\Core\Service\RepositoryValidationException;
-use Gzero\Cms\Model\Content;
-use Gzero\Cms\Model\ContentTranslation;
-use Gzero\Cms\Model\ContentType;
-use Gzero\Cms\Model\Route;
+use Gzero\Cms\Models\Content;
+use Gzero\Cms\Models\ContentTranslation;
+use Gzero\Cms\Models\ContentType;
+use Gzero\Cms\Models\Route;
 use Gzero\Core\Exception;
+use Gzero\Core\Repositories\RepositoryException;
+use Gzero\Core\Repositories\RepositoryValidationException;
 use Gzero\EloquentTree\Model\Tree;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;

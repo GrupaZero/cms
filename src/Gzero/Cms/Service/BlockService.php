@@ -1,12 +1,11 @@
 <?php namespace Gzero\Cms\Service;
 
 use Gzero\Core\Models\User;
-use Gzero\Core\Service\BaseService;
-use Gzero\Core\Service\RepositoryException;
-use Gzero\Core\Service\RepositoryValidationException;
-use Gzero\Cms\Model\Block;
-use Gzero\Cms\Model\BlockTranslation;
-use Gzero\Cms\Model\Widget;
+use Gzero\Cms\Models\Block;
+use Gzero\Cms\Models\BlockTranslation;
+use Gzero\Cms\Models\Widget;
+use Gzero\Core\Repositories\RepositoryException;
+use Gzero\Core\Repositories\RepositoryValidationException;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Cache;
