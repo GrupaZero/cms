@@ -1,28 +1,15 @@
 <?php namespace unit;
 
-use Gzero\Core\BlockFinder;
-use Gzero\Entity\Block;
+use Codeception\Test\Unit;
+use Gzero\Cms\BlockFinder;
+use Gzero\Cms\Models\Block;
 use Illuminate\Cache\CacheManager;
-use Aedart\Testing\Laravel\Traits\TestHelperTrait;
 use Mockery as m;
 
-/**
- * This file is part of the GZERO CMS package.
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- *
- * Class BlockFinderTest
- *
- * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
- * @copyright  Copyright (c) 2015, Adrian Skierniewski
- */
-class BlockFinderTest extends \Codeception\Test\Unit {
-
-    use TestHelperTrait;
+class BlockFinderTest extends Unit {
 
     /**
-     * @var \Gzero\Core\BlockFinder
+     * @var \Gzero\Cms\BlockFinder
      */
     protected $finder;
 
@@ -34,15 +21,13 @@ class BlockFinderTest extends \Codeception\Test\Unit {
     protected function _before()
     {
         // Start the Laravel application
-        $this->startApplication();
-        $this->repo   = m::mock('Gzero\Repository\BlockService');
-        $this->finder = new BlockFinder($this->repo, new CacheManager($this->app));
+        $this->repo   = m::mock('Gzero\Cms\Services\BlockService');
+        $this->finder = new BlockFinder($this->repo, new CacheManager(app()));
     }
 
     public function after()
     {
         // Stop the Laravel application
-        $this->stopApplication();
         m::close();
     }
 

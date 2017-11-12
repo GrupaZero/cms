@@ -1,5 +1,6 @@
 <?php namespace functional;
 
+use Codeception\Test\Unit;
 use Gzero\Cms\Models\Block;
 use Gzero\Cms\Models\Content;
 use Gzero\Cms\Models\File;
@@ -14,22 +15,10 @@ use Illuminate\Http\UploadedFile;
 use Mockery as m;
 use Illuminate\Events\Dispatcher;
 
-require_once(__DIR__ . '/../stub/TestSeeder.php');
-require_once(__DIR__ . '/../stub/TestTreeSeeder.php');
+require_once(__DIR__ . '/../../stub/TestSeeder.php');
+require_once(__DIR__ . '/../../stub/TestTreeSeeder.php');
 
-/**
- * This file is part of the GZERO CMS package.
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- *
- * Class FileRepositoryTest
- *
- * @package    functional
- * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
- * @copyright  Copyright (c) 2015, Adrian Skierniewski
- */
-class FileServiceTest extends \TestCase {
+class FileServiceTest extends Unit {
 
     /**
      * @var \UnitTester
@@ -56,11 +45,9 @@ class FileServiceTest extends \TestCase {
     {
         $this->diskMock    = m::mock(Filesystem::class);
         $filesystemManager = m::mock(FilesystemManager::class)->shouldReceive('disk')->andReturn($this->diskMock)->getMock();
-        // Start the Laravel application
-        $this->startApplication();
-        $this->repository = new FileService(new File(), new FileType(), new Dispatcher(), $filesystemManager);
-        $this->filesDir   = __DIR__ . '/../resources';
-        $this->seed('TestSeeder'); // Relative to tests/app/
+        $this->repository  = new FileService(new File(), new FileType(), new Dispatcher(), $filesystemManager);
+        $this->filesDir    = __DIR__ . '/../../resources';
+        (new \TestSeeder())->run();
     }
 
     protected function _after()
@@ -406,7 +393,7 @@ class FileServiceTest extends \TestCase {
 
     /**
      * @test
-     * @expectedException \Gzero\Repository\RepositoryException
+     * @expectedException \Gzero\Core\Repositories\RepositoryException
      * @expectedExceptionMessage File type is invalid
      */
     public function it_checks_existence_of_file_type()
@@ -430,7 +417,7 @@ class FileServiceTest extends \TestCase {
 
     /**
      * @test
-     * @expectedException \Gzero\Core\Handler\File\FileHandlerException
+     * @expectedException \Gzero\Cms\Handler\File\FileHandlerException
      * @expectedExceptionMessage The extension of this file (.png) is not allowed for video files
      */
     public function it_validates_allowed_file_extension()
@@ -644,7 +631,7 @@ class FileServiceTest extends \TestCase {
 
     /**
      * @test
-     * @expectedException \Gzero\Repository\RepositoryValidationException
+     * @expectedException \Gzero\Core\Repositories\RepositoryValidationException
      * @expectedExceptionMessage File ids [2, 3, 70, 22] does not exist
      */
     public function it_checks_existence_of_file_during_sync()
@@ -663,7 +650,7 @@ class FileServiceTest extends \TestCase {
 
     /**
      * @test
-     * @expectedException \Gzero\Repository\RepositoryValidationException
+     * @expectedException \Gzero\Core\Repositories\RepositoryValidationException
      * @expectedExceptionMessage File ids [2, 3, 70, 22] does not exist
      */
     public function it_checks_existence_of_file_during_sync_with_arguments_to_pivot_table()
@@ -682,7 +669,7 @@ class FileServiceTest extends \TestCase {
 
     /**
      * @test
-     * @expectedException \Gzero\Repository\RepositoryValidationException
+     * @expectedException \Gzero\Core\Repositories\RepositoryValidationException
      * @expectedExceptionMessage Entity does not exist
      */
     public function it_checks_existence_of_content_during_sync()
@@ -701,7 +688,7 @@ class FileServiceTest extends \TestCase {
 
     /**
      * @test
-     * @expectedException \Gzero\Repository\RepositoryValidationException
+     * @expectedException \Gzero\Core\Repositories\RepositoryValidationException
      * @expectedExceptionMessage Entity does not exist
      */
     public function it_checks_existence_of_block_during_sync()

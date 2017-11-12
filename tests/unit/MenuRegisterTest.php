@@ -1,20 +1,10 @@
 <?php namespace unit;
 
-use Gzero\Core\Menu\Link;
-use Gzero\Core\Menu\Register;
+use Codeception\Test\Unit;
+use Gzero\Cms\Menu\Link;
+use Gzero\Cms\Menu\Register;
 
-/**
- * This file is part of the GZERO CMS package.
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- *
- * Class ValidatorTest
- *
- * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
- * @copyright  Copyright (c) 2017, Adrian Skierniewski
- */
-class MenuRegisterTest extends \Codeception\Test\Unit {
+class MenuRegisterTest extends Unit {
 
     /**
      * @var Register

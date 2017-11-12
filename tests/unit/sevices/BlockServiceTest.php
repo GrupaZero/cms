@@ -1,11 +1,12 @@
 <?php namespace Cms;
 
+use Codeception\Test\Unit;
+use Gzero\Cms\BlockFinder;
 use Gzero\Core\Models\User;
 use Gzero\Cms\Services\BlockService;
 use Illuminate\Cache\CacheManager;
-use Gzero\Core\BlockFinder;
 
-class BlockServiceTest extends \Codeception\Test\Unit {
+class BlockServiceTest extends Unit {
 
     /**
      * @var UnitTester
@@ -44,7 +45,7 @@ class BlockServiceTest extends \Codeception\Test\Unit {
             'de' => []
         ], $author);
 
-        $block  = $this->service->create(
+        $block = $this->service->create(
             [
                 'type'         => 'menu',
                 'region'       => 'test',
