@@ -1,5 +1,6 @@
-<?php
-namespace Cms;
+<?php namespace Cms;
+
+use Cms\_generated\UnitTesterActions;
 
 /**
  * Inherited Methods
@@ -18,7 +19,7 @@ namespace Cms;
 */
 class UnitTester extends \Codeception\Actor
 {
-    use _generated\UnitTesterActions;
+    use UnitTesterActions;
 
    /**
     * Define custom actions here

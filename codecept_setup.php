@@ -5,7 +5,8 @@ namespace App;
 use Barryvdh\Cors\ServiceProvider as CORSServiceProvider;
 use Dotenv\Dotenv;
 use Gzero\Core\Exceptions\Handler;
-use Gzero\Core\ServiceProvider;
+use Gzero\Core\ServiceProvider as CoreServiceProvieder;
+use Gzero\Cms\ServiceProvider;
 use Illuminate\Contracts\Debug\ExceptionHandler;
 use Laravel\Passport\Passport;
 use Laravel\Passport\PassportServiceProvider;
@@ -46,6 +47,7 @@ if (!class_exists('App\TestApp')) {
             return [
                 PassportServiceProvider::class,
                 CORSServiceProvider::class,
+                CoreServiceProvieder::class,
                 ServiceProvider::class
             ];
         }

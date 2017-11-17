@@ -2,6 +2,7 @@
 
 use Gzero\Core\Models\Base;
 use Gzero\Cms\Models\Presenter\ContentTranslationPresenter;
+use Gzero\Core\Models\Language;
 use Robbo\Presenter\PresentableInterface;
 use Robbo\Presenter\Robbo;
 
@@ -27,6 +28,17 @@ class ContentTranslation extends Base implements PresentableInterface {
         'is_active' => false
     ];
 
+
+    /**
+     * Content reverse relation
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function content()
+    {
+        return $this->belongsTo(Content::class);
+    }
+
     /**
      * Lang reverse relation
      *
@@ -34,7 +46,7 @@ class ContentTranslation extends Base implements PresentableInterface {
      */
     public function lang()
     {
-        return $this->belongsTo(Lang::class);
+        return $this->belongsTo(Language::class);
     }
 
     /**

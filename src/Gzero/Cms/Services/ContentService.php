@@ -159,7 +159,7 @@ class ContentService extends BaseService {
                 }
             )
             ->where('route_translations.path', '=', $url)
-            ->where('routes.is_active', '=', 1)// We only need content with active route
+            ->where('route_translations.is_active', '=', 1)// We only need content with active route
             ->first(['contents.*']);
     }
 

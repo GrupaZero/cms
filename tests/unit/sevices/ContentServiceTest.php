@@ -1,5 +1,7 @@
-<?php namespace functional;
+<?php namespace Cms;
 
+use Cms\UnitTester;
+use Codeception\Test\Unit;
 use Gzero\Cms\Models\Content;
 use Gzero\Cms\Services\ContentService;
 use Gzero\Cms\Services\FileService;
@@ -10,10 +12,10 @@ use Illuminate\Support\Facades\Storage;
 require_once(__DIR__ . '/../../stub/TestSeeder.php');
 require_once(__DIR__ . '/../../stub/TestTreeSeeder.php');
 
-class ContentServiceTest extends \Codeception\Test\Unit {
+class ContentServiceTest extends Unit {
 
     /**
-     * @var \UnitTester
+     * @var \Cms\UnitTester
      */
     protected $tester;
 
@@ -54,29 +56,32 @@ class ContentServiceTest extends \Codeception\Test\Unit {
     |--------------------------------------------------------------------------
     */
 
-    /**
-     * @test
-     */
-    public function can_get_content_by_url()
+    /** @test */
+    public function canGetContentByUrl()
     {
-        $content    = $this->repository->create(
-            [
-                'type'         => 'content',
-                'translations' => [
+        $content = $this->tester->haveContent([
+            'type'         => 'content',
+            'translations' => [
+                [
                     'language_code' => 'en',
                     'title'         => 'Example title'
                 ]
             ]
-        );
-        $newContent = $this->repository->getByUrl('example-title', 'en');
-        $this->assertNotSame($content, $newContent);
-        $this->assertEquals($content->id, $newContent->id);
+        ]);
+
+
+        $result       = $this->repository->getByUrl('example-title', 'en');
+        $translations = $result->route->translations->first();
+
+        $this->assertEquals($content->id, $result->id);
+        $this->assertEquals('example-title', $translations->path);
+        $this->assertEquals('en', $translations->language_code);
     }
 
     /**
      * @test
      */
-    public function can_create_content()
+    public function canCreateContent()
     {
         $author  = User::find(1);
         $content = $this->repository->create(
@@ -120,7 +125,7 @@ class ContentServiceTest extends \Codeception\Test\Unit {
     /**
      * @test
      */
-    public function can_create_content_without_author()
+    public function canCreateContentWithoutAuthor()
     {
         $content    = $this->repository->create(
             [
@@ -139,7 +144,7 @@ class ContentServiceTest extends \Codeception\Test\Unit {
     /**
      * @test
      */
-    public function can_create_and_get_content_translation()
+    public function canCreateAndGetContentTranslation()
     {
         $content          = $this->repository->create(
             [
@@ -179,85 +184,84 @@ class ContentServiceTest extends \Codeception\Test\Unit {
     /**
      * @test
      */
-    public function can_update_content()
+    public function canUpdateContent()
     {
-        $content    = $this->repository->create(
+        $content = $this->tester->haveContent(
             [
                 'type'         => 'content',
                 'is_on_home'   => false,
                 'translations' => [
-                    'language_code' => 'en',
-                    'title'         => 'Example title'
+                    [
+                        'language_code' => 'en',
+                        'title'         => 'Example title'
+                    ]
                 ]
             ]
         );
-        $newContent = $this->repository->getById($content->id);
-        $this->repository->update(
-            $newContent,
+
+        $this->assertEquals(false, $content->is_on_home);
+
+        $updatedContent = $this->repository->update(
+            $content,
             [
                 'is_on_home' => true,
             ]
         );
-        $updatedContent = $this->repository->getById($newContent->id);
-        $this->assertNotSame($content, $newContent);
-        $this->assertNotSame($newContent, $updatedContent);
         $this->assertEquals(true, $updatedContent->is_on_home);
     }
 
     /**
      * @test
      */
-    public function can_delete_content()
+    public function canDeleteContent()
     {
-        (new \TestSeeder())->run();
-        $content    = $this->repository->create(
+        $content = $this->tester->haveContent(
             [
                 'type'         => 'content',
                 'translations' => [
-                    'language_code' => 'en',
-                    'title'         => 'Example title'
+                    [
+                        'language_code' => 'en',
+                        'title'         => 'Example title'
+                    ]
                 ]
             ]
         );
+
         $newContent = $this->repository->getById($content->id);
-        $this->assertNotSame($content, $newContent);
         $this->repository->delete($newContent);
-        // Check if content has been removed
         $this->assertNull($this->repository->getById($newContent->id));
     }
 
     /**
      * @test
      */
-    public function can_force_delete_content()
+    public function canForceDeleteContent()
     {
-        (new \TestSeeder())->run();
-        $content = $this->repository->create(
+        $contents = $this->tester->haveContents([
             [
                 'type'         => 'content',
                 'translations' => [
-                    'language_code' => 'en',
-                    'title'         => 'Example title'
+                    [
+                        'language_code' => 'en',
+                        'title'         => 'Example title'
+                    ]
                 ]
-            ]
-        );
-
-        $otherContent = $this->repository->create(
+            ],
             [
                 'type'         => 'content',
                 'translations' => [
-                    'language_code' => 'en',
-                    'title'         => 'Other title'
+                    [
+                        'language_code' => 'en',
+                        'title'         => 'Other title'
+                    ]
                 ]
             ]
-        );
+        ]);
 
-        $newContent         = $this->repository->getById($content->id);
-        $notRelatedContent  = $this->repository->getById($otherContent->id);
+        $newContent         = $this->repository->getById($contents[0]->id);
+        $notRelatedContent  = $this->repository->getById($contents[1]->id);
         $contentTranslation = $newContent->translations()->first();
         $contentRoute       = $newContent->route()->first();
-        $this->assertNotSame($content, $newContent);
-        $this->assertNotSame($otherContent, $notRelatedContent);
         $this->repository->forceDelete($newContent);
         // Get not related content
         $content2 = $this->repository->getById($notRelatedContent->id);
@@ -277,35 +281,33 @@ class ContentServiceTest extends \Codeception\Test\Unit {
     /**
      * @test
      */
-    public function can_force_delete_soft_deleted_content()
+    public function canForceDeleteSoftDeletedContent()
     {
-        (new \TestSeeder())->run();
-        $content = $this->repository->create(
+        $contents = $this->tester->haveContents([
             [
                 'type'         => 'content',
                 'translations' => [
-                    'language_code' => 'en',
-                    'title'         => 'Example title'
+                    [
+                        'language_code' => 'en',
+                        'title'         => 'Example title'
+                    ]
                 ]
-            ]
-        );
-
-        $otherContent = $this->repository->create(
+            ],
             [
                 'type'         => 'content',
                 'translations' => [
-                    'language_code' => 'en',
-                    'title'         => 'Other title'
+                    [
+                        'language_code' => 'en',
+                        'title'         => 'Other title'
+                    ]
                 ]
             ]
-        );
+        ]);
 
-        $newContent         = $this->repository->getById($content->id);
-        $notRelatedContent  = $this->repository->getById($otherContent->id);
+        $newContent         = $this->repository->getById($contents[0]->id);
+        $notRelatedContent  = $this->repository->getById($contents[1]->id);
         $contentTranslation = $newContent->translations()->first();
         $contentRoute       = $newContent->route()->first();
-        $this->assertNotSame($content, $newContent);
-        $this->assertNotSame($otherContent, $notRelatedContent);
         $this->repository->delete($newContent);
         $this->repository->forceDelete($newContent);
         // Get not related content
@@ -325,41 +327,38 @@ class ContentServiceTest extends \Codeception\Test\Unit {
     /**
      * @test
      */
-    public function can_delete_content_translation()
+    public function canDeleteContentTranslation()
     {
-        (new \TestSeeder())->run();
         $withActive = false;
-        $content    = $this->repository->create(
+        $content    = $this->tester->haveContent(
             [
                 'type'         => 'content',
                 'translations' => [
-                    'language_code' => 'en',
-                    'title'         => 'Example title',
-                    'body'          => 'Example body'
+                    [
+                        'language_code' => 'en',
+                        'title'         => 'Example title',
+                        'is_active'     => false
+                    ],
+                    [
+                        'language_code' => 'en',
+                        'title'         => 'Updated title title',
+                        'is_active'     => true
+                    ]
                 ]
             ]
         );
-        $newContent = $this->repository->getById($content->id);
-        $this->assertNotSame($content, $newContent);
 
-        $this->repository->createTranslation(
-            $content,
-            [
-                'language_code' => 'en',
-                'title'         => 'English translation 2'
-            ]
-        );
         $this->assertEquals($content->translations($withActive)->count(), 2);
 
         $this->repository->deleteTranslation($content->translations($withActive)->first());
-        // Check if content translations has been removed
+
         $this->assertEquals($content->translations($withActive)->count(), 1);
     }
 
     /**
      * @test
      */
-    public function can_create_content_with_same_title_as_one_of_soft_deleted_contents()
+    public function canCreateContentWithSameTitleAsOneOfSoftDeletedContents()
     {
         (new \TestSeeder())->run();
         $content1 = $this->repository->create(
@@ -400,7 +399,7 @@ class ContentServiceTest extends \Codeception\Test\Unit {
      * @expectedException \Gzero\Core\Repositories\RepositoryValidationException
      * @expectedExceptionMessage Content type doesn't exist
      */
-    public function it_checks_existence_of_content_type()
+    public function itChecksExistenceOfContentType()
     {
         (new \TestSeeder())->run();
         $this->repository->create(
@@ -417,7 +416,7 @@ class ContentServiceTest extends \Codeception\Test\Unit {
     /**
      * @test
      */
-    public function it_checks_existence_of_content_url()
+    public function itChecksExistenceOfContentUrl()
     {
         (new \TestSeeder())->run();
         $this->assertNull($this->repository->getByUrl('example-title', 'en'));
@@ -428,7 +427,7 @@ class ContentServiceTest extends \Codeception\Test\Unit {
      * @expectedException \Gzero\Core\Repositories\RepositoryValidationException
      * @expectedExceptionMessage Content type and translation is required
      */
-    public function it_checks_existence_of_content_translation()
+    public function itChecksExistenceOfContentTranslation()
     {
         (new \TestSeeder())->run();
         $this->repository->create(['type' => 'category']);
@@ -439,7 +438,7 @@ class ContentServiceTest extends \Codeception\Test\Unit {
      * @expectedException \Gzero\Core\Repositories\RepositoryValidationException
      * @expectedExceptionMessage Parent has not been translated in this language, translate it first!
      */
-    public function it_checks_existence_of_parent_route_translation()
+    public function itChecksExistenceOfParentRouteTranslation()
     {
         (new \TestSeeder())->run();
         $category    = $this->repository->create(
@@ -469,10 +468,8 @@ class ContentServiceTest extends \Codeception\Test\Unit {
      * @expectedException \Gzero\Core\Repositories\RepositoryValidationException
      * @expectedExceptionMessage Parent node id: 1 doesn't exist
      */
-    public function it_checks_existence_of_parent()
+    public function itChecksExistenceOfParent()
     {
-        (new \TestSeeder())->run();
-
         $this->repository->create(
             [
                 'type'         => 'content',
@@ -490,24 +487,24 @@ class ContentServiceTest extends \Codeception\Test\Unit {
      * @expectedException \Gzero\Core\Repositories\RepositoryValidationException
      * @expectedExceptionMessage Content type 'content' is not allowed for the parent type
      */
-    public function it_checks_if_parent_is_proper_type()
+    public function itChecksIfParentIsProperType()
     {
-        (new \TestSeeder())->run();
-
-        $content     = $this->repository->create(
+        $content    = $this->tester->haveContent(
             [
                 'type'         => 'content',
                 'translations' => [
-                    'language_code' => 'pl',
-                    'title'         => 'Example category title'
+                    [
+                        'language_code' => 'en',
+                        'title'         => 'Example title'
+                    ]
                 ]
             ]
         );
-        $newCategory = $this->repository->getById($content->id);
+
         $this->repository->create(
             [
                 'type'         => 'content',
-                'parent_id'    => $newCategory->id,
+                'parent_id'    => $content->id,
                 'translations' => [
                     'language_code' => 'pl',
                     'title'         => 'Example content title'
@@ -519,129 +516,102 @@ class ContentServiceTest extends \Codeception\Test\Unit {
     /**
      * @test
      */
-    public function it_should_force_delete_one_content()
+    public function itShouldForceDeleteOneContent()
     {
-        (new \TestSeeder())->run();
-        $author   = User::find(1);
-        $content  = $this->repository->create(
+        $contents = $this->tester->haveContents([
             [
-                'type'               => 'content',
-                'is_on_home'         => true,
-                'is_comment_allowed' => true,
-                'is_promoted'        => true,
-                'is_sticky'          => true,
-                'is_active'          => true,
-                'published_at'       => date('Y-m-d H:i:s'),
-                'translations'       => [
+                'type'         => 'content',
+                'translations' => [
+                    [
+                        'language_code' => 'en',
+                        'title'         => 'Example title'
+                    ]
+                ]
+            ],
+            [
+                'type'         => 'content',
+                'translations' => [
+                    [
+                        'language_code' => 'en',
+                        'title'         => 'Other title'
+                    ]
+                ]
+            ]
+        ]);
+
+        $first = head($contents);
+        $second = last($contents);
+
+        $this->repository->delete($first);
+        $this->repository->delete($second);
+
+        $this->assertNull($this->repository->getById($first->id));
+        $this->assertNull($this->repository->getById($second->id));
+
+        $this->repository->forceDelete($first);
+
+        $this->assertNull($this->repository->getDeletedById($first->id));
+        $this->assertNotNull($this->repository->getDeletedById($second->id));
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldRetrieveNonTrashedContent()
+    {
+        $content = $this->tester->haveContent([
+            'type'         => 'content',
+            'translations' => [
+                [
                     'language_code' => 'en',
                     'title'         => 'Example title'
                 ]
-            ],
-            $author
-        );
-        $content2 = $this->repository->create(
-            [
-                'type'               => 'content',
-                'is_on_home'         => true,
-                'is_comment_allowed' => true,
-                'is_promoted'        => true,
-                'is_sticky'          => true,
-                'is_active'          => true,
-                'published_at'       => date('Y-m-d H:i:s'),
-                'translations'       => [
+            ]
+        ]);
+
+        $result = $this->repository->getByIdWithTrashed($content->id);
+        $this->assertEquals($content->id, $result->id);
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldRetrieveTrashedContent()
+    {
+        $content = $this->tester->haveContent([
+            'type'         => 'content',
+            'translations' => [
+                [
                     'language_code' => 'en',
                     'title'         => 'Example title'
                 ]
-            ],
-            $author
-        );
+            ]
+        ]);
 
         $this->repository->delete($content);
-        $this->repository->delete($content2);
 
-        $this->assertNull($this->repository->getById($content->id));
-        $this->assertNull($this->repository->getById($content2->id));
+        $result = $this->repository->getByIdWithTrashed($content->id);
 
+        $this->assertEquals($content->id, $result->id);
+    }
+
+    /**
+     * @test
+     */
+    public function itShouldNotRetrieveForceDeletedContent()
+    {
+        $content = $this->tester->haveContent([
+            'type'         => 'content',
+            'translations' => [
+                [
+                    'language_code' => 'en',
+                    'title'         => 'Example title'
+                ]
+            ]
+        ]);
+        
         $this->repository->forceDelete($content);
-        $this->assertNull($this->repository->getDeletedById($content->id));
-
-        // Content2 should exist
-        $this->assertNotNull($this->repository->getDeletedById($content2->id));
-    }
-
-    /**
-     * @test
-     */
-    public function it_should_retrive_non_trashed_content()
-    {
-        (new \TestSeeder())->run();
-        $content    = $this->repository->create(
-            [
-                'type'         => 'content',
-                'is_active'    => 1,
-                'translations' => [
-                    'language_code'   => 'en',
-                    'title'           => 'Fake title',
-                    'teaser'          => '<p>Super fake...</p>',
-                    'body'            => '<p>Super fake body of some post!</p>',
-                    'seo_title'       => 'fake-title',
-                    'seo_description' => 'desc-demonstrate-fake',
-                    'is_active'       => 1
-                ]
-            ]
-        );
-        $newContent = $this->repository->getByIdWithTrashed($content->id);
-        $this->assertEquals($content->id, $newContent->id);
-    }
-
-    /**
-     * @test
-     */
-    public function it_should_retrive_trashed_content()
-    {
-        (new \TestSeeder())->run();
-        $content = $this->repository->create(
-            [
-                'type'         => 'content',
-                'is_active'    => 1,
-                'translations' => [
-                    'language_code'   => 'en',
-                    'title'           => 'Fake title',
-                    'teaser'          => '<p>Super fake...</p>',
-                    'body'            => '<p>Super fake body of some post!</p>',
-                    'seo_title'       => 'fake-title',
-                    'seo_description' => 'desc-demonstrate-fake',
-                    'is_active'       => 1
-                ]
-            ]
-        );
-        $this->repository->delete($content);
-        $trashedContent = $this->repository->getByIdWithTrashed($content->id);
-        $this->assertEquals($content->id, $trashedContent->id);
-    }
-
-    /**
-     * @test
-     */
-    public function it_should_not_retrive_force_deleted_content()
-    {
-        (new \TestSeeder())->run();
-        $content = $this->repository->create(
-            [
-                'type'         => 'content',
-                'is_active'    => 1,
-                'translations' => [
-                    'language_code'   => 'en',
-                    'title'           => 'Fake title',
-                    'teaser'          => '<p>Super fake...</p>',
-                    'body'            => '<p>Super fake body of some post!</p>',
-                    'seo_title'       => 'fake-title',
-                    'seo_description' => 'desc-demonstrate-fake',
-                    'is_active'       => 1
-                ]
-            ]
-        );
-        $this->repository->forceDelete($content);
+        
         $this->assertNull($this->repository->getByIdWithTrashed($content->id));
     }
 
@@ -660,7 +630,7 @@ class ContentServiceTest extends \Codeception\Test\Unit {
     /**
      * @test
      */
-    public function can_get_roots()
+    public function canGetRoots()
     {
         // Tree seeds
         (new \TestSeeder())->run();
@@ -680,7 +650,7 @@ class ContentServiceTest extends \Codeception\Test\Unit {
     /**
      * @test
      */
-    public function can_get_tree()
+    public function canGetTree()
     {
         // Tree seeds
         (new \TestSeeder())->run();
@@ -709,7 +679,7 @@ class ContentServiceTest extends \Codeception\Test\Unit {
     /**
      * @test
      */
-    public function can_create_content_as_child()
+    public function canCreateContentAsChild()
     {
         // Tree seeds
         (new \TestSeeder())->run();
@@ -743,7 +713,7 @@ class ContentServiceTest extends \Codeception\Test\Unit {
     /**
      * @test
      */
-    public function can_update_content_parent()
+    public function canUpdateContentParent()
     {
         // Tree seeds
         (new \TestSeeder())->run();
@@ -769,7 +739,7 @@ class ContentServiceTest extends \Codeception\Test\Unit {
     /**
      * @test
      */
-    public function can_update_parent_for_category_without_children()
+    public function canUpdateParentForCategoryWithoutChildren()
     {
         // Tree seeds
         (new \TestSeeder())->run();
@@ -805,7 +775,7 @@ class ContentServiceTest extends \Codeception\Test\Unit {
     /**
      * @test
      */
-    public function can_create_route()
+    public function canCreateRoute()
     {
         // Tree seeds
         //(new \TestTreeSeeder())->run();
@@ -859,7 +829,7 @@ class ContentServiceTest extends \Codeception\Test\Unit {
     /**
      * @test
      */
-    public function can_get_list_of_deleted_contents()
+    public function canGetListOfDeletedContents()
     {
         $category = $this->repository->create(
             [
@@ -929,7 +899,7 @@ class ContentServiceTest extends \Codeception\Test\Unit {
     /**
      * @test
      */
-    public function can_get_list_of_deleted_contents_tree()
+    public function canGetListOfDeletedContentsTree()
     {
         $category = $this->repository->create(
             [
@@ -1000,7 +970,7 @@ class ContentServiceTest extends \Codeception\Test\Unit {
     /**
      * @test
      */
-    public function can_delete_content_with_children()
+    public function canDeleteContentWithChildren()
     {
         // Tree seeds
         //(new \TestTreeSeeder())->run();
@@ -1014,7 +984,7 @@ class ContentServiceTest extends \Codeception\Test\Unit {
     /**
      * @test
      */
-    public function can_force_delete_content_with_children()
+    public function canForceDeleteContentWithChildren()
     {
         // Tree seeds
         //(new \TestTreeSeeder())->run();
@@ -1028,7 +998,7 @@ class ContentServiceTest extends \Codeception\Test\Unit {
     /**
      * @test
      */
-    public function can_force_delete_soft_deleted_content_with_children()
+    public function canForceDeleteSoftDeletedContentWithChildren()
     {
         // Tree seeds
         //(new \TestTreeSeeder())->run();
@@ -1045,7 +1015,7 @@ class ContentServiceTest extends \Codeception\Test\Unit {
      * @expectedException \Gzero\Core\Repositories\RepositoryException
      * @expectedExceptionMessage You cannot change parent of not empty category
      */
-    public function it_does_not_allow_to_update_parent_for_category_with_children()
+    public function itDoesNotAllowToUpdateParentForCategoryWithChildren()
     {
         // Tree seeds
         //(new \TestTreeSeeder())->run();
@@ -1078,7 +1048,7 @@ class ContentServiceTest extends \Codeception\Test\Unit {
     /**
      * @test
      */
-    public function can_get_content_children_list()
+    public function canGetContentChildrenList()
     {
         // Tree seeds
         //(new \TestTreeSeeder())->run();
@@ -1101,7 +1071,7 @@ class ContentServiceTest extends \Codeception\Test\Unit {
     /**
      * @test
      */
-    public function can_get_content_translations_list()
+    public function canGetContentTranslationsList()
     {
         // Tree seeds
         //(new \TestTreeSeeder())->run();
@@ -1135,7 +1105,7 @@ class ContentServiceTest extends \Codeception\Test\Unit {
     /**
      * @test
      */
-    public function can_filter_contents_list()
+    public function canFilterContentsList()
     {
         // Tree seeds
         //(new \TestTreeSeeder())->run();
@@ -1172,7 +1142,7 @@ class ContentServiceTest extends \Codeception\Test\Unit {
     /**
      * @test
      */
-    public function can_sort_contents_list()
+    public function canSortContentsList()
     {
         $category = $this->repository->create(
             [
@@ -1316,7 +1286,7 @@ class ContentServiceTest extends \Codeception\Test\Unit {
      * @expectedException \Gzero\Core\Repositories\RepositoryException
      * @expectedExceptionMessage Error: 'lang' criteria is required
      */
-    public function it_checks_existence_of_language_code_on_translations_join()
+    public function itChecksExistenceOfLanguageCodeOnTranslationsJoin()
     {
         // Tree seeds
         (new \TestSeeder())->run();
@@ -1329,7 +1299,7 @@ class ContentServiceTest extends \Codeception\Test\Unit {
      * @expectedException \Gzero\Core\Repositories\RepositoryException
      * @expectedExceptionMessage Error: 'lang' criteria is required
      */
-    public function it_checks_existence_of_language_code_on_translations_join_tree()
+    public function itChecksExistenceOfLanguageCodeOnTranslationsJoinTree()
     {
         // Tree seeds
         //(new \TestTreeSeeder())->run();
@@ -1344,7 +1314,7 @@ class ContentServiceTest extends \Codeception\Test\Unit {
     /**
      * @test
      */
-    public function it_doesnt_check_existence_of_language_code_for_core_order_by_params()
+    public function itDoesNotCheckExistenceOfLanguageCodeForCoreOrderByParams()
     {
         // Tree seeds
         //(new \TestTreeSeeder())->run();
@@ -1367,7 +1337,7 @@ class ContentServiceTest extends \Codeception\Test\Unit {
     /**
      * @test
      */
-    public function can_get_ancestor()
+    public function canGetAncestor()
     {
 
         $category1 = $this->repository->create(
@@ -1412,7 +1382,7 @@ class ContentServiceTest extends \Codeception\Test\Unit {
     /**
      * @test
      */
-    public function it_does_not_duplicate_content_when_translation_added()
+    public function itDoesNotDuplicateContentWhenTranslationAdded()
     {
         $author  = User::find(1);
         $content = $this->repository->create(
@@ -1469,25 +1439,20 @@ class ContentServiceTest extends \Codeception\Test\Unit {
     /**
      * @test
      */
-    public function it_does_not_allow_to_delete_active_translation()
+    public function itDoesNotAllowToDeleteActiveTranslation()
     {
-        $author  = User::find(1);
-        $content = $this->repository->create(
+        $content = $this->tester->haveContent(
             [
-                'type'               => 'content',
-                'is_on_home'         => false,
-                'is_comment_allowed' => false,
-                'is_promoted'        => false,
-                'is_sticky'          => false,
-                'is_active'          => true,
-                'published_at'       => date('Y-m-d H:i:s'),
-                'translations'       => [
-                    'language_code' => 'en',
-                    'title'         => 'English translation 1'
+                'type'         => 'content',
+                'translations' => [
+                    [
+                        'language_code' => 'en',
+                        'title'         => 'Example title'
+                    ]
                 ]
-            ],
-            $author
+            ]
         );
+        
         $this->assertInstanceOf('Gzero\Cms\Models\Content', $content);
 
         $translations = $this->repository->getTranslations($content, []);
@@ -1502,7 +1467,7 @@ class ContentServiceTest extends \Codeception\Test\Unit {
     /**
      * @test
      */
-    public function it_creates_new_route_only_for_new_content()
+    public function itCreatesNewRouteOnlyForNewContent()
     {
         // Create new content with first translation
         $content = $this->repository->create(
@@ -1534,7 +1499,7 @@ class ContentServiceTest extends \Codeception\Test\Unit {
     /**
      * @test
      */
-    public function it_returns_titles_translation_based_on_url_and_lang()
+    public function itReturnsTitlesTranslationBasedOnUrlAndLang()
     {
         $category1 = $this->repository->create(
             [
@@ -1674,7 +1639,7 @@ class ContentServiceTest extends \Codeception\Test\Unit {
     /**
      * @test
      */
-    public function it_returns_titles_with_matched_urls_array()
+    public function itReturnsTitlesWithMatchedUrlsArray()
     {
         $url = 'przykladowy-tytul-kategorii-1/przykladowy-tytul-kategorii-2/przykladowy-tytul-zawartosci-1';
 

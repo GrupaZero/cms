@@ -4,6 +4,7 @@ use Bkwld\Croppa\ServiceProvider as CroppaServiceProvider;
 use DaveJamesMiller\Breadcrumbs\Facade as BreadcrumbsFacade;
 use DaveJamesMiller\Breadcrumbs\ServiceProvider as BreadcrumbServiceProvider;
 use Gzero\Core\AbstractServiceProvider;
+use Illuminate\Database\Eloquent\Factory;
 use Gzero\Cms\Models\Block;
 use Gzero\Cms\Models\Content;
 use Gzero\Cms\Models\File;
@@ -64,8 +65,8 @@ class ServiceProvider extends AbstractServiceProvider {
     public function boot()
     {
         $this->registerPolicies();
-        $this->registerFactories();
         $this->registerMigrations();
+        $this->registerFactories();
         $this->registerViews();
         $this->registerPublishes();
     }

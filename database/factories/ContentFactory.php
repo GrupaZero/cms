@@ -18,10 +18,9 @@ $factory->define(Content::class, function (Faker $faker) {
     return [
         'type'               => 'content',
         'theme'              => null,
-        'path'               => null,
-        'weight'             => null,
-        'rating'             => null,
-        'visits'             => null,
+        'weight'             => $faker->numberBetween(0, 50),
+        'rating'             => $faker->numberBetween(0, 50),
+        'visits'             => 0,
         'is_on_home'         => false,
         'is_comment_allowed' => true,
         'is_promoted'        => false,
