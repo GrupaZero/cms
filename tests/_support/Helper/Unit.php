@@ -7,8 +7,21 @@ use Gzero\Cms\Models\Content;
 use Gzero\Cms\Models\ContentTranslation;
 use Gzero\Core\Models\Route;
 use Gzero\Core\Models\RouteTranslation;
+use Gzero\Core\Models\User;
 
 class Unit extends \Codeception\Module {
+
+    /**
+     * Create user and return entity
+     *
+     * @param array $attributes
+     *
+     * @return User
+     */
+    public function haveUser($attributes = [])
+    {
+        return factory(User::class)->create($attributes);
+    }
 
     /**
      * Create content with translations and routes and return entity
@@ -24,6 +37,10 @@ class Unit extends \Codeception\Module {
 
         $content = factory(Content::class)->make($data);
         $content->setAsRoot();
+
+        if (empty($translations)) {
+            return $content;
+        }
 
         foreach ($translations as $translation) {
             $content->translations()

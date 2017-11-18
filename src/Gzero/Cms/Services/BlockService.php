@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\DB;
 class BlockService extends BaseService {
 
     /**
-     * @param int $id
+     * @param int $id Entity id
      *
      * @return mixed
      */
@@ -52,6 +52,7 @@ class BlockService extends BaseService {
      * @param User|null $author Author entity
      *
      * @return Block
+     * @throws RepositoryValidationException
      */
     public function create(array $data, User $author = null)
     {
@@ -95,15 +96,14 @@ class BlockService extends BaseService {
     }
 
     /**
-     * Cxists('language_code', $data) || !array_key_exists('title', $data)) {
-            throw new Repreates translation for specified block entity
-            *
+     * Creates new block translation
+     *
      * @param Block $block Block entity
-            * @param array $data  new data to save
-            *
+     * @param array $data  new data to save
+     *
      * @return BlockTranslation
-                * @throws RepositoryValidationException
-            */
+     * @throws RepositoryValidationException
+     */
     public function createTranslation(Block $block, array $data)
     {
         if (!array_key_exists('lang_code', $data) || !array_key_exists('title', $data)) {
