@@ -3,9 +3,8 @@
 use Codeception\Test\Unit;
 use Gzero\Cms\Jobs\CreateContent;
 use Gzero\Cms\Jobs\CreateContentRoute;
-use Gzero\Cms\Jobs\CreateContentTranslation;
+use Gzero\Cms\Jobs\AddContentTranslation;
 use Gzero\Cms\Repositories\ContentReadRepository;
-use Gzero\Core\Exception;
 use Illuminate\Support\Facades\Auth;
 
 class ContentJobsTest extends Unit {
@@ -24,18 +23,10 @@ class ContentJobsTest extends Unit {
     /** @test */
     public function canCreateContentAndGetItById()
     {
-        $attributes = [
-            'type'               => 'content',
-            'is_on_home'         => true,
-            'is_comment_allowed' => true,
-            'is_promoted'        => true,
-            'is_sticky'          => true,
-            'is_active'          => true,
-            'published_at'       => date('Y-m-d H:i:s')
-        ];
-
-        $content       = (new CreateContent($attributes))->handle();
+        $content       = (new CreateContent('content', 'en', 'New One', null, true, true, true, true, true, 0, null))->handle();
         $contentFromDb = $this->repository->getById($content->id);
+        $translation   = $contentFromDb->translations->first();
+        $route         = $contentFromDb->route->translations->first();
 
         $this->assertEquals(
             [
@@ -46,7 +37,11 @@ class ContentJobsTest extends Unit {
                 $content->is_promoted,
                 $content->is_sticky,
                 $content->is_comment_allowed,
-                $content->published_at
+                $content->published_at,
+                'en',
+                'New One',
+                'new-one',
+                true
             ],
             [
                 $contentFromDb->id,
@@ -56,7 +51,11 @@ class ContentJobsTest extends Unit {
                 $contentFromDb->is_promoted,
                 $contentFromDb->is_sticky,
                 $contentFromDb->is_comment_allowed,
-                $contentFromDb->published_at
+                $contentFromDb->published_at,
+                $translation->language_code,
+                $translation->title,
+                $route->path,
+                $route->is_active
             ]
         );
     }
@@ -67,7 +66,7 @@ class ContentJobsTest extends Unit {
         $this->tester->loginAsUser();
         $author = $this->tester->haveUser();
 
-        $content       = (new CreateContent(['type' => 'content'], $author))->handle();
+        $content       = (new CreateContent('content', 'en', 'title', $author))->handle();
         $contentFromDb = $this->repository->getById($content->id);
 
         $this->assertEquals($author->id, $contentFromDb->author_id);
@@ -78,7 +77,7 @@ class ContentJobsTest extends Unit {
     public function canCreateContentWithoutAuthor()
     {
 
-        $content       = (new CreateContent(['type' => 'content']))->handle();
+        $content       = (new CreateContent('content', 'en', 'title'))->handle();
         $contentFromDb = $this->repository->getById($content->id);
 
         $this->assertNull($contentFromDb->author_id);
@@ -91,7 +90,7 @@ class ContentJobsTest extends Unit {
         $this->tester->loginAsUser();
         $author = Auth::user();
 
-        $content       = (new CreateContent(['type' => 'content'], $author))->handle();
+        $content       = (new CreateContent('content', 'en', 'title'))->handle();
         $contentFromDb = $this->repository->getById($content->id);
 
         $this->assertEquals($author->id, $contentFromDb->author_id);
@@ -99,19 +98,11 @@ class ContentJobsTest extends Unit {
     }
 
     /** @test */
-    public function canCreateContentTranslationAndGetItById()
+    public function canAddContentTranslationAndGetItById()
     {
-        $content    = $this->tester->haveContent();
-        $attributes = [
-            'language_code'   => 'en',
-            'title'           => 'New example',
-            'teaser'          => 'Example teaser',
-            'body'            => 'Example body',
-            'seo_title'       => 'Example seo_title',
-            'seo_description' => 'Example seo_description'
-        ];
+        $content = $this->tester->haveContent();
 
-        $translation       = (new CreateContentTranslation($content, $attributes))->handle();
+        $translation       = (new AddContentTranslation($content, 'en', 'New example', 'Teaser', 'Body', 'SEO title', 'SEO description'))->handle();
         $translationFromDb = $this->repository->getTranslationById($translation->id);
 
         $this->assertEquals(
@@ -137,22 +128,6 @@ class ContentJobsTest extends Unit {
     }
 
     /** @test */
-    public function itChecksExistenceOfLanguageCodeAndTitleWhenCreatingATranslation()
-    {
-        $content = $this->tester->haveContent();
-
-        try {
-            (new CreateContentTranslation($content, []))->handle();
-        } catch (Exception $exception) {
-            $this->assertEquals(Exception::class, get_class($exception));
-            $this->assertEquals('Language code and title of translation are required', $exception->getMessage());
-            return;
-        }
-
-        $this->fail('Exception should be thrown');
-    }
-
-    /** @test */
     public function onlyRecentlyAddedTranslationShouldBeMarkedAsActive()
     {
         $content = $this->tester->haveContent(
@@ -166,13 +141,8 @@ class ContentJobsTest extends Unit {
             ]
         );
 
-        $attributes = [
-            'language_code' => 'en',
-            'title'         => 'New example'
-        ];
-
         $oldTranslation       = $content->translations->first();
-        $translation          = (new CreateContentTranslation($content, $attributes))->handle();
+        $translation          = (new AddContentTranslation($content, 'en', 'New example'))->handle();
         $translationFromDb    = $this->repository->getTranslationById($translation->id);
         $oldTranslationFromDb = $this->repository->getTranslationById($oldTranslation->id);
 
@@ -187,12 +157,7 @@ class ContentJobsTest extends Unit {
     {
         $content = $this->tester->haveContent();
 
-        $attributes = [
-            'language_code' => 'en',
-            'title'         => 'Example Title'
-        ];
-
-        (new CreateContentTranslation($content, $attributes))->handle();
+        (new AddContentTranslation($content, 'en', 'Example Title'))->handle();
         $contentFromDb = $this->repository->getByPath('example-title', 'en');
         $translations  = $contentFromDb->route->translations->first();
 
@@ -213,12 +178,7 @@ class ContentJobsTest extends Unit {
             ]
         ]);
 
-        $attributes = [
-            'language_code' => 'en',
-            'title'         => 'Example Title'
-        ];
-
-        (new CreateContentTranslation($content, $attributes))->handle();
+        (new AddContentTranslation($content, 'en', 'Example Title'))->handle();
         $contentFromDb          = $this->repository->getByPath('example-title-1', 'en');
         $translations           = $contentFromDb->route->translations->first();
         $contentByOldPathFromDb = $this->repository->getByPath('example-title', 'en');

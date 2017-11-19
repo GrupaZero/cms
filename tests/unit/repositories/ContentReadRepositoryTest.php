@@ -29,10 +29,10 @@ class ContentReadRepositoryTest extends Unit {
             ]
         ]);
 
-        $routeFromDb  = $this->repository->getByPath('example-title', 'en');
-        $translations = $routeFromDb->route->translations->first();
+        $contentFromDb  = $this->repository->getByPath('example-title', 'en');
+        $translations = $contentFromDb->route->translations->first();
 
-        $this->assertEquals($content->id, $routeFromDb->id);
+        $this->assertEquals($content->id, $contentFromDb->id);
         $this->assertEquals('example-title', $translations->path);
         $this->assertEquals('en', $translations->language_code);
     }

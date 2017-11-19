@@ -184,4 +184,59 @@ class Content extends BaseTree implements PresentableInterface, Uploadable, Rout
     {
         return response('content?');
     }
+
+    /**
+     * Creates route with unique path based on content translation title, and tree hierarchy
+     *
+     * @param ContentTranslation $translation Translation
+     *
+     * @return $this
+     */
+    public function createRouteWithUniquePath(ContentTranslation $translation)
+    {
+        $route            = $this->route()->first() ?: new Route();
+        $routeTranslation = $route->translations()->firstOrNew(
+            [
+                'route_id'      => $route->id,
+                'language_code' => $translation->language_code,
+                'is_active'     => true
+            ]
+        );
+
+        $routeTranslation->path = $this->getUniquePath($translation);
+
+        $this->route()->save($route);
+        $route->translations()->save($routeTranslation);
+
+        return $this;
+    }
+
+    /**
+     * Function sets all content translations in provided language code as inactive
+     *
+     * @param string $languageCode language code
+     *
+     * @return mixed
+     */
+    public function disableActiveTranslations($languageCode)
+    {
+        return $this->translations()
+            ->where('content_id', $this->id)
+            ->where('language_code', $languageCode)
+            ->update(['is_active' => false]);
+    }
+
+    /**
+     * Returns an unique route path address for given translation title
+     *
+     * @param ContentTranslation $translation Content translation
+     *
+     * @return string an unique route path address in specified language
+     */
+    protected function getUniquePath(ContentTranslation $translation)
+    {
+        // @TODO use parent path
+
+        return Route::buildUniquePath(str_slug($translation->title), $translation->language_code);
+    }
 }
