@@ -2,6 +2,7 @@
 
 use Gzero\Cms\Models\Content;
 use Gzero\Cms\Models\ContentTranslation;
+use Gzero\Cms\Models\ContentType;
 use Gzero\Core\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -16,6 +17,12 @@ class CreateContent {
 
     /** @var string */
     protected $title;
+
+    /** @var array */
+    protected $attributes;
+
+    /** @var User */
+    protected $author;
 
     /** @var string */
     protected $theme;
@@ -41,51 +48,34 @@ class CreateContent {
     /** @var string */
     protected $publishedAt;
 
-    /** @var User */
-    protected $author;
-
     /**
      * Create a new job instance.
      *
-     * @param string $type             Type
-     * @param string $languageCode     Language code
-     * @param string $title            Translations title
-     * @param User   $author           User model
-     * @param bool   $isActive         Active flag
-     * @param bool   $isOnHome         On home page flag
-     * @param bool   $isPromoted       Promoted flag
-     * @param bool   $isSticky         Sticky flag
-     * @param bool   $isCommentAllowed Allowing for comments flag
-     * @param int    $weight           Weight number
-     * @param string $theme            Css classes
-     * @param string $publishedAt      Published date
+     * @param string $type         Type
+     * @param string $languageCode Language code
+     * @param string $title        Translations title
+     * @param array  $attributes   Array of optional attributes
+     * @param User   $author       User model
      */
     public function __construct(
         string $type,
         string $languageCode,
         string $title,
-        User $author = null,
-        ?bool $isActive = null,
-        ?bool $isOnHome = null,
-        ?bool $isPromoted = null,
-        ?bool $isSticky = null,
-        ?bool $isCommentAllowed = null,
-        ?int $weight = null,
-        ?string $theme = null,
-        ?string $publishedAt = null
+        array $attributes = [],
+        User $author = null
     ) {
         $this->type             = $type;
         $this->languageCode     = $languageCode;
         $this->title            = $title;
         $this->author           = $author;
-        $this->isActive         = $isActive;
-        $this->isOnHome         = $isOnHome;
-        $this->isPromoted       = $isPromoted;
-        $this->isSticky         = $isSticky;
-        $this->isCommentAllowed = $isCommentAllowed;
-        $this->weight           = $weight;
-        $this->theme            = $theme;
-        $this->publishedAt      = $publishedAt;
+        $this->theme            = array_get($attributes, 'theme', false);
+        $this->weight           = array_get($attributes, 'weight', 0);
+        $this->isActive         = array_get($attributes, 'is_active', false);
+        $this->isOnHome         = array_get($attributes, 'is_on_home', false);
+        $this->isPromoted       = array_get($attributes, 'is_promoted', false);
+        $this->isSticky         = array_get($attributes, 'is_sticky', false);
+        $this->isCommentAllowed = array_get($attributes, 'is_comment_allowed', false);
+        $this->publishedAt      = array_get($attributes, 'published_at', date('Y-m-d H:i:s'));
     }
 
     /**
@@ -101,14 +91,14 @@ class CreateContent {
                 $content = new Content();
                 $content->fill([
                     'type'               => $this->type,
-                    'theme'              => $this->theme ?: null,
-                    'weight'             => $this->weight ?: 0,
-                    'is_active'          => $this->isActive ?: false,
-                    'is_on_home'         => $this->isOnHome ?: false,
-                    'is_promoted'        => $this->isPromoted ?: false,
-                    'is_sticky'          => $this->isSticky ?: false,
-                    'is_comment_allowed' => $this->isCommentAllowed ?: false,
-                    'published_at'       => $this->publishedAt ?: date('Y-m-d H:i:s')
+                    'theme'              => $this->theme,
+                    'weight'             => $this->weight,
+                    'is_active'          => $this->isActive,
+                    'is_on_home'         => $this->isOnHome,
+                    'is_promoted'        => $this->isPromoted,
+                    'is_sticky'          => $this->isSticky,
+                    'is_comment_allowed' => $this->isCommentAllowed,
+                    'published_at'       => $this->publishedAt
                 ]);
                 $content->author()->associate($author);
                 $content->setAsRoot();

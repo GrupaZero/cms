@@ -6,6 +6,7 @@ use Gzero\Cms\Jobs\CreateContentRoute;
 use Gzero\Cms\Jobs\AddContentTranslation;
 use Gzero\Cms\Repositories\ContentReadRepository;
 use Illuminate\Support\Facades\Auth;
+use Gzero\Core\Exception;
 
 class ContentJobsTest extends Unit {
 
@@ -23,7 +24,17 @@ class ContentJobsTest extends Unit {
     /** @test */
     public function canCreateContentAndGetItById()
     {
-        $content       = (new CreateContent('content', 'en', 'New One', null, true, true, true, true, true, 0, null))->handle();
+
+        $content       = (new CreateContent('content', 'en', 'New One',
+            [
+                'weight'             => 0,
+                'is_active'          => true,
+                'is_on_home'         => true,
+                'is_promoted'        => true,
+                'is_sticky'          => true,
+                'is_comment_allowed' => true
+            ]
+        ))->handle();
         $contentFromDb = $this->repository->getById($content->id);
         $translation   = $contentFromDb->translations->first();
         $route         = $contentFromDb->route->translations->first();
@@ -61,12 +72,26 @@ class ContentJobsTest extends Unit {
     }
 
     /** @test */
+    public function itValidatesContentType()
+    {
+        try {
+            (new CreateContent('post', 'en', 'title'))->handle();
+        } catch (Exception $exception) {
+            $this->assertEquals(Exception::class, get_class($exception));
+            $this->assertEquals("The 'post' is an invalid content type.", $exception->getMessage());
+            return;
+        }
+
+        $this->fail('Exception should be thrown');
+    }
+
+    /** @test */
     public function canCreateContentWithAuthor()
     {
         $this->tester->loginAsUser();
         $author = $this->tester->haveUser();
 
-        $content       = (new CreateContent('content', 'en', 'title', $author))->handle();
+        $content       = (new CreateContent('content', 'en', 'title', [], $author))->handle();
         $contentFromDb = $this->repository->getById($content->id);
 
         $this->assertEquals($author->id, $contentFromDb->author_id);
@@ -102,7 +127,14 @@ class ContentJobsTest extends Unit {
     {
         $content = $this->tester->haveContent();
 
-        $translation       = (new AddContentTranslation($content, 'en', 'New example', 'Teaser', 'Body', 'SEO title', 'SEO description'))->handle();
+        $translation       = (new AddContentTranslation($content, 'en', 'New example',
+            [
+                'teaser'          => 'Teaser',
+                'body'            => 'Body',
+                'seo_title'       => 'SEO title',
+                'seo_description' => 'SEO description'
+            ]
+        ))->handle();
         $translationFromDb = $this->repository->getTranslationById($translation->id);
 
         $this->assertEquals(

@@ -3,8 +3,6 @@
 use Gzero\Cms\Models\Content;
 use Gzero\Cms\Models\ContentTranslation;
 use Gzero\Core\Exception;
-use Gzero\Core\Models\Route;
-use Gzero\Core\Repositories\RouteReadRepository;
 use Illuminate\Support\Facades\DB;
 
 class AddContentTranslation {
@@ -17,6 +15,9 @@ class AddContentTranslation {
 
     /** @var string */
     protected $title;
+
+    /** @var array */
+    protected $attributes;
 
     /** @var string */
     protected $teaser;
@@ -33,13 +34,10 @@ class AddContentTranslation {
     /**
      * Create a new job instance.
      *
-     * @param Content $content        Content model
-     * @param string  $languageCode   Language code
-     * @param string  $title          Title
-     * @param string  $teaser         Teaser
-     * @param string  $body           Body
-     * @param string  $seoTitle       SEO title
-     * @param string  $seoDescription SEO description
+     * @param Content $content      Content model
+     * @param string  $languageCode Language code
+     * @param string  $title        Title
+     * @param array   $attributes   Array of optional attributes
      *
      * @internal param array $attributes Array of attributes
      */
@@ -47,18 +45,15 @@ class AddContentTranslation {
         Content $content,
         string $languageCode,
         string $title,
-        ?string $teaser = null,
-        ?string $body = null,
-        ?string $seoTitle = null,
-        ?string $seoDescription = null
+        array $attributes = []
     ) {
         $this->content        = $content;
         $this->languageCode   = $languageCode;
         $this->title          = $title;
-        $this->teaser         = $teaser;
-        $this->body           = $body;
-        $this->seoTitle       = $seoTitle;
-        $this->seoDescription = $seoDescription;
+        $this->teaser         = array_get($attributes, 'teaser', null);
+        $this->body           = array_get($attributes, 'body', null);
+        $this->seoTitle       = array_get($attributes, 'seo_title', null);
+        $this->seoDescription = array_get($attributes, 'seo_description', null);
     }
 
     /**
@@ -75,10 +70,10 @@ class AddContentTranslation {
                 $translation->fill([
                     'language_code'   => $this->languageCode,
                     'title'           => $this->title,
-                    'teaser'          => $this->teaser ?: null,
-                    'body'            => $this->body ?: null,
-                    'seo_title'       => $this->seoTitle ?: null,
-                    'seo_description' => $this->seoDescription ?: null,
+                    'teaser'          => $this->teaser,
+                    'body'            => $this->body,
+                    'seo_title'       => $this->seoTitle,
+                    'seo_description' => $this->seoDescription,
                     'is_active'       => true,
                 ]);
 

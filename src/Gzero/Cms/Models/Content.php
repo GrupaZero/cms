@@ -164,6 +164,23 @@ class Content extends BaseTree implements PresentableInterface, Uploadable, Rout
     }
 
     /**
+     * Set the contents's type.
+     *
+     * @param  string $value Type
+     *
+     * @return void
+     * @throws Exception
+     */
+    public function setTypeAttribute($value)
+    {
+        if (!$this->isValidType($value)) {
+            throw new Exception("The '$value' is an invalid content type.");
+        }
+
+        $this->attributes['type'] = $value;
+    }
+
+    /**
      * Find all trashed descendants for specific node with this node as root
      *
      * @return \Illuminate\Database\Eloquent\Builder
@@ -238,5 +255,17 @@ class Content extends BaseTree implements PresentableInterface, Uploadable, Rout
         // @TODO use parent path
 
         return Route::buildUniquePath(str_slug($translation->title), $translation->language_code);
+    }
+
+    /**
+     * Checks if type is valid
+     *
+     * @param string $type Type to validate
+     *
+     * @return bool
+     */
+    protected function isValidType(string $type): bool
+    {
+        return array_has(config('gzero-cms.content_type'), $type);
     }
 }
