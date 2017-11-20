@@ -54,22 +54,22 @@ class Content extends BaseTree implements PresentableInterface, Uploadable, Rout
      * Get Content url in specified language.
      * WARNING: This function use LAZY LOADING to get this information
      *
-     * @param string $langCode Lang code
+     * @param string $languageCode Lang code
      *
      * @return mixed
      * @throws Exception
      */
-    public function getUrl($langCode)
+    public function getPath($languageCode)
     {
         $routeTranslation = $this->route->translations->filter(
-            function ($translation) use ($langCode) {
-                return $translation->language_code == $langCode;
+            function ($translation) use ($languageCode) {
+                return $translation->language_code == $languageCode;
             }
         )->first();
-        if (empty($routeTranslation->url)) {
-            throw new Exception("No route [$langCode] translation found for Content id: " . $this->getKey());
+        if (empty($routeTranslation->path)) {
+            throw new Exception("No route [$languageCode] translation found for Content id: " . $this->getKey());
         }
-        return $routeTranslation->url;
+        return $routeTranslation->path;
     }
 
     /**
@@ -252,9 +252,13 @@ class Content extends BaseTree implements PresentableInterface, Uploadable, Rout
      */
     protected function getUniquePath(ContentTranslation $translation)
     {
-        // @TODO use parent path
+        $path = str_slug($translation->title);
 
-        return Route::buildUniquePath(str_slug($translation->title), $translation->language_code);
+        if ($this->parent_id) {
+            $path = $this->parent->getPath($translation->language_code) . '/' . $path;
+        }
+
+        return Route::buildUniquePath($path, $translation->language_code);
     }
 
     /**

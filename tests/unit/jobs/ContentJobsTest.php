@@ -72,6 +72,57 @@ class ContentJobsTest extends Unit {
     }
 
     /** @test */
+    public function canCreateContentAsChild()
+    {
+        $parent = $this->tester->haveContent([
+            'type'         => 'category',
+            'translations' => [
+                [
+                    'language_code' => 'en',
+                    'title'         => 'Parent Title'
+                ]
+            ]
+        ]);
+
+        $child       = (new CreateContent('category', 'en', 'Child Title', ['parent_id' => $parent->id]))->handle();
+        $childFromDb = $this->repository->getById($child->id);
+        $childRoute  = $childFromDb->route->translations->first();
+
+        $nestedChild       = (new CreateContent('category', 'en', 'Nested Child Title', ['parent_id' => $child->id]))->handle();
+        $nestedChildFromDb = $this->repository->getById($nestedChild->id);
+        $nestedChildRoute  = $nestedChildFromDb->route->translations->first();
+
+        $this->assertEquals($child->parent_id, $childFromDb->parent_id);
+        $this->assertEquals('parent-title/child-title', $childRoute->path);
+        $this->assertEquals($nestedChild->parent_id, $nestedChildFromDb->parent_id);
+        $this->assertEquals('parent-title/child-title/nested-child-title', $nestedChildRoute->path);
+    }
+
+    /** @test */
+    public function itAllowsOnlyCategoryToBeSetAsParent()
+    {
+        $parent = $this->tester->haveContent([
+            'type'         => 'content',
+            'translations' => [
+                [
+                    'language_code' => 'en',
+                    'title'         => 'Parent Title'
+                ]
+            ]
+        ]);
+
+        try {
+            (new CreateContent('content', 'en', 'title', ['parent_id' => $parent->id]))->handle();
+        } catch (Exception $exception) {
+            $this->assertEquals(Exception::class, get_class($exception));
+            $this->assertEquals("Content type 'content' is not allowed for the parent type.", $exception->getMessage());
+            return;
+        }
+
+        $this->fail('Exception should be thrown');
+    }
+
+    /** @test */
     public function itValidatesContentType()
     {
         try {

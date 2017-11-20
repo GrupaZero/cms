@@ -2,7 +2,8 @@
 
 use Gzero\Cms\Models\Content;
 use Gzero\Cms\Models\ContentTranslation;
-use Gzero\Cms\Models\ContentType;
+use Gzero\Cms\Repositories\ContentReadRepository;
+use Gzero\Core\Exception;
 use Gzero\Core\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -23,6 +24,9 @@ class CreateContent {
 
     /** @var User */
     protected $author;
+
+    /** @var int */
+    protected $parentId;
 
     /** @var string */
     protected $theme;
@@ -48,6 +52,18 @@ class CreateContent {
     /** @var string */
     protected $publishedAt;
 
+    /** @var string */
+    protected $teaser;
+
+    /** @var string */
+    protected $body;
+
+    /** @var string */
+    protected $seoTitle;
+
+    /** @var string */
+    protected $seoDescription;
+
     /**
      * Create a new job instance.
      *
@@ -68,7 +84,8 @@ class CreateContent {
         $this->languageCode     = $languageCode;
         $this->title            = $title;
         $this->author           = $author;
-        $this->theme            = array_get($attributes, 'theme', false);
+        $this->theme            = array_get($attributes, 'theme', null);
+        $this->parentId         = array_get($attributes, 'parent_id', null);
         $this->weight           = array_get($attributes, 'weight', 0);
         $this->isActive         = array_get($attributes, 'is_active', false);
         $this->isOnHome         = array_get($attributes, 'is_on_home', false);
@@ -76,12 +93,17 @@ class CreateContent {
         $this->isSticky         = array_get($attributes, 'is_sticky', false);
         $this->isCommentAllowed = array_get($attributes, 'is_comment_allowed', false);
         $this->publishedAt      = array_get($attributes, 'published_at', date('Y-m-d H:i:s'));
+        $this->teaser           = array_get($attributes, 'teaser', null);
+        $this->body             = array_get($attributes, 'body', null);
+        $this->seoTitle         = array_get($attributes, 'seo_title', null);
+        $this->seoDescription   = array_get($attributes, 'seo_description', null);
     }
 
     /**
      * Execute the job.
      *
      * @return bool
+     * @throws Exception
      */
     public function handle()
     {
@@ -101,14 +123,28 @@ class CreateContent {
                     'published_at'       => $this->publishedAt
                 ]);
                 $content->author()->associate($author);
-                $content->setAsRoot();
-                $content->save();
+
+                if ($this->parentId) {
+                    $parent = (new ContentReadRepository())->getById($this->parentId);
+
+                    if ($parent->type !== 'category') {
+                        throw new Exception("Content type '$parent->type' is not allowed for the parent type.");
+                    }
+
+                    $content->setChildOf($parent);
+                } else {
+                    $content->setAsRoot();
+                }
 
                 $translation = new ContentTranslation();
                 $translation->fill([
-                    'language_code' => $this->languageCode,
-                    'title'         => $this->title,
-                    'is_active'     => true,
+                    'language_code'   => $this->languageCode,
+                    'title'           => $this->title,
+                    'teaser'          => $this->teaser,
+                    'body'            => $this->body,
+                    'seo_title'       => $this->seoTitle,
+                    'seo_description' => $this->seoDescription,
+                    'is_active'       => true,
                 ]);
 
                 $content->disableActiveTranslations($translation->language_code);
