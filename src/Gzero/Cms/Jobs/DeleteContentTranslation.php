@@ -1,7 +1,7 @@
 <?php namespace Gzero\Cms\Jobs;
 
 use Gzero\Cms\Models\ContentTranslation;
-use Gzero\Core\Repositories\RepositoryValidationException;
+use Gzero\Core\Exception;
 use Illuminate\Support\Facades\DB;
 
 class DeleteContentTranslation {
@@ -24,12 +24,12 @@ class DeleteContentTranslation {
      *
      * @return bool
      *
-     * @throws RepositoryValidationException
+     * @throws Exception
      */
     public function handle()
     {
         if ($this->translation->is_active) {
-            throw new RepositoryValidationException('Cannot delete active translation');
+            throw new Exception('Cannot delete active translation');
         }
 
         return DB::transaction(
