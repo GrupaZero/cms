@@ -1,6 +1,7 @@
 <?php namespace Gzero\Cms\Jobs;
 
 use Gzero\Cms\Models\Content;
+use Gzero\Core\Models\Route;
 use Illuminate\Support\Facades\DB;
 
 class ForceDeleteContent {
@@ -31,8 +32,8 @@ class ForceDeleteContent {
                 $descendantsIds = $this->content->findDescendantsWithTrashed()->pluck('id');
 
                 // First we need to delete all routes because it's polymorphic relation
-                DB::table($routeRelation->getModel()->getTable())
-                    ->where($routeRelation->getMorphType(), '=', get_class($this->content))
+                Route::query()
+                    ->where('routes.routable_type', '=', Content::class)
                     ->whereIn($routeRelation->getForeignKeyName(), $descendantsIds)
                     ->delete();
                 Content::withTrashed()->find($this->content->id)->forceDelete();
