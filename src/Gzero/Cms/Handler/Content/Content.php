@@ -22,9 +22,6 @@ class Content implements ContentTypeHandler {
     /** @var */
     protected $author;
 
-    /** @var */
-    protected $language;
-
     /** @var ContentService */
     protected $contentRepo;
 
@@ -65,7 +62,6 @@ class Content implements ContentTypeHandler {
         // @TOD Use view presenter for active translation and languages
         if ($language) { // Right now we don't need lang
             $this->content = $content->load('route.translations', 'translations', 'author');
-            $this->language = $language;
         }
         $this->files = $this->fileRepo->getEntityFiles($content, [['is_active', '=', true]]);
         $this->buildBreadcrumbsFromUrl($language);
@@ -84,7 +80,6 @@ class Content implements ContentTypeHandler {
             'gzero-cms::contents.content',
             [
                 'content'      => $this->content,
-                'language'     => $this->language,
                 'translations' => $this->translations,
                 'author'       => $this->author,
                 'images'       => $this->files->filter(

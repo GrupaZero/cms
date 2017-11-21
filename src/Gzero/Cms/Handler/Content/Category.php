@@ -63,7 +63,6 @@ class Category extends Content {
             'gzero-cms::contents.category',
             [
                 'content'      => $this->content,
-                'language'     => $this->language,
                 'translations' => $this->translations,
                 'author'       => $this->author,
                 'images'       => $this->files->filter(

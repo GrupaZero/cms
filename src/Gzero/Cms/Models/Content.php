@@ -292,13 +292,13 @@ class Content extends BaseTree implements PresentableInterface, Uploadable, Rout
      * Dynamically resolve type of content
      *
      * @return ContentTypeHandler
-     * @throws \ReflectionException
+     * @throws Exception
      */
     protected function resolveType()
     {
         $type = app()->make('content:type:' . $this->type);
         if (!$type instanceof ContentTypeHandler) {
-            throw new \ReflectionException("Type: $this->type must implement ContentTypeInterface");
+            throw new Exception("Type: $this->type must implement ContentTypeInterface");
         }
         return $type;
     }
