@@ -192,12 +192,12 @@ class Content extends BaseTree implements PresentableInterface, Uploadable, Rout
     }
 
     /**
-     * @param Route    $route Route
-     * @param Language $lang  Language
+     * @param Route    $route    Route
+     * @param Language $language Language
      *
      * @return Response
      */
-    public function handle(Route $route, Language $lang): Response
+    public function handle(Route $route, Language $language): Response
     {
         return response('content?');
     }

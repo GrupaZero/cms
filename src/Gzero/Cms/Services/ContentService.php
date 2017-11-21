@@ -4,7 +4,7 @@ use Gzero\Core\Models\User;
 use Gzero\Cms\Models\Content;
 use Gzero\Cms\Models\ContentTranslation;
 use Gzero\Cms\Models\ContentType;
-use Gzero\Cms\Models\Route;
+use Gzero\Core\Models\Route;
 use Gzero\Core\Exception;
 use Gzero\Core\Repositories\RepositoryException;
 use Gzero\Core\Repositories\RepositoryValidationException;

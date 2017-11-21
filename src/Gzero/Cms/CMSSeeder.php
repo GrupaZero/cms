@@ -152,14 +152,12 @@ class CMSSeeder extends Seeder {
             $pl     = last($content['translations']);
             $data   = array_merge(array_except($content, ['translations']), array_except($en, ['language_code', 'title']));
 
-            $created = (new CreateContent($data['type'], $en['language_code'], $en['title'], $data, $author))->handle();
+            $created = dispatch_now(new CreateContent($data['type'], $en['language_code'], $en['title'], $data, $author));
 
-            (new AddContentTranslation(
-                $created,
-                $pl['language_code'],
-                $pl['title'],
-                array_except($pl, ['language_code', 'title'])
-            ))->handle();
+            dispatch_now(new AddContentTranslation($created, $pl['language_code'], $pl['title'], array_except($pl, [
+                'language_code',
+                'title'
+            ])));
 
             if ($created->type === 'category') {
                 for ($i = 0; $i < 10; $i++) {
@@ -213,14 +211,12 @@ class CMSSeeder extends Seeder {
         $pl     = $this->prepareContentTranslation($languages['pl']);
         $data   = array_merge($data, array_except($en, ['language_code', 'title']));
 
-        $content = (new CreateContent($type, $en['language_code'], $en['title'], $data, $author))->handle();
+        $content = dispatch_now(new CreateContent($type, $en['language_code'], $en['title'], $data, $author));
 
-        (new AddContentTranslation(
-            $content,
-            $pl['language_code'],
-            $pl['title'],
-            array_except($pl, ['language_code', 'title'])
-        ))->handle();
+        dispatch_now(new AddContentTranslation($content, $pl['language_code'], $pl['title'], array_except($pl, [
+            'language_code',
+            'title'
+        ])));
 
         return $content;
     }
