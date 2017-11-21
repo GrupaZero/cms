@@ -1,7 +1,7 @@
-@extends('gzero-base::layouts.master')
+@extends('gzero-core::layouts.master')
 @section('bodyClass', $content->theme)
-<?php $activeTranslation = $content->translation($lang->code); ?>
-<?php $url = $content->routeUrl($lang->code); ?>
+<?php $activeTranslation = $content->translation($language->code); ?>
+<?php $url = $content->routeUrl($language->code); ?>
 
 @section('metaData')
     @if(isProviderLoaded('Gzero\Social\ServiceProvider') && function_exists('fbOgTags'))
@@ -16,15 +16,16 @@
     @include('gzero-cms::includes.canonical')
     @include('gzero-cms::includes.alternateLinks', ['content' => $content])
     @if(method_exists($content, 'stDataMarkup'))
-        {!! $content->stDataMarkup($lang->code) !!}
+        {!! $content->stDataMarkup($language->code) !!}
     @endif
 @stop
-@section('breadcrumbs')
+@section('mainContent')
     <div class="utility-container">
         <div class="container text-center-xs">
             {!! Breadcrumbs::render('content') !!}
         </div>
     </div>
+    @parent
 @stop
 @section('content')
     @include('gzero-cms::includes.notPublishedContentMsg')
@@ -34,8 +35,8 @@
     <div class="row content-meta">
         <div class="col-sm-7">
             <p class="content-author text-muted">
-                <i>@lang('common.posted_by') {{ $content->authorName() }}</i>
-                <i>@lang('common.posted_on') {{ $content->publishDate() }}</i>
+                <i>@lang('gzero-core::common.posted_by') {{ $content->authorName() }}</i>
+                <i>@lang('gzero-core::common.posted_on') {{ $content->publishDate() }}</i>
             </p>
         </div>
         <div class="col-sm-5 text-right text-left-sm text-left-xs">
@@ -47,7 +48,7 @@
         </div>
     </div>
     @if($content->thumb)
-        <?php $thumbTranslation = $content->thumb->translation($lang->code); ?>
+        <?php $thumbTranslation = $content->thumb->translation($language->code); ?>
         <div class="thumb mb20">
             <img class="img-responsive"
                  title="{{($thumbTranslation)? $thumbTranslation->title : ''}}"
@@ -70,6 +71,6 @@
         </div>
     @endif
     <div class="text-muted text-right">
-        @lang('gzero-base::common.rating') {!! $content->ratingStars() !!}
+        @lang('gzero-core::common.rating') {!! $content->ratingStars() !!}
     </div>
 @stop

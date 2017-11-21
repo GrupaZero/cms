@@ -27,7 +27,7 @@
 @append
 <noscript>
     <div class="alert alert-info" role="alert">
-        @lang('gzero-base::common.comments_no_js_message')
+        @lang('gzero-core::common.comments_no_js_message')
     </div>
     <a href="https://disqus.com/?ref_noscript" rel="nofollow"></a>
 </noscript>

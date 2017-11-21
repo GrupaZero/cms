@@ -63,9 +63,9 @@ class ContentPresenter extends Presenter {
 
             if (!empty($route)) {
                 if (config('gzero.multilang.enabled')) {
-                    $routeUrl = url('/') . '/' . $route->language_code . '/' . $route->url;
+                    $routeUrl = url('/') . '/' . $route->language_code . '/' . $route->path;
                 } else {
-                    $routeUrl = url('/') . '/' . $route->url;
+                    $routeUrl = url('/') . '/' . $route->path;
                 }
             }
         }
@@ -82,7 +82,7 @@ class ContentPresenter extends Presenter {
         if (!empty($this->published_at)) {
             return $this->published_at;
         }
-        return trans('common.unknown');
+        return trans('gzero-core::common.unknown');
     }
 
     /**
@@ -95,7 +95,7 @@ class ContentPresenter extends Presenter {
         if (!empty($this->author)) {
             return $this->author->getPresenter()->displayName();
         }
-        return trans('common.anonymous');
+        return trans('gzero-core::common.anonymous');
     }
 
     /**
@@ -116,7 +116,7 @@ class ContentPresenter extends Presenter {
             }
             return implode('', $html);
         }
-        return trans('common.no_ratings');
+        return trans('gzero-core::common.no_ratings');
     }
 
     /**
@@ -167,7 +167,7 @@ class ContentPresenter extends Presenter {
                     '@type'            => $type,
                     'publisher'        => [
                         '@type' => 'Brand',
-                        'url'   => route('home'),
+                        'url'   => routeMl('home'),
                         'name'  => config('app.name'),
                         'logo'  => [
                             '@type' => 'ImageObject',
@@ -176,7 +176,7 @@ class ContentPresenter extends Presenter {
                     ],
                     'mainEntityOfPage' => [
                         '@type' => 'WebPage',
-                        '@id'   => route('home')
+                        '@id'   => routeMl('home')
                     ],
                     'headline'         => $translation->title,
                     'author'           => [
@@ -190,7 +190,7 @@ class ContentPresenter extends Presenter {
 
                 //@TODO add parent categories names
                 if ($this->level > 0) {
-                    $url = explode('/', $routeTranslation->url);
+                    $url = explode('/', $routeTranslation->path);
                     if ($this->level === '1') {
                         $tags['articleSection'] = [ucfirst($url[0])];
                     } else {

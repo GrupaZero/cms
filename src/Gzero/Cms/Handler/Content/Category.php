@@ -3,7 +3,6 @@
 use Gzero\Cms\Models\Content as ContentEntity;
 use Gzero\Core\Models\Language;
 use Illuminate\Support\Collection;
-use Illuminate\View\View;
 
 /**
  * This file is part of the GZERO CMS package.
@@ -27,14 +26,14 @@ class Category extends Content {
     /**
      * Load data from database
      *
-     * @param ContentEntity $content Content
-     * @param Language      $lang    Current language
+     * @param ContentEntity $content  Content
+     * @param Language      $language Current language
      *
      * @return $this|mixed
      */
-    public function load(ContentEntity $content, Language $lang)
+    public function load(ContentEntity $content, Language $language)
     {
-        parent::load($content, $lang);
+        parent::load($content, $language);
         $this->children = $this->contentRepo->getChildren(
             $content,
             [
@@ -56,14 +55,15 @@ class Category extends Content {
     /**
      * Renders category
      *
-     * @return View
+     * @return \Illuminate\Http\Response
      */
     public function render()
     {
-        return view(
+        return response()->view(
             'gzero-cms::contents.category',
             [
                 'content'      => $this->content,
+                'language'     => $this->language,
                 'translations' => $this->translations,
                 'author'       => $this->author,
                 'images'       => $this->files->filter(

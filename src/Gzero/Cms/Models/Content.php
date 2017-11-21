@@ -1,5 +1,6 @@
 <?php namespace Gzero\Cms\Models;
 
+use Gzero\Cms\Handler\Content\ContentTypeHandler;
 use Gzero\Core\Models\BaseTree;
 use Gzero\Core\Models\Language;
 use Gzero\Core\Models\Routable;
@@ -70,6 +71,20 @@ class Content extends BaseTree implements PresentableInterface, Uploadable, Rout
             throw new Exception("No route [$languageCode] translation found for Content id: " . $this->getKey());
         }
         return $routeTranslation->path;
+    }
+
+    /**
+     * Returns active translation in specific language
+     *
+     * @param string $languageCode Language code
+     *
+     * @return mixed
+     */
+    public function getActiveTranslation($languageCode)
+    {
+        return $this->translations->first(function ($translation) use ($languageCode) {
+            return $translation->is_active === true && $translation->language_code === $languageCode;
+        });
     }
 
     /**
@@ -199,7 +214,7 @@ class Content extends BaseTree implements PresentableInterface, Uploadable, Rout
      */
     public function handle(Route $route, Language $language): Response
     {
-        return response('content?');
+        return $this->resolveType()->load($this, $language)->render();
     }
 
     /**
@@ -271,5 +286,20 @@ class Content extends BaseTree implements PresentableInterface, Uploadable, Rout
     protected function isValidType(string $type): bool
     {
         return array_has(config('gzero-cms.content_type'), $type);
+    }
+
+    /**
+     * Dynamically resolve type of content
+     *
+     * @return ContentTypeHandler
+     * @throws \ReflectionException
+     */
+    protected function resolveType()
+    {
+        $type = app()->make('content:type:' . $this->type);
+        if (!$type instanceof ContentTypeHandler) {
+            throw new \ReflectionException("Type: $this->type must implement ContentTypeInterface");
+        }
+        return $type;
     }
 }

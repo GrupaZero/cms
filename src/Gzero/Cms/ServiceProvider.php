@@ -110,7 +110,7 @@ class ServiceProvider extends AbstractServiceProvider {
         ];
 
         foreach ($entities as $entity) {
-            $key = "gzero.$entity" . '_type';
+            $key = "gzero-cms.$entity" . '_type';
             if (isset($this->app['config'][$key])) {
                 foreach ($this->app['config'][$key] as $type => $class) {
                     $this->app->bind("$entity:type:$type", $class);

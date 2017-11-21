@@ -2,24 +2,24 @@
 
 use Gzero\Cms\Models\Content as ContentEntity;
 use Gzero\Core\Models\Language;
-use Illuminate\Support\Facades\View;
+use \Illuminate\Http\Response;
 
 interface ContentTypeHandler {
 
     /**
      * Load data from database
      *
-     * @param ContentEntity $content Content
-     * @param Language      $lang    Current language
+     * @param ContentEntity $content  Content
+     * @param Language      $language Current language
      *
      * @return $this
      */
-    public function load(ContentEntity $content, Language $lang);
+    public function load(ContentEntity $content, Language $language);
 
     /**
      * Returns complete View for specific type
      *
-     * @return View
+     * @return Response
      */
     public function render();
 }

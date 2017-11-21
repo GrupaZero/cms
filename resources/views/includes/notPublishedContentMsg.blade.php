@@ -3,6 +3,6 @@
         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
             <span aria-hidden="true">&times;</span>
         </button>
-        @lang('gzero-base::common.content_not_published')
+        @lang('gzero-core::common.content_not_published')
     </div>
 @endif
