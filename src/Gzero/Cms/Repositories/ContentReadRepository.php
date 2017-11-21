@@ -23,6 +23,30 @@ class ContentReadRepository implements ReadRepository {
     }
 
     /**
+     * Retrieve single softDeleted entity
+     *
+     * @param integer $id Entity id
+     *
+     * @return mixed
+     */
+    public function getDeletedById($id)
+    {
+        return Content::onlyTrashed()->find($id);
+    }
+
+    /**
+     * Retrieve single softDeleted entity
+     *
+     * @param integer $id Entity id
+     *
+     * @return mixed
+     */
+    public function getByIdWithTrashed($id)
+    {
+        return Content::withTrashed()->find($id);
+    }
+
+    /**
      * Retrieve a content translation by given id
      *
      * @param int $id Entity id
