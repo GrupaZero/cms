@@ -361,5 +361,99 @@ class ContentJobsTest extends Unit {
 
         $this->assertEquals(1, $content->translations($withActive)->count());
     }
+
+    /** @test */
+    public function itShouldForceDeleteOneContent()
+    {
+        $contents = $this->tester->haveContents([
+            [
+                'type'         => 'content',
+                'translations' => [
+                    [
+                        'language_code' => 'en',
+                        'title'         => 'Example title'
+                    ]
+                ]
+            ],
+            [
+                'type'         => 'content',
+                'translations' => [
+                    [
+                        'language_code' => 'en',
+                        'title'         => 'Other title'
+                    ]
+                ]
+            ]
+        ]);
+
+        $first = head($contents);
+        $second = last($contents);
+
+        (new DeleteContent($first))->handle();
+        (new DeleteContent($second))->handle();
+
+        $this->assertNull($this->repository->getById($first->id));
+        $this->assertNull($this->repository->getById($second->id));
+
+        (new ForceDeleteContent($first))->handle();
+
+        $this->assertNull($this->repository->getDeletedById($first->id));
+        $this->assertNotNull($this->repository->getDeletedById($second->id));
+    }
+
+    /** @test */
+    public function itShouldRetrieveNonTrashedContent()
+    {
+        $content = $this->tester->haveContent([
+            'type'         => 'content',
+            'translations' => [
+                [
+                    'language_code' => 'en',
+                    'title'         => 'Example title'
+                ]
+            ]
+        ]);
+
+        $result = $this->repository->getByIdWithTrashed($content->id);
+        $this->assertEquals($content->id, $result->id);
+    }
+
+    /** @test */
+    public function itShouldRetrieveTrashedContent()
+    {
+        $content = $this->tester->haveContent([
+            'type'         => 'content',
+            'translations' => [
+                [
+                    'language_code' => 'en',
+                    'title'         => 'Example title'
+                ]
+            ]
+        ]);
+
+        (new DeleteContent($content))->handle();
+
+        $result = $this->repository->getByIdWithTrashed($content->id);
+
+        $this->assertEquals($content->id, $result->id);
+    }
+
+    /** @test */
+    public function itShouldNotRetrieveForceDeletedContent()
+    {
+        $content = $this->tester->haveContent([
+            'type'         => 'content',
+            'translations' => [
+                [
+                    'language_code' => 'en',
+                    'title'         => 'Example title'
+                ]
+            ]
+        ]);
+
+        (new ForceDeleteContent($content))->handle();
+
+        $this->assertNull($this->repository->getByIdWithTrashed($content->id));
+    }
 }
 
