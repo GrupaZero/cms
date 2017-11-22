@@ -214,8 +214,6 @@ class Content extends BaseTree implements PresentableInterface, Uploadable, Rout
      */
     public function handle(Route $route, Language $language): Response
     {
-        dd($this->type);
-        return response('Test');
         return $this->getHandler()->load($this, $language)->render();
     }
 
