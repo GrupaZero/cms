@@ -1,15 +1,12 @@
 <?php namespace Cms;
 
 use Codeception\Test\Unit;
-use Gzero\Cms\CMSSeeder;
 use Gzero\Cms\Jobs\CreateContent;
 use Gzero\Cms\Jobs\DeleteContent;
-use Gzero\Cms\Jobs\CreateContentRoute;
 use Gzero\Cms\Jobs\DeleteContentTranslation;
 use Gzero\Cms\Jobs\ForceDeleteContent;
 use Gzero\Cms\Jobs\AddContentTranslation;
 use Gzero\Cms\Repositories\ContentReadRepository;
-use Gzero\Cms\Services\BlockService;
 use Gzero\Core\Repositories\RouteReadRepository;
 use Illuminate\Support\Facades\Auth;
 use Gzero\Core\Exception;
