@@ -97,9 +97,11 @@ class Content extends BaseTree implements PresentableInterface, Uploadable, Rout
     }
 
     /**
-     * @param $type
+     * @param string $type Content type
      *
      * @throws Exception
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\belongsTo
      */
     public function setTypeAttribute($type)
     {

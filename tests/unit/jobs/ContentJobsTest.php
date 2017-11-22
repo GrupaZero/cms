@@ -2,15 +2,17 @@
 
 use Carbon\Carbon;
 use Codeception\Test\Unit;
-use Gzero\Cms\Handler\Content\Content;
+use Gzero\Cms\Handler\Content\Content as ContentHandler;
+use Gzero\Cms\Models\Content;
 use Gzero\Cms\Jobs\CreateContent;
 use Gzero\Cms\Jobs\DeleteContent;
 use Gzero\Cms\Jobs\DeleteContentTranslation;
 use Gzero\Cms\Jobs\ForceDeleteContent;
 use Gzero\Cms\Jobs\AddContentTranslation;
+use Gzero\Cms\Models\ContentTranslation;
 use Gzero\Core\Models\Language;
-use Gzero\Core\Repositories\RouteReadRepository;
-use Illuminate\Support\Facades\Auth;
+use Gzero\Core\Models\Route;
+use Gzero\Core\Models\RouteTranslation;
 use Gzero\Core\Exception;
 
 class ContentJobsTest extends Unit {
@@ -46,7 +48,7 @@ class ContentJobsTest extends Unit {
         $this->assertEquals($user->id, $content->author->id, 'Author was set');
 
         $this->assertEquals('content', $content->type->name, 'Correct content type was set');
-        $this->assertEquals(Content::class, $content->type->handler, 'Content type have correct handler');
+        $this->assertEquals(ContentHandler::class, $content->type->handler, 'Content type have correct handler');
 
         $this->assertInstanceOf(Carbon::class, $content->published_at);
         $this->assertTrue(Carbon::now()->addMinute()->greaterThan($content->published_at));
@@ -135,83 +137,36 @@ class ContentJobsTest extends Unit {
     }
 
     /** @test */
-    public function canCreateContentWithAuthor()
-    {
-        $this->tester->loginAsUser();
-        $author = $this->tester->haveUser();
-
-        $content       = dispatch_now(CreateContent::content('content', 'en', 'title', [], $author));
-        $contentFromDb = $this->repository->getById($content->id);
-
-        $this->assertEquals($author->id, $contentFromDb->author_id);
-        $this->assertEquals($author->email, $contentFromDb->author['email']);
-    }
-
-    /** @test */
-    public function canCreateContentWithoutAuthor()
-    {
-
-        $content       = (new CreateContent('content', 'en', 'title'))->handle();
-        $contentFromDb = $this->repository->getById($content->id);
-
-        $this->assertNull($contentFromDb->author_id);
-        $this->assertNull($contentFromDb->author);
-    }
-
-    /** @test */
-    public function cantCreateContentWithoutAuthorWhenUserIsLoggedIn()
-    {
-        $this->tester->loginAsUser();
-        $author = Auth::user();
-
-        $content       = (new CreateContent('content', 'en', 'title'))->handle();
-        $contentFromDb = $this->repository->getById($content->id);
-
-        $this->assertEquals($author->id, $contentFromDb->author_id);
-        $this->assertEquals($author->email, $contentFromDb->author['email']);
-    }
-
-    /** @test */
     public function canAddContentTranslationAndGetItById()
     {
-        $content = $this->tester->haveContent();
+        $language = new Language(['code' => 'en']);
+        $content  = $this->tester->haveContent();
 
-        $translation       = (new AddContentTranslation($content, 'en', 'New example',
+        $translation = dispatch_now(new AddContentTranslation($content, 'New example', $language,
             [
                 'teaser'          => 'Teaser',
                 'body'            => 'Body',
                 'seo_title'       => 'SEO title',
                 'seo_description' => 'SEO description'
             ]
-        ))->handle();
-        $translationFromDb = $this->repository->getTranslationById($translation->id);
+        ));
 
-        $this->assertEquals(
-            [
-                $translation->id,
-                $translation->language_code,
-                $translation->title,
-                $translation->body,
-                $translation->seo_title,
-                $translation->seo_description,
-                $translation->is_active
-            ],
-            [
-                $translationFromDb->id,
-                $translationFromDb->language_code,
-                $translationFromDb->title,
-                $translationFromDb->body,
-                $translationFromDb->seo_title,
-                $translationFromDb->seo_description,
-                $translationFromDb->is_active
-            ]
-        );
+        $translation = $translation->fresh();
+
+        $this->assertEquals('New example', $translation->title);
+        $this->assertEquals('Teaser', $translation->teaser);
+        $this->assertEquals('Body', $translation->body);
+        $this->assertEquals('SEO title', $translation->seo_title);
+        $this->assertEquals('SEO description', $translation->seo_description);
+        $this->assertEquals($language->code, $translation->language_code);
+        $this->assertTrue($translation->is_active);
     }
 
     /** @test */
     public function onlyRecentlyAddedTranslationShouldBeMarkedAsActive()
     {
-        $content = $this->tester->haveContent(
+        $language = new Language(['code' => 'en']);
+        $content  = $this->tester->haveContent(
             [
                 'translations' => [
                     [
@@ -222,35 +177,24 @@ class ContentJobsTest extends Unit {
             ]
         );
 
-        $oldTranslation       = $content->translations->first();
-        $translation          = (new AddContentTranslation($content, 'en', 'New example'))->handle();
-        $translationFromDb    = $this->repository->getTranslationById($translation->id);
-        $oldTranslationFromDb = $this->repository->getTranslationById($oldTranslation->id);
+        $oldTranslation = $content->translations->first();
+        $translation    = dispatch_now(new AddContentTranslation($content, 'New example', $language));
 
-        $this->assertEquals('en', $translationFromDb->language_code);
-        $this->assertEquals(true, $translationFromDb->is_active);
-        $this->assertEquals('en', $oldTranslationFromDb->language_code);
-        $this->assertEquals(false, $oldTranslationFromDb->is_active);
-    }
+        $translation    = $translation->fresh();
+        $oldTranslation = $oldTranslation->fresh();
 
-    /** @test */
-    public function canCreateContentRouteFromTranslationTitleAndGetItByPath()
-    {
-        $content = $this->tester->haveContent();
+        $this->assertEquals('en', $translation->language_code);
+        $this->assertEquals(true, $translation->is_active);
 
-        (new AddContentTranslation($content, 'en', 'Example Title'))->handle();
-        $contentFromDb = $this->repository->getByPath('example-title', 'en');
-        $translations  = $contentFromDb->route->translations->first();
-
-        $this->assertEquals($content->id, $contentFromDb->id);
-        $this->assertEquals('example-title', $translations->path);
-        $this->assertEquals('en', $translations->language_code);
+        $this->assertEquals('en', $oldTranslation->language_code);
+        $this->assertEquals(false, $oldTranslation->is_active);
     }
 
     /** @test */
     public function shouldCreateContentRouteWithUniquePathFromTranslationTitle()
     {
-        $content = $this->tester->haveContent([
+        $language = new Language(['code' => 'en']);
+        $content  = $this->tester->haveContent([
             'translations' => [
                 [
                     'language_code' => 'en',
@@ -259,15 +203,13 @@ class ContentJobsTest extends Unit {
             ]
         ]);
 
-        (new AddContentTranslation($content, 'en', 'Example Title'))->handle();
-        $contentFromDb          = $this->repository->getByPath('example-title-1', 'en');
-        $translations           = $contentFromDb->route->translations->first();
-        $contentByOldPathFromDb = $this->repository->getByPath('example-title', 'en');
+        dispatch_now(new AddContentTranslation($content, 'Example Title', $language));
 
-        $this->assertNull($contentByOldPathFromDb);
-        $this->assertEquals($content->id, $contentFromDb->id);
-        $this->assertEquals('example-title-1', $translations->path);
-        $this->assertEquals('en', $translations->language_code);
+        $content          = $content->fresh();
+        $routeTranslation = $content->route->translations->first();
+
+        $this->assertEquals('example-title-1', $routeTranslation->path);
+        $this->assertEquals($language->code, $routeTranslation->language_code);
     }
 
     /** @test */
@@ -275,20 +217,20 @@ class ContentJobsTest extends Unit {
     {
         $content = $this->tester->haveContent();
 
-        (new DeleteContent($content))->handle();
+        dispatch_now(new DeleteContent($content));
 
-        $this->assertNull($this->repository->getById($content->id));
+        $this->assertNull(Content::find($content->id));
     }
 
     /** @test */
     public function canDeleteContentWithChildren()
     {
-        $category = (new CreateContent('category', 'en', 'category title'))->handle();
+        $category = $this->tester->haveContent(['type' => 'category']);
+        $content  = $this->tester->haveContent();
 
-        $content = (new CreateContent('content', 'en', 'content title'))->handle();
         $content->setChildOf($category);
 
-        (new DeleteContent($category))->handle();
+        dispatch_now(new DeleteContent($category));
 
         // Content children has been removed?
         $this->assertEmpty($category->fresh()->children()->get());
@@ -318,44 +260,38 @@ class ContentJobsTest extends Unit {
             ]
         ]);
 
-        $newContent         = $this->repository->getById($contents[0]->id);
-        $notRelatedContent  = $this->repository->getById($contents[1]->id);
-        $contentTranslation = $newContent->translations()->first();
-        $contentRoute       = $newContent->route()->first();
+        $content                 = Content::find($contents[0]->id);
+        $notRelatedContent       = Content::find($contents[1]->id);
+        $contentTranslation      = $content->translations->first();
+        $contentRoute            = $content->route->first();
+        $contentRouteTranslation = $contentRoute->translations->first();
 
-        (new ForceDeleteContent($newContent))->handle();
-
-        // Get not related content
-        $content2 = $this->repository->getById($notRelatedContent->id);
+        dispatch_now(new ForceDeleteContent($content));
 
         // Check if content has been removed
-        $this->assertNull($this->repository->getById($newContent->id));
+        $this->assertNull(Content::find($content->id));
         // Check if content translations has been removed
-        $this->assertNull($this->repository->getTranslationById($contentTranslation->id));
+        $this->assertNull(ContentTranslation::find($contentTranslation->id));
         // Check if content route has been removed
-        $this->assertNull((new RouteReadRepository())->getById($contentRoute->id));
+        $this->assertNull(Route::find($contentRoute->id));
         // Check if not related content has not be removed
-        $this->assertNotNull($content2);
+        $this->assertNotNull(Content::find($notRelatedContent->id));
         // Check if content route translation been removed
-        $this->assertNull($this->repository->getByPath(
-            $contentRoute->translations->first()->path,
-            $contentRoute->translations->first()->language_code
-        ));
+        $this->assertNull(RouteTranslation::find($contentRouteTranslation->id));
     }
 
     /** @test */
     public function canForceDeleteContentWithChildren()
     {
-        $category = (new CreateContent('category', 'en', 'category title'))->handle();
-
-        $content = (new CreateContent('content', 'en', 'content title'))->handle();
+        $category = $this->tester->haveContent(['type' => 'category']);
+        $content  = $this->tester->haveContent();
         $content->setChildOf($category);
 
-        (new ForceDeleteContent($category))->handle();
+        dispatch_now(new ForceDeleteContent($category));
 
-        $this->assertNull($this->repository->getById($category->id));
+        $this->assertNull(Content::find($category->id));
         // Content children has been removed?
-        $this->assertNull($this->repository->getById($content->id));
+        $this->assertNull(Content::find($content->id));
     }
 
     /** @test */
@@ -382,29 +318,25 @@ class ContentJobsTest extends Unit {
             ]
         ]);
 
-        $newContent         = $this->repository->getById($contents[0]->id);
-        $notRelatedContent  = $this->repository->getById($contents[1]->id);
-        $contentTranslation = $newContent->translations()->first();
-        $contentRoute       = $newContent->route()->first();
+        $content                 = Content::find($contents[0]->id);
+        $notRelatedContent       = Content::find($contents[1]->id);
+        $contentTranslation      = $content->translations->first();
+        $contentRoute            = $content->route->first();
+        $contentRouteTranslation = $contentRoute->translations->first();
 
-        (new DeleteContent($newContent))->handle();
-        (new ForceDeleteContent($newContent))->handle();
+        dispatch_now(new DeleteContent($content));
+        dispatch_now(new ForceDeleteContent($content));
 
-        // Get not related content
-        $content2 = $this->repository->getById($notRelatedContent->id);
         // Check if content has been removed
-        $this->assertNull($this->repository->getById($newContent->id));
+        $this->assertNull(Content::find($content->id));
         // Check if content translations has been removed
-        $this->assertNull($this->repository->getTranslationById($contentTranslation->id));
+        $this->assertNull(ContentTranslation::find($contentTranslation->id));
         // Check if content route has been removed
-        $this->assertNull((new RouteReadRepository())->getById($contentRoute->id));
+        $this->assertNull(Route::find($contentRoute->id));
         // Check if not related content has not be removed
-        $this->assertNotNull($content2);
+        $this->assertNotNull(Content::find($notRelatedContent->id));
         // Check if content route translation been removed
-        $this->assertNull($this->repository->getByPath(
-            $contentRoute->translations->first()->path,
-            $contentRoute->translations->first()->language_code
-        ));
+        $this->assertNull(RouteTranslation::find($contentRouteTranslation->id));
     }
 
     /**
@@ -412,17 +344,16 @@ class ContentJobsTest extends Unit {
      */
     public function canForceDeleteSoftDeletedContentWithChildren()
     {
-        $category = (new CreateContent('category', 'en', 'category title'))->handle();
-
-        $content = (new CreateContent('content', 'en', 'content title'))->handle();
+        $category = $this->tester->haveContent(['type' => 'category']);
+        $content  = $this->tester->haveContent();
         $content->setChildOf($category);
 
-        (new DeleteContent($category))->handle();
-        (new ForceDeleteContent($category))->handle();
+        dispatch_now(new DeleteContent($category));
+        dispatch_now(new ForceDeleteContent($category));
 
-        $this->assertNull($this->repository->getById($category->id));
+        $this->assertNull(Content::find($category->id));
         // Content children has been removed?
-        $this->assertNull($this->repository->getById($content->id));
+        $this->assertNull(Content::find($content->id));
     }
 
     /** @test */
@@ -481,33 +412,16 @@ class ContentJobsTest extends Unit {
         $first  = head($contents);
         $second = last($contents);
 
-        (new DeleteContent($first))->handle();
-        (new DeleteContent($second))->handle();
+        dispatch_now(new DeleteContent($first));
+        dispatch_now(new DeleteContent($second));
 
-        $this->assertNull($this->repository->getById($first->id));
-        $this->assertNull($this->repository->getById($second->id));
+        $this->assertNull(Content::find($first->id));
+        $this->assertNull(Content::find($second->id));
 
-        (new ForceDeleteContent($first))->handle();
+        dispatch_now(new ForceDeleteContent($first));
 
-        $this->assertNull($this->repository->getDeletedById($first->id));
-        $this->assertNotNull($this->repository->getDeletedById($second->id));
-    }
-
-    /** @test */
-    public function itShouldRetrieveNonTrashedContent()
-    {
-        $content = $this->tester->haveContent([
-            'type'         => 'content',
-            'translations' => [
-                [
-                    'language_code' => 'en',
-                    'title'         => 'Example title'
-                ]
-            ]
-        ]);
-
-        $result = $this->repository->getByIdWithTrashed($content->id);
-        $this->assertEquals($content->id, $result->id);
+        $this->assertNull(Content::find($first->id));
+        $this->assertNotNull(Content::withTrashed()->find($second->id));
     }
 
     /** @test */
@@ -523,30 +437,13 @@ class ContentJobsTest extends Unit {
             ]
         ]);
 
-        (new DeleteContent($content))->handle();
+        dispatch_now(new DeleteContent($content));
 
-        $result = $this->repository->getByIdWithTrashed($content->id);
+        $result = Content::withTrashed()->find($content->id);
 
         $this->assertEquals($content->id, $result->id);
     }
 
-    /** @test */
-    public function itShouldNotRetrieveForceDeletedContent()
-    {
-        $content = $this->tester->haveContent([
-            'type'         => 'content',
-            'translations' => [
-                [
-                    'language_code' => 'en',
-                    'title'         => 'Example title'
-                ]
-            ]
-        ]);
-
-        (new ForceDeleteContent($content))->handle();
-
-        $this->assertNull($this->repository->getByIdWithTrashed($content->id));
-    }
 
     /** @test */
     public function itDoesNotAllowToDeleteActiveTranslation()
@@ -563,14 +460,15 @@ class ContentJobsTest extends Unit {
             ]
         );
 
-        $this->assertInstanceOf('Gzero\Cms\Models\Content', $content);
+        try {
+            dispatch_now(new DeleteContentTranslation($content->translations->first()));
+        } catch (Exception $exception) {
+            $this->assertEquals(Exception::class, get_class($exception));
+            $this->assertEquals('Cannot delete active translation', $exception->getMessage());
+            return;
+        }
 
-        $translation = $this->repository->getById($content->id)->translations->first();
-        $this->assertInstanceOf('Gzero\Cms\Models\ContentTranslation', $translation);
-        $this->assertEquals($translation->is_active, 1);
-
-        $this->expectException('Gzero\Core\Exception');
-        (new DeleteContentTranslation($translation))->handle();
+        $this->fail('Exception should be thrown');
     }
 }
 
