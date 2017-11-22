@@ -21,7 +21,7 @@ class ContentJobsTest extends Unit {
     protected $tester;
 
     /** @test */
-    public function canCreateContentAndGetItById()
+    public function canCreateContent()
     {
         $user    = $this->tester->haveUser();
         $content = dispatch_now(CreateContent::content('New One', new Language(['code' => 'en']), $user,
@@ -82,7 +82,7 @@ class ContentJobsTest extends Unit {
         $child      = $child->fresh();
         $childRoute = $child->route->translations->first();
 
-        $nestedChild = dispatch_now(CreateContent::category('Nested Child Title', $language, $user, ['parent_id' => $child->id]));
+        $nestedChild = dispatch_now(CreateContent::content('Nested Child Title', $language, $user, ['parent_id' => $child->id]));
 
         $nestedChild      = $nestedChild->fresh();
         $nestedChildRoute = $nestedChild->route->translations->first();
@@ -137,10 +137,12 @@ class ContentJobsTest extends Unit {
     }
 
     /** @test */
-    public function canAddContentTranslationAndGetItById()
+    public function canAddContentTranslation()
     {
         $language = new Language(['code' => 'en']);
         $content  = $this->tester->haveContent();
+
+        $this->assertEquals(0, $content->translations()->count());
 
         $translation = dispatch_now(new AddContentTranslation($content, 'New example', $language,
             [
@@ -153,6 +155,7 @@ class ContentJobsTest extends Unit {
 
         $translation = $translation->fresh();
 
+        $this->assertEquals(1, $content->translations()->count());
         $this->assertEquals('New example', $translation->title);
         $this->assertEquals('Teaser', $translation->teaser);
         $this->assertEquals('Body', $translation->body);
@@ -178,14 +181,19 @@ class ContentJobsTest extends Unit {
         );
 
         $oldTranslation = $content->translations->first();
-        $translation    = dispatch_now(new AddContentTranslation($content, 'New example', $language));
 
-        $translation    = $translation->fresh();
+        $this->assertNotNull($oldTranslation);
+
+        dispatch_now(new AddContentTranslation($content, 'New example', $language));
+
+        $newTranslation = $content->fresh()->translations->first();
         $oldTranslation = $oldTranslation->fresh();
 
-        $this->assertEquals('en', $translation->language_code);
-        $this->assertEquals(true, $translation->is_active);
+        $this->assertEquals(1, $content->translations()->count());
+        $this->assertEquals('en', $newTranslation->language_code);
+        $this->assertEquals(true, $newTranslation->is_active);
 
+        $this->assertEquals(2, $content->translations(false)->count());
         $this->assertEquals('en', $oldTranslation->language_code);
         $this->assertEquals(false, $oldTranslation->is_active);
     }
@@ -232,7 +240,6 @@ class ContentJobsTest extends Unit {
 
         dispatch_now(new DeleteContent($category));
 
-        // Content children has been removed?
         $this->assertEmpty($category->fresh()->children()->get());
     }
 
@@ -268,15 +275,10 @@ class ContentJobsTest extends Unit {
 
         dispatch_now(new ForceDeleteContent($content));
 
-        // Check if content has been removed
         $this->assertNull(Content::find($content->id));
-        // Check if content translations has been removed
         $this->assertNull(ContentTranslation::find($contentTranslation->id));
-        // Check if content route has been removed
         $this->assertNull(Route::find($contentRoute->id));
-        // Check if not related content has not be removed
         $this->assertNotNull(Content::find($notRelatedContent->id));
-        // Check if content route translation been removed
         $this->assertNull(RouteTranslation::find($contentRouteTranslation->id));
     }
 
@@ -290,7 +292,6 @@ class ContentJobsTest extends Unit {
         dispatch_now(new ForceDeleteContent($category));
 
         $this->assertNull(Content::find($category->id));
-        // Content children has been removed?
         $this->assertNull(Content::find($content->id));
     }
 
@@ -325,23 +326,21 @@ class ContentJobsTest extends Unit {
         $contentRouteTranslation = $contentRoute->translations->first();
 
         dispatch_now(new DeleteContent($content));
+
+        $this->assertNull(Content::find($content->id));
+        $this->assertNotNull(Content::withTrashed()->find($content->id));
+        $this->assertNotNull(Content::find($notRelatedContent->id));
+
         dispatch_now(new ForceDeleteContent($content));
 
-        // Check if content has been removed
-        $this->assertNull(Content::find($content->id));
-        // Check if content translations has been removed
+        $this->assertNull(Content::withTrashed()->find($content->id));
         $this->assertNull(ContentTranslation::find($contentTranslation->id));
-        // Check if content route has been removed
         $this->assertNull(Route::find($contentRoute->id));
-        // Check if not related content has not be removed
         $this->assertNotNull(Content::find($notRelatedContent->id));
-        // Check if content route translation been removed
         $this->assertNull(RouteTranslation::find($contentRouteTranslation->id));
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function canForceDeleteSoftDeletedContentWithChildren()
     {
         $category = $this->tester->haveContent(['type' => 'category']);
@@ -349,15 +348,20 @@ class ContentJobsTest extends Unit {
         $content->setChildOf($category);
 
         dispatch_now(new DeleteContent($category));
-        dispatch_now(new ForceDeleteContent($category));
 
         $this->assertNull(Content::find($category->id));
-        // Content children has been removed?
         $this->assertNull(Content::find($content->id));
+        $this->assertNotNull(Content::withTrashed()->find($category->id));
+        $this->assertNotNull(Content::withTrashed()->find($content->id));
+
+        dispatch_now(new ForceDeleteContent($category));
+
+        $this->assertNull(Content::withTrashed()->find($category->id));
+        $this->assertNull(Content::withTrashed()->find($content->id));
     }
 
     /** @test */
-    public function canDeleteContentTranslation()
+    public function canDeleteContentInactiveTranslation()
     {
         $withActive = false;
         $content    = $this->tester->haveContent(
@@ -380,7 +384,7 @@ class ContentJobsTest extends Unit {
 
         $this->assertEquals(2, $content->translations($withActive)->count());
 
-        (new DeleteContentTranslation($content->translations($withActive)->first()))->handle();
+        dispatch_now(new DeleteContentTranslation($content->translations($withActive)->first()));
 
         $this->assertEquals(1, $content->translations($withActive)->count());
     }
@@ -425,27 +429,6 @@ class ContentJobsTest extends Unit {
     }
 
     /** @test */
-    public function itShouldRetrieveTrashedContent()
-    {
-        $content = $this->tester->haveContent([
-            'type'         => 'content',
-            'translations' => [
-                [
-                    'language_code' => 'en',
-                    'title'         => 'Example title'
-                ]
-            ]
-        ]);
-
-        dispatch_now(new DeleteContent($content));
-
-        $result = Content::withTrashed()->find($content->id);
-
-        $this->assertEquals($content->id, $result->id);
-    }
-
-
-    /** @test */
     public function itDoesNotAllowToDeleteActiveTranslation()
     {
         $content = $this->tester->haveContent(
@@ -471,4 +454,3 @@ class ContentJobsTest extends Unit {
         $this->fail('Exception should be thrown');
     }
 }
-
