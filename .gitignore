@@ -4,6 +4,7 @@ composer.phar
 .DS_Store
 Thumbs.db
 .idea
+.vscode
 .vagrant
 .sass-cache
 .env.testing
