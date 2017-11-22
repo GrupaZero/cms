@@ -1,16 +1,12 @@
 <?php
 
 use Faker\Factory;
-use Gzero\Entity\BlockType;
-use Gzero\Entity\ContentType;
-use Gzero\Entity\FileType;
-use Gzero\Entity\Lang;
+use Gzero\Cms\Models\BlockType;
+use Gzero\Cms\Models\ContentType;
+use Gzero\Cms\Models\FileType;
+use Gzero\Core\Models\Language;
 use Illuminate\Database\Seeder;
-use Gzero\Repository\UserRepository;
 
-/**
- * Class DummyValidator
- */
 class TestSeeder extends Seeder {
 
     /**
@@ -19,17 +15,11 @@ class TestSeeder extends Seeder {
     protected $faker;
 
     /**
-     * @var UserRepository
-     */
-    protected $userRepo;
-
-    /**
      * CMSSeeder constructor
      */
-    public function __construct(UserRepository $user)
+    public function __construct()
     {
-        $this->faker    = Factory::create();
-        $this->userRepo = $user;
+        $this->faker = Factory::create();
     }
 
     /**
@@ -54,19 +44,19 @@ class TestSeeder extends Seeder {
     private function seedLangs()
     {
         $langs       = [];
-        $langs['en'] = Lang::firstOrCreate(
+        $langs['en'] = Language::firstOrCreate(
             [
-                'code'      => 'en',
-                'i18n'      => 'en_US',
+                'code'       => 'en',
+                'i18n'       => 'en_US',
                 'is_enabled' => true,
                 'is_default' => true
             ]
         );
 
-        $langs['pl'] = Lang::firstOrCreate(
+        $langs['pl'] = Language::firstOrCreate(
             [
-                'code'      => 'pl',
-                'i18n'      => 'pl_PL',
+                'code'       => 'pl',
+                'i18n'       => 'pl_PL',
                 'is_enabled' => true
             ]
         );

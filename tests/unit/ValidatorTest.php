@@ -2,26 +2,14 @@
 
 require_once(__DIR__ . '/../stub/DummyValidator.php');
 
-use Aedart\Testing\Laravel\Traits\TestHelperTrait;
+use Codeception\Test\Unit;
+use DummyValidator;
 use Illuminate\Validation\ValidationException;
 
-/**
- * This file is part of the GZERO CMS package.
- *
- * For the full copyright and license information, please view the LICENSE
- * file that was distributed with this source code.
- *
- * Class ValidatorTest
- *
- * @author     Adrian Skierniewski <adrian.skierniewski@gmail.com>
- * @copyright  Copyright (c) 2014, Adrian Skierniewski
- */
-class ValidatorTest extends \Codeception\Test\Unit {
-
-    use TestHelperTrait;
+class ValidatorTest extends Unit {
 
     /**
-     * @var Array
+     * @var array
      */
     protected $input;
 
@@ -33,16 +21,14 @@ class ValidatorTest extends \Codeception\Test\Unit {
     protected function _before()
     {
         // Start the Laravel application
-        $this->startApplication();
         $this->input     = $this->initData();
-        $this->validator = new \DummyValidator(\App::make('validator'));
+        $this->validator = new DummyValidator(resolve('validator'));
     }
 
 
     protected function _after()
     {
         // Stop the Laravel application
-        $this->stopApplication();
     }
 
     /**

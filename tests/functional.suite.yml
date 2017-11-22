@@ -1,6 +1,18 @@
-class_name: UnitTester
+actor: FunctionalTester
 modules:
     enabled:
-        - Db
         - Asserts
-        - Cms\Helper\Unit
+        - Cms\Helper\Functional
+        - Laravel5
+        - REST:
+              depends: Laravel5
+    config:
+        Laravel5:
+            root: vendor/orchestra/testbench-core/laravel/ # we're use testbench package to bootstrap fake laravel app
+            bootstrap: '../../../../codecept_setup.php' # bootstrap fake laravel app
+            vendor_dir: '../../../../vendor' # api/vendor
+            cleanup: true
+            disable_events: false
+            disable_exception_handling: false
+            disable_middleware: false
+            disable_model_events: false

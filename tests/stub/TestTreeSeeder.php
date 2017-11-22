@@ -1,11 +1,11 @@
 <?php
 
 use Faker\Factory;
-use Gzero\Entity\ContentType;
-use Gzero\Entity\Lang;
-use Gzero\Entity\User;
-use Gzero\Entity\Content;
-use Gzero\Repository\ContentRepository;
+use Gzero\Cms\Models\ContentType;
+use Gzero\Core\Models\Language;
+use Gzero\Core\Models\User;
+use Gzero\Cms\Models\Content;
+use Gzero\Cms\Services\ContentService;
 use Illuminate\Database\Seeder;
 
 /**
@@ -22,9 +22,9 @@ class TestTreeSeeder extends Seeder {
     /**
      * CMSSeeder constructor
      *
-     * @param ContentRepository $content Content repository
+     * @param ContentService $content Content repository
      */
-    public function __construct(ContentRepository $content)
+    public function __construct(ContentService $content)
     {
         $this->faker      = Factory::create();
         $this->repository = $content;
@@ -82,7 +82,7 @@ class TestTreeSeeder extends Seeder {
     private function seedLangs()
     {
         $langs       = [];
-        $langs['en'] = Lang::firstOrCreate(
+        $langs['en'] = Language::firstOrCreate(
             [
                 'code'       => 'en',
                 'i18n'       => 'en_US',
@@ -91,7 +91,7 @@ class TestTreeSeeder extends Seeder {
             ]
         );
 
-        $langs['pl'] = Lang::firstOrCreate(
+        $langs['pl'] = Language::firstOrCreate(
             [
                 'code'       => 'pl',
                 'i18n'       => 'pl_PL',
@@ -129,7 +129,7 @@ class TestTreeSeeder extends Seeder {
             'type'         => $type->name,
             'is_active'    => true,
             'translations' => [
-                'lang_code' => 'en',
+                'language_code' => 'en',
                 'title'     => $this->faker->sentence(5),
                 'body'      => $this->faker->text(rand(100, 255)),
                 'is_active' => true

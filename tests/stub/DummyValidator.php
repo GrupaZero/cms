@@ -1,10 +1,7 @@
 <?php
 
-use Gzero\Validator\AbstractValidator;
+use Gzero\Core\Validators\AbstractValidator;
 
-/**
- * Class DummyValidator
- */
 class DummyValidator extends AbstractValidator {
 
     /**
