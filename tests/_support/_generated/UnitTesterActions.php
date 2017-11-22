@@ -555,7 +555,7 @@ trait UnitTesterActions
      *
      * @param array $attributes
      *
-     * @return User
+     * @return \Gzero\Core\Models\User
      * @see \Cms\Helper\Unit::haveUser()
      */
     public function haveUser($attributes = null) {
@@ -570,7 +570,7 @@ trait UnitTesterActions
      *
      * @param array $attributes
      *
-     * @return Content
+     * @return \Gzero\Cms\Models\Content
      * @see \Cms\Helper\Unit::haveContent()
      */
     public function haveContent($attributes = null) {
