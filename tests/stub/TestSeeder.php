@@ -70,10 +70,16 @@ class TestSeeder extends Seeder {
      */
     private function seedContentTypes()
     {
-        $contentTypes = [];
-        foreach (['content', 'category'] as $type) {
-            $contentTypes[$type] = ContentType::firstOrCreate(['name' => $type, 'is_active' => true]);
-        }
+        $contentTypes   = [];
+        $contentTypes[] = ContentType::firstOrCreate([
+            'name'    => 'content',
+            'handler' =>
+                Gzero\Cms\Handler\Content\Content::class
+        ]);
+        $contentTypes[] = ContentType::firstOrCreate([
+            'name'    => 'category',
+            'handler' => Gzero\Cms\Handler\Content\Category::class
+        ]);
         return $contentTypes;
     }
 
