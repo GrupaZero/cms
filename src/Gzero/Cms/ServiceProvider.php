@@ -54,7 +54,6 @@ class ServiceProvider extends AbstractServiceProvider {
         parent::register();
         $this->mergeConfig();
         $this->bindRepositories();
-        $this->bindTypes();
     }
 
     /**
@@ -94,29 +93,6 @@ class ServiceProvider extends AbstractServiceProvider {
                 return app('filesystem')->disk(config('gzero.upload.disk'))->getDriver();
             }
         );
-    }
-
-    /**
-     * Bind entities types classes
-     *
-     * @return void
-     */
-    protected function bindTypes()
-    {
-        $entities = [
-            'block',
-            'content',
-            'file'
-        ];
-
-        foreach ($entities as $entity) {
-            $key = "gzero-cms.$entity" . '_type';
-            if (isset($this->app['config'][$key])) {
-                foreach ($this->app['config'][$key] as $type => $class) {
-                    $this->app->bind("$entity:type:$type", $class);
-                }
-            }
-        }
     }
 
     /**

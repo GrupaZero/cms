@@ -1,12 +1,14 @@
 <?php namespace Cms;
 
+use Carbon\Carbon;
 use Codeception\Test\Unit;
+use Gzero\Cms\Handler\Content\Content;
 use Gzero\Cms\Jobs\CreateContent;
 use Gzero\Cms\Jobs\DeleteContent;
 use Gzero\Cms\Jobs\DeleteContentTranslation;
 use Gzero\Cms\Jobs\ForceDeleteContent;
 use Gzero\Cms\Jobs\AddContentTranslation;
-use Gzero\Cms\Repositories\ContentReadRepository;
+use Gzero\Core\Models\Language;
 use Gzero\Core\Repositories\RouteReadRepository;
 use Illuminate\Support\Facades\Auth;
 use Gzero\Core\Exception;
@@ -16,68 +18,54 @@ class ContentJobsTest extends Unit {
     /** @var UnitTester */
     protected $tester;
 
-    /** @var ContentReadRepository */
-    protected $repository;
-
-    protected function _before()
-    {
-        $this->repository = new ContentReadRepository();
-    }
-
     /** @test */
     public function canCreateContentAndGetItById()
     {
-
-        $content       = (new CreateContent('content', 'en', 'New One',
+        $user    = $this->tester->haveUser();
+        $content = dispatch_now(new CreateContent('New One', new Language(['code' => 'en']), $user,
             [
-                'weight'             => 0,
+                'weight'             => 10,
                 'is_active'          => true,
                 'is_on_home'         => true,
                 'is_promoted'        => true,
                 'is_sticky'          => true,
                 'is_comment_allowed' => true
             ]
-        ))->handle();
-        $contentFromDb = $this->repository->getById($content->id);
-        $translation   = $contentFromDb->translations->first();
-        $route         = $contentFromDb->route->translations->first();
+        ));
 
-        $this->assertEquals(
-            [
-                $content->id,
-                $content->type,
-                $content->is_active,
-                $content->is_on_home,
-                $content->is_promoted,
-                $content->is_sticky,
-                $content->is_comment_allowed,
-                $content->published_at,
-                'en',
-                'New One',
-                'new-one',
-                true
-            ],
-            [
-                $contentFromDb->id,
-                $contentFromDb->type,
-                $contentFromDb->is_active,
-                $contentFromDb->is_on_home,
-                $contentFromDb->is_promoted,
-                $contentFromDb->is_sticky,
-                $contentFromDb->is_comment_allowed,
-                $contentFromDb->published_at,
-                $translation->language_code,
-                $translation->title,
-                $route->path,
-                $route->is_active
-            ]
-        );
+        $content          = $content->fresh();
+        $translation      = $content->translations->first();
+        $routeTranslation = $content->route->translations->first();
+
+        $this->assertTrue($content->is_active);
+        $this->assertTrue($content->is_on_home);
+        $this->assertTrue($content->is_promoted);
+        $this->assertTrue($content->is_sticky);
+        $this->assertTrue($content->is_comment_allowed);
+        $this->assertEquals(10, $content->weight);
+        $this->assertEquals($user->id, $content->author->id, 'Author was set');
+
+        $this->assertEquals('content', $content->type->name, 'Correct content type was set');
+        $this->assertEquals(Content::class, $content->type->handler, 'Content type have correct handler');
+
+        $this->assertInstanceOf(Carbon::class, $content->published_at);
+        $this->assertTrue(Carbon::now()->addMinute()->greaterThan($content->published_at));
+
+        $this->assertEquals('New One', $translation->title, 'Title was set');
+        $this->assertEquals('en', $translation->language_code, 'Language code was set');
+
+        $this->assertEquals('new-one', $routeTranslation->path, 'Language code was set');
+        $this->assertEquals('en', $routeTranslation->language_code, 'Route language code was set');
+
+        $this->assertTrue($routeTranslation->is_active, 'Route was set to active');
     }
 
     /** @test */
-    public function canCreateContentAsChild()
+    public function canCreateContentAsAChild()
     {
-        $parent = $this->tester->haveContent([
+        $user     = $this->tester->haveUser();
+        $language = new Language(['code' => 'en']);
+        $parent   = $this->tester->haveContent([
             'type'         => 'category',
             'translations' => [
                 [
@@ -87,24 +75,28 @@ class ContentJobsTest extends Unit {
             ]
         ]);
 
-        $child       = (new CreateContent('category', 'en', 'Child Title', ['parent_id' => $parent->id]))->handle();
-        $childFromDb = $this->repository->getById($child->id);
-        $childRoute  = $childFromDb->route->translations->first();
+        $child = dispatch_now(CreateContent::category('Child Title', $language, $user, ['parent_id' => $parent->id]));
 
-        $nestedChild       = (new CreateContent('category', 'en', 'Nested Child Title', ['parent_id' => $child->id]))->handle();
-        $nestedChildFromDb = $this->repository->getById($nestedChild->id);
-        $nestedChildRoute  = $nestedChildFromDb->route->translations->first();
+        $child      = $child->fresh();
+        $childRoute = $child->route->translations->first();
 
-        $this->assertEquals($child->parent_id, $childFromDb->parent_id);
+        $nestedChild = dispatch_now(CreateContent::category('Nested Child Title', $language, $user, ['parent_id' => $child->id]));
+
+        $nestedChild      = $nestedChild->fresh();
+        $nestedChildRoute = $nestedChild->route->translations->first();
+
+        $this->assertEquals($child->parent_id, $parent->id);
         $this->assertEquals('parent-title/child-title', $childRoute->path);
-        $this->assertEquals($nestedChild->parent_id, $nestedChildFromDb->parent_id);
+        $this->assertEquals($nestedChild->parent_id, $child->id);
         $this->assertEquals('parent-title/child-title/nested-child-title', $nestedChildRoute->path);
     }
 
     /** @test */
     public function itAllowsOnlyCategoryToBeSetAsParent()
     {
-        $parent = $this->tester->haveContent([
+        $user     = $this->tester->haveUser();
+        $language = new Language(['code' => 'en']);
+        $parent   = $this->tester->haveContent([
             'type'         => 'content',
             'translations' => [
                 [
@@ -115,10 +107,10 @@ class ContentJobsTest extends Unit {
         ]);
 
         try {
-            (new CreateContent('content', 'en', 'title', ['parent_id' => $parent->id]))->handle();
+            dispatch_now(new CreateContent('title', $language, $user, ['parent_id' => $parent->id]));
         } catch (Exception $exception) {
             $this->assertEquals(Exception::class, get_class($exception));
-            $this->assertEquals("Content type 'content' is not allowed for the parent type.", $exception->getMessage());
+            $this->assertEquals('Content can be assigned only to category parent', $exception->getMessage());
             return;
         }
 
@@ -128,11 +120,14 @@ class ContentJobsTest extends Unit {
     /** @test */
     public function itValidatesContentType()
     {
+        $user     = $this->tester->haveUser();
+        $language = new Language(['code' => 'en']);
+
         try {
-            (new CreateContent('post', 'en', 'title'))->handle();
+            dispatch_now(new CreateContent('title', $language, $user, ['type' => 'post']));
         } catch (Exception $exception) {
             $this->assertEquals(Exception::class, get_class($exception));
-            $this->assertEquals("The 'post' is an invalid content type.", $exception->getMessage());
+            $this->assertEquals('Unknown content type', $exception->getMessage());
             return;
         }
 
@@ -483,7 +478,7 @@ class ContentJobsTest extends Unit {
             ]
         ]);
 
-        $first = head($contents);
+        $first  = head($contents);
         $second = last($contents);
 
         (new DeleteContent($first))->handle();

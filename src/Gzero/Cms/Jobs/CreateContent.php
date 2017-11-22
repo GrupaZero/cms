@@ -1,134 +1,113 @@
 <?php namespace Gzero\Cms\Jobs;
 
+use Carbon\Carbon;
 use Gzero\Cms\Models\Content;
 use Gzero\Cms\Models\ContentTranslation;
-use Gzero\Cms\Repositories\ContentReadRepository;
 use Gzero\Core\Exception;
+use Gzero\Core\Models\Language;
 use Gzero\Core\Models\User;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class CreateContent {
 
     /** @var string */
-    protected $type;
-
-    /** @var string */
-    protected $languageCode;
-
-    /** @var string */
     protected $title;
 
-    /** @var array */
-    protected $attributes;
+    /** @var string */
+    protected $language;
 
     /** @var User */
     protected $author;
 
-    /** @var int */
-    protected $parentId;
+    /** @var array */
+    protected $attributes;
 
-    /** @var string */
-    protected $theme;
-
-    /** @var int */
-    protected $weight;
-
-    /** @var bool */
-    protected $isActive;
-
-    /** @var bool */
-    protected $isOnHome;
-
-    /** @var bool */
-    protected $isPromoted;
-
-    /** @var bool */
-    protected $isSticky;
-
-    /** @var bool */
-    protected $isCommentAllowed;
-
-    /** @var string */
-    protected $publishedAt;
-
-    /** @var string */
-    protected $teaser;
-
-    /** @var string */
-    protected $body;
-
-    /** @var string */
-    protected $seoTitle;
-
-    /** @var string */
-    protected $seoDescription;
+    /** @var array */
+    protected $allowedAttributes = [
+        'type'               => 'content',
+        'theme'              => null,
+        'parent_id'          => null,
+        'weight'             => 0,
+        'is_active'          => false,
+        'is_on_home'         => false,
+        'is_promoted'        => false,
+        'is_sticky'          => false,
+        'is_comment_allowed' => false,
+        'published_at'       => null,
+        'teaser'             => null,
+        'body'               => null,
+        'seo_title'          => null,
+        'seo_description'    => null
+    ];
 
     /**
      * Create a new job instance.
      *
-     * @param string $type         Type
-     * @param string $languageCode Language code
-     * @param string $title        Translations title
-     * @param array  $attributes   Array of optional attributes
-     * @param User   $author       User model
+     * @param string   $title      Translation title
+     * @param Language $language   Language
+     * @param User     $author     User model
+     * @param array    $attributes Array of optional attributes
      */
-    public function __construct(
-        string $type,
-        string $languageCode,
-        string $title,
-        array $attributes = [],
-        User $author = null
-    ) {
-        $this->type             = $type;
-        $this->languageCode     = $languageCode;
-        $this->title            = $title;
-        $this->author           = $author;
-        $this->theme            = array_get($attributes, 'theme', null);
-        $this->parentId         = array_get($attributes, 'parent_id', null);
-        $this->weight           = array_get($attributes, 'weight', 0);
-        $this->isActive         = array_get($attributes, 'is_active', false);
-        $this->isOnHome         = array_get($attributes, 'is_on_home', false);
-        $this->isPromoted       = array_get($attributes, 'is_promoted', false);
-        $this->isSticky         = array_get($attributes, 'is_sticky', false);
-        $this->isCommentAllowed = array_get($attributes, 'is_comment_allowed', false);
-        $this->publishedAt      = array_get($attributes, 'published_at', date('Y-m-d H:i:s'));
-        $this->teaser           = array_get($attributes, 'teaser', null);
-        $this->body             = array_get($attributes, 'body', null);
-        $this->seoTitle         = array_get($attributes, 'seo_title', null);
-        $this->seoDescription   = array_get($attributes, 'seo_description', null);
+    public function __construct(string $title, Language $language, User $author, array $attributes = [])
+    {
+        $this->title      = $title;
+        $this->language   = $language;
+        $this->author     = $author;
+        $this->attributes = array_merge(
+            $this->allowedAttributes,
+            array_only($attributes, array_keys($this->allowedAttributes))
+        );
+    }
+
+    /**
+     * It creates job to create content category
+     *
+     * @param string   $title      Translation title
+     * @param Language $language   Language
+     * @param User     $author     User model
+     * @param array    $attributes Array of optional attributes
+     *
+     * @return CreateContent
+     */
+    public static function category(string $title, Language $language, User $author, array $attributes = [])
+    {
+        $attributes['type'] = 'category';
+        return new self($title, $language, $author, $attributes);
     }
 
     /**
      * Execute the job.
      *
-     * @return bool
      * @throws Exception
+     *
+     * @return Content
      */
     public function handle()
     {
         $content = DB::transaction(
             function () {
-                $author  = $this->author ?: Auth::user();
                 $content = new Content();
                 $content->fill([
-                    'type'               => $this->type,
-                    'theme'              => $this->theme,
-                    'weight'             => $this->weight,
-                    'is_active'          => $this->isActive,
-                    'is_on_home'         => $this->isOnHome,
-                    'is_promoted'        => $this->isPromoted,
-                    'is_sticky'          => $this->isSticky,
-                    'is_comment_allowed' => $this->isCommentAllowed,
-                    'published_at'       => $this->publishedAt
+                    'type'               => $this->attributes['type'],
+                    'theme'              => $this->attributes['theme'],
+                    'weight'             => $this->attributes['weight'],
+                    'is_active'          => $this->attributes['is_active'],
+                    'is_on_home'         => $this->attributes['is_on_home'],
+                    'is_promoted'        => $this->attributes['is_promoted'],
+                    'is_sticky'          => $this->attributes['is_sticky'],
+                    'is_comment_allowed' => $this->attributes['is_comment_allowed'],
+                    'published_at'       => $this->attributes['published_at']
                 ]);
-                $content->author()->associate($author);
+                $content->author()->associate($this->author);
 
-                if ($this->parentId) {
-                    $parent = (new ContentReadRepository())->getById($this->parentId);
+                if (!$this->attributes['published_at']) {
+                    $content->published_at = Carbon::now();
+                }
 
-                    if ($parent->type !== 'category') {
-                        throw new Exception("Content type '$parent->type' is not allowed for the parent type.");
+                if ($this->attributes['parent_id']) {
+                    $parent = Content::find($this->attributes['parent_id']);
+                    if (!$parent) {
+                        throw new Exception('Parent not found');
                     }
 
                     $content->setChildOf($parent);
@@ -138,12 +117,12 @@ class CreateContent {
 
                 $translation = new ContentTranslation();
                 $translation->fill([
-                    'language_code'   => $this->languageCode,
                     'title'           => $this->title,
-                    'teaser'          => $this->teaser,
-                    'body'            => $this->body,
-                    'seo_title'       => $this->seoTitle,
-                    'seo_description' => $this->seoDescription,
+                    'language_code'   => $this->language->code,
+                    'teaser'          => $this->attributes['teaser'],
+                    'body'            => $this->attributes['body'],
+                    'seo_title'       => $this->attributes['seo_title'],
+                    'seo_description' => $this->attributes['seo_description'],
                     'is_active'       => true,
                 ]);
 

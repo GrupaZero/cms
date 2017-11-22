@@ -16,7 +16,7 @@ class Unit extends \Codeception\Module {
      *
      * @param array $attributes
      *
-     * @return User
+     * @return \Gzero\Core\Models\User
      */
     public function haveUser($attributes = [])
     {
@@ -28,7 +28,7 @@ class Unit extends \Codeception\Module {
      *
      * @param array $attributes
      *
-     * @return Content
+     * @return \Gzero\Cms\Models\Content
      */
     public function haveContent($attributes = [])
     {

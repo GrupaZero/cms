@@ -8,6 +8,7 @@ use Gzero\Core\Models\Route;
 use Gzero\Core\Models\User;
 use Gzero\Cms\Models\Presenter\ContentPresenter;
 use Gzero\Core\Exception;
+use Gzero\EloquentTree\Model\Tree;
 use Illuminate\Http\Response;
 use Robbo\Presenter\PresentableInterface;
 use Robbo\Presenter\Robbo;
@@ -17,16 +18,16 @@ class Content extends BaseTree implements PresentableInterface, Uploadable, Rout
 
     use SoftDeletes;
 
-    /**
-     * @var array
-     */
+    /** @var array */
+    protected $with = ['type'];
+
+    /** @var array */
     protected $fillable = [
         'type',
         'theme',
         'path',
         'weight',
         'rating',
-        'visits',
         'is_on_home',
         'is_comment_allowed',
         'is_promoted',
@@ -35,9 +36,7 @@ class Content extends BaseTree implements PresentableInterface, Uploadable, Rout
         'published_at'
     ];
 
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $attributes = [
         'is_on_home'         => false,
         'is_comment_allowed' => false,
@@ -94,7 +93,23 @@ class Content extends BaseTree implements PresentableInterface, Uploadable, Rout
      */
     public function type()
     {
-        return $this->belongsTo(ContentType::class, 'name', 'type');
+        return $this->belongsTo(ContentType::class);
+    }
+
+    /**
+     * @param $type
+     *
+     * @throws Exception
+     */
+    public function setTypeAttribute($type)
+    {
+        if (!$type instanceof ContentType) {
+            $type = ContentType::getByName($type);
+        }
+        if (!$type) {
+            throw new Exception('Unknown content type');
+        }
+        $this->type()->associate($type);
     }
 
     /**
@@ -155,7 +170,7 @@ class Content extends BaseTree implements PresentableInterface, Uploadable, Rout
      */
     public function thumb()
     {
-        return $this->belongsTo(File::class, 'thumb_id', 'id');
+        return $this->belongsTo(File::class, 'thumb_id', 'id')->withDefault();
     }
 
     /**
@@ -179,23 +194,6 @@ class Content extends BaseTree implements PresentableInterface, Uploadable, Rout
     }
 
     /**
-     * Set the contents's type.
-     *
-     * @param  string $value Type
-     *
-     * @return void
-     * @throws Exception
-     */
-    public function setTypeAttribute($value)
-    {
-        if (!$this->isValidType($value)) {
-            throw new Exception("The '$value' is an invalid content type.");
-        }
-
-        $this->attributes['type'] = $value;
-    }
-
-    /**
      * Find all trashed descendants for specific node with this node as root
      *
      * @return \Illuminate\Database\Eloquent\Builder
@@ -214,7 +212,9 @@ class Content extends BaseTree implements PresentableInterface, Uploadable, Rout
      */
     public function handle(Route $route, Language $language): Response
     {
-        return $this->resolveType()->load($this, $language)->render();
+        dd($this->type);
+        return response('Test');
+        return $this->getHandler()->load($this, $language)->render();
     }
 
     /**
@@ -277,29 +277,31 @@ class Content extends BaseTree implements PresentableInterface, Uploadable, Rout
     }
 
     /**
-     * Checks if type is valid
-     *
-     * @param string $type Type to validate
-     *
-     * @return bool
-     */
-    protected function isValidType(string $type): bool
-    {
-        return array_has(config('gzero-cms.content_type'), $type);
-    }
-
-    /**
-     * Dynamically resolve type of content
+     * Dynamically resolve content handler
      *
      * @return ContentTypeHandler
      * @throws Exception
      */
-    protected function resolveType()
+    protected function getHandler()
     {
-        $type = app()->make('content:type:' . $this->type);
-        if (!$type instanceof ContentTypeHandler) {
+        $handler = resolve($this->type->handler);
+        if (!$handler instanceof ContentTypeHandler) {
             throw new Exception("Type: $this->type must implement ContentTypeInterface");
         }
-        return $type;
+        return $handler;
+    }
+
+    /**
+     * @param Tree|Content $parent Parent category
+     *
+     * @return Content|Tree
+     * @throws Exception
+     */
+    public function setChildOf(Tree $parent)
+    {
+        if ($parent->type->name !== 'category') {
+            throw new Exception("Content can be assigned only to category parent");
+        }
+        return parent::setChildOf($parent);
     }
 }
