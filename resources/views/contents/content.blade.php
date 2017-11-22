@@ -1,16 +1,15 @@
 @extends('gzero-core::layouts.master')
 @section('bodyClass', $content->theme)
-<?php $activeTranslation = $content->translation($language->code); ?>
 <?php $url = $content->routeUrl($language->code); ?>
 
 @section('metaData')
     @if(isProviderLoaded('Gzero\Social\ServiceProvider') && function_exists('fbOgTags'))
-        {!! fbOgTags($url, $activeTranslation) !!}
+        {!! fbOgTags($url, $translation) !!}
     @endif
 @stop
 
-@section('title'){{ $activeTranslation->seoTitle() }}@stop
-@section('seoDescription'){{ $activeTranslation->seoDescription() }}@stop
+@section('title'){{ $translation->seoTitle() }}@stop
+@section('seoDescription'){{ $translation->seoDescription() }}@stop
 @section('head')
     @parent
     @include('gzero-cms::includes.canonical')
@@ -30,7 +29,7 @@
 @section('content')
     @include('gzero-cms::includes.notPublishedContentMsg')
     <h1 class="content-title page-header">
-        {{ $activeTranslation->title }}
+        {{ $translation->title }}
     </h1>
     <div class="row content-meta">
         <div class="col-sm-7">
@@ -42,7 +41,7 @@
         <div class="col-sm-5 text-right text-left-sm text-left-xs">
             @if(isProviderLoaded('Gzero\Social\ServiceProvider') && function_exists('shareButtons'))
                 <div class="social-buttons mb15">
-                    {!! shareButtons($url, $activeTranslation) !!}
+                    {!! shareButtons($url, $translation) !!}
                 </div>
             @endif
         </div>
@@ -57,9 +56,9 @@
                  alt="{{($thumbTranslation)? $thumbTranslation->title : ''}}">
         </div>
     @endif
-    {!! $activeTranslation->body !!}
+    {!! $translation->body !!}
     @include('gzero-cms::includes.gallery', ['images' => $images, 'thumb' => $content->thumb])
-    @if(config('disqus.enabled') && $content->isCommentAllowed)
+    @if(config('disqus.enabled') && $content->is_comment_allowed)
         <div class="text-center">
             @include('gzero-cms::includes.disqus.disqus', ['contentId' => $content->id, 'url' => $url])
         </div>
@@ -67,7 +66,7 @@
     <hr>
     @if(isProviderLoaded('Gzero\Social\ServiceProvider') && function_exists('likeButtons'))
         <div class="social-buttons mb15">
-            {!! likeButtons($url, $activeTranslation) !!}
+            {!! likeButtons($url, $translation) !!}
         </div>
     @endif
     <div class="text-muted text-right">

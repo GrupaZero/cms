@@ -79,10 +79,11 @@ class ContentPresenter extends Presenter {
      */
     public function publishDate()
     {
-        if (!empty($this->published_at)) {
-            return $this->published_at;
+        if (empty($this->published_at)) {
+            return trans('gzero-core::common.unknown');
         }
-        return trans('gzero-core::common.unknown');
+
+        return $this->published_at;
     }
 
     /**
@@ -92,10 +93,11 @@ class ContentPresenter extends Presenter {
      */
     public function authorName()
     {
-        if (!empty($this->author)) {
-            return $this->author->getPresenter()->displayName();
+        if (empty($this->author)) {
+            return trans('gzero-core::common.anonymous');
         }
-        return trans('gzero-core::common.anonymous');
+
+        return $this->author->getPresenter()->displayName();
     }
 
     /**

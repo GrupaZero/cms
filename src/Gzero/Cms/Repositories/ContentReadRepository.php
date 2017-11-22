@@ -103,4 +103,21 @@ class ContentReadRepository implements ReadRepository {
             $builder->getPage()
         );
     }
+
+    /**
+     * Get all children specific content
+     *
+     * @param Content $content parent
+     *
+     * @return mixed
+     */
+    public function getChildren(Content $content)
+    {
+        return $content->children()
+            ->orderBy('is_promoted', 'DESC')
+            ->orderBy('is_sticky', 'DESC')
+            ->orderBy('weight', 'ASC')
+            ->orderBy('published_at', 'ASC')
+            ->paginate(option('general', 'default_page_size', 20));
+    }
 }

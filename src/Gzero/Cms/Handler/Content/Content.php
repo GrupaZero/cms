@@ -1,9 +1,11 @@
 <?php namespace Gzero\Cms\Handler\Content;
 
 use Gzero\Cms\Models\Content as ContentEntity;
+use Gzero\Cms\Repositories\ContentReadRepository;
 use Gzero\Cms\Services\ContentService;
 use Gzero\Cms\Services\FileService;
 use Gzero\Core\Models\Language;
+use Gzero\Core\UrlParamsProcessor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
@@ -17,13 +19,16 @@ class Content implements ContentTypeHandler {
     protected $files;
 
     /** @var */
-    protected $translations;
+    protected $translation;
 
-    /** @var */
-    protected $author;
+    /** @var ContentReadRepository */
+    protected $repository;
 
     /** @var ContentService */
-    protected $contentRepo;
+    protected $contentService;
+
+    /** @var UrlParamsProcessor */
+    protected $processor;
 
     /** @var FileService */
     protected $fileRepo;
@@ -37,16 +42,23 @@ class Content implements ContentTypeHandler {
     /**
      * Content constructor
      *
-     * @param ContentService $contentRepo Content repository
-     * @param FileService    $fileRepo    File repository
-     * @param Request        $request     Request object
+     * @param ContentReadRepository $repository     ContentReadRepository repository
+     * @param ContentService        $contentService Content service
+     * @param FileService           $fileRepo       File repository
+     * @param Request               $request        Request object
      */
-    public function __construct(ContentService $contentRepo, FileService $fileRepo, Request $request)
-    {
-        $this->contentRepo = $contentRepo;
-        $this->fileRepo    = $fileRepo;
-        $this->breadcrumbs = app('breadcrumbs');
-        $this->request     = $request;
+    public function __construct(
+        ContentReadRepository $repository,
+        ContentService $contentService,
+        FileService $fileRepo,
+        Request $request
+    ) {
+        $this->processor      = new UrlParamsProcessor(resolve('Illuminate\Contracts\Validation\Factory'));
+        $this->repository     = $repository;
+        $this->contentService = $contentService;
+        $this->fileRepo       = $fileRepo;
+        $this->breadcrumbs    = app('breadcrumbs');
+        $this->request        = $request;
     }
 
     /**
@@ -59,11 +71,9 @@ class Content implements ContentTypeHandler {
      */
     public function load(ContentEntity $content, Language $language)
     {
-        // @TOD Use view presenter for active translation and languages
-        if ($language) { // Right now we don't need lang
-            $this->content = $content->load('route.translations', 'translations', 'author');
-        }
-        $this->files = $this->fileRepo->getEntityFiles($content, [['is_active', '=', true]]);
+        $this->content     = $content;
+        $this->translation = $content->getActiveTranslation($language->code);
+        $this->files       = $this->fileRepo->getEntityFiles($content, [['is_active', '=', true]]);
         $this->buildBreadcrumbsFromUrl($language);
 
         return $this;
@@ -79,15 +89,14 @@ class Content implements ContentTypeHandler {
         return response()->view(
             'gzero-cms::contents.content',
             [
-                'content'      => $this->content,
-                'translations' => $this->translations,
-                'author'       => $this->author,
-                'images'       => $this->files->filter(
+                'content'     => $this->content,
+                'translation' => $this->translation,
+                'images'      => $this->files->filter(
                     function ($file) {
                         return $file->type === 'image';
                     }
                 ),
-                'documents'    => $this->files->filter(
+                'documents'   => $this->files->filter(
                     function ($file) {
                         return $file->type === 'document';
                     }
@@ -105,14 +114,15 @@ class Content implements ContentTypeHandler {
      */
     protected function buildBreadcrumbsFromUrl(Language $language)
     {
+        // @TODO REMOVE THIS OR REMOVE CONTENT SERVICE ONLY?
         $this->breadcrumbs->register(
             $this->content->type,
             function ($breadcrumbs) use ($language) {
                 $breadcrumbs->push(trans('gzero-core::common.home'), routeMl('home'));
 
                 $contentUrl    = $this->content->getPath($language->code);
-                $titles        = $this->contentRepo->getTitlesTranslationFromUrl($contentUrl, $language->code);
-                $titlesAndUrls = $this->contentRepo->matchTitlesWithUrls($titles, $contentUrl, $language->code);
+                $titles        = $this->contentService->getTitlesTranslationFromUrl($contentUrl, $language->code);
+                $titlesAndUrls = $this->contentService->matchTitlesWithUrls($titles, $contentUrl, $language->code);
 
                 foreach ($titlesAndUrls as $item) {
                     $breadcrumbs->push($item['title'], $item['url']);

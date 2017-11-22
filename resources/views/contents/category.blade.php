@@ -1,9 +1,8 @@
 @extends('gzero-core::layouts.master')
 @section('bodyClass', $content->theme)
-<?php $activeTranslation = $content->translation($language->code); ?>
 
-@section('title'){{ $activeTranslation->seoTitle() }}@stop
-@section('seoDescription'){{ $activeTranslation->seoDescription() }}@stop
+@section('title'){{ $translation->seoTitle() }}@stop
+@section('seoDescription'){{ $translation->seoDescription() }}@stop
 @section('head')
     @parent
     @include('gzero-cms::includes.canonical', ['paginator' => $children])
@@ -23,18 +22,18 @@
 @section('content')
     @include('gzero-cms::includes.notPublishedContentMsg')
     <h1 class="content-title page-header">
-        {{ $activeTranslation->title }}
+        {{ $translation->title }}
     </h1>
-    {!! $activeTranslation->body !!}
+    {!! $translation->body !!}
     @if($children)
         @foreach($children as $index => $child)
-            <?php $activeTranslation = $child->translation($language->code); ?>
-            @if($activeTranslation)
+            <?php $childTranslation = $child->translation($language->code); ?>
+            @if($childTranslation)
                 <?php $childUrl = $child->routeUrl($language->code); ?>
                 <div class="media">
-                    <h2 class="page-header" title="{{ $activeTranslation->title }}">
+                    <h2 class="page-header" title="{{ $childTranslation->title }}">
                         <a href="{{ $childUrl }}">
-                            {{ $activeTranslation->title }}
+                            {{ $childTranslation->title }}
                         </a>
                     </h2>
                     <div class="media-body">
@@ -45,7 +44,7 @@
                                     <small>@lang('gzero-core::common.posted_on') {{ $child->publishDate() }}</small>
                                 </p>
                             </div>
-                            @if(config('disqus.enabled') && $child->isCommentAllowed)
+                            @if(config('disqus.enabled') && $child->is_comment_allowed)
                                 <div class="col-xs-4 text-right">
                                     <a href="{{ $childUrl }}#disqus_thread"
                                        data-disqus-identifier="{{ $child->id }}"
@@ -65,7 +64,7 @@
                                      alt="{{($thumbTranslation)? $thumbTranslation->title : ''}}">
                             </div>
                         @endif
-                        {!! $activeTranslation->teaser !!}
+                        {!! $childTranslation->teaser !!}
                     </div>
                     <div class="row">
                         <div class="col-sm-4">

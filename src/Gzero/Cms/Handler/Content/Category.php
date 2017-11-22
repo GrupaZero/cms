@@ -2,6 +2,8 @@
 
 use Gzero\Cms\Models\Content as ContentEntity;
 use Gzero\Core\Models\Language;
+use Gzero\Core\Parsers\StringParser;
+use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 
 /**
@@ -34,20 +36,7 @@ class Category extends Content {
     public function load(ContentEntity $content, Language $language)
     {
         parent::load($content, $language);
-        $this->children = $this->contentRepo->getChildren(
-            $content,
-            [
-                ['is_active', '=', true]
-            ],
-            [
-                ['is_promoted', 'DESC'],
-                ['is_sticky', 'DESC'],
-                ['weight', 'ASC'],
-                ['published_at', 'DESC']
-            ],
-            $this->request->get('page', 1),
-            option('general', 'default_page_size', 20)
-        )->setPath($this->request->url());
+        $this->children = $this->repository->getChildren($content)->setPath($this->request->url());
 
         return $this;
     }
@@ -62,20 +51,19 @@ class Category extends Content {
         return response()->view(
             'gzero-cms::contents.category',
             [
-                'content'      => $this->content,
-                'translations' => $this->translations,
-                'author'       => $this->author,
-                'images'       => $this->files->filter(
+                'content'     => $this->content,
+                'translation' => $this->translation,
+                'images'      => $this->files->filter(
                     function ($file) {
                         return $file->type === 'image';
                     }
                 ),
-                'documents'    => $this->files->filter(
+                'documents'   => $this->files->filter(
                     function ($file) {
                         return $file->type === 'document';
                     }
                 ),
-                'children'     => $this->children
+                'children'    => $this->children
             ]
         );
     }
