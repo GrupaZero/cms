@@ -22,7 +22,7 @@ class ContentJobsTest extends Unit {
     public function canCreateContentAndGetItById()
     {
         $user    = $this->tester->haveUser();
-        $content = dispatch_now(new CreateContent('New One', new Language(['code' => 'en']), $user,
+        $content = dispatch_now(CreateContent::content('New One', new Language(['code' => 'en']), $user,
             [
                 'weight'             => 10,
                 'is_active'          => true,
@@ -107,7 +107,7 @@ class ContentJobsTest extends Unit {
         ]);
 
         try {
-            dispatch_now(new CreateContent('title', $language, $user, ['parent_id' => $parent->id]));
+            dispatch_now(CreateContent::content('title', $language, $user, ['parent_id' => $parent->id]));
         } catch (Exception $exception) {
             $this->assertEquals(Exception::class, get_class($exception));
             $this->assertEquals('Content can be assigned only to category parent', $exception->getMessage());
@@ -124,7 +124,7 @@ class ContentJobsTest extends Unit {
         $language = new Language(['code' => 'en']);
 
         try {
-            dispatch_now(new CreateContent('title', $language, $user, ['type' => 'post']));
+            dispatch_now(CreateContent::make('title', $language, $user, ['type' => 'post']));
         } catch (Exception $exception) {
             $this->assertEquals(Exception::class, get_class($exception));
             $this->assertEquals('Unknown content type', $exception->getMessage());
@@ -140,7 +140,7 @@ class ContentJobsTest extends Unit {
         $this->tester->loginAsUser();
         $author = $this->tester->haveUser();
 
-        $content       = (new CreateContent('content', 'en', 'title', [], $author))->handle();
+        $content       = dispatch_now(CreateContent::content('content', 'en', 'title', [], $author));
         $contentFromDb = $this->repository->getById($content->id);
 
         $this->assertEquals($author->id, $contentFromDb->author_id);

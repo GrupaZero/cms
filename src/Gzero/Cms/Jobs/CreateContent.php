@@ -48,7 +48,7 @@ class CreateContent {
      * @param User     $author     User model
      * @param array    $attributes Array of optional attributes
      */
-    public function __construct(string $title, Language $language, User $author, array $attributes = [])
+    protected function __construct(string $title, Language $language, User $author, array $attributes = [])
     {
         $this->title      = $title;
         $this->language   = $language;
@@ -57,6 +57,36 @@ class CreateContent {
             $this->allowedAttributes,
             array_only($attributes, array_keys($this->allowedAttributes))
         );
+    }
+
+    /**
+     * It creates job to create content
+     *
+     * @param string   $title      Translation title
+     * @param Language $language   Language
+     * @param User     $author     User model
+     * @param array    $attributes Array of optional attributes
+     *
+     * @return CreateContent
+     */
+    public static function make(string $title, Language $language, User $author, array $attributes = [])
+    {
+        return new self($title, $language, $author, $attributes);
+    }
+
+    /**
+     * It creates job to create content
+     *
+     * @param string   $title      Translation title
+     * @param Language $language   Language
+     * @param User     $author     User model
+     * @param array    $attributes Array of optional attributes
+     *
+     * @return CreateContent
+     */
+    public static function content(string $title, Language $language, User $author, array $attributes = [])
+    {
+        return new self($title, $language, $author, array_merge($attributes, ['type' => 'content']));
     }
 
     /**
