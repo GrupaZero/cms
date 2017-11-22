@@ -71,8 +71,7 @@ class CreateContent {
      */
     public static function category(string $title, Language $language, User $author, array $attributes = [])
     {
-        $attributes['type'] = 'category';
-        return new self($title, $language, $author, $attributes);
+        return new self($title, $language, $author, array_merge($attributes, ['type' => 'category']));
     }
 
     /**
