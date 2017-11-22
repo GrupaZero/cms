@@ -33,9 +33,11 @@ class DeleteContent {
                 }
                 // Detach all files
                 $this->content->files()->sync([]);
-                $this->content->delete();
+                $lastAction = $this->content->delete();
 
-                return true;
+                event('content.deleted', [$this->content]);
+
+                return $lastAction;
             }
         );
     }

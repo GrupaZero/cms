@@ -28,17 +28,17 @@ class ForceDeleteContent {
     {
         return DB::transaction(
             function () {
-                $routeRelation  = $this->content->route();
                 $descendantsIds = $this->content->findDescendantsWithTrashed()->pluck('id');
 
                 // First we need to delete all routes because it's polymorphic relation
-                Route::query()
-                    ->where('routes.routable_type', '=', Content::class)
-                    ->whereIn($routeRelation->getForeignKeyName(), $descendantsIds)
+                Route::where('routes.routable_type', '=', Content::class)
+                    ->whereIn('routable_id', $descendantsIds)
                     ->delete();
-                Content::withTrashed()->find($this->content->id)->forceDelete();
+                $lastAction = Content::withTrashed()->find($this->content->id)->forceDelete();
 
-                return true;
+                event('content.force_deleted', [$this->content]);
+
+                return $lastAction;
             }
         );
     }

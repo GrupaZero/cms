@@ -28,15 +28,19 @@ class DeleteContentTranslation {
      */
     public function handle()
     {
+
         if ($this->translation->is_active) {
             throw new Exception('Cannot delete active translation');
         }
 
         return DB::transaction(
             function () {
-                return $this->translation->delete();
+                $lastAction = $this->translation->delete();
+
+                event('content.translation.deleted', [$this->translation]);
+
+                return $lastAction;
             }
         );
     }
-
 }
