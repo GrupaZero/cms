@@ -5,7 +5,6 @@ use Gzero\Cms\Repositories\ContentReadRepository;
 use Gzero\Cms\Services\ContentService;
 use Gzero\Cms\Services\FileService;
 use Gzero\Core\Models\Language;
-use Gzero\Core\UrlParamsProcessor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
@@ -26,9 +25,6 @@ class Content implements ContentTypeHandler {
 
     /** @var ContentService */
     protected $contentService;
-
-    /** @var UrlParamsProcessor */
-    protected $processor;
 
     /** @var FileService */
     protected $fileRepo;
@@ -53,7 +49,6 @@ class Content implements ContentTypeHandler {
         FileService $fileRepo,
         Request $request
     ) {
-        $this->processor      = new UrlParamsProcessor(resolve('Illuminate\Contracts\Validation\Factory'));
         $this->repository     = $repository;
         $this->contentService = $contentService;
         $this->fileRepo       = $fileRepo;
