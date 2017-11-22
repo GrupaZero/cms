@@ -1,6 +1,7 @@
 <?php namespace Cms;
 
 use Codeception\Test\Unit;
+use Gzero\Cms\CMSSeeder;
 use Gzero\Cms\Jobs\CreateContent;
 use Gzero\Cms\Jobs\DeleteContent;
 use Gzero\Cms\Jobs\CreateContentRoute;
@@ -8,6 +9,7 @@ use Gzero\Cms\Jobs\DeleteContentTranslation;
 use Gzero\Cms\Jobs\ForceDeleteContent;
 use Gzero\Cms\Jobs\AddContentTranslation;
 use Gzero\Cms\Repositories\ContentReadRepository;
+use Gzero\Cms\Services\BlockService;
 use Gzero\Core\Repositories\RouteReadRepository;
 use Illuminate\Support\Facades\Auth;
 use Gzero\Core\Exception;
@@ -236,6 +238,20 @@ class ContentJobsTest extends Unit {
     }
 
     /** @test */
+    public function canDeleteContentWithChildren()
+    {
+        $category = (new CreateContent('category', 'en', 'category title'))->handle();
+
+        $content = (new CreateContent('content', 'en', 'content title'))->handle();
+        $content->setChildOf($category);
+
+        (new DeleteContent($category))->handle();
+
+        // Content children has been removed?
+        $this->assertEmpty($category->fresh()->children()->get());
+    }
+
+    /** @test */
     public function canForceDeleteContent()
     {
         $contents = $this->tester->haveContents([
@@ -285,6 +301,21 @@ class ContentJobsTest extends Unit {
     }
 
     /** @test */
+    public function canForceDeleteContentWithChildren()
+    {
+        $category = (new CreateContent('category', 'en', 'category title'))->handle();
+
+        $content = (new CreateContent('content', 'en', 'content title'))->handle();
+        $content->setChildOf($category);
+
+        (new ForceDeleteContent($category))->handle();
+
+        $this->assertNull($this->repository->getById($category->id));
+        // Content children has been removed?
+        $this->assertNull($this->repository->getById($content->id));
+    }
+
+    /** @test */
     public function canForceDeleteSoftDeletedContent()
     {
         $contents = $this->tester->haveContents([
@@ -331,6 +362,24 @@ class ContentJobsTest extends Unit {
             $contentRoute->translations->first()->path,
             $contentRoute->translations->first()->language_code
         ));
+    }
+
+    /**
+     * @test
+     */
+    public function canForceDeleteSoftDeletedContentWithChildren()
+    {
+        $category = (new CreateContent('category', 'en', 'category title'))->handle();
+
+        $content = (new CreateContent('content', 'en', 'content title'))->handle();
+        $content->setChildOf($category);
+
+        (new DeleteContent($category))->handle();
+        (new ForceDeleteContent($category))->handle();
+
+        $this->assertNull($this->repository->getById($category->id));
+        // Content children has been removed?
+        $this->assertNull($this->repository->getById($content->id));
     }
 
     /** @test */
@@ -454,6 +503,31 @@ class ContentJobsTest extends Unit {
         (new ForceDeleteContent($content))->handle();
 
         $this->assertNull($this->repository->getByIdWithTrashed($content->id));
+    }
+
+    /** @test */
+    public function itDoesNotAllowToDeleteActiveTranslation()
+    {
+        $content = $this->tester->haveContent(
+            [
+                'type'         => 'content',
+                'translations' => [
+                    [
+                        'language_code' => 'en',
+                        'title'         => 'Example title'
+                    ]
+                ]
+            ]
+        );
+
+        $this->assertInstanceOf('Gzero\Cms\Models\Content', $content);
+
+        $translation = $this->repository->getById($content->id)->translations->first();
+        $this->assertInstanceOf('Gzero\Cms\Models\ContentTranslation', $translation);
+        $this->assertEquals($translation->is_active, 1);
+
+        $this->expectException('Gzero\Core\Exception');
+        (new DeleteContentTranslation($translation))->handle();
     }
 }
 
