@@ -111,7 +111,7 @@ class Content implements ContentTypeHandler {
     {
         // @TODO REMOVE THIS OR REMOVE CONTENT SERVICE ONLY?
         $this->breadcrumbs->register(
-            $this->content->type,
+            $this->content->type->name,
             function ($breadcrumbs) use ($language) {
                 $breadcrumbs->push(trans('gzero-core::common.home'), routeMl('home'));
 

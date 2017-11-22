@@ -172,7 +172,7 @@ class Content extends BaseTree implements PresentableInterface, Uploadable, Rout
      */
     public function thumb()
     {
-        return $this->belongsTo(File::class, 'thumb_id', 'id')->withDefault();
+        return $this->belongsTo(File::class, 'thumb_id', 'id');
     }
 
     /**
