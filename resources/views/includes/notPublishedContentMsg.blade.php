@@ -1,4 +1,4 @@
-@if(!$content->isActive)
+@if(!$content->is_active)
     <div class="alert alert-warning" role="alert">
         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
             <span aria-hidden="true">&times;</span>
