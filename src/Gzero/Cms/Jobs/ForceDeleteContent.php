@@ -1,9 +1,10 @@
 <?php namespace Gzero\Cms\Jobs;
 
 use Gzero\Cms\Models\Content;
+use Gzero\Core\Models\Route;
 use Illuminate\Support\Facades\DB;
 
-class DeleteContent {
+class ForceDeleteContent {
 
     /** @var Content */
     protected $content;
@@ -27,19 +28,18 @@ class DeleteContent {
     {
         return DB::transaction(
             function () {
-                // When we're using softDelete, we need to manually softDeleted descendants rows
-                foreach ($this->content->findDescendants()->get() as $node) {
-                    $node->delete();
-                }
-                // Detach all files
-                $this->content->files()->sync([]);
-                $lastAction = $this->content->delete();
+                $descendantsIds = $this->content->findDescendantsWithTrashed()->pluck('id');
 
-                event('content.deleted', [$this->content]);
+                // First we need to delete all routes because it's polymorphic relation
+                Route::where('routes.routable_type', '=', Content::class)
+                    ->whereIn('routable_id', $descendantsIds)
+                    ->delete();
+                $lastAction = Content::withTrashed()->find($this->content->id)->forceDelete();
+
+                event('content.force_deleted', [$this->content]);
 
                 return $lastAction;
             }
         );
     }
-
 }
