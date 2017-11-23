@@ -12,9 +12,7 @@
     @endif
 @stop
 @section('mainContent')
-    <div class="float-left">
-        {!! Breadcrumbs::render('category') !!}
-    </div>
+    {!! Breadcrumbs::render('category') !!}
     @parent
 @stop
 @section('content')
