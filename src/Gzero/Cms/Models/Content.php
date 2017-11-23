@@ -6,6 +6,7 @@ use Gzero\Core\Models\BaseTree;
 use Gzero\Core\Models\Language;
 use Gzero\Core\Models\Routable;
 use Gzero\Core\Models\Route;
+use Gzero\Core\Models\RouteTranslation;
 use Gzero\Core\Models\User;
 use Gzero\Cms\Presenters\ContentPresenter;
 use Gzero\Core\Exception;
@@ -30,7 +31,6 @@ class Content extends BaseTree implements PresentableInterface, Uploadable, Rout
         'is_comment_allowed',
         'is_promoted',
         'is_sticky',
-        'is_active',
         'published_at'
     ];
 
@@ -39,8 +39,7 @@ class Content extends BaseTree implements PresentableInterface, Uploadable, Rout
         'is_on_home'         => false,
         'is_comment_allowed' => false,
         'is_promoted'        => false,
-        'is_sticky'          => false,
-        'is_active'          => false
+        'is_sticky'          => false
     ];
 
     /**
@@ -124,15 +123,14 @@ class Content extends BaseTree implements PresentableInterface, Uploadable, Rout
      *
      * @param string $languageCode Lang code
      *
-     * @return mixed
      * @throws Exception
+     *
+     * @return string
      */
     public function getPath($languageCode)
     {
-        $routeTranslation = $this->route->translations
-            ->filter(function ($translation) use ($languageCode) {
-                return $translation->language_code == $languageCode;
-            })
+        $routeTranslation = $this->route->translations(false)
+            ->where('language_code', $languageCode)
             ->first();
         if (empty($routeTranslation->path)) {
             throw new Exception("No route [$languageCode] translation found for Content id: " . $this->getKey());
@@ -203,19 +201,20 @@ class Content extends BaseTree implements PresentableInterface, Uploadable, Rout
      * Creates route with unique path based on content translation title, and tree hierarchy
      *
      * @param ContentTranslation $translation Translation
+     * @param bool               $isActive    Is active trigger
      *
      * @return $this
      */
-    public function createRouteWithUniquePath(ContentTranslation $translation)
+    public function createRoute(ContentTranslation $translation, bool $isActive = false)
     {
         $route            = $this->route()->first() ?: new Route();
-        $routeTranslation = $route->translations()->firstOrNew(
-            [
+        $routeTranslation = $route->translations()
+            ->firstOrNew([
                 'route_id'      => $route->id,
                 'language_code' => $translation->language_code,
-                'is_active'     => true
-            ]
-        );
+            ], [
+                'is_active' => $isActive
+            ]);
 
         $routeTranslation->path = $this->getUniquePath($translation);
 

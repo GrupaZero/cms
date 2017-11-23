@@ -72,7 +72,7 @@ class AddContentTranslation {
 
                 $this->content->disableActiveTranslations($translation->language_code);
                 $this->content->translations()->save($translation);
-                $this->content->createRouteWithUniquePath($translation);
+                $this->content->createRoute($translation);
 
                 event('content.translation.created', [$translation]);
                 return $translation;

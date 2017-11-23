@@ -24,22 +24,19 @@ class ContentJobsTest extends Unit {
     public function canCreateContent()
     {
         $user    = $this->tester->haveUser();
-        $content = dispatch_now(CreateContent::content('New One', new Language(['code' => 'en']), $user,
-            [
-                'weight'             => 10,
-                'is_active'          => true,
-                'is_on_home'         => true,
-                'is_promoted'        => true,
-                'is_sticky'          => true,
-                'is_comment_allowed' => true
-            ]
-        ));
+        $content = dispatch_now(CreateContent::content('New One', new Language(['code' => 'en']), $user, [
+            'weight'             => 10,
+            'is_active'          => true,
+            'is_on_home'         => true,
+            'is_promoted'        => true,
+            'is_sticky'          => true,
+            'is_comment_allowed' => true
+        ]));
 
         $content          = $content->fresh();
         $translation      = $content->translations->first();
         $routeTranslation = $content->route->translations->first();
 
-        $this->assertTrue($content->is_active);
         $this->assertTrue($content->is_on_home);
         $this->assertTrue($content->is_promoted);
         $this->assertTrue($content->is_sticky);
@@ -58,8 +55,18 @@ class ContentJobsTest extends Unit {
 
         $this->assertEquals('new-one', $routeTranslation->path, 'Language code was set');
         $this->assertEquals('en', $routeTranslation->language_code, 'Route language code was set');
-
         $this->assertTrue($routeTranslation->is_active, 'Route was set to active');
+    }
+
+    /** @test */
+    public function itCreateUnpublishedContentByDefault()
+    {
+        $user    = $this->tester->haveUser();
+        $content = dispatch_now(CreateContent::content('New One', new Language(['code' => 'en']), $user));
+
+        $routeTranslation = $content->route->translations(false)->first();
+
+        $this->assertFalse($routeTranslation->is_active, 'Route was set to active');
     }
 
     /** @test */
@@ -77,12 +84,18 @@ class ContentJobsTest extends Unit {
             ]
         ]);
 
-        $child = dispatch_now(CreateContent::category('Child Title', $language, $user, ['parent_id' => $parent->id]));
+        $child = dispatch_now(CreateContent::category('Child Title', $language, $user, [
+            'parent_id' => $parent->id,
+            'is_active' => true
+        ]));
 
         $child      = $child->fresh();
         $childRoute = $child->route->translations->first();
 
-        $nestedChild = dispatch_now(CreateContent::content('Nested Child Title', $language, $user, ['parent_id' => $child->id]));
+        $nestedChild = dispatch_now(CreateContent::content('Nested Child Title', $language, $user, [
+            'parent_id' => $child->id,
+            'is_active' => true
+        ]));
 
         $nestedChild      = $nestedChild->fresh();
         $nestedChildRoute = $nestedChild->route->translations->first();

@@ -120,7 +120,6 @@ class CreateContent {
                     'type'               => $this->attributes['type'],
                     'theme'              => $this->attributes['theme'],
                     'weight'             => $this->attributes['weight'],
-                    'is_active'          => $this->attributes['is_active'],
                     'is_on_home'         => $this->attributes['is_on_home'],
                     'is_promoted'        => $this->attributes['is_promoted'],
                     'is_sticky'          => $this->attributes['is_sticky'],
@@ -157,7 +156,7 @@ class CreateContent {
 
                 $content->disableActiveTranslations($translation->language_code);
                 $content->translations()->save($translation);
-                $content->createRouteWithUniquePath($translation);
+                $content->createRoute($translation, $this->attributes['is_active']);
 
                 event('content.created', [$content]);
                 return $content;

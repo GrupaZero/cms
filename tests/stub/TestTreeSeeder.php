@@ -134,7 +134,6 @@ class TestTreeSeeder extends Seeder {
     {
         $input = [
             'type'         => $type->name,
-            'is_active'    => true,
             'translations' => [
                 'language_code' => 'en',
                 'title'     => $this->faker->sentence(5),
