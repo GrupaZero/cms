@@ -102,7 +102,7 @@ class CMSSeeder extends Seeder {
 
         $news    = dispatch_now(CreateContent::category('News', $en, $user, ['is_active' => true]));
         $offer   = dispatch_now(CreateContent::category('Offer', $en, $user, ['is_active' => true]));
-        $aboutUs = dispatch_now(CreateContent::category('About us', $en, $user, array_merge(
+        $aboutUs = dispatch_now(CreateContent::content('About us', $en, $user, array_merge(
             ['is_active' => true],
             $this->generateContentTranslation($pl)
         )));
