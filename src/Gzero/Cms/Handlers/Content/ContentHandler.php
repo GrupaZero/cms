@@ -27,16 +27,13 @@ class ContentHandler implements ContentTypeHandler {
     /**
      * Content constructor
      *
-     * @param ContentReadRepository $repository ContentReadRepository repository
-     * @param FileService           $fileRepo   File repository
-     * @param Request               $request    Request object
+     * @param FileService $fileRepo File repository
+     * @param Request     $request  Request object
      */
-    public function __construct(ContentReadRepository $repository, FileService $fileRepo, Request $request)
+    public function __construct(FileService $fileRepo, Request $request)
     {
-        $this->repository  = $repository;
-        $this->fileRepo    = $fileRepo;
-        $this->breadcrumbs = resolve('breadcrumbs');
-        $this->request     = $request;
+        $this->fileRepo = $fileRepo;
+        $this->request  = $request;
     }
 
     /**
@@ -50,7 +47,8 @@ class ContentHandler implements ContentTypeHandler {
     public function handle(Content $content, Language $language): Response
     {
         $files = $this->fileRepo->getEntityFiles($content, [['is_active', '=', true]]);
-        $this->buildBreadcrumbsFromUrl($content, $language);
+
+        self::buildBreadcrumbs($content, $language);
 
         return response()->view(
             'gzero-cms::contents.content',
@@ -79,18 +77,17 @@ class ContentHandler implements ContentTypeHandler {
      *
      * @return void
      */
-    protected function buildBreadcrumbsFromUrl(Content $content, Language $language)
+    public static function buildBreadcrumbs(Content $content, Language $language)
     {
-        // @TODO REMOVE THIS OR REMOVE CONTENT SERVICE ONLY?
-        $this->breadcrumbs->register(
+        resolve('breadcrumbs')->register(
             $content->type->name,
             function ($breadcrumbs) use ($content, $language) {
                 $breadcrumbs->push(trans('gzero-core::common.home'), routeMl('home'));
 
-                $titlesAndUrls = $this->repository->getAncestorsTitlesAndPaths($content, $language);
+                $titlesAndUrls = (new ContentReadRepository)->getAncestorsTitlesAndPaths($content, $language);
 
-                $titlesAndUrls->each(function ($item) use ($breadcrumbs) {
-                    $breadcrumbs->push($item->title, $item->path);
+                $titlesAndUrls->each(function ($item) use ($breadcrumbs, $language) {
+                    $breadcrumbs->push($item->title, urlMl($item->path, $language->code));
                 });
             }
         );

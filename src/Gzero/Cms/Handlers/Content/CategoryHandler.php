@@ -1,16 +1,40 @@
 <?php namespace Gzero\Cms\Handlers\Content;
 
 use Gzero\Cms\Models\Content;
+use Gzero\Cms\Repositories\ContentReadRepository;
+use Gzero\Cms\Services\FileService;
 use Gzero\Core\Models\Language;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
 
-class CategoryHandler extends ContentHandler implements ContentTypeHandler {
+class CategoryHandler implements ContentTypeHandler {
+
+    /** @var ContentReadRepository */
+    protected $repo;
+
+    /** @var FileService */
+    protected $fileRepo;
+
+    /** @var Request */
+    protected $request;
+
+    /** @var Collection */
+    protected $children;
 
     /**
-     * @var Collection
+     * CategoryHandler constructor.
+     *
+     * @param ContentReadRepository $repo     Content repository
+     * @param FileService           $fileRepo File repository
+     * @param Request               $request  Request
      */
-    protected $children;
+    public function __construct(ContentReadRepository $repo, FileService $fileRepo, Request $request)
+    {
+        $this->repo     = $repo;
+        $this->fileRepo = $fileRepo;
+        $this->request  = $request;
+    }
 
     /**
      * Load data from database
@@ -22,10 +46,10 @@ class CategoryHandler extends ContentHandler implements ContentTypeHandler {
      */
     public function handle(Content $content, Language $language): Response
     {
-        $children = $this->repository->getChildren($content)->setPath($this->request->url());
+        $children = $this->repo->getChildren($content)->setPath($this->request->url());
         $files    = $this->fileRepo->getEntityFiles($content, [['is_active', '=', true]]);
 
-        $this->buildBreadcrumbsFromUrl($content, $language);
+        ContentHandler::buildBreadcrumbs($content, $language);
 
         return response()->view(
             'gzero-cms::contents.category',
