@@ -239,6 +239,30 @@ class ContentJobsTest extends Unit {
     }
 
     /** @test */
+    public function shouldCreateContentRouteWithNewTranslation()
+    {
+        $user     = $this->tester->haveUser();
+        $language = new Language(['code' => 'pl']);
+        $content  = $this->tester->haveContent([
+            'translations' => [
+                [
+                    'language_code' => 'en',
+                    'title'         => 'Example Title'
+                ]
+            ]
+        ]);
+
+        dispatch_now(new AddContentTranslation($content, 'Example Title', $language, $user));
+
+        $content          = Content::find($content->id);
+        $routeTranslation = $content->route->translations->last();
+
+        $this->assertEquals('example-title', $routeTranslation->path);
+        $this->assertEquals('pl', $routeTranslation->language_code);
+        $this->assertTrue($routeTranslation->is_active);
+    }
+
+    /** @test */
     public function canDeleteContent()
     {
         $content = $this->tester->haveContent();

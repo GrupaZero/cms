@@ -29,7 +29,8 @@ class AddContentTranslation {
         'teaser'          => null,
         'body'            => null,
         'seo_title'       => null,
-        'seo_description' => null
+        'seo_description' => null,
+        'is_active'       => true,
     ];
 
     /**
@@ -79,7 +80,7 @@ class AddContentTranslation {
 
                 $this->content->disableActiveTranslations($translation->language_code);
                 $this->content->translations()->save($translation);
-                $this->content->createRoute($translation);
+                $this->content->createRoute($translation, $this->attributes['is_active']);
 
                 event('content.translation.created', [$translation]);
                 return $translation;
