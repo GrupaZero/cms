@@ -26,7 +26,7 @@
 @stop
 @section('content')
     <div class="row justify-content-md-center">
-        <div class="col col-md-auto">
+        <div class="col-12 col-md-auto">
             @include('gzero-cms::includes.notPublishedContentMsg')
         </div>
     </div>

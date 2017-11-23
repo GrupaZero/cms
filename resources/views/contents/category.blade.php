@@ -68,7 +68,7 @@
                 @endif
                 {!! $childTranslation->teaser !!}
                 <div class="row justify-content-md-between">
-                    <div class="col col-md-auto">
+                    <div class="col-12 col-md-auto mb-3 mb-md-0">
                         <a href="{{ $childUrl }}" class="btn btn-outline-primary">
                             @lang('gzero-core::common.read_more')
                         </a>
