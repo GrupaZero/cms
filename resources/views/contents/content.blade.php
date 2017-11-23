@@ -33,15 +33,15 @@
     <h1 class="content-title">
         {{ $translation->title }}
     </h1>
-    <div class="row justify-content-between content-meta">
-        <div class="col-auto">
+    <div class="row justify-content-md-between content-meta">
+        <div class="col-12 col-md-auto">
             <p class="content-author text-muted">
                 <i>@lang('gzero-core::common.posted_by') {{ $content->authorName() }}</i>
                 <i>@lang('gzero-core::common.posted_on') {{ $content->publishDate() }}</i>
             </p>
         </div>
         @if(isProviderLoaded('Gzero\Social\ServiceProvider') && function_exists('shareButtons'))
-            <div class="col-auto">
+            <div class="col-12 col-md-auto">
                 <div class="social-buttons">
                     {!! shareButtons($url, $translation) !!}
                 </div>
