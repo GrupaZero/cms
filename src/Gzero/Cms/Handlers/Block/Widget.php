@@ -1,4 +1,4 @@
-<?php namespace Gzero\Cms\Handler\Block;
+<?php namespace Gzero\Cms\Handlers\Block;
 
 use Gzero\Cms\Models\Block;
 use Gzero\Core\Models\Language;

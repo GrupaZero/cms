@@ -1,4 +1,4 @@
-<?php namespace Gzero\Cms\Handler\File;
+<?php namespace Gzero\Cms\Handlers\File;
 
 class Video implements FileTypeHandler {
 

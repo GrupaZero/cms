@@ -16,9 +16,9 @@ class CreateContent extends Migration {
         Schema::create(
             'content_types',
             function (Blueprint $table) {
-                $table->string('name');
-                $table->boolean('is_active')->default(false);
-                $table->primary('name');
+                $table->increments('id');
+                $table->string('name')->unique();
+                $table->string('handler');
                 $table->timestamps();
             }
         );
@@ -27,7 +27,7 @@ class CreateContent extends Migration {
             'contents',
             function (Blueprint $table) {
                 $table->increments('id');
-                $table->string('type');
+                $table->integer('type_id')->unsigned()->nullable();
                 $table->string('theme')->nullable();
                 $table->integer('author_id')->unsigned()->nullable();
                 $table->string('path', 255)->nullable();
@@ -35,7 +35,6 @@ class CreateContent extends Migration {
                 $table->integer('level')->default(0);
                 $table->integer('weight')->default(0);
                 $table->integer('rating')->default(0);
-                $table->integer('visits')->default(0);
                 $table->boolean('is_on_home')->default(false);
                 $table->boolean('is_comment_allowed')->default(false);
                 $table->boolean('is_promoted')->default(false);
@@ -44,10 +43,10 @@ class CreateContent extends Migration {
                 $table->timestamp('published_at')->nullable();
                 $table->timestamp('deleted_at')->nullable();
                 $table->timestamps();
-                $table->index(['type', 'path', 'parent_id', 'level']);
+                $table->index(['path', 'level']);
                 $table->foreign('author_id')->references('id')->on('users')->onDelete('SET NULL');
                 $table->foreign('parent_id')->references('id')->on('contents')->onDelete('CASCADE');
-                $table->foreign('type')->references('name')->on('content_types')->onDelete('CASCADE');
+                $table->foreign('type_id')->references('id')->on('content_types')->onDelete('SET NULL');
             }
         );
 
@@ -57,6 +56,7 @@ class CreateContent extends Migration {
                 $table->increments('id');
                 $table->string('language_code', 2);
                 $table->integer('content_id')->unsigned();
+                $table->integer('author_id')->unsigned()->nullable();
                 $table->string('title')->nullable();
                 $table->text('teaser')->nullable();
                 $table->text('body')->nullable();
@@ -65,6 +65,7 @@ class CreateContent extends Migration {
                 $table->boolean('is_active')->default(false);
                 $table->timestamps();
                 $table->foreign('content_id')->references('id')->on('contents')->onDelete('CASCADE');
+                $table->foreign('author_id')->references('id')->on('users')->onDelete('SET NULL');
                 $table->foreign('language_code')->references('code')->on('languages')->onDelete('CASCADE');
             }
         );
@@ -92,9 +93,8 @@ class CreateContent extends Migration {
      */
     private function seedContentTypes()
     {
-        foreach (['content', 'category'] as $type) {
-            ContentType::firstOrCreate(['name' => $type, 'is_active' => true]);
-        }
+        ContentType::firstOrCreate(['name' => 'content', 'handler' => Gzero\Cms\Handlers\Content\ContentHandler::class]);
+        ContentType::firstOrCreate(['name' => 'category', 'handler' => Gzero\Cms\Handlers\Content\CategoryHandler::class]);
     }
 
 }

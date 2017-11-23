@@ -1,6 +1,8 @@
 <?php
 
 use Faker\Factory;
+use Gzero\Cms\Handlers\Content\CategoryHandler;
+use Gzero\Cms\Handlers\Content\ContentHandler;
 use Gzero\Cms\Models\ContentType;
 use Gzero\Core\Models\Language;
 use Gzero\Core\Models\User;
@@ -108,10 +110,15 @@ class TestTreeSeeder extends Seeder {
      */
     private function seedContentTypes()
     {
-        $contentTypes = [];
-        foreach (['content', 'category'] as $type) {
-            $contentTypes[$type] = ContentType::firstOrCreate(['name' => $type, 'is_active' => true]);
-        }
+        $contentTypes   = [];
+        $contentTypes[] = ContentType::firstOrCreate([
+            'name'    => 'content',
+            'handler' => ContentHandler::class
+        ]);
+        $contentTypes[] = ContentType::firstOrCreate([
+            'name'    => 'category',
+            'handler' => CategoryHandler::class
+        ]);
         return $contentTypes;
     }
 

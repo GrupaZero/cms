@@ -1,12 +1,11 @@
 <?php
 
-use Gzero\Entity\Lang;
-use Gzero\Entity\OptionCategory;
+use Gzero\Core\Models\Language;
+use Gzero\Core\Models\OptionCategory;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateGoogleTagManagerIdRowAndDeleteGoogleAnalyticsIdRow extends Migration
-{
+class CreateGoogleTagManagerIdRowAndDeleteGoogleAnalyticsIdRow extends Migration {
     /**
      * Run the migrations.
      *
@@ -17,7 +16,7 @@ class CreateGoogleTagManagerIdRowAndDeleteGoogleAnalyticsIdRow extends Migration
         DB::table('options')->where('key', 'google_analytics_id')->delete();
 
         $options = [
-            'seo'     => [
+            'seo' => [
                 'google_tag_manager_id' => [],
             ]
         ];
@@ -35,7 +34,7 @@ class CreateGoogleTagManagerIdRowAndDeleteGoogleAnalyticsIdRow extends Migration
         DB::table('options')->where('key', 'google_tag_manager_id')->delete();
 
         $options = [
-            'seo'     => [
+            'seo' => [
                 'google_analytics_id' => [],
             ]
         ];
@@ -56,7 +55,7 @@ class CreateGoogleTagManagerIdRowAndDeleteGoogleAnalyticsIdRow extends Migration
         // Propagate Lang options based on gzero config
         foreach ($options as $categoryKey => $category) {
             foreach ($options[$categoryKey] as $key => $option) {
-                foreach (Lang::all()->toArray() as $lang) {
+                foreach (Language::all()->toArray() as $lang) {
                     $options[$categoryKey][$key][$lang['code']] = config('gzero.' . $categoryKey . '.' . $key);
                 }
             }

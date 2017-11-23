@@ -33,20 +33,20 @@ return [
 
     ],
     'block_type'               => [
-        'basic'  => Gzero\Cms\Handler\Block\Basic::class,
-        'menu'   => Gzero\Cms\Handler\Block\Menu::class,
-        'slider' => Gzero\Cms\Handler\Block\Slider::class,
-        'widget' => Gzero\Cms\Handler\Block\Widget::class
+        'basic'  => Gzero\Cms\Handlers\Block\Basic::class,
+        'menu'   => Gzero\Cms\Handlers\Block\Menu::class,
+        'slider' => Gzero\Cms\Handlers\Block\Slider::class,
+        'widget' => Gzero\Cms\Handlers\Block\Widget::class
     ],
     'content_type'             => [
-        'content'  => Gzero\Cms\Handler\Content\Content::class,
-        'category' => Gzero\Cms\Handler\Content\Category::class
+        'content'  => Gzero\Cms\Handlers\Content\ContentHandler::class,
+        'category' => Gzero\Cms\Handlers\Content\Category::class
     ],
     'file_type'                => [
-        'image'    => Gzero\Cms\Handler\File\Image::class,
-        'document' => Gzero\Cms\Handler\File\Document::class,
-        'video'    => Gzero\Cms\Handler\File\Video::class,
-        'music'    => Gzero\Cms\Handler\File\Music::class
+        'image'    => Gzero\Cms\Handlers\File\Image::class,
+        'document' => Gzero\Cms\Handlers\File\Document::class,
+        'video'    => Gzero\Cms\Handlers\File\Video::class,
+        'music'    => Gzero\Cms\Handlers\File\Music::class
     ],
     'available_blocks_regions' => [
         'header',

@@ -2,6 +2,7 @@
 
 use Gzero\Cms\Models\Content;
 use Gzero\Cms\Models\ContentTranslation;
+use Gzero\Core\Models\Language;
 use Gzero\Core\Query\QueryBuilder;
 use Gzero\Core\Repositories\ReadRepository;
 use Gzero\Core\Repositories\RepositoryValidationException;
@@ -9,6 +10,16 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class ContentReadRepository implements ReadRepository {
+
+    /** @var array */
+    public static $loadRelations = [
+        'author',
+        'route',
+        'route.translations',
+        'thumb',
+        'translations',
+        'type'
+    ];
 
     /**
      * Retrieve a content by given id
@@ -19,7 +30,7 @@ class ContentReadRepository implements ReadRepository {
      */
     public function getById($id)
     {
-        return Content::find($id);
+        return $this->eagerLoad(Content::find($id));
     }
 
     /**
@@ -31,7 +42,7 @@ class ContentReadRepository implements ReadRepository {
      */
     public function getDeletedById($id)
     {
-        return Content::onlyTrashed()->find($id);
+        return $this->eagerLoad(Content::onlyTrashed()->find($id));
     }
 
     /**
@@ -43,7 +54,7 @@ class ContentReadRepository implements ReadRepository {
      */
     public function getByIdWithTrashed($id)
     {
-        return Content::withTrashed()->find($id);
+        return $this->eagerLoad(Content::withTrashed()->find($id));
     }
 
     /**
@@ -70,25 +81,54 @@ class ContentReadRepository implements ReadRepository {
     public function getByPath(string $path, string $languageCode, bool $onlyActive = false)
     {
         return Content::query()
-            ->join(
-                'routes',
-                function ($join) {
-                    $join->on('contents.id', '=', 'routes.routable_id')
-                        ->where('routes.routable_type', '=', Content::class);
+            ->with(self::$loadRelations)
+            ->join('routes', function ($join) {
+                $join->on('contents.id', '=', 'routes.routable_id')
+                    ->where('routes.routable_type', '=', Content::class);
+            })
+            ->join('route_translations', function ($join) use ($languageCode, $path, $onlyActive) {
+                $join->on('routes.id', '=', 'route_translations.route_id')
+                    ->where('route_translations.language_code', $languageCode)
+                    ->where('route_translations.path', $path);
+                if ($onlyActive) {
+                    $join->where('route_translations.is_active', true);
                 }
-            )
-            ->join(
-                'route_translations',
-                function ($join) use ($languageCode, $path, $onlyActive) {
-                    $join->on('routes.id', '=', 'route_translations.route_id')
-                        ->where('route_translations.language_code', $languageCode)
-                        ->where('route_translations.path', $path);
-                    if ($onlyActive) {
-                        $join->where('route_translations.is_active', true);
-                    }
-                }
-            )
+            })
             ->first(['contents.*']);
+    }
+
+    /**
+     * Returns titles & url paths from ancestors
+     *
+     * @param Content  $content    Content
+     * @param Language $language   Language
+     * @param bool     $onlyActive isActive trigger
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    public function getAncestorsTitlesAndPaths(Content $content, Language $language, $onlyActive = true)
+    {
+        $ancestorIds = array_filter(explode('/', $content->path));
+        return \DB::table('contents as c')
+            ->join('routes as r', function ($join) {
+                $join->on('c.id', '=', 'r.id');
+            })
+            ->join('route_translations as rt', function ($join) use ($language, $onlyActive) {
+                $join->on('r.id', '=', 'rt.route_id')->where('rt.language_code', $language->code);
+                if ($onlyActive) {
+                    $join->where('rt.is_active', true);
+                }
+            })
+            ->join('content_translations as ct', function ($join) use ($language, $onlyActive) {
+                $join->on('c.id', '=', 'ct.content_id')->where('ct.language_code', $language->code);
+                if ($onlyActive) {
+                    $join->where('ct.is_active', true);
+                }
+            })
+            ->whereIn('c.id', $ancestorIds)
+            ->orderBy('level', 'ASC')
+            ->select(['ct.title', 'rt.path'])
+            ->get();
     }
 
     /**
@@ -100,7 +140,7 @@ class ContentReadRepository implements ReadRepository {
      */
     public function getMany(QueryBuilder $builder)
     {
-        $query = Content::query();
+        $query = Content::query()->with(self::$loadRelations);
 
         if ($builder->hasRelation('translations')) {
             if (!$builder->getRelationFilter('translations', 'language_code')) {
@@ -138,10 +178,23 @@ class ContentReadRepository implements ReadRepository {
     public function getChildren(Content $content)
     {
         return $content->children()
+            ->with(self::$loadRelations)
             ->orderBy('is_promoted', 'DESC')
             ->orderBy('is_sticky', 'DESC')
             ->orderBy('weight', 'ASC')
             ->orderBy('published_at', 'ASC')
             ->paginate(option('general', 'default_page_size', 20));
+    }
+
+    /**
+     * Eager load relations
+     *
+     * @param Content|Collection $model Model or collection
+     *
+     * @return Content|Collection
+     */
+    protected function eagerLoad($model)
+    {
+        return optional($model)->load(self::$loadRelations);
     }
 }

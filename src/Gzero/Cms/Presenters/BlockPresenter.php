@@ -1,8 +1,8 @@
-<?php namespace Gzero\Cms\Models\Presenter;
+<?php namespace Gzero\Cms\Presenters;
 
 use Robbo\Presenter\Presenter;
 
-class FilePresenter extends Presenter {
+class BlockPresenter extends Presenter {
 
     /**
      * This function get single translation
@@ -37,13 +37,4 @@ class FilePresenter extends Presenter {
         return trans('common.anonymous');
     }
 
-    /**
-     * This function returns file public url
-     *
-     * @return string
-     */
-    public function url()
-    {
-        return $this->getUrl();
-    }
 }

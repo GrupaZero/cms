@@ -1,9 +1,9 @@
-<?php namespace Gzero\Cms\Handler\Block;
+<?php namespace Gzero\Cms\Handlers\Block;
 
 use Gzero\Cms\Models\Block;
 use Gzero\Core\Models\Language;
 
-class Basic implements BlockTypeHandler {
+class Menu implements BlockTypeHandler {
 
     use CacheBlockTrait;
 
@@ -21,10 +21,8 @@ class Basic implements BlockTypeHandler {
         if ($html !== null) {
             return $html;
         }
-        $html = view('blocks.basic', ['block' => $block, 'lang' => $lang])->render();
+        $html = view('blocks.menu', ['block' => $block, 'lang' => $lang])->render();
         $this->putInCache($block, $lang, $html);
         return $html;
     }
-
-
 }

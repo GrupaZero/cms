@@ -4,28 +4,21 @@ use Gzero\Core\Models\Base;
 
 class ContentType extends Base {
 
-    /**
-     * @var bool
-     */
-    public $incrementing = false;
-
-    /**
-     * @var string
-     */
-    protected $primaryKey = 'name';
-
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $fillable = [
         'name',
-        'is_active'
+        'handler'
     ];
 
     /**
-     * @var array
+     * Get content type by name
+     *
+     * @param string $name Type name
+     *
+     * @return ContentType
      */
-    protected $attributes = [
-        'is_active' => false
-    ];
+    public static function getByName($name)
+    {
+        return self::where('name', $name)->first();
+    }
 }

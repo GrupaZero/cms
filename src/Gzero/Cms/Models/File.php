@@ -2,7 +2,7 @@
 
 use Gzero\Core\Models\Base;
 use Gzero\Core\Models\User;
-use Gzero\Cms\Models\Presenter\FilePresenter;
+use Gzero\Cms\Presenters\FilePresenter;
 use Illuminate\Support\Collection;
 use Robbo\Presenter\PresentableInterface;
 

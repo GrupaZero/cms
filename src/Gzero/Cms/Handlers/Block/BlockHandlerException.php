@@ -1,4 +1,4 @@
-<?php namespace Gzero\Cms\Handler\Block;
+<?php namespace Gzero\Cms\Handlers\Block;
 
 class BlockHandlerException extends \Exception {
 
