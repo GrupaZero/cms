@@ -111,7 +111,8 @@ class ContentReadRepository implements ReadRepository {
         $ancestorIds = array_filter(explode('/', $content->path));
         return \DB::table('contents as c')
             ->join('routes as r', function ($join) {
-                $join->on('c.id', '=', 'r.id');
+                $join->on('c.id', '=', 'r.routable_id')
+                    ->where('r.routable_type', '=', Content::class);
             })
             ->join('route_translations as rt', function ($join) use ($language, $onlyActive) {
                 $join->on('r.id', '=', 'rt.route_id')->where('rt.language_code', $language->code);
