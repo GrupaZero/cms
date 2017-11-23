@@ -153,6 +153,7 @@ class CreateContent {
                     'seo_description' => $this->attributes['seo_description'],
                     'is_active'       => true,
                 ]);
+                $translation->author()->associate($this->author);
 
                 $content->disableActiveTranslations($translation->language_code);
                 $content->translations()->save($translation);

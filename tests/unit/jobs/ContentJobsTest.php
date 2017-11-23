@@ -52,6 +52,7 @@ class ContentJobsTest extends Unit {
 
         $this->assertEquals('New One', $translation->title, 'Title was set');
         $this->assertEquals('en', $translation->language_code, 'Language code was set');
+        $this->assertEquals($user->id, $translation->author->id, 'Translation author was set');
 
         $this->assertEquals('new-one', $routeTranslation->path, 'Language code was set');
         $this->assertEquals('en', $routeTranslation->language_code, 'Route language code was set');
@@ -152,17 +153,18 @@ class ContentJobsTest extends Unit {
     /** @test */
     public function canAddContentTranslation()
     {
+        $user     = $this->tester->haveUser();
         $language = new Language(['code' => 'en']);
         $content  = $this->tester->haveContent();
 
         $this->assertEquals(0, $content->translations()->count());
 
-        $translation = dispatch_now(new AddContentTranslation($content, 'New example', $language,
+        $translation = dispatch_now(new AddContentTranslation($content, 'New example', $language, $user,
             [
                 'teaser'          => 'Teaser',
                 'body'            => 'Body',
                 'seo_title'       => 'SEO title',
-                'seo_description' => 'SEO description'
+                'seo_description' => 'SEO description',
             ]
         ));
 
@@ -175,12 +177,14 @@ class ContentJobsTest extends Unit {
         $this->assertEquals('SEO title', $translation->seo_title);
         $this->assertEquals('SEO description', $translation->seo_description);
         $this->assertEquals($language->code, $translation->language_code);
+        $this->assertEquals($user->id, $translation->author->id);
         $this->assertTrue($translation->is_active);
     }
 
     /** @test */
     public function onlyRecentlyAddedTranslationShouldBeMarkedAsActive()
     {
+        $user     = $this->tester->haveUser();
         $language = new Language(['code' => 'en']);
         $content  = $this->tester->haveContent(
             [
@@ -197,7 +201,7 @@ class ContentJobsTest extends Unit {
 
         $this->assertNotNull($oldTranslation);
 
-        dispatch_now(new AddContentTranslation($content, 'New example', $language));
+        dispatch_now(new AddContentTranslation($content, 'New example', $language, $user));
 
         $newTranslation = $content->fresh()->translations->first();
         $oldTranslation = $oldTranslation->fresh();
@@ -214,6 +218,7 @@ class ContentJobsTest extends Unit {
     /** @test */
     public function shouldCreateContentRouteWithUniquePathFromTranslationTitle()
     {
+        $user     = $this->tester->haveUser();
         $language = new Language(['code' => 'en']);
         $content  = $this->tester->haveContent([
             'translations' => [
@@ -224,7 +229,7 @@ class ContentJobsTest extends Unit {
             ]
         ]);
 
-        dispatch_now(new AddContentTranslation($content, 'Example Title', $language));
+        dispatch_now(new AddContentTranslation($content, 'Example Title', $language, $user));
 
         $content          = $content->fresh();
         $routeTranslation = $content->route->translations->first();
