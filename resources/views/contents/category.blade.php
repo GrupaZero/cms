@@ -12,16 +12,16 @@
     @endif
 @stop
 @section('mainContent')
-    <div class="utility-container">
-        <div class="container text-center-xs">
-            {!! Breadcrumbs::render('category') !!}
-        </div>
-    </div>
+    {!! Breadcrumbs::render('category') !!}
     @parent
 @stop
 @section('content')
-    @include('gzero-cms::includes.notPublishedContentMsg')
-    <h1 class="content-title page-header">
+    <div class="row justify-content-md-center">
+        <div class="col col-md-auto">
+            @include('gzero-cms::includes.notPublishedContentMsg')
+        </div>
+    </div>
+    <h1 class="content-title">
         {{ $translation->title }}
     </h1>
     {!! $translation->body !!}
@@ -30,67 +30,66 @@
             <?php $childTranslation = $child->translation($language->code); ?>
             @if($childTranslation)
                 <?php $childUrl = $child->routeUrl($language->code); ?>
-                <div class="media">
-                    <h2 class="page-header" title="{{ $childTranslation->title }}">
-                        <a href="{{ $childUrl }}">
-                            {{ $childTranslation->title }}
-                        </a>
-                    </h2>
-                    <div class="media-body">
-                        <div class="row article-meta">
-                            <div class="col-xs-8">
-                                <p class="text-muted">
-                                    <small> @lang('gzero-core::common.posted_by') {{ $child->authorName() }}</small>
-                                    <small>@lang('gzero-core::common.posted_on') {{ $child->publishDate() }}</small>
-                                </p>
-                            </div>
-                            @if(config('disqus.enabled') && $child->is_comment_allowed)
-                                <div class="col-xs-4 text-right">
-                                    <a href="{{ $childUrl }}#disqus_thread"
-                                       data-disqus-identifier="{{ $child->id }}"
-                                       class="disqus-comment-count">
-                                        0 @lang('gzero-core::common.comments')
-                                    </a>
-                                </div>
-                            @endif
-                        </div>
-                        @if($child->thumb)
-                            <?php $thumbTranslation = $child->thumb->translation($language->code); ?>
-                            <div class="thumb mb20">
-                                <img class="img-responsive"
-                                     title="{{($thumbTranslation)? $thumbTranslation->title : ''}}"
-                                     src="{{croppaUrl($child->thumb->getFullPath(),
-                                    config('gzero.image.thumb.width'), config('gzero.image.thumb.height'), ['resize'])}}"
-                                     alt="{{($thumbTranslation)? $thumbTranslation->title : ''}}">
-                            </div>
-                        @endif
-                        {!! $childTranslation->teaser !!}
+                <h2 title="{{ $childTranslation->title }}">
+                    <a href="{{ $childUrl }}">
+                        {{ $childTranslation->title }}
+                    </a>
+                </h2>
+                <div class="row justify-content-between article-meta">
+                    <div class="col col-md-auto">
+                        <p class="text-muted">
+                            <small> @lang('gzero-core::common.posted_by') {{ $child->authorName() }}</small>
+                            <small>@lang('gzero-core::common.posted_on') {{ $child->publishDate() }}</small>
+                        </p>
                     </div>
-                    <div class="row">
-                        <div class="col-sm-4">
-                            <a href="{{ $childUrl }}" class="btn btn-default read-more">
-                                @lang('gzero-core::common.read_more')
+                    @if(config('disqus.enabled') && $child->is_comment_allowed)
+                        <div class="col-auto">
+                            <a href="{{ $childUrl }}#disqus_thread"
+                               data-disqus-identifier="{{ $child->id }}"
+                               class="disqus-comment-count">
+                                0 @lang('gzero-core::common.comments')
                             </a>
                         </div>
-                        <div class="col-sm-8 text-right text-left-xs mt20-xs">
-                            <ul class="list-inline text-muted">
-                                <li>
-                                    @lang('gzero-core::common.rating') {!! $child->ratingStars() !!}
-                                </li>
-                                <li>
-                                    @lang('gzero-core::common.number_of_views') {{ $child->visits }}
-                                </li>
-                            </ul>
+                    @endif
+                </div>
+                @if($child->thumb)
+                    <?php $thumbTranslation = $child->thumb->translation($language->code); ?>
+                    <div class="row mb-2">
+                        <div class="col">
+                            <img class="img-fluid img-thumbnail"
+                                 title="{{($thumbTranslation)? $thumbTranslation->title : ''}}"
+                                 src="{{croppaUrl($child->thumb->getFullPath(),
+                                config('gzero.image.thumb.width'), config('gzero.image.thumb.height'), ['resize'])}}"
+                                 alt="{{($thumbTranslation)? $thumbTranslation->title : ''}}">
                         </div>
+                    </div>
+                @endif
+                {!! $childTranslation->teaser !!}
+                <div class="row justify-content-md-between">
+                    <div class="col-12 col-md-auto mb-3 mb-md-0">
+                        <a href="{{ $childUrl }}" class="btn btn-outline-primary">
+                            @lang('gzero-core::common.read_more')
+                        </a>
+                    </div>
+                    <div class="col col-md-auto">
+                        <ul class="list-inline text-muted">
+                            <li class="list-inline-item">
+                                @lang('gzero-core::common.rating') {!! $child->ratingStars() !!}
+                            </li>
+                            <li class="list-inline-item">
+                                @lang('gzero-core::common.number_of_views') {{ $child->visits }}
+                            </li>
+                        </ul>
                     </div>
                 </div>
                 @if($index < sizeof($children) -1)
-                    <hr/>
+                    <hr class="my-4"/>
                 @endif
             @endif
         @endforeach
         {!! $children->render() !!}
     @endif
+    <div class="w-100 my-4"></div>
 @stop
 @section('footerScripts')
     @if(config('disqus.enabled') && config('disqus.domain'))
