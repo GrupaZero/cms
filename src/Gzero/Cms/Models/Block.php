@@ -2,7 +2,7 @@
 
 use Gzero\Core\Models\Base;
 use Gzero\Core\Models\User;
-use Gzero\Cms\Models\Presenter\BlockPresenter;
+use Gzero\Cms\Presenters\BlockPresenter;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Robbo\Presenter\PresentableInterface;
 

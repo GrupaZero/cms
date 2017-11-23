@@ -2,7 +2,7 @@
 
 use Gzero\Core\Models\Base;
 use Gzero\Core\Models\Language;
-use Gzero\Cms\Models\Presenter\BlockTranslationPresenter;
+use Gzero\Cms\Presenters\BlockTranslationPresenter;
 use Robbo\Presenter\PresentableInterface;
 use Robbo\Presenter\Robbo;
 

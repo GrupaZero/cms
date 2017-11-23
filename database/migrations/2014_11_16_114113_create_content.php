@@ -93,8 +93,8 @@ class CreateContent extends Migration {
      */
     private function seedContentTypes()
     {
-        ContentType::firstOrCreate(['name' => 'content', 'handler' => Gzero\Cms\Handler\Content\Content::class]);
-        ContentType::firstOrCreate(['name' => 'category', 'handler' => Gzero\Cms\Handler\Content\Category::class]);
+        ContentType::firstOrCreate(['name' => 'content', 'handler' => Gzero\Cms\Handlers\Content\ContentHandler::class]);
+        ContentType::firstOrCreate(['name' => 'category', 'handler' => Gzero\Cms\Handlers\Content\CategoryHandler::class]);
     }
 
 }

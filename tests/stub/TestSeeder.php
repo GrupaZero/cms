@@ -1,6 +1,8 @@
 <?php
 
 use Faker\Factory;
+use Gzero\Cms\Handlers\Content\CategoryHandler;
+use Gzero\Cms\Handlers\Content\ContentHandler;
 use Gzero\Cms\Models\BlockType;
 use Gzero\Cms\Models\ContentType;
 use Gzero\Cms\Models\FileType;
@@ -73,12 +75,11 @@ class TestSeeder extends Seeder {
         $contentTypes   = [];
         $contentTypes[] = ContentType::firstOrCreate([
             'name'    => 'content',
-            'handler' =>
-                Gzero\Cms\Handler\Content\Content::class
+            'handler' => ContentHandler::class
         ]);
         $contentTypes[] = ContentType::firstOrCreate([
             'name'    => 'category',
-            'handler' => Gzero\Cms\Handler\Content\Category::class
+            'handler' => CategoryHandler::class
         ]);
         return $contentTypes;
     }

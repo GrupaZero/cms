@@ -695,12 +695,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/GrupaZero/core.git",
-                "reference": "5e4f07bd7b30fc30b70b9eea2af80d1aa9c234df"
+                "reference": "df1337c2a28c7c29859cdb5e05d2599f87c1b67f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/GrupaZero/core/zipball/5e4f07bd7b30fc30b70b9eea2af80d1aa9c234df",
-                "reference": "5e4f07bd7b30fc30b70b9eea2af80d1aa9c234df",
+                "url": "https://api.github.com/repos/GrupaZero/core/zipball/df1337c2a28c7c29859cdb5e05d2599f87c1b67f",
+                "reference": "df1337c2a28c7c29859cdb5e05d2599f87c1b67f",
                 "shasum": ""
             },
             "require": {
@@ -748,7 +748,7 @@
                     "email": "adrian.skierniewski@gmail.com"
                 }
             ],
-            "time": "2017-11-22 14:39:21"
+            "time": "2017-11-22 21:16:58"
         },
         {
             "name": "gzero/eloquent-tree",
@@ -3414,7 +3414,7 @@
                 }
             ],
             "description": "Package that helps testing across our packages",
-            "time": "2017-11-22T19:12:37+00:00"
+            "time": "2017-11-22 19:12:37"
         },
         {
             "name": "hamcrest/hamcrest-php",

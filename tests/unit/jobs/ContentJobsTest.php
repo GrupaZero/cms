@@ -2,7 +2,7 @@
 
 use Carbon\Carbon;
 use Codeception\Test\Unit;
-use Gzero\Cms\Handler\Content\Content as ContentHandler;
+use Gzero\Cms\Handlers\Content\ContentHandler;
 use Gzero\Cms\Models\Content;
 use Gzero\Cms\Jobs\CreateContent;
 use Gzero\Cms\Jobs\DeleteContent;

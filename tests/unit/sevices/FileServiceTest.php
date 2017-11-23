@@ -29,7 +29,7 @@ class FileServiceTest extends Unit {
     /** @var string files directory */
     protected $filesDir;
 
-    /** @var m\MockInterface*/
+    /** @var m\MockInterface */
     protected $diskMock;
 
 
@@ -417,7 +417,7 @@ class FileServiceTest extends Unit {
 
     /**
      * @test
-     * @expectedException \Gzero\Cms\Handler\File\FileHandlerException
+     * @expectedException \Gzero\Cms\Handlers\File\FileHandlerException
      * @expectedExceptionMessage The extension of this file (.png) is not allowed for video files
      */
     public function it_validates_allowed_file_extension()

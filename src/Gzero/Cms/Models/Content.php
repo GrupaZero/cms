@@ -1,12 +1,13 @@
 <?php namespace Gzero\Cms\Models;
 
-use Gzero\Cms\Handler\Content\ContentTypeHandler;
+use Gzero\Cms\Handlers\Content\ContentTypeHandler;
+use Gzero\Cms\Repositories\ContentReadRepository;
 use Gzero\Core\Models\BaseTree;
 use Gzero\Core\Models\Language;
 use Gzero\Core\Models\Routable;
 use Gzero\Core\Models\Route;
 use Gzero\Core\Models\User;
-use Gzero\Cms\Models\Presenter\ContentPresenter;
+use Gzero\Cms\Presenters\ContentPresenter;
 use Gzero\Core\Exception;
 use Gzero\EloquentTree\Model\Tree;
 use Illuminate\Http\Response;
@@ -17,9 +18,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Content extends BaseTree implements PresentableInterface, Uploadable, Routable {
 
     use SoftDeletes;
-
-    /** @var array */
-    protected $with = ['type'];
 
     /** @var array */
     protected $fillable = [
@@ -51,42 +49,6 @@ class Content extends BaseTree implements PresentableInterface, Uploadable, Rout
     protected $dates = ['published_at', 'deleted_at'];
 
     /**
-     * Get Content url in specified language.
-     * WARNING: This function use LAZY LOADING to get this information
-     *
-     * @param string $languageCode Lang code
-     *
-     * @return mixed
-     * @throws Exception
-     */
-    public function getPath($languageCode)
-    {
-        $routeTranslation = $this->route->translations->filter(
-            function ($translation) use ($languageCode) {
-                return $translation->language_code == $languageCode;
-            }
-        )->first();
-        if (empty($routeTranslation->path)) {
-            throw new Exception("No route [$languageCode] translation found for Content id: " . $this->getKey());
-        }
-        return $routeTranslation->path;
-    }
-
-    /**
-     * Returns active translation in specific language
-     *
-     * @param string $languageCode Language code
-     *
-     * @return mixed
-     */
-    public function getActiveTranslation($languageCode)
-    {
-        return $this->translations->first(function ($translation) use ($languageCode) {
-            return $translation->is_active === true && $translation->language_code === $languageCode;
-        });
-    }
-
-    /**
      * Content type relation
      *
      * @return \Illuminate\Database\Eloquent\Relations\belongsTo
@@ -94,24 +56,6 @@ class Content extends BaseTree implements PresentableInterface, Uploadable, Rout
     public function type()
     {
         return $this->belongsTo(ContentType::class);
-    }
-
-    /**
-     * @param string $type Content type
-     *
-     * @throws Exception
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\belongsTo
-     */
-    public function setTypeAttribute($type)
-    {
-        if (!$type instanceof ContentType) {
-            $type = ContentType::getByName($type);
-        }
-        if (!$type) {
-            throw new Exception('Unknown content type');
-        }
-        $this->type()->associate($type);
     }
 
     /**
@@ -176,6 +120,41 @@ class Content extends BaseTree implements PresentableInterface, Uploadable, Rout
     }
 
     /**
+     * Get Content url in specified language.
+     *
+     * @param string $languageCode Lang code
+     *
+     * @return mixed
+     * @throws Exception
+     */
+    public function getPath($languageCode)
+    {
+        $routeTranslation = $this->route->translations
+            ->filter(function ($translation) use ($languageCode) {
+                return $translation->language_code == $languageCode;
+            })
+            ->first();
+        if (empty($routeTranslation->path)) {
+            throw new Exception("No route [$languageCode] translation found for Content id: " . $this->getKey());
+        }
+        return $routeTranslation->path;
+    }
+
+    /**
+     * Returns active translation in specific language
+     *
+     * @param string $languageCode Language code
+     *
+     * @return mixed
+     */
+    public function getActiveTranslation($languageCode)
+    {
+        return $this->translations->first(function ($translation) use ($languageCode) {
+            return $translation->is_active === true && $translation->language_code === $languageCode;
+        });
+    }
+
+    /**
      * Return a created presenter.
      *
      * @return \Robbo\Presenter\Presenter
@@ -207,15 +186,17 @@ class Content extends BaseTree implements PresentableInterface, Uploadable, Rout
     }
 
     /**
-     * @param Route    $route    Route
+     * Handle content rendering by type
+     *
      * @param Language $language Language
-     * @SuppressWarnings("unused")
      *
      * @return Response
      */
-    public function handle(Route $route, Language $language): Response
+    public function handle(Language $language): Response
     {
-        return $this->getHandler()->load($this, $language)->render();
+        // We need to unify response with repository format
+        $this->load(ContentReadRepository::$loadRelations);
+        return $this->getHandler()->handle($this, $language);
     }
 
     /**
@@ -257,6 +238,24 @@ class Content extends BaseTree implements PresentableInterface, Uploadable, Rout
             ->where('content_id', $this->id)
             ->where('language_code', $languageCode)
             ->update(['is_active' => false]);
+    }
+
+    /**
+     * @param string $type Content type
+     *
+     * @throws Exception
+     *
+     * @return void
+     */
+    public function setTypeAttribute($type)
+    {
+        if (!$type instanceof ContentType) {
+            $type = ContentType::getByName($type);
+        }
+        if (!$type) {
+            throw new Exception('Unknown content type');
+        }
+        $this->type()->associate($type);
     }
 
     /**
