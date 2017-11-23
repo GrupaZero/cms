@@ -2,6 +2,8 @@
 
 use Codeception\Test\Unit;
 use Gzero\Cms\Repositories\ContentReadRepository;
+use Gzero\Core\Models\Route;
+use Gzero\Core\Models\RouteTranslation;
 
 class ContentReadRepositoryTest extends Unit {
 
@@ -19,22 +21,26 @@ class ContentReadRepositoryTest extends Unit {
     /** @test */
     public function canGetContentByPath()
     {
-        $content = $this->tester->haveContent([
+        $this->tester->haveContent([
             'type'         => 'content',
             'translations' => [
                 [
                     'language_code' => 'en',
-                    'title'         => 'Example title'
+                    'title'         => 'Example title',
+                    'is_active'     => false
                 ]
             ]
         ]);
 
-        $contentFromDb  = $this->repository->getByPath('example-title', 'en');
-        $translations = $contentFromDb->route->translations->first();
+        // inactive route translations as default
+        $content          = $this->repository->getByPath('example-title', 'en');
+        $routeTranslation = $content->route->translations(false)->first();
 
-        $this->assertEquals($content->id, $contentFromDb->id);
-        $this->assertEquals('example-title', $translations->path);
-        $this->assertEquals('en', $translations->language_code);
+        $this->assertEquals('example-title', $routeTranslation->path);
+        $this->assertEquals('en', $routeTranslation->language_code);
+        // Only active route translations
+        $this->assertNull($this->repository->getByPath('example-title', 'en', true));
+
     }
 }
 

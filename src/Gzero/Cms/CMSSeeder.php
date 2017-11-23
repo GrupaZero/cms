@@ -154,7 +154,7 @@ class CMSSeeder extends Seeder {
             $this->generateContentTranslation($pl)
         )));
 
-        $faker = Factory::create($en);
+        $faker = Factory::create($pl->i18n);
         dispatch_now(new AddContentTranslation($content, $faker->realText(38, 1), $pl, $this->generateContentTranslation($pl)));
 
         return $content;
