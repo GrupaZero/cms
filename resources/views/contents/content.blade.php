@@ -58,6 +58,11 @@
             </div>
         </div>
     @endif
+    @if(!empty($translation->teaser))
+        <p class="lead">
+            {!! $translation->teaser !!}
+        </p>
+    @endif
     {!! $translation->body !!}
     @include('gzero-cms::includes.gallery', ['images' => $images, 'thumb' => $content->thumb])
     @if(config('disqus.enabled') && $content->is_comment_allowed)
