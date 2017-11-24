@@ -218,5 +218,4 @@ class ContentPresenter extends Presenter {
 
         return implode('', $html);
     }
-
 }
