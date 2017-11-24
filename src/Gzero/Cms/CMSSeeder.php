@@ -107,9 +107,9 @@ class CMSSeeder extends Seeder {
             $this->generateContentTranslation($pl)
         )));
 
-        dispatch_now(new AddContentTranslation($news, 'Aktualności', $pl));
-        dispatch_now(new AddContentTranslation($offer, 'Oferta', $pl));
-        dispatch_now(new AddContentTranslation($aboutUs, 'About us', $pl, $this->generateContentTranslation($pl)));
+        dispatch_now(new AddContentTranslation($news, 'Aktualności', $pl, $user));
+        dispatch_now(new AddContentTranslation($offer, 'Oferta', $pl, $user));
+        dispatch_now(new AddContentTranslation($aboutUs, 'About us', $pl, $user, $this->generateContentTranslation($pl)));
 
         $contents = [$news, $offer, $aboutUs];
 
@@ -137,8 +137,9 @@ class CMSSeeder extends Seeder {
         $en    = $languages['en'];
         $pl    = $languages['pl'];
         $faker = Factory::create($en->i18n);
+        $title = $faker->realText(38, 1);
 
-        $content = dispatch_now(CreateContent::make($faker->realText(38, 1), $en, $user, array_merge(
+        $content = dispatch_now(CreateContent::make($title, $en, $user, array_merge(
             [
                 'type'               => $type,
                 'parent_id'          => array_get($parent, 'id', null),
@@ -154,8 +155,9 @@ class CMSSeeder extends Seeder {
             $this->generateContentTranslation($pl)
         )));
 
-        $faker = Factory::create($en);
-        dispatch_now(new AddContentTranslation($content, $faker->realText(38, 1), $pl, $this->generateContentTranslation($pl)));
+        $faker = Factory::create($pl->i18n);
+        $title = $faker->realText(38, 1);
+        dispatch_now(new AddContentTranslation($content, $title, $pl, $user, $this->generateContentTranslation($pl)));
 
         return $content;
     }

@@ -3,6 +3,7 @@
 use Gzero\Core\Models\Base;
 use Gzero\Cms\Presenters\ContentTranslationPresenter;
 use Gzero\Core\Models\Language;
+use Gzero\Core\Models\User;
 use Robbo\Presenter\PresentableInterface;
 use Robbo\Presenter\Robbo;
 

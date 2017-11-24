@@ -32,41 +32,51 @@ class Unit extends \Codeception\Module {
      */
     public function haveContent($attributes = [])
     {
-        $data         = array_except($attributes, ['translations']);
-        $translations = array_get($attributes, 'translations');
+        $data            = array_except($attributes, ['translations']);
+        $transByLangCode = collect(array_get($attributes, 'translations'))->groupBy('language_code');
 
         $content = factory(Content::class)->make($data);
         $content->setAsRoot();
 
-        if (empty($translations)) {
+        if (empty($transByLangCode)) {
             return $content;
         }
 
-        foreach ($translations as $translation) {
-            $content->translations()
-                ->save(
-                    factory(ContentTranslation::class)
-                        ->make($translation)
-                );
+        $route = $content->route()
+            ->save(
+                factory(Route::class)
+                    ->make(
+                        [
+                            'routable_id'   => $content->id,
+                            'routable_type' => Content::class
+                        ]
+                    )
+            );
 
-            $route = factory(Route::class)
-                ->create(
-                    [
-                        'routable_id'   => $content->id,
-                        'routable_type' => Content::class
-                    ]
-                );
+        $transByLangCode->each(function ($translations) use ($content, $route) {
+            $firstTranslation = array_first($translations);
 
+            // Create route translation based on the first translations in this language
             $route->translations()
                 ->save(
                     factory(RouteTranslation::class)
                         ->make([
-                                'language_code' => $translation['language_code'],
-                                'path'          => str_slug($translation['title'])
+                                'language_code' => $firstTranslation['language_code'],
+                                'path'          => str_slug($firstTranslation['title']),
+                                'is_active'     => array_get($firstTranslation, 'is_active', true)
                             ]
                         )
                 );
-        }
+
+            // Create content translations
+            foreach ($translations as $translation) {
+                $content->translations()
+                    ->save(
+                        factory(ContentTranslation::class)
+                            ->make($translation)
+                    );
+            }
+        });
 
         return $content;
     }

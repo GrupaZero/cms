@@ -39,7 +39,6 @@ class CreateContent extends Migration {
                 $table->boolean('is_comment_allowed')->default(false);
                 $table->boolean('is_promoted')->default(false);
                 $table->boolean('is_sticky')->default(false);
-                $table->boolean('is_active')->default(false);
                 $table->timestamp('published_at')->nullable();
                 $table->timestamp('deleted_at')->nullable();
                 $table->timestamps();

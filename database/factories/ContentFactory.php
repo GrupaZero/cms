@@ -24,7 +24,6 @@ $factory->define(Content::class, function (Faker $faker) {
         'is_comment_allowed' => true,
         'is_promoted'        => false,
         'is_sticky'          => false,
-        'is_active'          => true,
         'published_at'       => date('Y-m-d H:i:s')
     ];
 });

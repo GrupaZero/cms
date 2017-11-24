@@ -331,37 +331,6 @@ class ContentServiceTest extends Unit {
     /**
      * @test
      */
-    public function canDeleteContentTranslation()
-    {
-        $withActive = false;
-        $content    = $this->tester->haveContent(
-            [
-                'type'         => 'content',
-                'translations' => [
-                    [
-                        'language_code' => 'en',
-                        'title'         => 'Example title',
-                        'is_active'     => false
-                    ],
-                    [
-                        'language_code' => 'en',
-                        'title'         => 'Updated title title',
-                        'is_active'     => true
-                    ]
-                ]
-            ]
-        );
-
-        $this->assertEquals($content->translations($withActive)->count(), 2);
-
-        $this->repository->deleteTranslation($content->translations($withActive)->first());
-
-        $this->assertEquals($content->translations($withActive)->count(), 1);
-    }
-
-    /**
-     * @test
-     */
     public function canCreateContentWithSameTitleAsOneOfSoftDeletedContents()
     {
         $this->markTestSkipped('FIX IT after refactor');

@@ -24,22 +24,19 @@ class ContentJobsTest extends Unit {
     public function canCreateContent()
     {
         $user    = $this->tester->haveUser();
-        $content = dispatch_now(CreateContent::content('New One', new Language(['code' => 'en']), $user,
-            [
-                'weight'             => 10,
-                'is_active'          => true,
-                'is_on_home'         => true,
-                'is_promoted'        => true,
-                'is_sticky'          => true,
-                'is_comment_allowed' => true
-            ]
-        ));
+        $content = dispatch_now(CreateContent::content('New One', new Language(['code' => 'en']), $user, [
+            'weight'             => 10,
+            'is_active'          => true,
+            'is_on_home'         => true,
+            'is_promoted'        => true,
+            'is_sticky'          => true,
+            'is_comment_allowed' => true
+        ]));
 
         $content          = $content->fresh();
         $translation      = $content->translations->first();
         $routeTranslation = $content->route->translations->first();
 
-        $this->assertTrue($content->is_active);
         $this->assertTrue($content->is_on_home);
         $this->assertTrue($content->is_promoted);
         $this->assertTrue($content->is_sticky);
@@ -55,11 +52,22 @@ class ContentJobsTest extends Unit {
 
         $this->assertEquals('New One', $translation->title, 'Title was set');
         $this->assertEquals('en', $translation->language_code, 'Language code was set');
+        $this->assertEquals($user->id, $translation->author->id, 'Translation author was set');
 
         $this->assertEquals('new-one', $routeTranslation->path, 'Language code was set');
         $this->assertEquals('en', $routeTranslation->language_code, 'Route language code was set');
-
         $this->assertTrue($routeTranslation->is_active, 'Route was set to active');
+    }
+
+    /** @test */
+    public function itCreateUnpublishedContentByDefault()
+    {
+        $user    = $this->tester->haveUser();
+        $content = dispatch_now(CreateContent::content('New One', new Language(['code' => 'en']), $user));
+
+        $routeTranslation = $content->route->translations(false)->first();
+
+        $this->assertFalse($routeTranslation->is_active, 'Route was set to active');
     }
 
     /** @test */
@@ -77,12 +85,18 @@ class ContentJobsTest extends Unit {
             ]
         ]);
 
-        $child = dispatch_now(CreateContent::category('Child Title', $language, $user, ['parent_id' => $parent->id]));
+        $child = dispatch_now(CreateContent::category('Child Title', $language, $user, [
+            'parent_id' => $parent->id,
+            'is_active' => true
+        ]));
 
         $child      = $child->fresh();
         $childRoute = $child->route->translations->first();
 
-        $nestedChild = dispatch_now(CreateContent::content('Nested Child Title', $language, $user, ['parent_id' => $child->id]));
+        $nestedChild = dispatch_now(CreateContent::content('Nested Child Title', $language, $user, [
+            'parent_id' => $child->id,
+            'is_active' => true
+        ]));
 
         $nestedChild      = $nestedChild->fresh();
         $nestedChildRoute = $nestedChild->route->translations->first();
@@ -139,17 +153,18 @@ class ContentJobsTest extends Unit {
     /** @test */
     public function canAddContentTranslation()
     {
+        $user     = $this->tester->haveUser();
         $language = new Language(['code' => 'en']);
         $content  = $this->tester->haveContent();
 
         $this->assertEquals(0, $content->translations()->count());
 
-        $translation = dispatch_now(new AddContentTranslation($content, 'New example', $language,
+        $translation = dispatch_now(new AddContentTranslation($content, 'New example', $language, $user,
             [
                 'teaser'          => 'Teaser',
                 'body'            => 'Body',
                 'seo_title'       => 'SEO title',
-                'seo_description' => 'SEO description'
+                'seo_description' => 'SEO description',
             ]
         ));
 
@@ -162,12 +177,14 @@ class ContentJobsTest extends Unit {
         $this->assertEquals('SEO title', $translation->seo_title);
         $this->assertEquals('SEO description', $translation->seo_description);
         $this->assertEquals($language->code, $translation->language_code);
+        $this->assertEquals($user->id, $translation->author->id);
         $this->assertTrue($translation->is_active);
     }
 
     /** @test */
     public function onlyRecentlyAddedTranslationShouldBeMarkedAsActive()
     {
+        $user     = $this->tester->haveUser();
         $language = new Language(['code' => 'en']);
         $content  = $this->tester->haveContent(
             [
@@ -184,7 +201,7 @@ class ContentJobsTest extends Unit {
 
         $this->assertNotNull($oldTranslation);
 
-        dispatch_now(new AddContentTranslation($content, 'New example', $language));
+        dispatch_now(new AddContentTranslation($content, 'New example', $language, $user));
 
         $newTranslation = $content->fresh()->translations->first();
         $oldTranslation = $oldTranslation->fresh();
@@ -201,6 +218,7 @@ class ContentJobsTest extends Unit {
     /** @test */
     public function shouldCreateContentRouteWithUniquePathFromTranslationTitle()
     {
+        $user     = $this->tester->haveUser();
         $language = new Language(['code' => 'en']);
         $content  = $this->tester->haveContent([
             'translations' => [
@@ -211,13 +229,37 @@ class ContentJobsTest extends Unit {
             ]
         ]);
 
-        dispatch_now(new AddContentTranslation($content, 'Example Title', $language));
+        dispatch_now(new AddContentTranslation($content, 'Example Title', $language, $user));
 
         $content          = $content->fresh();
         $routeTranslation = $content->route->translations->first();
 
         $this->assertEquals('example-title-1', $routeTranslation->path);
         $this->assertEquals($language->code, $routeTranslation->language_code);
+    }
+
+    /** @test */
+    public function shouldCreateContentRouteWithNewTranslation()
+    {
+        $user     = $this->tester->haveUser();
+        $language = new Language(['code' => 'pl']);
+        $content  = $this->tester->haveContent([
+            'translations' => [
+                [
+                    'language_code' => 'en',
+                    'title'         => 'Example Title'
+                ]
+            ]
+        ]);
+
+        dispatch_now(new AddContentTranslation($content, 'Example Title', $language, $user));
+
+        $content          = Content::find($content->id);
+        $routeTranslation = $content->route->translations->last();
+
+        $this->assertEquals('example-title', $routeTranslation->path);
+        $this->assertEquals('pl', $routeTranslation->language_code);
+        $this->assertTrue($routeTranslation->is_active);
     }
 
     /** @test */
