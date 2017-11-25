@@ -1,9 +1,9 @@
 <?php namespace Gzero\Cms\Models;
 
-use Gzero\Core\Models\Base;
 use Gzero\Core\Models\Language;
+use Illuminate\Database\Eloquent\Model;
 
-class FileTranslation extends Base {
+class FileTranslation extends Model {
 
     /**
      * @var array

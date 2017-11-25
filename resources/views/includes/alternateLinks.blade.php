@@ -3,7 +3,7 @@
     @if(empty($content))
         <link rel="alternate" href="{{url()->current()}}" hreflang="{{$lang->code}}"/>
     @else
-        @foreach($content->route->translations as $translation)
+        @foreach($content->routes as $translation)
             <link rel="alternate" href="{{$content->routeUrl($translation->lang_code)}}" hreflang="{{$translation->lang_code}}"/>
         @endforeach
     @endif

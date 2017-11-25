@@ -2,11 +2,9 @@
 
 use Gzero\Cms\Handlers\Content\ContentTypeHandler;
 use Gzero\Cms\Repositories\ContentReadRepository;
-use Gzero\Core\Models\BaseTree;
 use Gzero\Core\Models\Language;
 use Gzero\Core\Models\Routable;
 use Gzero\Core\Models\Route;
-use Gzero\Core\Models\RouteTranslation;
 use Gzero\Core\Models\User;
 use Gzero\Cms\Presenters\ContentPresenter;
 use Gzero\Core\Exception;
@@ -16,7 +14,7 @@ use Robbo\Presenter\PresentableInterface;
 use Robbo\Presenter\Robbo;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class Content extends BaseTree implements PresentableInterface, Uploadable, Routable {
+class Content extends Tree implements PresentableInterface, Uploadable, Routable {
 
     use SoftDeletes;
 
@@ -60,11 +58,11 @@ class Content extends BaseTree implements PresentableInterface, Uploadable, Rout
     /**
      * Polymorphic relation with route
      *
-     * @return \Illuminate\Database\Eloquent\Relations\MorphOne
+     * @return \Illuminate\Database\Eloquent\Relations\morphMany
      */
-    public function route()
+    public function routes()
     {
-        return $this->morphOne(Route::class, 'routable');
+        return $this->morphMany(Route::class, 'routable');
     }
 
     /**
@@ -129,7 +127,7 @@ class Content extends BaseTree implements PresentableInterface, Uploadable, Rout
      */
     public function getPath($languageCode)
     {
-        $routeTranslation = $this->route->translations(false)
+        $routeTranslation = $this->routes()->newQuery()
             ->where('language_code', $languageCode)
             ->first();
         if (empty($routeTranslation->path)) {
@@ -207,19 +205,16 @@ class Content extends BaseTree implements PresentableInterface, Uploadable, Rout
      */
     public function createRoute(ContentTranslation $translation, bool $isActive = false)
     {
-        $route            = $this->route()->first() ?: new Route();
-        $routeTranslation = $route->translations()
-            ->firstOrNew([
-                'route_id'      => $route->id,
-                'language_code' => $translation->language_code,
-            ], [
-                'is_active' => $isActive
-            ]);
+        $route = Route::firstOrNew([
+            'language_code' => $translation->language_code,
+            'path'          => $this->getSlug($translation),
+        ], [
+            'is_active' => $isActive
+        ]);
 
-        $routeTranslation->path = $this->getUniquePath($translation);
+        $route->path = Route::buildUniquePath($route->path, $translation->language_code);
 
-        $this->route()->save($route);
-        $route->translations()->save($routeTranslation);
+        $this->routes()->save($route);
 
         return $this;
     }
@@ -258,13 +253,13 @@ class Content extends BaseTree implements PresentableInterface, Uploadable, Rout
     }
 
     /**
-     * Returns an unique route path address for given translation title
+     * Returns content slug from translation title with parent slug
      *
      * @param ContentTranslation $translation Content translation
      *
      * @return string an unique route path address in specified language
      */
-    protected function getUniquePath(ContentTranslation $translation)
+    protected function getSlug(ContentTranslation $translation)
     {
         $path = str_slug($translation->title);
 
@@ -272,7 +267,7 @@ class Content extends BaseTree implements PresentableInterface, Uploadable, Rout
             $path = $this->parent->getPath($translation->language_code) . '/' . $path;
         }
 
-        return Route::buildUniquePath($path, $translation->language_code);
+        return $path;
     }
 
     /**
@@ -302,5 +297,17 @@ class Content extends BaseTree implements PresentableInterface, Uploadable, Rout
             throw new Exception("Content can be assigned only to category parent");
         }
         return parent::setChildOf($parent);
+    }
+
+    /**
+     * Check if entity exists
+     *
+     * @param int $id entity id
+     *
+     * @return boolean
+     */
+    public static function checkIfExists($id)
+    {
+        return self::where('id', $id)->exists();
     }
 }

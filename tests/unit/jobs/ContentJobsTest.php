@@ -12,7 +12,6 @@ use Gzero\Cms\Jobs\AddContentTranslation;
 use Gzero\Cms\Models\ContentTranslation;
 use Gzero\Core\Models\Language;
 use Gzero\Core\Models\Route;
-use Gzero\Core\Models\RouteTranslation;
 use Gzero\Core\Exception;
 
 class ContentJobsTest extends Unit {
@@ -35,7 +34,7 @@ class ContentJobsTest extends Unit {
 
         $content          = $content->fresh();
         $translation      = $content->translations->first();
-        $routeTranslation = $content->route->translations->first();
+        $routeTranslation = $content->routes->first();
 
         $this->assertTrue($content->is_on_home);
         $this->assertTrue($content->is_promoted);
@@ -65,7 +64,7 @@ class ContentJobsTest extends Unit {
         $user    = $this->tester->haveUser();
         $content = dispatch_now(CreateContent::content('New One', new Language(['code' => 'en']), $user));
 
-        $routeTranslation = $content->route->translations(false)->first();
+        $routeTranslation = $content->routes->first();
 
         $this->assertFalse($routeTranslation->is_active, 'Route was set to active');
     }
@@ -91,7 +90,7 @@ class ContentJobsTest extends Unit {
         ]));
 
         $child      = $child->fresh();
-        $childRoute = $child->route->translations->first();
+        $childRoute = $child->routes->first();
 
         $nestedChild = dispatch_now(CreateContent::content('Nested Child Title', $language, $user, [
             'parent_id' => $child->id,
@@ -99,12 +98,33 @@ class ContentJobsTest extends Unit {
         ]));
 
         $nestedChild      = $nestedChild->fresh();
-        $nestedChildRoute = $nestedChild->route->translations->first();
+        $nestedChildRoute = $nestedChild->routes->first();
 
         $this->assertEquals($child->parent_id, $parent->id);
         $this->assertEquals('parent-title/child-title', $childRoute->path);
         $this->assertEquals($nestedChild->parent_id, $child->id);
         $this->assertEquals('parent-title/child-title/nested-child-title', $nestedChildRoute->path);
+    }
+
+    /** @test */
+    public function cantCreateContentAsAChildOfNonExistingParent()
+    {
+        $user     = $this->tester->haveUser();
+        $language = new Language(['code' => 'en']);
+
+        try {
+            dispatch_now(CreateContent::category('Child Title', $language, $user, [
+                'parent_id' => 100,
+                'is_active' => true
+            ]));
+        } catch (Exception $exception) {
+            $this->assertEquals(Exception::class, get_class($exception));
+            $this->assertEquals('Parent not found', $exception->getMessage());
+            return;
+        }
+
+        $this->fail('Exception should be thrown');
+
     }
 
     /** @test */
@@ -220,26 +240,49 @@ class ContentJobsTest extends Unit {
     {
         $user     = $this->tester->haveUser();
         $language = new Language(['code' => 'en']);
+        $category = $this->tester->haveContent([
+            'type'         => 'category',
+            'translations' => [
+                [
+                    'language_code' => 'en',
+                    'title'         => 'Category Title'
+                ]
+            ]
+        ]);
         $content  = $this->tester->haveContent([
             'translations' => [
                 [
                     'language_code' => 'en',
-                    'title'         => 'Example Title'
+                    'title'         => 'Content Title'
                 ]
             ]
         ]);
+        $content->setChildOf($category);
 
-        dispatch_now(new AddContentTranslation($content, 'Example Title', $language, $user));
+        dispatch_now(new AddContentTranslation($category, 'Category Title', $language, $user));
+        dispatch_now(new AddContentTranslation($content, 'Content Title', $language, $user));
 
-        $content          = $content->fresh();
-        $routeTranslation = $content->route->translations->first();
+        $content       = $content->fresh();
+        $category      = $category->fresh();
+        $contentRoute  = $content->routes;
+        $categoryRoute = $category->routes;
 
-        $this->assertEquals('example-title-1', $routeTranslation->path);
-        $this->assertEquals($language->code, $routeTranslation->language_code);
+        // Category has only one translation because it was found and updated
+        $this->assertEquals('en', $categoryRoute->first()->language_code);
+        $this->assertEquals('category-title-1', $categoryRoute->first()->path);
+        $this->assertTrue($categoryRoute->first()->is_active);
+
+        // Content has two translations because translation was added after content was assigned as child
+        // so the `category-title-1/content-title` was searched and `content-title` is in database
+        // because setChildOf is not mean to update route path
+        $this->assertEquals('en', $contentRoute->first()->language_code);
+        $this->assertEquals('content-title', $contentRoute->first()->path);
+        $this->assertEquals('en', $contentRoute->last()->language_code);
+        $this->assertEquals('category-title-1/content-title', $contentRoute->last()->path);
     }
 
     /** @test */
-    public function shouldCreateContentRouteWithNewTranslation()
+    public function shouldCreateContentRouteWhenAddingTranslationInNewLanguage()
     {
         $user     = $this->tester->haveUser();
         $language = new Language(['code' => 'pl']);
@@ -254,12 +297,12 @@ class ContentJobsTest extends Unit {
 
         dispatch_now(new AddContentTranslation($content, 'Example Title', $language, $user));
 
-        $content          = Content::find($content->id);
-        $routeTranslation = $content->route->translations->last();
+        $content = Content::find($content->id);
+        $route   = $content->routes->last();
 
-        $this->assertEquals('example-title', $routeTranslation->path);
-        $this->assertEquals('pl', $routeTranslation->language_code);
-        $this->assertTrue($routeTranslation->is_active);
+        $this->assertEquals('example-title', $route->path);
+        $this->assertEquals('pl', $route->language_code);
+        $this->assertTrue($route->is_active);
     }
 
     /** @test */
@@ -309,11 +352,10 @@ class ContentJobsTest extends Unit {
             ]
         ]);
 
-        $content                 = Content::find($contents[0]->id);
-        $notRelatedContent       = Content::find($contents[1]->id);
-        $contentTranslation      = $content->translations->first();
-        $contentRoute            = $content->route->first();
-        $contentRouteTranslation = $contentRoute->translations->first();
+        $content            = Content::find($contents[0]->id);
+        $notRelatedContent  = Content::find($contents[1]->id);
+        $contentTranslation = $content->translations->first();
+        $contentRoute       = $content->routes->first();
 
         dispatch_now(new ForceDeleteContent($content));
 
@@ -321,7 +363,6 @@ class ContentJobsTest extends Unit {
         $this->assertNull(ContentTranslation::find($contentTranslation->id));
         $this->assertNull(Route::find($contentRoute->id));
         $this->assertNotNull(Content::find($notRelatedContent->id));
-        $this->assertNull(RouteTranslation::find($contentRouteTranslation->id));
     }
 
     /** @test */
@@ -361,11 +402,10 @@ class ContentJobsTest extends Unit {
             ]
         ]);
 
-        $content                 = Content::find($contents[0]->id);
-        $notRelatedContent       = Content::find($contents[1]->id);
-        $contentTranslation      = $content->translations->first();
-        $contentRoute            = $content->route->first();
-        $contentRouteTranslation = $contentRoute->translations->first();
+        $content            = Content::find($contents[0]->id);
+        $notRelatedContent  = Content::find($contents[1]->id);
+        $contentTranslation = $content->translations->first();
+        $contentRoute       = $content->routes->first();
 
         dispatch_now(new DeleteContent($content));
 
@@ -379,7 +419,6 @@ class ContentJobsTest extends Unit {
         $this->assertNull(ContentTranslation::find($contentTranslation->id));
         $this->assertNull(Route::find($contentRoute->id));
         $this->assertNotNull(Content::find($notRelatedContent->id));
-        $this->assertNull(RouteTranslation::find($contentRouteTranslation->id));
     }
 
     /** @test */

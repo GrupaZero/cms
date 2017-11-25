@@ -63,6 +63,7 @@ class ServiceProvider extends AbstractServiceProvider {
      */
     public function boot()
     {
+        $this->registerRoutes();
         $this->registerPolicies();
         $this->registerMigrations();
         $this->registerFactories();
@@ -162,6 +163,16 @@ class ServiceProvider extends AbstractServiceProvider {
     protected function registerViews()
     {
         $this->loadViewsFrom(__DIR__ . '/../../../resources/views', 'gzero-cms');
+    }
+
+    /**
+     * Add additional file to store routes
+     *
+     * @return void
+     */
+    protected function registerRoutes()
+    {
+        $this->loadRoutesFrom(__DIR__ . '/../../../routes/api.php');
     }
 
     /**

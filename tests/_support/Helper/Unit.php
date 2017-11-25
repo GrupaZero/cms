@@ -42,25 +42,17 @@ class Unit extends \Codeception\Module {
             return $content;
         }
 
-        $route = $content->route()
-            ->save(
-                factory(Route::class)
-                    ->make(
-                        [
-                            'routable_id'   => $content->id,
-                            'routable_type' => Content::class
-                        ]
-                    )
-            );
-
-        $transByLangCode->each(function ($translations) use ($content, $route) {
+        $transByLangCode->each(function ($translations) use ($content) {
             $firstTranslation = array_first($translations);
 
             // Create route translation based on the first translations in this language
-            $route->translations()
+            $content->routes()
                 ->save(
-                    factory(RouteTranslation::class)
-                        ->make([
+                    factory(Route::class)
+                        ->make(
+                            [
+                                'routable_id'   => $content->id,
+                                'routable_type' => Content::class,
                                 'language_code' => $firstTranslation['language_code'],
                                 'path'          => str_slug($firstTranslation['title']),
                                 'is_active'     => array_get($firstTranslation, 'is_active', true)

@@ -1,17 +1,15 @@
 <?php namespace Gzero\Cms\Models;
 
-use Gzero\Core\Models\Base;
 use Gzero\Cms\Presenters\ContentTranslationPresenter;
 use Gzero\Core\Models\Language;
 use Gzero\Core\Models\User;
+use Illuminate\Database\Eloquent\Model;
 use Robbo\Presenter\PresentableInterface;
 use Robbo\Presenter\Robbo;
 
-class ContentTranslation extends Base implements PresentableInterface {
+class ContentTranslation extends Model implements PresentableInterface {
 
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $fillable = [
         'language_code',
         'title',
@@ -22,9 +20,7 @@ class ContentTranslation extends Base implements PresentableInterface {
         'is_active'
     ];
 
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $attributes = [
         'is_active' => false
     ];

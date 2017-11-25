@@ -54,137 +54,6 @@ class ContentServiceTest extends Unit {
     |--------------------------------------------------------------------------
     */
 
-    /** @test */
-    public function canGetContentByUrl()
-    {
-        $content = $this->tester->haveContent([
-            'type'         => 'content',
-            'translations' => [
-                [
-                    'language_code' => 'en',
-                    'title'         => 'Example title'
-                ]
-            ]
-        ]);
-
-
-        $result       = $this->repository->getByUrl('example-title', 'en');
-        $translations = $result->route->translations->first();
-
-        $this->assertEquals($content->id, $result->id);
-        $this->assertEquals('example-title', $translations->path);
-        $this->assertEquals('en', $translations->language_code);
-    }
-
-    /**
-     * @test
-     */
-    public function canCreateContent()
-    {
-        $this->markTestSkipped('FIX IT after refactor');
-
-        $author  = User::find(1);
-        $content = $this->repository->create(
-            [
-                'type'               => 'content',
-                'is_on_home'         => true,
-                'is_comment_allowed' => true,
-                'is_promoted'        => true,
-                'is_sticky'          => true,
-                'is_active'          => true,
-                'published_at'       => date('Y-m-d H:i:s'),
-                'translations'       => [
-                    'language_code' => 'en',
-                    'title'         => 'Example title'
-                ]
-            ],
-            $author
-        );
-
-        $newContent       = $this->repository->getById($content->id);
-        $newContentRoute  = $newContent->route->translations()->first();
-        $newContentAuthor = $newContent->author;
-        // Content
-        $this->assertNotSame($content, $newContent);
-        $this->assertEquals($content->id, $newContent->id);
-        $this->assertEquals($content->type, $newContent->type);
-        $this->assertEquals($content->is_on_home, $newContent->is_on_home);
-        $this->assertEquals($content->is_comment_allowed, $newContent->is_comment_allowed);
-        $this->assertEquals($content->is_promoted, $newContent->is_promoted);
-        $this->assertEquals($content->is_sticky, $newContent->is_sticky);
-        $this->assertEquals($content->is_active, $newContent->is_active);
-        $this->assertEquals($content->published_at, $newContent->published_at);
-        // Author
-        $this->assertEquals($author->id, $newContent->author_id);
-        $this->assertEquals($author->email, $newContentAuthor['email']);
-        // Route
-        $this->assertEquals('en', $newContentRoute['language_code']);
-        $this->assertEquals('example-title', $newContentRoute['url']);
-    }
-
-    /**
-     * @test
-     */
-    public function canCreateContentWithoutAuthor()
-    {
-        $this->markTestSkipped('FIX IT after refactor');
-
-        $content    = $this->repository->create(
-            [
-                'type'         => 'content',
-                'translations' => [
-                    'language_code' => 'en',
-                    'title'         => 'Example title'
-                ]
-            ]
-        );
-        $newContent = $this->repository->getById($content->id);
-        $this->assertNotSame($content, $newContent);
-        $this->assertNull($newContent->author);
-    }
-
-    /**
-     * @test
-     */
-    public function canCreateAndGetContentTranslation()
-    {
-        $this->markTestSkipped('FIX IT after refactor');
-
-        $content          = $this->repository->create(
-            [
-                'type'         => 'content',
-                'translations' => [
-                    'language_code' => 'en',
-                    'title'         => 'Example title'
-                ]
-            ]
-        );
-        $newContent       = $this->repository->getById($content->id);
-        $translation      = $this->repository->createTranslation(
-            $newContent,
-            [
-                'language_code'   => 'en',
-                'title'           => 'New example title',
-                'body'            => 'New example body',
-                'seo_title'       => 'New example seo_title',
-                'seo_description' => 'New example seo_description'
-            ]
-        );
-        $firstTranslation = $this->repository->getContentTranslationById($newContent, 1);
-        $newTranslation   = $this->repository->getContentTranslationById($newContent, 2);
-        $this->assertNotSame($content, $newContent);
-        $this->assertNotSame($translation, $firstTranslation);
-        // Check if previous translation are inactive
-        $this->assertFalse((bool) $firstTranslation->is_active);
-        // Check if a new translation has been added
-        $this->assertEquals('en', $newTranslation->language_code);
-        $this->assertEquals('New example title', $newTranslation->title);
-        $this->assertEquals('New example body', $newTranslation->body);
-        $this->assertEquals('New example seo_title', $newTranslation->seo_title);
-        $this->assertEquals('New example seo_description', $newTranslation->seo_description);
-        $this->assertEquals($newContent->id, $newTranslation->content_id);
-    }
-
     /**
      * @test
      */
@@ -212,120 +81,6 @@ class ContentServiceTest extends Unit {
             ]
         );
         $this->assertEquals(true, $updatedContent->is_on_home);
-    }
-
-    /**
-     * @test
-     */
-    public function canDeleteContent()
-    {
-        $content = $this->tester->haveContent(
-            [
-                'type'         => 'content',
-                'translations' => [
-                    [
-                        'language_code' => 'en',
-                        'title'         => 'Example title'
-                    ]
-                ]
-            ]
-        );
-
-        $newContent = $this->repository->getById($content->id);
-        $this->repository->delete($newContent);
-        $this->assertNull($this->repository->getById($newContent->id));
-    }
-
-    /**
-     * @test
-     */
-    public function canForceDeleteContent()
-    {
-        $contents = $this->tester->haveContents([
-            [
-                'type'         => 'content',
-                'translations' => [
-                    [
-                        'language_code' => 'en',
-                        'title'         => 'Example title'
-                    ]
-                ]
-            ],
-            [
-                'type'         => 'content',
-                'translations' => [
-                    [
-                        'language_code' => 'en',
-                        'title'         => 'Other title'
-                    ]
-                ]
-            ]
-        ]);
-
-        $newContent         = $this->repository->getById($contents[0]->id);
-        $notRelatedContent  = $this->repository->getById($contents[1]->id);
-        $contentTranslation = $newContent->translations()->first();
-        $contentRoute       = $newContent->route()->first();
-        $this->repository->forceDelete($newContent);
-        // Get not related content
-        $content2 = $this->repository->getById($notRelatedContent->id);
-
-        // Check if content has been removed
-        $this->assertNull($this->repository->getById($newContent->id));
-        // Check if content translations has been removed
-        $this->assertNull($this->repository->getTranslationById($contentTranslation->id));
-        // Check if content route has been removed
-        $this->assertNull($this->repository->getRouteById($contentRoute->id));
-        // Check if not related content has not be removed
-        $this->assertNotNull($content2);
-        // Check if content route translation been removed
-        $this->assertNull($this->repository->getByUrl('example-title', 'en'));
-    }
-
-    /**
-     * @test
-     */
-    public function canForceDeleteSoftDeletedContent()
-    {
-        $contents = $this->tester->haveContents([
-            [
-                'type'         => 'content',
-                'translations' => [
-                    [
-                        'language_code' => 'en',
-                        'title'         => 'Example title'
-                    ]
-                ]
-            ],
-            [
-                'type'         => 'content',
-                'translations' => [
-                    [
-                        'language_code' => 'en',
-                        'title'         => 'Other title'
-                    ]
-                ]
-            ]
-        ]);
-
-        $newContent         = $this->repository->getById($contents[0]->id);
-        $notRelatedContent  = $this->repository->getById($contents[1]->id);
-        $contentTranslation = $newContent->translations()->first();
-        $contentRoute       = $newContent->route()->first();
-        $this->repository->delete($newContent);
-        $this->repository->forceDelete($newContent);
-        // Get not related content
-        $content2 = $this->repository->getById($notRelatedContent->id);
-        // Check if content has been removed
-        $this->assertNull($this->repository->getById($newContent->id));
-        // Check if content translations has been removed
-        $this->assertNull($this->repository->getTranslationById($contentTranslation->id));
-        // Check if content route has been removed
-        $this->assertNull($this->repository->getRouteById($contentRoute->id));
-        // Check if not related content has not be removed
-        $this->assertNotNull($content2);
-        // Check if content route translation been removed
-        $this->assertNull($this->repository->getByUrl('example-title', 'en'));
     }
 
     /**
@@ -449,25 +204,6 @@ class ContentServiceTest extends Unit {
     /**
      * @test
      * @expectedException \Gzero\Core\Repositories\RepositoryValidationException
-     * @expectedExceptionMessage Parent node id: 1 doesn't exist
-     */
-    public function itChecksExistenceOfParent()
-    {
-        $this->repository->create(
-            [
-                'type'         => 'content',
-                'parent_id'    => 1,
-                'translations' => [
-                    'language_code' => 'pl',
-                    'title'         => 'Example content title'
-                ]
-            ]
-        );
-    }
-
-    /**
-     * @test
-     * @expectedException \Gzero\Core\Repositories\RepositoryValidationException
      * @expectedExceptionMessage Content type 'content' is not allowed for the parent type
      */
     public function itChecksIfParentIsProperType()
@@ -498,46 +234,6 @@ class ContentServiceTest extends Unit {
         );
     }
 
-    /**
-     * @test
-     */
-    public function itShouldForceDeleteOneContent()
-    {
-        $contents = $this->tester->haveContents([
-            [
-                'type'         => 'content',
-                'translations' => [
-                    [
-                        'language_code' => 'en',
-                        'title'         => 'Example title'
-                    ]
-                ]
-            ],
-            [
-                'type'         => 'content',
-                'translations' => [
-                    [
-                        'language_code' => 'en',
-                        'title'         => 'Other title'
-                    ]
-                ]
-            ]
-        ]);
-
-        $first  = head($contents);
-        $second = last($contents);
-
-        $this->repository->delete($first);
-        $this->repository->delete($second);
-
-        $this->assertNull($this->repository->getById($first->id));
-        $this->assertNull($this->repository->getById($second->id));
-
-        $this->repository->forceDelete($first);
-
-        $this->assertNull($this->repository->getDeletedById($first->id));
-        $this->assertNotNull($this->repository->getDeletedById($second->id));
-    }
 
     /**
      * @test
@@ -556,48 +252,6 @@ class ContentServiceTest extends Unit {
 
         $result = $this->repository->getByIdWithTrashed($content->id);
         $this->assertEquals($content->id, $result->id);
-    }
-
-    /**
-     * @test
-     */
-    public function itShouldRetrieveTrashedContent()
-    {
-        $content = $this->tester->haveContent([
-            'type'         => 'content',
-            'translations' => [
-                [
-                    'language_code' => 'en',
-                    'title'         => 'Example title'
-                ]
-            ]
-        ]);
-
-        $this->repository->delete($content);
-
-        $result = $this->repository->getByIdWithTrashed($content->id);
-
-        $this->assertEquals($content->id, $result->id);
-    }
-
-    /**
-     * @test
-     */
-    public function itShouldNotRetrieveForceDeletedContent()
-    {
-        $content = $this->tester->haveContent([
-            'type'         => 'content',
-            'translations' => [
-                [
-                    'language_code' => 'en',
-                    'title'         => 'Example title'
-                ]
-            ]
-        ]);
-
-        $this->repository->forceDelete($content);
-
-        $this->assertNull($this->repository->getByIdWithTrashed($content->id));
     }
 
     /*
@@ -677,7 +331,7 @@ class ContentServiceTest extends Unit {
         //(new \TestTreeSeeder())->run();
 
         $category        = $this->repository->getById(1);
-        $categoryRoute   = $category->route->translations()->first();
+        $categoryRoute   = $category->routes->first();
         $content         = $this->repository->create(
             [
                 'type'         => 'content',
@@ -689,7 +343,7 @@ class ContentServiceTest extends Unit {
             ]
         );
         $newContent      = $this->repository->getById($content->id);
-        $newContentRoute = $newContent->route->translations()->first();
+        $newContentRoute = $newContent->routes->first();
         // parent_id
         $this->assertEquals($category->id, $newContent->parent_id);
         // level
@@ -783,7 +437,7 @@ class ContentServiceTest extends Unit {
         // Crate single route
         $this->repository->createRoute($singleContent, 'en', 'Single content url');
         $updatedContent      = $this->repository->getById($singleContent->id);
-        $updatedContentRoute = $updatedContent->route->translations()->first();
+        $updatedContentRoute = $updatedContent->routes->first();
 
         // Check single route
         $this->assertEquals('en', $updatedContentRoute['language_code']);
@@ -791,7 +445,7 @@ class ContentServiceTest extends Unit {
 
         // Nested content
         $category      = $this->repository->getById(1);
-        $categoryRoute = $category->route->translations()->first();
+        $categoryRoute = $category->routes->first();
         $nestedContent = $this->repository->create(
             [
                 'type'         => 'content',
@@ -807,7 +461,7 @@ class ContentServiceTest extends Unit {
         $newContent = $this->repository->getById($nestedContent->id);
         $this->repository->createRoute($newContent, 'en', 'Nested content url');
         $updatedContent      = $this->repository->getById($nestedContent->id);
-        $updatedContentRoute = $updatedContent->route->translations()->first();
+        $updatedContentRoute = $updatedContent->routes->first();
 
         // Check nested route
         $this->assertEquals('en', $updatedContentRoute['language_code']);
@@ -816,16 +470,14 @@ class ContentServiceTest extends Unit {
         // Crate unique route
         $this->repository->createRoute($newContent, 'en', 'Nested content url');
         $updatedContent      = $this->repository->getById($nestedContent->id);
-        $updatedContentRoute = $updatedContent->route->translations()->first();
+        $updatedContentRoute = $updatedContent->routes->first();
 
         // Check unique route
         $this->assertEquals('en', $updatedContentRoute['language_code']);
         $this->assertEquals($categoryRoute->url . '/' . 'nested-content-url-1', $updatedContentRoute['url']);
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function canGetListOfDeletedContents()
     {
         $this->markTestSkipped('FIX IT after refactor');
@@ -1518,7 +1170,7 @@ class ContentServiceTest extends Unit {
         );
 
         $newContent      = $this->repository->getById($content->id);
-        $newContentRoute = $newContent->route->translations()->first();
+        $newContentRoute = $newContent->routes->first();
         // Route translation should not be changed
         $this->assertEquals('en', $newContentRoute['language_code']);
         $this->assertEquals('example-title', $newContentRoute['url']);

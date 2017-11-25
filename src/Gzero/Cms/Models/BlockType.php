@@ -1,8 +1,8 @@
 <?php namespace Gzero\Cms\Models;
 
-use Gzero\Core\Models\Base;
+use Illuminate\Database\Eloquent\Model;
 
-class BlockType extends Base {
+class BlockType extends Model {
 
     /**
      * @var bool

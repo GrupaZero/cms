@@ -1,12 +1,12 @@
 <?php namespace Gzero\Cms\Models;
 
-use Gzero\Core\Models\Base;
 use Gzero\Core\Models\Language;
 use Gzero\Cms\Presenters\BlockTranslationPresenter;
+use Illuminate\Database\Eloquent\Model;
 use Robbo\Presenter\PresentableInterface;
 use Robbo\Presenter\Robbo;
 
-class BlockTranslation extends Base implements PresentableInterface {
+class BlockTranslation extends Model implements PresentableInterface {
 
     /**
      * @var array

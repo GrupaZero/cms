@@ -1,12 +1,12 @@
 <?php namespace Gzero\Cms\Models;
 
-use Gzero\Core\Models\Base;
 use Gzero\Core\Models\User;
 use Gzero\Cms\Presenters\BlockPresenter;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Robbo\Presenter\PresentableInterface;
 
-class Block extends Base implements Uploadable, PresentableInterface {
+class Block extends Model implements Uploadable, PresentableInterface {
 
     use SoftDeletes;
 
@@ -169,5 +169,17 @@ class Block extends Base implements Uploadable, PresentableInterface {
     public function getOptionsAttribute($value)
     {
         return ($value) ? json_decode($value, true) : $value;
+    }
+
+    /**
+     * Check if entity exists
+     *
+     * @param int $id entity id
+     *
+     * @return boolean
+     */
+    public static function checkIfExists($id)
+    {
+        return self::where('id', $id)->exists();
     }
 }

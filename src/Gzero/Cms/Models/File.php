@@ -1,16 +1,14 @@
 <?php namespace Gzero\Cms\Models;
 
-use Gzero\Core\Models\Base;
 use Gzero\Core\Models\User;
 use Gzero\Cms\Presenters\FilePresenter;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Robbo\Presenter\PresentableInterface;
 
-class File extends Base implements PresentableInterface {
+class File extends Model implements PresentableInterface {
 
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $fillable = [
         'type',
         'name',
