@@ -6,7 +6,9 @@ use Gzero\Core\Models\Language;
 use Gzero\Core\Query\QueryBuilder;
 use Gzero\Core\Repositories\ReadRepository;
 use Gzero\Core\Repositories\RepositoryValidationException;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Query\Builder as RawBuilder;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class ContentReadRepository implements ReadRepository {
@@ -135,7 +137,60 @@ class ContentReadRepository implements ReadRepository {
      */
     public function getMany(QueryBuilder $builder)
     {
-        $query = Content::query()->with(self::$loadRelations);
+        return $this->getManyFrom(Content::query(), $builder);
+    }
+
+    /**
+     * @param Content      $content Content model
+     * @param QueryBuilder $builder Query builder
+     *
+     * @return Collection|LengthAwarePaginator
+     */
+    public function getManyChildren(Content $content, QueryBuilder $builder)
+    {
+        return $this->getManyFrom($content->children()->newQuery()->getQuery(), $builder);
+    }
+
+    /**
+     * Get all children specific content
+     *
+     * @param Content $content parent
+     *
+     * @return mixed
+     */
+    public function getChildren(Content $content)
+    {
+        return $content->children()
+            ->with(self::$loadRelations)
+            ->orderBy('is_promoted', 'DESC')
+            ->orderBy('is_sticky', 'DESC')
+            ->orderBy('weight', 'ASC')
+            ->orderBy('published_at', 'ASC')
+            ->paginate(option('general', 'default_page_size', 20));
+    }
+
+    /**
+     * Eager load relations
+     *
+     * @param Content|Collection $model Model or collection
+     *
+     * @return Content|Collection
+     */
+    protected function eagerLoad($model)
+    {
+        return optional($model)->load(self::$loadRelations);
+    }
+
+    /**
+     * @param Builder|RawBuilder $query   Eloquent query object
+     * @param QueryBuilder       $builder Query builder
+     *
+     * @return LengthAwarePaginator
+     * @throws RepositoryValidationException
+     */
+    protected function getManyFrom(Builder $query, QueryBuilder $builder): LengthAwarePaginator
+    {
+        $query = $query->with(self::$loadRelations);
 
         if ($builder->hasRelation('translations')) {
             if (!$builder->getRelationFilter('translations', 'language_code')) {
@@ -168,35 +223,5 @@ class ContentReadRepository implements ReadRepository {
             $builder->getPageSize(),
             $builder->getPage()
         );
-    }
-
-    /**
-     * Get all children specific content
-     *
-     * @param Content $content parent
-     *
-     * @return mixed
-     */
-    public function getChildren(Content $content)
-    {
-        return $content->children()
-            ->with(self::$loadRelations)
-            ->orderBy('is_promoted', 'DESC')
-            ->orderBy('is_sticky', 'DESC')
-            ->orderBy('weight', 'ASC')
-            ->orderBy('published_at', 'ASC')
-            ->paginate(option('general', 'default_page_size', 20));
-    }
-
-    /**
-     * Eager load relations
-     *
-     * @param Content|Collection $model Model or collection
-     *
-     * @return Content|Collection
-     */
-    protected function eagerLoad($model)
-    {
-        return optional($model)->load(self::$loadRelations);
     }
 }

@@ -4,6 +4,8 @@ use Gzero\Cms\Http\Resources\ContentCollection;
 use Gzero\Cms\Repositories\ContentReadRepository;
 use Gzero\Cms\Validators\ContentValidator;
 use Gzero\Core\Http\Controllers\ApiController;
+use Gzero\Core\Parsers\DateRangeParser;
+use Gzero\Core\Parsers\StringParser;
 use Gzero\Core\UrlParamsProcessor;
 use Illuminate\Http\Request;
 
@@ -41,11 +43,11 @@ class NestedContentController extends ApiController {
      *
      * @SWG\Get(
      *   path="/contents/{id}/children",
-     *   tags={"content"},
+     *   tags={"content", "public"},
      *   summary="List of all nested contents for particular parent",
      *   description="List of all available contents for particular parent",
      *   produces={"application/json"},
-     *   security={},
+     *   security={{"AdminAccess": {}}},
      *   @SWG\Parameter(
      *     name="created_at",
      *     in="query",
@@ -74,9 +76,26 @@ class NestedContentController extends ApiController {
      *
      * @return ContentCollection
      */
-    public function index(UrlParamsProcessor $processor, $id = null)
+    public function index(UrlParamsProcessor $processor, $id)
     {
-        return 'TODO';
+        $content = $this->repository->getById($id);
+        if (empty($content)) {
+            return abort(404);
+        }
+
+        $processor
+            ->addFilter(new StringParser('language'))
+            ->addFilter(new StringParser('type'))
+            ->addFilter(new StringParser('is_active'))
+            ->addFilter(new StringParser('level'))
+            ->addFilter(new StringParser('trashed'))
+            ->addFilter(new DateRangeParser('created_at'))
+            ->process($this->request);
+
+        $results = $this->repository->getManyChildren($content, $processor->buildQueryBuilder());
+        $results->setPath(apiUrl('contents/{id}/children', ['id' => $id]));
+
+        return new ContentCollection($results);
     }
 
 }

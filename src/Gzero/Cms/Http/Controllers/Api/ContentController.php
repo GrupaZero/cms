@@ -53,7 +53,7 @@ class ContentController extends ApiController {
      *   summary="List of all contents",
      *   description="List of all available contents",
      *   produces={"application/json"},
-     *   security={},
+     *   security={{"AdminAccess": {}}},
      *   @SWG\Parameter(
      *     name="created_at",
      *     in="query",
@@ -78,11 +78,10 @@ class ContentController extends ApiController {
      * )
      *
      * @param UrlParamsProcessor $processor Params processor
-     * @param int|null           $id        Id used for nested resources
      *
      * @return ContentCollection
      */
-    public function index(UrlParamsProcessor $processor, $id = null)
+    public function index(UrlParamsProcessor $processor)
     {
         // @TODO Can we tigger validation only for is active filter?
         //$this->authorize('readList', Content::class);
