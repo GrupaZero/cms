@@ -11,6 +11,15 @@ use Gzero\Core\UrlParamsProcessor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection as LaravelCollection;
 
+
+/**
+ * Class ContentController
+ *
+ * @SWG\Tag(
+ *   name="content",
+ *   description="Everything about app content"
+ *   )
+ */
 class ContentController extends ApiController {
 
     /** @var ContentReadRepository */
@@ -80,7 +89,7 @@ class ContentController extends ApiController {
         //$this->authorize('readList', Content::class);
 
         $processor
-            ->addFilter(new StringParser('lang'))
+            ->addFilter(new StringParser('language'))
             ->addFilter(new StringParser('type'))
             ->addFilter(new StringParser('is_active'))
             ->addFilter(new StringParser('level'))

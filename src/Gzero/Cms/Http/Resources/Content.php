@@ -38,7 +38,9 @@ class Content extends Resource {
         return [
             'id'                 => (int) $this->id,
             'parent_id'          => $this->parent_id,
-            'type'               => $this->type,
+            'type'               => $this->whenLoaded('type', function () {
+                return $this->type->name;
+            }),
             'theme'              => $this->theme,
             'weight'             => $this->weight,
             'rating'             => $this->rating,
@@ -50,7 +52,9 @@ class Content extends Resource {
             'path'               => $this->buildPath($this->path),
             'published_at'       => $this->published_at,
             'created_at'         => $this->created_at,
-            'updated_at'         => $this->updated_at
+            'updated_at'         => $this->updated_at,
+            'route'              => $this->route->toArray(), // @TODO Need Resource in gzero-core
+            'translations'       => ContentTranslation::collection($this->whenLoaded('translations')),
         ];
     }
 
