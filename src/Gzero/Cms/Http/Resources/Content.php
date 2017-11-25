@@ -1,7 +1,6 @@
 <?php namespace Gzero\Cms\Http\Resources;
 
 use Gzero\Core\Http\Resources\Route;
-use Gzero\Core\Http\Resources\RouteTranslation;
 use Illuminate\Http\Resources\Json\Resource;
 
 /**
@@ -79,7 +78,7 @@ use Illuminate\Http\Resources\Json\Resource;
  *   @SWG\Property(
  *     property="routes",
  *     type="array",
- *     @SWG\Items(ref="#/definitions/RouteTranslation")
+ *     @SWG\Items(ref="#/definitions/Route")
  *   ),
  *   @SWG\Property(
  *     property="translations",
@@ -116,8 +115,8 @@ class Content extends Resource {
             'published_at'       => $this->published_at->toIso8601String(),
             'created_at'         => $this->created_at->toIso8601String(),
             'updated_at'         => $this->updated_at->toIso8601String(),
-            'routes'             => $this->whenLoaded('route', function () {
-                return RouteTranslation::collection($this->route->translations);
+            'routes'             => $this->whenLoaded('routes', function () {
+                return Route::collection($this->routes);
             }),
             'translations'       => ContentTranslation::collection($this->whenLoaded('translations')),
         ];

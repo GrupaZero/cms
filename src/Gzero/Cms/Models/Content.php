@@ -207,11 +207,12 @@ class Content extends Tree implements PresentableInterface, Uploadable, Routable
     {
         $route = Route::firstOrNew([
             'language_code' => $translation->language_code,
+            'path'          => $this->getSlug($translation),
         ], [
             'is_active' => $isActive
         ]);
 
-        $route->path = $this->getUniquePath($translation);
+        $route->path = Route::buildUniquePath($route->path, $translation->language_code);
 
         $this->routes()->save($route);
 
@@ -252,13 +253,13 @@ class Content extends Tree implements PresentableInterface, Uploadable, Routable
     }
 
     /**
-     * Returns an unique route path address for given translation title
+     * Returns content slug from translation title with parent slug
      *
      * @param ContentTranslation $translation Content translation
      *
      * @return string an unique route path address in specified language
      */
-    protected function getUniquePath(ContentTranslation $translation)
+    protected function getSlug(ContentTranslation $translation)
     {
         $path = str_slug($translation->title);
 
@@ -266,7 +267,7 @@ class Content extends Tree implements PresentableInterface, Uploadable, Routable
             $path = $this->parent->getPath($translation->language_code) . '/' . $path;
         }
 
-        return Route::buildUniquePath($path, $translation->language_code);
+        return $path;
     }
 
     /**
