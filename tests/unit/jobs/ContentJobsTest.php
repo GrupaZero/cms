@@ -107,6 +107,27 @@ class ContentJobsTest extends Unit {
     }
 
     /** @test */
+    public function cantCreateContentAsAChildOfNotExistingParent()
+    {
+        $user     = $this->tester->haveUser();
+        $language = new Language(['code' => 'en']);
+
+        try {
+            dispatch_now(CreateContent::category('Child Title', $language, $user, [
+                'parent_id' => 100,
+                'is_active' => true
+            ]));
+        } catch (Exception $exception) {
+            $this->assertEquals(Exception::class, get_class($exception));
+            $this->assertEquals('Parent not found', $exception->getMessage());
+            return;
+        }
+
+        $this->fail('Exception should be thrown');
+
+    }
+
+    /** @test */
     public function itAllowsOnlyCategoryToBeSetAsParent()
     {
         $user     = $this->tester->haveUser();
