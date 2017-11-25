@@ -1,8 +1,8 @@
 <?php namespace Gzero\Cms\Models;
 
-use Gzero\Core\Models\Base;
+use Illuminate\Database\Eloquent\Model;
 
-class ContentType extends Base {
+class ContentType extends Model {
 
     /** @var array */
     protected $fillable = [

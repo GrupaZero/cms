@@ -50,9 +50,9 @@ class Content extends Resource {
             'is_promoted'        => $this->is_promoted,
             'is_sticky'          => $this->is_sticky,
             'path'               => $this->buildPath($this->path),
-            'published_at'       => $this->published_at,
-            'created_at'         => $this->created_at,
-            'updated_at'         => $this->updated_at,
+            'published_at'       => $this->published_at->toIso8601String(),
+            'created_at'         => $this->created_at->toIso8601String(),
+            'updated_at'         => $this->updated_at->toIso8601String(),
             'route'              => $this->route->toArray(), // @TODO Need Resource in gzero-core
             'translations'       => ContentTranslation::collection($this->whenLoaded('translations')),
         ];

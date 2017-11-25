@@ -1,33 +1,25 @@
 <?php namespace Gzero\Cms\Models;
 
-use Gzero\Core\Models\Base;
-use Gzero\Core\Handler\File\FileTypeHandler;
+use Gzero\Cms\Handlers\File\FileTypeHandler;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 
-class FileType extends Base {
+class FileType extends Model {
 
-    /**
-     * @var bool
-     */
+    /** @var bool */
     public $incrementing = false;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     protected $primaryKey = 'name';
 
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $fillable = [
         'name',
         'extensions',
         'is_active'
     ];
 
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $attributes = [
         'is_active' => false
     ];

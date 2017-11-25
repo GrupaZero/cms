@@ -41,8 +41,8 @@ class ContentTranslation extends Resource {
             'title'         => $this->title,
             'body'          => $this->body,
             'is_active'     => $this->is_active,
-            'created_at'    => $this->created_at,
-            'updated_at'    => $this->updated_at
+            'created_at'    => $this->created_at->toIso8601String(),
+            'updated_at'    => $this->updated_at->toIso8601String(),
         ];
     }
 }

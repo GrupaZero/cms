@@ -97,23 +97,6 @@ class ContentController extends ApiController {
             ->addFilter(new DateRangeParser('created_at'))
             ->process($this->request);
 
-        // @TODO Implement nested case
-        //if ($id) { // content/id/children
-        //    $content = $this->repository->getById($id);
-        //    if (!empty($content)) {
-        //        $results = $this->repository->getChildren(
-        //            $content,
-        //            $params['filter'],
-        //            $params['orderBy'],
-        //            $params['page'],
-        //            $params['perPage']
-        //        );
-        //        return $this->respondWithSuccess($results, new ContentTransformer);
-        //    } else {
-        //        return $this->respondNotFound();
-        //    }
-        //}
-
         $results = $this->repository->getMany($processor->buildQueryBuilder());
         $results->setPath(apiUrl('contents'));
 
