@@ -107,7 +107,7 @@ class ContentJobsTest extends Unit {
     }
 
     /** @test */
-    public function cantCreateContentAsAChildOfNotExistingParent()
+    public function cantCreateContentAsAChildOfNonExistingParent()
     {
         $user     = $this->tester->haveUser();
         $language = new Language(['code' => 'en']);
