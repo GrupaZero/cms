@@ -18,9 +18,24 @@ use Illuminate\Http\Resources\Json\Resource;
  *     example="en"
  *   ),
  *   @SWG\Property(
+ *     property="teaser",
+ *     type="string",
+ *     example="Example teaser"
+ *   ),
+ *   @SWG\Property(
  *     property="body",
  *     type="string",
- *     example="example body"
+ *     example="Example body"
+ *   ),
+ *   @SWG\Property(
+ *     property="seo_title",
+ *     type="string",
+ *     example="SEO title"
+ *   ),
+ *   @SWG\Property(
+ *     property="seo_description",
+ *     type="string",
+ *     example="SEO description"
  *   ),
  *   @SWG\Property(
  *     property="created_at",
@@ -46,13 +61,16 @@ class ContentTranslation extends Resource {
     public function toArray($request)
     {
         return [
-            'id'            => (int) $this->id,
-            'language_code' => $this->language_code,
-            'title'         => $this->title,
-            'body'          => $this->body,
-            'is_active'     => $this->is_active,
-            'created_at'    => $this->created_at->toIso8601String(),
-            'updated_at'    => $this->updated_at->toIso8601String(),
+            'id'              => (int) $this->id,
+            'language_code'   => $this->language_code,
+            'title'           => $this->title,
+            'teaser'          => $this->teaser,
+            'body'            => $this->body,
+            'seo_title'       => $this->seo_title,
+            'seo_description' => $this->seo_description,
+            'is_active'       => $this->is_active,
+            'created_at'      => $this->created_at->toIso8601String(),
+            'updated_at'      => $this->updated_at->toIso8601String(),
         ];
     }
 }

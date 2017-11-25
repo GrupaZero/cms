@@ -56,9 +56,10 @@ use Illuminate\Http\Resources\Json\Resource;
  *   ),
  *   @SWG\Property(
  *     property="path",
- *     type="string",
+ *     type="array",
  *     description="Represents hierarchy in tree by id's",
- *     example="1/2/3/"
+ *     example="[1,2,3]",
+ *     @SWG\Items(type="number")
  *   ),
  *   @SWG\Property(
  *     property="published_at",
