@@ -13,9 +13,70 @@ use Illuminate\Http\Resources\Json\Resource;
  *     example="2"
  *   ),
  *   @SWG\Property(
- *     property="theme",
+ *     property="type",
  *     type="string",
  *     example="content"
+ *   ),
+ *   @SWG\Property(
+ *     property="theme",
+ *     type="string",
+ *     example="is-content"
+ *   ),
+ *   @SWG\Property(
+ *     property="weight",
+ *     type="number",
+ *     example="100"
+ *   ),
+ *   @SWG\Property(
+ *     property="rating",
+ *     type="number",
+ *     example="10"
+ *   ),
+ *   @SWG\Property(
+ *     property="is_on_home",
+ *     type="boolean",
+ *     example="true"
+ *   ),
+ *   @SWG\Property(
+ *     property="is_comment_allowed",
+ *     type="boolean",
+ *     example="true"
+ *   ),
+ *   @SWG\Property(
+ *     property="is_promoted",
+ *     type="boolean",
+ *     example="true"
+ *   ),
+ *   @SWG\Property(
+ *     property="is_sticky",
+ *     type="boolean",
+ *     example="true"
+ *   ),
+ *   @SWG\Property(
+ *     property="path",
+ *     type="string",
+ *     description="Represents hierarchy in tree by id's",
+ *     example="1/2/3/"
+ *   ),
+ *   @SWG\Property(
+ *     property="published_at",
+ *     type="string",
+ *     format="date-time"
+ *   ),
+ *   @SWG\Property(
+ *     property="created_at",
+ *     type="string",
+ *     format="date-time"
+ *   ),
+ *   @SWG\Property(
+ *     property="updated_at",
+ *     type="string",
+ *     format="date-time"
+ *   ),
+ *   @SWG\Property(
+ *     property="route",
+ *     type="array",
+ *     @SWG\Items(ref="#/definitions/Route")
  *   ),
  *   @SWG\Property(
  *     property="translations",
@@ -44,7 +105,6 @@ class Content extends Resource {
             'theme'              => $this->theme,
             'weight'             => $this->weight,
             'rating'             => $this->rating,
-            'visits'             => $this->visits,
             'is_on_home'         => $this->is_on_home,
             'is_comment_allowed' => $this->is_comment_allowed,
             'is_promoted'        => $this->is_promoted,
@@ -53,7 +113,7 @@ class Content extends Resource {
             'published_at'       => $this->published_at->toIso8601String(),
             'created_at'         => $this->created_at->toIso8601String(),
             'updated_at'         => $this->updated_at->toIso8601String(),
-            'route'              => $this->route->toArray(), // @TODO Need Resource in gzero-core
+            'route'              => $this->whenLoaded('route'),
             'translations'       => ContentTranslation::collection($this->whenLoaded('translations')),
         ];
     }

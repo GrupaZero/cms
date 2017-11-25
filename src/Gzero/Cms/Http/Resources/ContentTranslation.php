@@ -21,6 +21,16 @@ use Illuminate\Http\Resources\Json\Resource;
  *     property="body",
  *     type="string",
  *     example="example body"
+ *   ),
+ *   @SWG\Property(
+ *     property="created_at",
+ *     type="string",
+ *     format="date-time"
+ *   ),
+ *   @SWG\Property(
+ *     property="updated_at",
+ *     type="string",
+ *     format="date-time"
  *   )
  * )
  */
