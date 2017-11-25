@@ -630,7 +630,7 @@ class ContentService extends BaseService {
                 }
                 // Search for route, or instantiate a new instance
                 $route = Route::firstOrNew(['routable_id' => $content->id, 'is_active' => 1]);
-                $content->route()->save($route);
+                $content->routes()->save($route);
                 //  Search for route translations, or instantiate a new instance
                 $routeTranslation      = RouteTranslation::firstOrNew(
                     ['route_id' => $route->id, 'language_code' => $langCode, 'is_active' => 1]
@@ -713,7 +713,7 @@ class ContentService extends BaseService {
     {
         return $this->newQuery()->transaction(
             function () use ($content) {
-                $routeRelation  = $content->route();
+                $routeRelation  = $content->routes();
                 $descendantsIds = $content->findDescendantsWithTrashed()->pluck('id');
                 // First we need to delete all routes because it's polymorphic relation
                 $this->newQuery()

@@ -34,8 +34,8 @@ class ContentPresenter extends Presenter {
     public function routeTranslation($langCode)
     {
         $routeTranslation = '';
-        if (!empty($this->route) && !empty($langCode)) {
-            $routeTranslation = $this->route->translations->filter(
+        if (!empty($this->routes) && !empty($langCode)) {
+            $routeTranslation = $this->routes->filter(
                 function ($translation) use ($langCode) {
                     return $translation->language_code === $langCode;
                 }
@@ -51,11 +51,11 @@ class ContentPresenter extends Presenter {
      *
      * @return string
      */
-    public function routeUrl($languageCode)
+    public function routeUrl(string $languageCode)
     {
         $routeUrl = '';
-        if (!empty($this->route) && !empty($languageCode)) {
-            $route = $this->route->translations->filter(
+        if (!empty($this->routes) && !empty($languageCode)) {
+            $route = $this->routes->filter(
                 function ($translation) use ($languageCode) {
                     return $translation->language_code === $languageCode;
                 }

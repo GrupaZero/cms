@@ -35,7 +35,7 @@ class ContentReadRepositoryTest extends Unit {
 
         // inactive route translations as default
         $content          = $this->repository->getByPath('example-title', 'en');
-        $routeTranslation = $content->route->translations(false)->first();
+        $routeTranslation = $content->routes->first();
 
         $this->assertEquals('example-title', $routeTranslation->path);
         $this->assertEquals('en', $routeTranslation->language_code);

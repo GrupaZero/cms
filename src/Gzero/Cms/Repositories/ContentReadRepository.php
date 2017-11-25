@@ -14,8 +14,7 @@ class ContentReadRepository implements ReadRepository {
     /** @var array */
     public static $loadRelations = [
         'author',
-        'route',
-        'route.translations',
+        'routes',
         'thumb',
         'translations',
         'type'
@@ -82,17 +81,14 @@ class ContentReadRepository implements ReadRepository {
     {
         return Content::query()
             ->with(self::$loadRelations)
-            ->join('routes', function ($join) {
+            ->join('routes', function ($join) use ($languageCode, $path, $onlyActive) {
                 $join->on('contents.id', '=', 'routes.routable_id')
-                    ->where('routes.routable_type', '=', Content::class);
-            })
-            ->join('route_translations', function ($join) use ($languageCode, $path, $onlyActive) {
-                $join->on('routes.id', '=', 'route_translations.route_id')
-                    ->where('route_translations.language_code', $languageCode)
-                    ->where('route_translations.path', $path);
-                if ($onlyActive) {
-                    $join->where('route_translations.is_active', true);
-                }
+                    ->where('routes.routable_type', '=', Content::class)
+                    ->where('routes.language_code', $languageCode)
+                    ->where('routes.path', $path)
+                    ->when($onlyActive, function ($query) {
+                        $query->where('routes.is_active', true);
+                    });
             })
             ->first(['contents.*']);
     }
@@ -110,25 +106,23 @@ class ContentReadRepository implements ReadRepository {
     {
         $ancestorIds = array_filter(explode('/', $content->path));
         return \DB::table('contents as c')
-            ->join('routes as r', function ($join) {
+            ->join('routes as r', function ($join) use ($language, $onlyActive) {
                 $join->on('c.id', '=', 'r.routable_id')
-                    ->where('r.routable_type', '=', Content::class);
-            })
-            ->join('route_translations as rt', function ($join) use ($language, $onlyActive) {
-                $join->on('r.id', '=', 'rt.route_id')->where('rt.language_code', $language->code);
-                if ($onlyActive) {
-                    $join->where('rt.is_active', true);
-                }
+                    ->where('r.routable_type', '=', Content::class)
+                    ->where('r.language_code', $language->code)
+                    ->when($onlyActive, function ($query) {
+                        $query->where('r.is_active', true);
+                    });
             })
             ->join('content_translations as ct', function ($join) use ($language, $onlyActive) {
-                $join->on('c.id', '=', 'ct.content_id')->where('ct.language_code', $language->code);
-                if ($onlyActive) {
-                    $join->where('ct.is_active', true);
-                }
+                $join->on('c.id', '=', 'ct.content_id')->where('ct.language_code', $language->code)
+                    ->when($onlyActive, function ($query) {
+                        $query->where('ct.is_active', true);
+                    });
             })
             ->whereIn('c.id', $ancestorIds)
             ->orderBy('level', 'ASC')
-            ->select(['ct.title', 'rt.path'])
+            ->select(['ct.title', 'r.path'])
             ->get();
     }
 

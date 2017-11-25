@@ -58,11 +58,11 @@ class Content extends Tree implements PresentableInterface, Uploadable, Routable
     /**
      * Polymorphic relation with route
      *
-     * @return \Illuminate\Database\Eloquent\Relations\MorphOne
+     * @return \Illuminate\Database\Eloquent\Relations\morphMany
      */
-    public function route()
+    public function routes()
     {
-        return $this->morphOne(Route::class, 'routable');
+        return $this->morphMany(Route::class, 'routable');
     }
 
     /**
@@ -127,7 +127,7 @@ class Content extends Tree implements PresentableInterface, Uploadable, Routable
      */
     public function getPath($languageCode)
     {
-        $routeTranslation = $this->route->translations(false)
+        $routeTranslation = $this->routes()->newQuery()
             ->where('language_code', $languageCode)
             ->first();
         if (empty($routeTranslation->path)) {
@@ -205,19 +205,15 @@ class Content extends Tree implements PresentableInterface, Uploadable, Routable
      */
     public function createRoute(ContentTranslation $translation, bool $isActive = false)
     {
-        $route            = $this->route()->first() ?: new Route();
-        $routeTranslation = $route->translations()
-            ->firstOrNew([
-                'route_id'      => $route->id,
-                'language_code' => $translation->language_code,
-            ], [
-                'is_active' => $isActive
-            ]);
+        $route = Route::firstOrNew([
+            'language_code' => $translation->language_code,
+        ], [
+            'is_active' => $isActive
+        ]);
 
-        $routeTranslation->path = $this->getUniquePath($translation);
+        $route->path = $this->getUniquePath($translation);
 
-        $this->route()->save($route);
-        $route->translations()->save($routeTranslation);
+        $this->routes()->save($route);
 
         return $this;
     }
