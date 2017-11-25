@@ -11,7 +11,6 @@ use Gzero\Core\UrlParamsProcessor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection as LaravelCollection;
 
-
 /**
  * Class ContentController
  *
