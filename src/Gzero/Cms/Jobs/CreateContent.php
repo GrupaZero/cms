@@ -128,10 +128,6 @@ class CreateContent {
                 ]);
                 $content->author()->associate($this->author);
 
-                if (!$this->attributes['published_at']) {
-                    $content->published_at = Carbon::now();
-                }
-
                 if ($this->attributes['parent_id']) {
                     $parent = Content::find($this->attributes['parent_id']);
                     if (!$parent) {

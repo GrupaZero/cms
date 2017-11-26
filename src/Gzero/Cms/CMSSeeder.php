@@ -1,5 +1,6 @@
 <?php namespace Gzero\Cms;
 
+use Carbon\Carbon;
 use Faker\Factory;
 use Faker\Generator;
 use Gzero\Cms\Jobs\AddContentTranslation;
@@ -96,14 +97,15 @@ class CMSSeeder extends Seeder {
      */
     private function seedContent($languages, $users)
     {
+        $date = Carbon::now();
         $user = $users->random();
         $en   = $languages['en'];
         $pl   = $languages['pl'];
 
-        $news    = dispatch_now(CreateContent::category('News', $en, $user, ['is_active' => true]));
-        $offer   = dispatch_now(CreateContent::category('Offer', $en, $user, ['is_active' => true]));
+        $news    = dispatch_now(CreateContent::category('News', $en, $user, ['is_active' => true, 'published_at' => $date]));
+        $offer   = dispatch_now(CreateContent::category('Offer', $en, $user, ['is_active' => true, 'published_at' => $date]));
         $aboutUs = dispatch_now(CreateContent::content('About us', $en, $user, array_merge(
-            ['is_active' => true],
+            ['is_active' => true, 'published_at' => $date],
             $this->generateContentTranslation($pl)
         )));
 
@@ -150,7 +152,7 @@ class CMSSeeder extends Seeder {
                 'is_promoted'        => (bool) rand(0, 1),
                 'is_sticky'          => (bool) rand(0, 1),
                 'is_active'          => (bool) rand(0, 1),
-                'published_at'       => date('Y-m-d H:i:s')
+                'published_at'       => Carbon::now()
             ],
             $this->generateContentTranslation($pl)
         )));

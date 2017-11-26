@@ -193,7 +193,7 @@ class ContentReadRepository implements ReadRepository {
         $query = $query->with(self::$loadRelations);
 
         if ($builder->hasRelation('translations')) {
-            if (!$builder->getRelationFilter('translations', 'language_code')) {
+            if (!$builder->getFilter('translations.language_code')) {
                 throw new RepositoryValidationException('Language code is required');
             }
             $query->join('content_translations as t', 'contents.id', '=', 't.content_id');
@@ -201,11 +201,10 @@ class ContentReadRepository implements ReadRepository {
             $builder->applyRelationSorts('translations', 't', $query);
         }
 
-        // @TODO handle type relation
-        if ($builder->hasRelation('type')) {
+        if ($builder->hasFilter('type') || $builder->hasSort('type')) {
             $query->join('content_types as ct', 'contents.type_id', '=', 'ct.id');
-            $builder->applyRelationFilters('type', 'ct', $query);
-            $builder->applyRelationSorts('type', 'ct', $query);
+            optional($builder->getFilter('type'))->apply($query, 'ct', 'name');
+            optional($builder->getSort('type'))->apply($query, 'ct', 'name');
         }
 
         $builder->applyFilters($query);

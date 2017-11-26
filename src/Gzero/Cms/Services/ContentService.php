@@ -1,11 +1,9 @@
 <?php namespace Gzero\Cms\Services;
 
-use Gzero\Core\Models\User;
 use Gzero\Cms\Models\Content;
 use Gzero\Cms\Models\ContentTranslation;
 use Gzero\Cms\Models\ContentType;
 use Gzero\Core\Models\Route;
-use Gzero\Core\Exception;
 use Gzero\Core\Repositories\RepositoryException;
 use Gzero\Core\Repositories\RepositoryValidationException;
 use Gzero\EloquentTree\Model\Tree;
@@ -512,55 +510,6 @@ class ContentService extends BaseService {
     */
 
     /**
-     * Update specific content entity
-     *
-     * @param Content   $content  Content entity
-     * @param array     $data     new data to save
-     * @param User|null $modifier User entity
-     *
-     * @return Content
-     * @SuppressWarnings("unused")
-     */
-    public function update(Content $content, array $data, User $modifier = null)
-    {
-        $content = $this->newQuery()->transaction(
-            function () use ($content, $data, $modifier) {
-                $content->fill($data);
-                $this->events->fire('content.updating', [$content]);
-                $this->handleThumbAssociation($data, $content);
-                if (!empty($data['parent_id'])) {
-                    $this->handleParentUpdate($content, $data);
-                } else {
-                    $content->save();
-                }
-                $this->events->fire('content.updated', [$content]);
-                return $content;
-            }
-        );
-        return $content;
-    }
-
-    /**
-     * Delete specific content translation entity
-     *
-     * @param ContentTranslation $translation entity to delete
-     *
-     * @return bool
-     * @throws RepositoryValidationException
-     */
-    public function deleteTranslation(ContentTranslation $translation)
-    {
-        if ($translation->is_active) {
-            throw new RepositoryValidationException('Cannot delete active translation');
-        }
-        return $this->newQuery()->transaction(
-            function () use ($translation) {
-                return $translation->delete();
-            }
-        );
-    }
-
-    /**
      * Create new ORM tree query builder
      *
      * @return Builder
@@ -641,26 +590,6 @@ class ContentService extends BaseService {
         $results->load('route.translations', 'translations', 'author', 'thumb', 'thumb.translations');
     }
 
-
-    /**
-     * Checks if provided type exists
-     *
-     * @param string $type    type name
-     * @param array  $types   types to check
-     * @param string $message exception message
-     *
-     * @return string
-     * @throws RepositoryValidationException
-     */
-    private function validateType($type, $types, $message = "Content type doesn't exist")
-    {
-        if (in_array($type, $types)) {
-            return $type;
-        } else {
-            throw new RepositoryValidationException($message);
-        }
-    }
-
     /**
      * Checks if we want to sort by non core field
      *
@@ -681,64 +610,4 @@ class ContentService extends BaseService {
         }
         return false;
     }
-
-    /**
-     * Handle updating content parent
-     *
-     * @param Content $content content entity
-     * @param array   $data    input data
-     *
-     * @return array
-     * @throws RepositoryValidationException
-     */
-    private function handleParentUpdate(Content $content, array $data)
-    {
-        $parent = $this->getById($data['parent_id']);
-
-        // @TODO handle parent change for category with children
-        if ($content->type === 'category') {
-            // Check if category has children
-            if (!empty($this->getChildren($content)->first())) {
-                throw new RepositoryValidationException('You cannot change parent of not empty category');
-            }
-        };
-
-        // Set parent
-        if (!empty($parent)) {
-            /** @TODO get registered types */
-            $this->validateType(
-                $parent->type,
-                ['category'],
-                "Content type '" . $parent->type . "' is not allowed for the parent type"
-            );
-            $content->setChildOf($parent);
-        } else {
-            $content->setAsRoot();
-        }
-    }
-
-    /**
-     * Handle associating thumb
-     *
-     * @param array   $data    Data array
-     * @param Content $content Content entity
-     *
-     * @throws RepositoryException
-     * @return void
-     */
-    private function handleThumbAssociation(array $data, Content $content)
-    {
-        if (array_key_exists('thumb_id', $data)) {
-            if (!empty($data['thumb_id'])) {
-                $thumb = File::find($data['thumb_id']);
-                if (empty($thumb)) {
-                    throw new RepositoryException('Thumb does not exist');
-                }
-                $content->thumb()->associate($thumb);
-            } else {
-                $content->thumb()->dissociate();
-            }
-        }
-    }
-
 }

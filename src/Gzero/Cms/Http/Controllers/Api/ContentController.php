@@ -92,7 +92,9 @@ class ContentController extends ApiController {
             ->addFilter(new StringParser('is_active'))
             ->addFilter(new StringParser('level'))
             ->addFilter(new StringParser('trashed'))
+            ->addFilter(new DateRangeParser('published_at'))
             ->addFilter(new DateRangeParser('created_at'))
+            ->addFilter(new DateRangeParser('updated_at'))
             ->process($this->request);
 
         $results = $this->repository->getMany($processor->buildQueryBuilder());
