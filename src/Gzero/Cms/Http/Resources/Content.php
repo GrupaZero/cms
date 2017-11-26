@@ -112,7 +112,7 @@ class Content extends Resource {
             'is_promoted'        => $this->is_promoted,
             'is_sticky'          => $this->is_sticky,
             'path'               => $this->buildPath($this->path),
-            'published_at'       => $this->published_at->toIso8601String(),
+            'published_at'       => isset($this->published_at) ? $this->published_at->toIso8601String() : null,
             'created_at'         => $this->created_at->toIso8601String(),
             'updated_at'         => $this->updated_at->toIso8601String(),
             'routes'             => $this->whenLoaded('routes', function () {

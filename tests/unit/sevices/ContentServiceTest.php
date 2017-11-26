@@ -57,35 +57,6 @@ class ContentServiceTest extends Unit {
     /**
      * @test
      */
-    public function canUpdateContent()
-    {
-        $content = $this->tester->haveContent(
-            [
-                'type'         => 'content',
-                'is_on_home'   => false,
-                'translations' => [
-                    [
-                        'language_code' => 'en',
-                        'title'         => 'Example title'
-                    ]
-                ]
-            ]
-        );
-
-        $this->assertEquals(false, $content->is_on_home);
-
-        $updatedContent = $this->repository->update(
-            $content,
-            [
-                'is_on_home' => true,
-            ]
-        );
-        $this->assertEquals(true, $updatedContent->is_on_home);
-    }
-
-    /**
-     * @test
-     */
     public function canCreateContentWithSameTitleAsOneOfSoftDeletedContents()
     {
         $this->markTestSkipped('FIX IT after refactor');
@@ -317,108 +288,6 @@ class ContentServiceTest extends Unit {
                 }
             }
         }
-    }
-
-    /**
-     * @test
-     */
-    public function canCreateContentAsChild()
-    {
-        $this->markTestSkipped('FIX IT after refactor');
-
-        // Tree seeds
-        (new \TestSeeder())->run();
-        //(new \TestTreeSeeder())->run();
-
-        $category        = $this->repository->getById(1);
-        $categoryRoute   = $category->routes->first();
-        $content         = $this->repository->create(
-            [
-                'type'         => 'content',
-                'parent_id'    => $category->id,
-                'translations' => [
-                    'language_code' => 'en',
-                    'title'         => 'Example content title'
-                ]
-            ]
-        );
-        $newContent      = $this->repository->getById($content->id);
-        $newContentRoute = $newContent->routes->first();
-        // parent_id
-        $this->assertEquals($category->id, $newContent->parent_id);
-        // level
-        $this->assertEquals($category->level + 1, $newContent->level);
-        // path
-        $this->assertEquals($category->path . $newContent->id . '/', $newContent->path);
-        // route
-        $this->assertEquals('en', $newContentRoute['language_code']);
-        $this->assertEquals($categoryRoute->url . '/' . 'example-content-title', $newContentRoute['url']);
-    }
-
-    /**
-     * @test
-     */
-    public function canUpdateContentParent()
-    {
-        $this->markTestSkipped('FIX IT after refactor');
-
-        // Tree seeds
-        (new \TestSeeder())->run();
-        //(new \TestTreeSeeder())->run();
-
-        $category       = $this->repository->getById(1);
-        $content        = $this->repository->getById(5);
-        $oldContentPath = $content->path;
-        $this->repository->update(
-            $content,
-            [
-                'parent_id' => $category->id, // set parent id
-            ]
-        );
-        $updatedContent = $this->repository->getById($content->id);
-        $newCategory    = $this->repository->getById($updatedContent->parent_id);
-        $this->assertNotEmpty($newCategory);
-        $this->assertNotEquals($oldContentPath, $updatedContent->path);
-        $this->assertEquals($newCategory->id, $updatedContent->parent_id);
-        $this->assertEquals($newCategory->path . $updatedContent->id . '/', $updatedContent->path);
-    }
-
-    /**
-     * @test
-     */
-    public function canUpdateParentForCategoryWithoutChildren()
-    {
-        $this->markTestSkipped('FIX IT after refactor');
-
-        // Tree seeds
-        (new \TestSeeder())->run();
-        //(new \TestTreeSeeder())->run();
-
-        // Create new category without children
-        $category        = $this->repository->create(
-            [
-                'type'         => 'category',
-                'translations' => [
-                    'language_code' => 'en',
-                    'title'         => 'Example title'
-                ]
-            ]
-        );
-        $category        = $this->repository->getById($category->id);
-        $parent          = $this->repository->getById(2);
-        $oldCategoryPath = $category->path;
-        $this->repository->update(
-            $category,
-            [
-                'parent_id' => $parent->id, // set parent id
-            ]
-        );
-        $updatedCategory = $this->repository->getById($category->id);
-        $parentCategory  = $this->repository->getById($updatedCategory->parent_id);
-        $this->assertNotEmpty($parentCategory);
-        $this->assertNotEquals($oldCategoryPath, $updatedCategory->path);
-        $this->assertEquals($parentCategory->id, $updatedCategory->parent_id);
-        $this->assertEquals($parentCategory->path . $updatedCategory->id . '/', $updatedCategory->path);
     }
 
     /**
@@ -667,31 +536,6 @@ class ContentServiceTest extends Unit {
         $this->repository->forceDelete($content);
         // Content children has been removed?
         $this->assertEmpty($content->children()->get());
-    }
-
-    /**
-     * @test
-     * @expectedException \Gzero\Core\Repositories\RepositoryException
-     * @expectedExceptionMessage You cannot change parent of not empty category
-     */
-    public function itDoesNotAllowToUpdateParentForCategoryWithChildren()
-    {
-        $this->markTestSkipped('FIX IT after refactor');
-
-        // Tree seeds
-        //(new \TestTreeSeeder())->run();
-
-        // Get category with children
-        $category = $this->repository->getById(1);
-        $parent   = $this->repository->getById(2);
-
-        // Update category parent
-        $this->repository->update(
-            $category,
-            [
-                'parent_id' => $parent->id,
-            ]
-        );
     }
 
     /*
@@ -1110,36 +954,6 @@ class ContentServiceTest extends Unit {
         );
         $this->assertEquals(1, $translatedContent->count());
 
-    }
-
-    /**
-     * @test
-     */
-    public function itDoesNotAllowToDeleteActiveTranslation()
-    {
-        $this->markTestSkipped('FIX IT after refactor');
-
-        $content = $this->tester->haveContent(
-            [
-                'type'         => 'content',
-                'translations' => [
-                    [
-                        'language_code' => 'en',
-                        'title'         => 'Example title'
-                    ]
-                ]
-            ]
-        );
-
-        $this->assertInstanceOf('Gzero\Cms\Models\Content', $content);
-
-        $translations = $this->repository->getTranslations($content, []);
-        $translation  = $translations->first();
-        $this->assertInstanceOf('Gzero\Cms\Models\ContentTranslation', $translation);
-        $this->assertEquals($translation->is_active, 1);
-
-        $this->setExpectedException('Gzero\Repository\RepositoryException');
-        $this->repository->deleteTranslation($translation);
     }
 
     /**

@@ -193,7 +193,7 @@ class ContentReadRepository implements ReadRepository {
         $query = $query->with(self::$loadRelations);
 
         if ($builder->hasRelation('translations')) {
-            if (!$builder->getRelationFilter('translations', 'language_code')) {
+            if (!$builder->getFilter('translations.language_code')) {
                 throw new RepositoryValidationException('Language code is required');
             }
             $query->join('content_translations as t', 'contents.id', '=', 't.content_id');

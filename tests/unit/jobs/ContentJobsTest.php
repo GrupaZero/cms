@@ -3,6 +3,7 @@
 use Carbon\Carbon;
 use Codeception\Test\Unit;
 use Gzero\Cms\Handlers\Content\ContentHandler;
+use Gzero\Cms\Jobs\UpdateContent;
 use Gzero\Cms\Models\Content;
 use Gzero\Cms\Jobs\CreateContent;
 use Gzero\Cms\Jobs\DeleteContent;
@@ -29,7 +30,8 @@ class ContentJobsTest extends Unit {
             'is_on_home'         => true,
             'is_promoted'        => true,
             'is_sticky'          => true,
-            'is_comment_allowed' => true
+            'is_comment_allowed' => true,
+            'published_at'       => Carbon::now()
         ]));
 
         $content          = $content->fresh();
@@ -67,6 +69,19 @@ class ContentJobsTest extends Unit {
         $routeTranslation = $content->routes->first();
 
         $this->assertFalse($routeTranslation->is_active, 'Route was set to active');
+    }
+
+    /** @test */
+    public function canCreateContentWithPublishedAtSetToNull()
+    {
+        $user    = $this->tester->haveUser();
+        $content = dispatch_now(CreateContent::content('New One', new Language(['code' => 'en']), $user, [
+            'published_at' => null
+        ]));
+
+        $content = Content::find($content->id);
+
+        $this->assertNull($content->published_at);
     }
 
     /** @test */
@@ -306,6 +321,116 @@ class ContentJobsTest extends Unit {
     }
 
     /** @test */
+    public function canUpdateContent()
+    {
+        $content = $this->tester->haveContent([
+            'theme'              => null,
+            'weight'             => 0,
+            'is_on_home'         => false,
+            'is_promoted'        => false,
+            'is_sticky'          => false,
+            'is_comment_allowed' => false,
+            'published_at'       => Carbon::today()
+        ]);
+
+        dispatch_now(new UpdateContent($content, [
+            'theme'              => 'theme',
+            'weight'             => 10,
+            'is_on_home'         => true,
+            'is_promoted'        => true,
+            'is_sticky'          => true,
+            'is_comment_allowed' => true,
+            'published_at'       => Carbon::tomorrow()
+        ]));
+
+        $content = Content::find($content->id);
+
+        $this->assertTrue($content->is_on_home);
+        $this->assertTrue($content->is_promoted);
+        $this->assertTrue($content->is_sticky);
+        $this->assertTrue($content->is_comment_allowed);
+        $this->assertEquals('theme', $content->theme);
+        $this->assertEquals(10, $content->weight);
+        $this->assertEquals(Carbon::tomorrow()->format('Y-m-d'), $content->published_at->format('Y-m-d'));
+    }
+
+    /** @test */
+    public function canUpdateContentPublishedAtToNull()
+    {
+        $content = $this->tester->haveContent([
+            'published_at' => Carbon::today()
+        ]);
+
+        dispatch_now(new UpdateContent($content, [
+            'published_at' => null
+        ]));
+
+        $content = Content::find($content->id);
+
+        $this->assertNull($content->published_at);
+    }
+
+    /** @test */
+    public function canUpdateContentParent()
+    {
+        $first   = $this->tester->haveContent(['type' => 'category']);
+        $second  = $this->tester->haveContent(['type' => 'category']);
+        $content = $this->tester->haveContent(['type' => 'content']);
+
+        // Set new parent
+        dispatch_now(new UpdateContent($content, ['parent_id' => $first->id]));
+
+        $content = Content::find($content->id);
+
+        $this->assertEquals($first->id, $content->parent_id);
+        $this->assertEquals("$first->id/$content->id/", $content->path);
+
+        // Update parent
+        dispatch_now(new UpdateContent($content, ['parent_id' => $second->id]));
+
+        $content = Content::find($content->id);
+
+        $this->assertEquals($second->id, $content->parent_id);
+        $this->assertEquals("$second->id/$content->id/", $content->path);
+
+        // Don't update parent
+        dispatch_now(new UpdateContent($content));
+
+        $content = Content::find($content->id);
+
+        $this->assertEquals($second->id, $content->parent_id);
+        $this->assertEquals("$second->id/$content->id/", $content->path);
+
+        // Set as root
+        dispatch_now(new UpdateContent($content, ['parent_id' => null]));
+
+        $content = Content::find($content->id);
+
+        $this->assertNull($content->parent_id);
+        $this->assertEquals("$content->id/", $content->path);
+    }
+
+    /** @test */
+    public function cantUpdateParentOfCategoryWithChildren()
+    {
+        $root   = $this->tester->haveContent(['type' => 'category']);
+        $parent = $this->tester->haveContent(['type' => 'category']);
+        $child  = $this->tester->haveContent(['type' => 'category']);
+
+        dispatch_now(new UpdateContent($child, ['parent_id' => $parent->id]));
+
+        try {
+            dispatch_now(new UpdateContent($parent, ['parent_id' => $root->id]));
+        } catch (Exception $exception) {
+            $this->assertEquals(Exception::class, get_class($exception));
+            $this->assertEquals('Only parent for the category without children can be updated', $exception->getMessage());
+            return;
+        }
+
+        $this->fail('Exception should be thrown');
+    }
+
+    /** @test */
     public function canDeleteContent()
     {
         $content = $this->tester->haveContent();
@@ -442,7 +567,7 @@ class ContentJobsTest extends Unit {
     }
 
     /** @test */
-    public function canDeleteContentInactiveTranslation()
+    public function canDeleteInactiveTranslation()
     {
         $withActive = false;
         $content    = $this->tester->haveContent(
@@ -468,6 +593,33 @@ class ContentJobsTest extends Unit {
         dispatch_now(new DeleteContentTranslation($content->translations($withActive)->first()));
 
         $this->assertEquals(1, $content->translations($withActive)->count());
+    }
+
+
+    /** @test */
+    public function cantDeleteActiveTranslation()
+    {
+        $content = $this->tester->haveContent(
+            [
+                'type'         => 'content',
+                'translations' => [
+                    [
+                        'language_code' => 'en',
+                        'title'         => 'Example title'
+                    ]
+                ]
+            ]
+        );
+
+        try {
+            dispatch_now(new DeleteContentTranslation($content->translations->first()));
+        } catch (Exception $exception) {
+            $this->assertEquals(Exception::class, get_class($exception));
+            $this->assertEquals('Cannot delete active translation', $exception->getMessage());
+            return;
+        }
+
+        $this->fail('Exception should be thrown');
     }
 
     /** @test */
@@ -507,31 +659,5 @@ class ContentJobsTest extends Unit {
 
         $this->assertNull(Content::find($first->id));
         $this->assertNotNull(Content::withTrashed()->find($second->id));
-    }
-
-    /** @test */
-    public function itDoesNotAllowToDeleteActiveTranslation()
-    {
-        $content = $this->tester->haveContent(
-            [
-                'type'         => 'content',
-                'translations' => [
-                    [
-                        'language_code' => 'en',
-                        'title'         => 'Example title'
-                    ]
-                ]
-            ]
-        );
-
-        try {
-            dispatch_now(new DeleteContentTranslation($content->translations->first()));
-        } catch (Exception $exception) {
-            $this->assertEquals(Exception::class, get_class($exception));
-            $this->assertEquals('Cannot delete active translation', $exception->getMessage());
-            return;
-        }
-
-        $this->fail('Exception should be thrown');
     }
 }

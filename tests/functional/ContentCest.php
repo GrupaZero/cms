@@ -1,5 +1,6 @@
 <?php namespace Cms;
 
+use Carbon\Carbon;
 use Codeception\Util\Locator;
 use Gzero\Cms\Jobs\AddContentTranslation;
 use Gzero\Cms\Jobs\CreateContent;
@@ -188,14 +189,16 @@ class ContentCest {
             'is_active' => true
         ]));
         $parent = dispatch_now(CreateContent::category('Parent - Title', $language, $user1, [
-            'teaser'    => 'Parent teaser',
-            'parent_id' => $root->id,
-            'is_active' => true
+            'teaser'       => 'Parent teaser',
+            'parent_id'    => $root->id,
+            'published_at' => Carbon::now(),
+            'is_active'    => true
         ]));
         $child  = dispatch_now(CreateContent::content('Child - Title', $language, $user2, [
-            'Child'     => 'Child teaser',
-            'parent_id' => $parent->id,
-            'is_active' => true
+            'Child'        => 'Child teaser',
+            'parent_id'    => $parent->id,
+            'published_at' => Carbon::now(),
+            'is_active'    => true
         ]));
 
         $I->amOnPage('grandparent-title');
