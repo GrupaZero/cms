@@ -169,6 +169,32 @@ class ContentJobsTest extends Unit {
     }
 
     /** @test */
+    public function itAllowsOnlyTranslatedCategoryToBeSetAsParent()
+    {
+        $user     = $this->tester->haveUser();
+        $language = new Language(['code' => 'en']);
+        $parent   = $this->tester->haveContent([
+            'type'         => 'category',
+            'translations' => [
+                [
+                    'language_code' => 'pl',
+                    'title'         => 'Parent Title'
+                ]
+            ]
+        ]);
+
+        try {
+            dispatch_now(CreateContent::content('title', $language, $user, ['parent_id' => $parent->id]));
+        } catch (Exception $exception) {
+            $this->assertEquals(Exception::class, get_class($exception));
+            $this->assertEquals("There is no route in 'en' language for Content id: $parent->id", $exception->getMessage());
+            return;
+        }
+
+        $this->fail('Exception should be thrown');
+    }
+
+    /** @test */
     public function itValidatesContentType()
     {
         $user     = $this->tester->haveUser();

@@ -252,50 +252,105 @@ class ContentCest {
         );
     }
 
-    //public function shouldBeAbleToFilterListOfContentsByType(FunctionalTester $I)
-    //{
-    //    // @TODO 'Handle type relation';
-    //
-    //    $user     = factory(User::class)->create();
-    //    $language = new Language(['code' => 'en']);
-    //
-    //    dispatch_now(CreateContent::category('Category Title', $language, $user, ['is_active' => true]));
-    //    dispatch_now(CreateContent::content('Content Title', $language, $user, ['is_active' => true]));
-    //
-    //    $I->sendGET(apiUrl('contents?type=category'));
-    //
-    //    $I->seeResponseCodeIs(200);
-    //    $I->seeResponseIsJson();
-    //    $I->seeResponseJsonMatchesJsonPath('data[*]');
-    //    $I->seeResponseContainsJson(
-    //        [
-    //            'type'         => 'category',
-    //            'translations' => [
-    //                [
-    //                    'language_code' => 'en',
-    //                    'title'         => 'Category Title',
-    //                    'is_active'     => true,
-    //                ]
-    //            ]
-    //        ]
-    //    );
-    //
-    //    $I->sendGET(apiUrl('contents?type=!category'));
-    //
-    //    $I->seeResponseCodeIs(200);
-    //    $I->seeResponseIsJson();
-    //    $I->seeResponseJsonMatchesJsonPath('data[*]');
-    //    $I->dontSeeResponseContainsJson(
-    //        [
-    //            'type'         => 'content',
-    //            'translations' => [
-    //                [
-    //                    'language_code' => 'en',
-    //                    'title'         => 'Content Title',
-    //                    'is_active'     => true,
-    //                ]
-    //            ]
-    //        ]
-    //    );
-    //}
+    public function shouldBeAbleToFilterListOfContentsByType(FunctionalTester $I)
+    {
+        $user     = factory(User::class)->create();
+        $language = new Language(['code' => 'en']);
+
+        dispatch_now(CreateContent::category('Category Title', $language, $user, ['is_active' => true]));
+        dispatch_now(CreateContent::content('Content Title', $language, $user, ['is_active' => true]));
+
+        $I->sendGET(apiUrl('contents?type=category'));
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeResponseJsonMatchesJsonPath('data[*]');
+        $I->seeResponseContainsJson(
+            [
+                'type'         => 'category',
+                'translations' => [
+                    [
+                        'language_code' => 'en',
+                        'title'         => 'Category Title',
+                        'is_active'     => true,
+                    ]
+                ]
+            ]
+        );
+        $I->dontSeeResponseContainsJson(
+            [
+                'type'         => 'content',
+                'translations' => [
+                    [
+                        'language_code' => 'en',
+                        'title'         => 'Content Title',
+                        'is_active'     => true,
+                    ]
+                ]
+            ]
+        );
+
+        $I->sendGET(apiUrl('contents?type=!category'));
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeResponseJsonMatchesJsonPath('data[*]');
+        $I->seeResponseContainsJson(
+            [
+                'type'         => 'content',
+                'translations' => [
+                    [
+                        'language_code' => 'en',
+                        'title'         => 'Content Title',
+                        'is_active'     => true,
+                    ]
+                ]
+            ]
+        );
+        $I->dontSeeResponseContainsJson(
+            [
+                'type'         => 'category',
+                'translations' => [
+                    [
+                        'language_code' => 'en',
+                        'title'         => 'Category Title',
+                        'is_active'     => true,
+                    ]
+                ]
+            ]
+        );
+    }
+
+    public function shouldBeAbleToSortListOfContentsByType(FunctionalTester $I)
+    {
+        $user     = factory(User::class)->create();
+        $language = new Language(['code' => 'en']);
+
+        dispatch_now(CreateContent::content('Content Title', $language, $user, ['is_active' => true]));
+        dispatch_now(CreateContent::category('Category Title', $language, $user, ['is_active' => true]));
+
+        $I->sendGET(apiUrl('contents?sort=type'));
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeResponseJsonMatchesJsonPath('data[*]');
+
+        $first  = $I->grabDataFromResponseByJsonPath('data[0].type');
+        $second = $I->grabDataFromResponseByJsonPath('data[1].type');
+
+        $I->assertEquals('category', head($first));
+        $I->assertEquals('content', head($second));
+
+        $I->sendGET(apiUrl('contents?sort=-type'));
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeResponseJsonMatchesJsonPath('data[*]');
+
+        $first  = $I->grabDataFromResponseByJsonPath('data[0].type');
+        $second = $I->grabDataFromResponseByJsonPath('data[1].type');
+
+        $I->assertEquals('content', head($first));
+        $I->assertEquals('category', head($second));
+    }
 }

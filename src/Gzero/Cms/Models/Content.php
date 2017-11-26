@@ -131,7 +131,7 @@ class Content extends Tree implements PresentableInterface, Uploadable, Routable
             ->where('language_code', $languageCode)
             ->first();
         if (empty($routeTranslation->path)) {
-            throw new Exception("No route [$languageCode] translation found for Content id: " . $this->getKey());
+            throw new Exception("There is no route in '$languageCode' language for Content id: $this->id");
         }
         return $routeTranslation->path;
     }

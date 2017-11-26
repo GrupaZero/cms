@@ -201,11 +201,10 @@ class ContentReadRepository implements ReadRepository {
             $builder->applyRelationSorts('translations', 't', $query);
         }
 
-        // @TODO handle type relation
-        if ($builder->hasRelation('type')) {
+        if ($builder->hasFilter('type') || $builder->hasSort('type')) {
             $query->join('content_types as ct', 'contents.type_id', '=', 'ct.id');
-            $builder->applyRelationFilters('type', 'ct', $query);
-            $builder->applyRelationSorts('type', 'ct', $query);
+            optional($builder->getFilter('type'))->apply($query, 'ct', 'name');
+            optional($builder->getSort('type'))->apply($query, 'ct', 'name');
         }
 
         $builder->applyFilters($query);

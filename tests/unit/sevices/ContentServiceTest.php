@@ -97,27 +97,6 @@ class ContentServiceTest extends Unit {
 
     /**
      * @test
-     * @expectedException \Gzero\Core\Repositories\RepositoryValidationException
-     * @expectedExceptionMessage Content type doesn't exist
-     */
-    public function itChecksExistenceOfContentType()
-    {
-        $this->markTestSkipped('FIX IT after refactor');
-
-        (new \TestSeeder())->run();
-        $this->repository->create(
-            [
-                'type'         => 'fakeType',
-                'translations' => [
-                    'language_code' => 'en',
-                    'title'         => 'Example category title'
-                ]
-            ]
-        );
-    }
-
-    /**
-     * @test
      */
     public function itChecksExistenceOfContentUrl()
     {
@@ -126,85 +105,6 @@ class ContentServiceTest extends Unit {
         (new \TestSeeder())->run();
         $this->assertNull($this->repository->getByUrl('example-title', 'en'));
     }
-
-    /**
-     * @test
-     * @expectedException \Gzero\Core\Repositories\RepositoryValidationException
-     * @expectedExceptionMessage Content type and translation is required
-     */
-    public function itChecksExistenceOfContentTranslation()
-    {
-        $this->markTestSkipped('FIX IT after refactor');
-
-        (new \TestSeeder())->run();
-        $this->repository->create(['type' => 'category']);
-    }
-
-    /**
-     * @test
-     * @expectedException \Gzero\Core\Repositories\RepositoryValidationException
-     * @expectedExceptionMessage Parent has not been translated in this language, translate it first!
-     */
-    public function itChecksExistenceOfParentRouteTranslation()
-    {
-        $this->markTestSkipped('FIX IT after refactor');
-
-        (new \TestSeeder())->run();
-        $category    = $this->repository->create(
-            [
-                'type'         => 'category',
-                'translations' => [
-                    'language_code' => 'en',
-                    'title'         => 'Example category title'
-                ]
-            ]
-        );
-        $newCategory = $this->repository->getById($category->id);
-        $this->repository->create(
-            [
-                'type'         => 'content',
-                'parent_id'    => $newCategory->id,
-                'translations' => [
-                    'language_code' => 'pl',
-                    'title'         => 'Example content title'
-                ]
-            ]
-        );
-    }
-
-    /**
-     * @test
-     * @expectedException \Gzero\Core\Repositories\RepositoryValidationException
-     * @expectedExceptionMessage Content type 'content' is not allowed for the parent type
-     */
-    public function itChecksIfParentIsProperType()
-    {
-        $this->markTestSkipped('FIX IT after refactor');
-
-        $content = $this->tester->haveContent(
-            [
-                'type'         => 'content',
-                'translations' => [
-                    [
-                        'language_code' => 'en',
-                        'title'         => 'Example title'
-                    ]
-                ]
-            ]
-        );
-
-        $this->repository->create(
-            [
-                'type'         => 'content',
-                'parent_id'    => $content->id,
-                'translations' => [
-                    'language_code' => 'pl',
-                    'title'         => 'Example content title'
-                ]
-            ]
-        );
-    }
-
 
     /**
      * @test
@@ -486,56 +386,6 @@ class ContentServiceTest extends Unit {
         $this->assertEquals($deletedContents[2]->weight, 2);
         $this->assertEquals($deletedContents[2]->level, 1);
 
-    }
-
-
-    /**
-     * @test
-     */
-    public function canDeleteContentWithChildren()
-    {
-        $this->markTestSkipped('FIX IT after refactor');
-
-        // Tree seeds
-        //(new \TestTreeSeeder())->run();
-
-        $content = $this->repository->getById(1);
-        $this->repository->delete($content);
-        // Content children has been removed?
-        $this->assertEmpty($content->children()->get());
-    }
-
-    /**
-     * @test
-     */
-    public function canForceDeleteContentWithChildren()
-    {
-        $this->markTestSkipped('FIX IT after refactor');
-
-        // Tree seeds
-        //(new \TestTreeSeeder())->run();
-
-        $content = $this->repository->getById(1);
-        $this->repository->forceDelete($content);
-        // Content children has been removed?
-        $this->assertEmpty($content->children()->get());
-    }
-
-    /**
-     * @test
-     */
-    public function canForceDeleteSoftDeletedContentWithChildren()
-    {
-        $this->markTestSkipped('FIX IT after refactor');
-
-        // Tree seeds
-        //(new \TestTreeSeeder())->run();
-
-        $content = $this->repository->getById(1);
-        $this->repository->delete($content);
-        $this->repository->forceDelete($content);
-        // Content children has been removed?
-        $this->assertEmpty($content->children()->get());
     }
 
     /*
