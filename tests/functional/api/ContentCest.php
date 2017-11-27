@@ -4,6 +4,7 @@ use Carbon\Carbon;
 use Cms\FunctionalTester;
 use Gzero\Cms\Jobs\AddContentTranslation;
 use Gzero\Cms\Jobs\CreateContent;
+use Gzero\Cms\Jobs\UpdateContent;
 use Gzero\Core\Models\Language;
 use Gzero\Core\Models\User;
 
@@ -181,6 +182,91 @@ class ContentCest {
                     [
                         'language_code' => 'en',
                         'title'         => 'Content Title',
+                        'is_active'     => true,
+                    ]
+                ]
+            ]
+        );
+    }
+
+    public function shouldBeAbleToFilterListOfContentsByUpdatedAt(FunctionalTester $I)
+    {
+        $user     = factory(User::class)->create();
+        $language = new Language(['code' => 'en']);
+
+        $content1 = dispatch_now(CreateContent::content("Tomorrow's content", $language, $user, ['is_active' => true]));
+        $content2 = dispatch_now(CreateContent::content("Today's content", $language, $user, ['is_active' => true]));
+        $content3 = dispatch_now(CreateContent::content("Three day's ago content", $language, $user, ['is_active' => true]));
+
+        $start = Carbon::yesterday()->format('Y-m-d');
+        $end   = Carbon::tomorrow()->format('Y-m-d');
+
+        dispatch_now((new UpdateContent($content1, [
+            'translations' => [
+                [
+                    'language_code' => 'en',
+                    'title'         => "Tomorrow's content",
+                    'is_active'     => true,
+                ]
+            ],
+            'updated_at' => Carbon::tomorrow()
+        ])));
+        dispatch_now((new UpdateContent($content2, [
+            'translations' => [
+                [
+                    'language_code' => 'en',
+                    'title'         => "Today's content",
+                    'is_active'     => true,
+                ]
+            ],
+            'updated_at' => Carbon::today()
+        ])));
+        dispatch_now((new UpdateContent($content3, [
+            'translations' => [
+                [
+                    'language_code' => 'en',
+                    'title'         => "Three day's ago content",
+                    'is_active'     => true,
+                ]
+            ],
+            'updated_at' => Carbon::now()->subDays(3)
+        ])));
+
+        $I->sendGET(apiUrl("contents?updated_at=$start,$end"));
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson(
+            [
+                [
+                    'type'         => 'content',
+                    'translations' => [
+                        [
+                            'language_code' => 'en',
+                            'title'         => "Today's content",
+                            'is_active'     => true,
+                        ]
+                    ]
+                ],
+                [
+                    'type'         => 'content',
+                    'translations' => [
+                        [
+                            'language_code' => 'en',
+                            'title'         => "Tomorrow's content",
+                            'is_active'     => true,
+                        ]
+                    ]
+                ]
+            ]
+        );
+        $I->dontSeeResponseContainsJson(
+            [
+                'type'         => 'category',
+                'translations' => [
+                    [
+                        'language_code' => 'en',
+                        'title'         => "Three day's ago content",
                         'is_active'     => true,
                     ]
                 ]
