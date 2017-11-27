@@ -194,46 +194,30 @@ class ContentCest {
         $user     = factory(User::class)->create();
         $language = new Language(['code' => 'en']);
 
-        $content1 = dispatch_now(CreateContent::content("Tomorrow's content", $language, $user, ['is_active' => true]));
-        $content2 = dispatch_now(CreateContent::content("Today's content", $language, $user, ['is_active' => true]));
-        $content3 = dispatch_now(CreateContent::content("Three day's ago content", $language, $user, ['is_active' => true]));
+        $content1 = dispatch_now(CreateContent::content("Four day's ago content's content", $language, $user, [
+            'published_at' => Carbon::now()->subDays(4),
+            'is_active'    => true
+        ]));
+        $content2 = dispatch_now(CreateContent::content("Three day's ago content", $language, $user, [
+            'published_at' => Carbon::now()->subDays(3),
+            'is_active'    => true
+        ]));
+        dispatch_now(CreateContent::category("Two day's ago content", $language, $user, [
+            'published_at' => Carbon::now()->subDays(2),
+            'is_active'    => true
+        ]));
 
         $start = Carbon::yesterday()->format('Y-m-d');
         $end   = Carbon::tomorrow()->format('Y-m-d');
 
         dispatch_now((new UpdateContent($content1, [
-            'translations' => [
-                [
-                    'language_code' => 'en',
-                    'title'         => "Tomorrow's content",
-                    'is_active'     => true,
-                ]
-            ],
-            'updated_at' => Carbon::tomorrow()
-        ])));
+            'is_sticky'          => true
+        ]))->handle());
         dispatch_now((new UpdateContent($content2, [
-            'translations' => [
-                [
-                    'language_code' => 'en',
-                    'title'         => "Today's content",
-                    'is_active'     => true,
-                ]
-            ],
-            'updated_at' => Carbon::today()
-        ])));
-        dispatch_now((new UpdateContent($content3, [
-            'translations' => [
-                [
-                    'language_code' => 'en',
-                    'title'         => "Three day's ago content",
-                    'is_active'     => true,
-                ]
-            ],
-            'updated_at' => Carbon::now()->subDays(3)
-        ])));
+            'is_sticky'          => true
+        ]))->handle());
 
         $I->sendGET(apiUrl("contents?updated_at=$start,$end"));
-
         $I->seeResponseCodeIs(200);
         $I->seeResponseIsJson();
         $I->seeResponseContainsJson(
@@ -243,7 +227,7 @@ class ContentCest {
                     'translations' => [
                         [
                             'language_code' => 'en',
-                            'title'         => "Today's content",
+                            'title'         => "Four day's ago content's content",
                             'is_active'     => true,
                         ]
                     ]
@@ -253,7 +237,7 @@ class ContentCest {
                     'translations' => [
                         [
                             'language_code' => 'en',
-                            'title'         => "Tomorrow's content",
+                            'title'         => "Three day's ago content",
                             'is_active'     => true,
                         ]
                     ]
@@ -266,7 +250,7 @@ class ContentCest {
                 'translations' => [
                     [
                         'language_code' => 'en',
-                        'title'         => "Three day's ago content",
+                        'title'         => "Two day's ago content",
                         'is_active'     => true,
                     ]
                 ]
