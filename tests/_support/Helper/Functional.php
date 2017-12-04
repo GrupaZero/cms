@@ -3,9 +3,6 @@
 // here you can define custom actions
 // all public methods declared in helper class will be available in $I
 
-use Gzero\Cms\Models\Content;
-use Gzero\Cms\Models\ContentTranslation;
-use Gzero\Core\Models\Route;
 use Gzero\Core\Models\User;
 use Illuminate\Routing\Router;
 
@@ -43,56 +40,6 @@ class Functional extends \Codeception\Module {
         }
 
         return $result;
-    }
-
-    /**
-     * Create content with translations and routes and return entity
-     *
-     * @param array $attributes
-     *
-     * @return \Gzero\Cms\Models\Content
-     */
-    public function haveContent($attributes = [])
-    {
-        $data            = array_except($attributes, ['translations']);
-        $transByLangCode = collect(array_get($attributes, 'translations'))->groupBy('language_code');
-
-        $content = factory(Content::class)->make($data);
-        $content->setAsRoot();
-
-        if (empty($transByLangCode)) {
-            return $content;
-        }
-
-        $transByLangCode->each(function ($translations) use ($content) {
-            $firstTranslation = array_first($translations);
-
-            // Create route translation based on the first translations in this language
-            $content->routes()
-                ->save(
-                    factory(Route::class)
-                        ->make(
-                            [
-                                'routable_id'   => $content->id,
-                                'routable_type' => Content::class,
-                                'language_code' => $firstTranslation['language_code'],
-                                'path'          => str_slug($firstTranslation['title']),
-                                'is_active'     => array_get($firstTranslation, 'is_active', true)
-                            ]
-                        )
-                );
-
-            // Create content translations
-            foreach ($translations as $translation) {
-                $content->translations()
-                    ->save(
-                        factory(ContentTranslation::class)
-                            ->make($translation)
-                    );
-            }
-        });
-
-        return $content;
     }
 
     /**

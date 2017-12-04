@@ -7,6 +7,7 @@ use Gzero\Cms\Jobs\CreateContent;
 use Gzero\Cms\Jobs\UpdateContent;
 use Gzero\Core\Models\Language;
 use Gzero\Core\Models\User;
+use Illuminate\Support\Facades\DB;
 
 class ContentCest {
 
@@ -191,22 +192,19 @@ class ContentCest {
 
     public function shouldBeAbleToFilterListOfContentsByUpdatedAt(FunctionalTester $I)
     {
+        $user     = factory(User::class)->create();
+        $language = new Language(['code' => 'en']);
+
         $fourDaysAgo = Carbon::now()->subDays(4);
         $yesterday = Carbon::yesterday()->format('Y-m-d');
         $tomorrow   = Carbon::tomorrow()->format('Y-m-d');
 
-        $content1 = $I->haveContent([
-            'type'         => 'content',
-            'created_at'   => $fourDaysAgo,
-            'updated_at'   => $fourDaysAgo,
-            'translations' => [
-                [
-                    'language_code' => 'en',
-                    'title'         => "Four day's ago content's content",
-                    'is_active'     => true
-                ]
-            ]
-        ]);
+        $content1 = dispatch_now(CreateContent::content("Four day's ago content's content", $language, $user, [
+            'is_active'    => true
+        ]));
+
+        // have to do it becouse updated_at field is created by database when inserting content to database
+        DB::table('contents')->where('id', $content1->id)->update(['updated_at' => $fourDaysAgo]);
 
         $I->sendGET(apiUrl("contents?updated_at=$yesterday,$tomorrow"));
         $I->dontSeeResponseContainsJson(
