@@ -191,41 +191,44 @@ class ContentCest {
 
     public function shouldBeAbleToFilterListOfContentsByUpdatedAt(FunctionalTester $I)
     {
-        $user     = factory(User::class)->create();
-        $language = new Language(['code' => 'en']);
+        $fourDaysAgo = Carbon::now()->subDays(4);
+        $yesterday = Carbon::yesterday()->format('Y-m-d');
+        $tomorrow   = Carbon::tomorrow()->format('Y-m-d');
 
-        $start = Carbon::yesterday()->format('Y-m-d');
-        $end   = Carbon::tomorrow()->format('Y-m-d');
+        $content1 = $I->haveContent([
+            'type'         => 'content',
+            'created_at'   => $fourDaysAgo,
+            'updated_at'   => $fourDaysAgo,
+            'translations' => [
+                [
+                    'language_code' => 'en',
+                    'title'         => "Four day's ago content's content",
+                    'is_active'     => true
+                ]
+            ]
+        ]);
 
-        $content1 = dispatch_now(CreateContent::content("Four day's ago content's content", $language, $user, [
-            'published_at' => Carbon::now()->subDays(4),
-            'is_active'    => true
-        ]));
-
-        $I->sendGET(apiUrl("contents?updated_at=$start,$end"));
-//        it fails becouse update_at is not null, it is the same date as published_at
-//        setting updated_at does not work, it is still creation date
-//        $I->dontSeeResponseContainsJson(
-//            [
-//                 [
-//                    'type'         => 'content',
-//                    'translations' => [
-//                        [
-//                            'language_code' => 'en',
-//                            'title'         => "Four day's ago content's content",
-//                            'is_active'     => true,
-//                        ]
-//                    ]
-//                ]
-//            ]
-//        );
+        $I->sendGET(apiUrl("contents?updated_at=$yesterday,$tomorrow"));
+        $I->dontSeeResponseContainsJson(
+            [
+                 [
+                    'type'         => 'content',
+                    'translations' => [
+                        [
+                            'language_code' => 'en',
+                            'title'         => "Four day's ago content's content",
+                            'is_active'     => true,
+                        ]
+                    ]
+                ]
+            ]
+        );
 
         dispatch_now((new UpdateContent($content1, [
             'is_sticky' => true
         ])));
 
-        $I->sendGET(apiUrl("contents?updated_at=$start,$end"));
-// it already works becouse update_at is set when creating content
+        $I->sendGET(apiUrl("contents?updated_at=$yesterday,$tomorrow"));
         $I->seeResponseCodeIs(200);
         $I->seeResponseIsJson();
         $I->seeResponseContainsJson(
