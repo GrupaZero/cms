@@ -198,12 +198,12 @@ class ServiceProvider extends AbstractServiceProvider {
     /**
      * It generates HMAC hash value
      *
-     * @param $data
-     * @param $key
+     * @param string $data data to hash
+     * @param string $key  secret key
      *
      * @return string
      */
-    private function dsqHmacSha1($data, $key)
+    private function dsqHmacSha1(string $data, string $key)
     {
         $blockSize = 64;
         if (strlen($key) > $blockSize) {
