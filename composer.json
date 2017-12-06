@@ -21,7 +21,7 @@
     },
     "require-dev": {
         "codeception/codeception": "^2.3",
-        "phpunit/php-code-coverage": "^5.2",
+        "phpunit/php-code-coverage": "5.2",
         "symfony/http-foundation": "v3.3.14",
         "fzaninotto/faker": "~1.6",
         "gzero/testing": "dev-master",
