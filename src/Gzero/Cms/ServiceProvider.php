@@ -196,7 +196,8 @@ class ServiceProvider extends AbstractServiceProvider {
     }
 
     /**
-     * It generates HMAC hash value
+     * It generates HMAC hash value. It was originally created as inner function in view gzero-cms::contents._disqus
+     * composer method callback, but phpcs complains about this.
      *
      * @param string $data data to hash
      * @param string $key  secret key
