@@ -19,7 +19,7 @@
     @endif
 @stop
 @section('mainContent')
-    {!! Breadcrumbs::render('content') !!}
+{{--    @include('gzero-core::layouts._breadcrumbs', ['breadcrumbs' => $breadcrumbs])--}}
     @parent
 @stop
 @section('content')
@@ -65,7 +65,7 @@
     @endif
     {!! $translation->body !!}
     @include('gzero-cms::contents._gallery', ['images' => $images, 'thumb' => $content->thumb])
-    @if(config('disqus.enabled') && $content->is_comment_allowed)
+    @if(config('gzero-cms.disqus.enabled') && $content->is_comment_allowed)
         <div class="row">
             <div class="col">
                 <div class="text-center">

@@ -189,7 +189,7 @@ class ServiceProvider extends AbstractServiceProvider {
 
                 $message   = base64_encode(json_encode($data));
                 $timestamp = time();
-                $hmac      = $this->dsqHmacSha1($message . ' ' . $timestamp, config('disqus.api_secret'));
+                $hmac      = $this->dsqHmacSha1($message . ' ' . $timestamp, config('gzero-cms.disqus.api_secret'));
                 $view->with('remoteAuthS3', "$message $hmac $timestamp");
             }
         );
