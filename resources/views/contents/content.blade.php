@@ -19,7 +19,7 @@
     @endif
 @stop
 @section('mainContent')
-{{--    @include('gzero-core::layouts._breadcrumbs', ['breadcrumbs' => $breadcrumbs])--}}
+    {!! Breadcrumbs::render('content') !!}
     @parent
 @stop
 @section('content')
