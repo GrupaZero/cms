@@ -195,7 +195,7 @@ class ContentCest {
         $yesterday = Carbon::yesterday()->format('Y-m-d');
         $tomorrow   = Carbon::tomorrow()->format('Y-m-d');
 
-        $content1 = $I->haveContent([
+        $content = $I->haveContent([
             'type'         => 'content',
             'created_at'   => $fourDaysAgo,
             'updated_at'   => $fourDaysAgo,
@@ -224,7 +224,7 @@ class ContentCest {
             ]
         );
 
-        dispatch_now((new UpdateContent($content1, [
+        dispatch_now((new UpdateContent($content, [
             'is_sticky' => true
         ])));
 
