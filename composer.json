@@ -21,6 +21,7 @@
     },
     "require-dev": {
         "codeception/codeception": "^2.3",
+        "phpunit/php-code-coverage": "5.2.*",
         "fzaninotto/faker": "~1.6",
         "gzero/testing": "dev-master",
         "orchestra/testbench": "^3.5",
