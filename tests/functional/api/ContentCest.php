@@ -192,8 +192,8 @@ class ContentCest {
     public function shouldBeAbleToFilterListOfContentsByUpdatedAt(FunctionalTester $I)
     {
         $fourDaysAgo = Carbon::now()->subDays(4);
-        $yesterday = Carbon::yesterday()->format('Y-m-d');
-        $tomorrow   = Carbon::tomorrow()->format('Y-m-d');
+        $yesterday   = Carbon::yesterday()->format('Y-m-d');
+        $tomorrow    = Carbon::tomorrow()->format('Y-m-d');
 
         $content = $I->haveContent([
             'type'         => 'content',
@@ -209,28 +209,14 @@ class ContentCest {
         ]);
 
         $I->sendGET(apiUrl("contents?updated_at=$yesterday,$tomorrow"));
-        $I->dontSeeResponseContainsJson(
-            [
-                [
-                    'type'         => 'content',
-                    'translations' => [
-                        [
-                            'language_code' => 'en',
-                            'title'         => "Four day's ago content's content",
-                            'is_active'     => true,
-                        ]
-                    ]
-                ]
-            ]
-        );
+        $I->assertEmpty($I->grabDataFromResponseByJsonPath('data[*]'));
 
-        dispatch_now((new UpdateContent($content, [
-            'is_sticky' => true
-        ])));
+        dispatch_now((new UpdateContent($content, ['is_sticky' => true])));
 
         $I->sendGET(apiUrl("contents?updated_at=$yesterday,$tomorrow"));
         $I->seeResponseCodeIs(200);
         $I->seeResponseIsJson();
+        $I->seeResponseJsonMatchesJsonPath('data[*]');
         $I->seeResponseContainsJson(
             [
                 [
@@ -244,6 +230,19 @@ class ContentCest {
                         ]
                     ]
                 ]
+            ]
+        );
+    }
+
+    public function shouldFailIfUpdatedAtIsNotDateRangeFormat(FunctionalTester $I)
+    {
+        $I->sendGET(apiUrl("contents?updated_at=2017-01-01,"));
+        $I->seeResponseCodeIs(422);
+        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson(
+            [
+                'message' => 'The given data was invalid.',
+                'errors'  => ['updated_at' => ['The updated at format is invalid.']]
             ]
         );
     }
