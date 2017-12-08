@@ -4,6 +4,7 @@ use Carbon\Carbon;
 use Cms\FunctionalTester;
 use Gzero\Cms\Jobs\AddContentTranslation;
 use Gzero\Cms\Jobs\CreateContent;
+use Gzero\Cms\Jobs\UpdateContent;
 use Gzero\Core\Models\Language;
 use Gzero\Core\Models\User;
 
@@ -184,6 +185,64 @@ class ContentCest {
                         'is_active'     => true,
                     ]
                 ]
+            ]
+        );
+    }
+
+    public function shouldBeAbleToFilterListOfContentsByUpdatedAt(FunctionalTester $I)
+    {
+        $fourDaysAgo = Carbon::now()->subDays(4);
+        $yesterday   = Carbon::yesterday()->format('Y-m-d');
+        $tomorrow    = Carbon::tomorrow()->format('Y-m-d');
+
+        $content = $I->haveContent([
+            'type'         => 'content',
+            'created_at'   => $fourDaysAgo,
+            'updated_at'   => $fourDaysAgo,
+            'translations' => [
+                [
+                    'language_code' => 'en',
+                    'title'         => "Four day's ago content's content",
+                    'is_active'     => true
+                ]
+            ]
+        ]);
+
+        $I->sendGET(apiUrl("contents?updated_at=$yesterday,$tomorrow"));
+        $I->assertEmpty($I->grabDataFromResponseByJsonPath('data[*]'));
+
+        dispatch_now((new UpdateContent($content, ['is_sticky' => true])));
+
+        $I->sendGET(apiUrl("contents?updated_at=$yesterday,$tomorrow"));
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeResponseJsonMatchesJsonPath('data[*]');
+        $I->seeResponseContainsJson(
+            [
+                [
+                    'type'         => 'content',
+                    'is_sticky'    => true,
+                    'translations' => [
+                        [
+                            'language_code' => 'en',
+                            'title'         => "Four day's ago content's content",
+                            'is_active'     => true,
+                        ]
+                    ]
+                ]
+            ]
+        );
+    }
+
+    public function shouldFailIfUpdatedAtIsNotDateRangeFormat(FunctionalTester $I)
+    {
+        $I->sendGET(apiUrl("contents?updated_at=2017-01-01,"));
+        $I->seeResponseCodeIs(422);
+        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson(
+            [
+                'message' => 'The given data was invalid.',
+                'errors'  => ['updated_at' => ['The updated at format is invalid.']]
             ]
         );
     }
