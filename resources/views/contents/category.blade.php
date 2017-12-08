@@ -5,8 +5,8 @@
 @section('seoDescription'){{ $translation->seoDescription() }}@stop
 @section('head')
     @parent
-    @include('gzero-cms::includes.canonical', ['paginator' => $children])
-    @include('gzero-cms::includes.alternateLinks', ['content' => $content])
+    @include('gzero-cms::contents._canonical', ['paginator' => $children])
+    @include('gzero-cms::contents._alternateLinks', ['content' => $content])
     @if(method_exists($content, 'stDataMarkup'))
         {!! $content->stDataMarkup($language->code) !!}
     @endif
@@ -18,7 +18,7 @@
 @section('content')
     <div class="row justify-content-md-center">
         <div class="col col-md-auto">
-            @include('gzero-cms::includes.notPublishedContentMsg')
+            @include('gzero-cms::contents._notPublishedContentMsg')
         </div>
     </div>
     <h1 class="content-title">
@@ -34,7 +34,7 @@
     <div class="w-100 my-4"></div>
 @stop
 @section('footerScripts')
-    @if(config('disqus.enabled') && config('disqus.domain'))
-        <script id="dsq-count-scr" src="//{{config('disqus.domain')}}.disqus.com/count.js" async></script>
+    @if(config('gzero-cms.disqus.enabled') && config('gzero-cms.disqus.domain'))
+        <script id="dsq-count-scr" src="//{{config('gzero-cms.disqus.domain')}}.disqus.com/count.js" async></script>
     @endif
 @stop

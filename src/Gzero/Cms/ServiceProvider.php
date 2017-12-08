@@ -68,6 +68,7 @@ class ServiceProvider extends AbstractServiceProvider {
         $this->registerMigrations();
         $this->registerFactories();
         $this->registerViews();
+        $this->registerViewComposers();
         $this->registerPublishes();
     }
 
@@ -163,6 +164,67 @@ class ServiceProvider extends AbstractServiceProvider {
     protected function registerViews()
     {
         $this->loadViewsFrom(__DIR__ . '/../../../resources/views', 'gzero-cms');
+    }
+
+    /**
+     * It registers view composers
+     *
+     * @return void
+     */
+    protected function registerViewComposers()
+    {
+        view()->composer(
+            'gzero-cms::contents._disqus',
+            function ($view) {
+                $data = [];
+                $user = auth()->user();
+                if ($user && !$user->isGuest()) {
+                    $data = [
+                        "id"       => $user["id"],
+                        "username" => $user->getPresenter()->displayName(),
+                        "email"    => $user["email"],
+                        //"avatar"    => $user["avatar"],
+                    ];
+                }
+
+                $message   = base64_encode(json_encode($data));
+                $timestamp = time();
+                $hmac      = $this->dsqHmacSha1($message . ' ' . $timestamp, config('gzero-cms.disqus.api_secret'));
+                $view->with('remoteAuthS3', "$message $hmac $timestamp");
+            }
+        );
+    }
+
+    /**
+     * It generates HMAC hash value. It was originally created as inner function in view gzero-cms::contents._disqus
+     * composer method callback, but phpcs complains about this.
+     *
+     * @param string $data data to hash
+     * @param string $key  secret key
+     *
+     * @return string
+     */
+    private function dsqHmacSha1(string $data, string $key)
+    {
+        $blockSize = 64;
+        if (strlen($key) > $blockSize) {
+            $key = pack('H*', sha1($key));
+        }
+        $key  = str_pad($key, $blockSize, chr(0x00));
+        $ipad = str_repeat(chr(0x36), $blockSize);
+        $opad = str_repeat(chr(0x5c), $blockSize);
+        $hmac = pack(
+            'H*',
+            sha1(
+                ($key ^ $opad) . pack(
+                    'H*',
+                    sha1(
+                        ($key ^ $ipad) . $data
+                    )
+                )
+            )
+        );
+        return bin2hex($hmac);
     }
 
     /**

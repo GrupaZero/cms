@@ -14,7 +14,7 @@
                     <small>@lang('gzero-core::common.posted_on') {{ $child->publishDate() }}</small>
                 </p>
             </div>
-            @if(config('disqus.enabled') && $child->is_comment_allowed)
+            @if(config('gzero-cms.disqus.enabled') && $child->is_comment_allowed)
                 <div class="col-auto">
                     <a href="{{ $childUrl }}#disqus_thread"
                        data-disqus-identifier="{{ $child->id }}"
