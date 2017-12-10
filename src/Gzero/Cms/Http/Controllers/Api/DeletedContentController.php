@@ -67,8 +67,14 @@ class DeletedContentController extends ApiController {
      *     response=200,
      *     description="Successful operation",
      *     @SWG\Schema(type="array", @SWG\Items(ref="#/definitions/Content")),
+     *  ),
+     *   @SWG\Response(
+     *     response=422,
+     *     description="Validation Error",
+     *     @SWG\Schema(ref="#/definitions/ValidationErrors")
      *  )
      * )
+     *
      * @param UrlParamsProcessor $processor Params processor
      *
      * @return ContentCollection

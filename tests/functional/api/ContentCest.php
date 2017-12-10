@@ -780,4 +780,86 @@ class ContentCest {
             ['title' => 'Comments Allowed']
         );
     }
+
+    public function shouldGetSingleContent(FunctionalTester $I)
+    {
+        $user = factory(User::class)->create();
+        $en   = new Language(['code' => 'en']);
+        $pl   = new Language(['code' => 'pl']);
+
+        $category = dispatch_now(CreateContent::category('Category Title', $en, $user, [
+            'teaser'          => 'Category teaser',
+            'body'            => 'Category body',
+            'seo_title'       => 'SEO category title',
+            'seo_description' => 'SEO category description',
+            'is_active'       => true
+        ]));
+
+        dispatch_now(new AddContentTranslation($category, 'Tytuł kategorii', $pl, $user, [
+            'teaser'          => 'Wstęp kategorii',
+            'body'            => 'Treść kategorii',
+            'seo_title'       => 'Tytuł SEO kategorii',
+            'seo_description' => 'Opis SEO kategorii',
+            'is_active'       => true
+        ]));
+
+        $I->sendGet(apiUrl('contents', ['id' => $category->id]));
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->dontSeeResponseJsonMatchesJsonPath('data[*]');
+        $I->seeResponseContainsJson(
+            [
+                'type'               => 'category',
+                'parent_id'          => null,
+                'theme'              => null,
+                'weight'             => 0,
+                'rating'             => 0,
+                'is_on_home'         => false,
+                'is_comment_allowed' => false,
+                'is_promoted'        => false,
+                'is_sticky'          => false,
+                'path'               => [$category->id],
+                'routes'             => [
+                    [
+                        'language_code' => 'en',
+                        'path'          => 'category-title',
+                        'is_active'     => true
+                    ],
+                    [
+                        'language_code' => 'pl',
+                        'path'          => 'tytul-kategorii',
+                        'is_active'     => true
+                    ]
+                ],
+                'translations'       => [
+                    [
+                        'language_code'   => 'en',
+                        'title'           => 'Category Title',
+                        'teaser'          => 'Category teaser',
+                        'body'            => 'Category body',
+                        'seo_title'       => 'SEO category title',
+                        'seo_description' => 'SEO category description',
+                        'is_active'       => true
+                    ],
+                    [
+                        'language_code'   => 'pl',
+                        'title'           => 'Tytuł kategorii',
+                        'teaser'          => 'Wstęp kategorii',
+                        'body'            => 'Treść kategorii',
+                        'seo_title'       => 'Tytuł SEO kategorii',
+                        'seo_description' => 'Opis SEO kategorii',
+                        'is_active'       => true
+                    ]
+                ]
+            ]
+        );
+    }
+
+    public function shouldNotBeAbleToGetNonExistingContent(FunctionalTester $I)
+    {
+
+        $I->sendGet(apiUrl('contents', ['id' => 100]));
+        $I->seeResponseCodeIs(404);
+    }
 }

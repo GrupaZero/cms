@@ -2,6 +2,7 @@
 
 use Gzero\Cms\Http\Resources\ContentCollection;
 use Gzero\Cms\Models\Content;
+use Gzero\Cms\Http\Resources\Content as ContentResource;
 use Gzero\Cms\Repositories\ContentReadRepository;
 use Gzero\Cms\Validators\ContentValidator;
 use Gzero\Core\Http\Controllers\ApiController;
@@ -256,20 +257,44 @@ class ContentController extends ApiController {
     }
 
     /**
-     * Display a specified resource.
+     * Display a specified content.
      *
-     * @param int $id Id of the resource
+     * @SWG\Get(
+     *   path="/contents/{id}",
+     *   tags={"content"},
+     *   summary="Returns a specific content by id",
+     *   description="Returns a specific content by id",
+     *   produces={"application/json"},
+     *   security={{"AdminAccess": {}}},
+     *   @SWG\Parameter(
+     *     name="id",
+     *     in="path",
+     *     description="Id of content that needs to be returned.",
+     *     required=true,
+     *     type="integer"
+     *   ),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="Successful operation",
+     *     @SWG\Schema(type="object", ref="#/definitions/Content"),
+     *  ),
+     *   @SWG\Response(response=404, description="Content not found")
+     * )
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @param int $id content Id
+     *
+     * @return ContentResource
      */
     public function show($id)
     {
         $content = $this->repository->getById($id);
-        if (!empty($content)) {
-            $this->authorize('read', $content);
-            return $this->respondWithSuccess($content, new ContentTransformer);
+        if (empty($content)) {
+            return abort(404);
         }
-        return $this->respondNotFound();
+
+        $this->authorize('read', $content);
+
+        return new ContentResource($content);
     }
 
     /**
