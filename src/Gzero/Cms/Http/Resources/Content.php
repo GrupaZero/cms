@@ -14,6 +14,16 @@ use Illuminate\Http\Resources\Json\Resource;
  *     example="2"
  *   ),
  *   @SWG\Property(
+ *     property="author_id",
+ *     type="number",
+ *     example="10"
+ *   ),
+ *   @SWG\Property(
+ *     property="level",
+ *     type="int",
+ *     example="1"
+ *   ),
+ *   @SWG\Property(
  *     property="type",
  *     type="string",
  *     example="content"
@@ -101,6 +111,8 @@ class Content extends Resource {
         return [
             'id'                 => (int) $this->id,
             'parent_id'          => $this->parent_id,
+            'author_id'          => $this->author_id,
+            'level'              => $this->level,
             'type'               => $this->whenLoaded('type', function () {
                 return $this->type->name;
             }),

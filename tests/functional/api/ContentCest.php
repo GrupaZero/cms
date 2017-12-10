@@ -412,4 +412,349 @@ class ContentCest {
         $I->assertEquals('content', head($first));
         $I->assertEquals('category', head($second));
     }
+
+    public function shouldBeAbleToFilterListOfContentsByLevel(FunctionalTester $I)
+    {
+        $user     = factory(User::class)->create();
+        $language = new Language(['code' => 'en']);
+
+        $category = dispatch_now(CreateContent::category('Category Title', $language, $user, ['is_active' => true]));
+
+        dispatch_now(CreateContent::content('Content Title', $language, $user, [
+            'is_active' => true,
+            'parent_id' => $category->id
+        ]));
+
+        $I->sendGET(apiUrl('contents?level=0'));
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeResponseJsonMatchesJsonPath('data[*]');
+        $I->seeResponseContainsJson(
+            [
+                'type'         => 'category',
+                'translations' => [
+                    [
+                        'language_code' => 'en',
+                        'title'         => 'Category Title',
+                        'is_active'     => true,
+                    ]
+                ]
+            ]
+        );
+        $I->dontSeeResponseContainsJson(
+            [
+                'type'         => 'content',
+                'translations' => [
+                    [
+                        'language_code' => 'en',
+                        'title'         => 'Content Title',
+                        'is_active'     => true,
+                    ]
+                ]
+            ]
+        );
+
+        $I->sendGET(apiUrl('contents?level=1'));
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeResponseJsonMatchesJsonPath('data[*]');
+        $I->seeResponseContainsJson(
+            [
+                'type'         => 'content',
+                'translations' => [
+                    [
+                        'language_code' => 'en',
+                        'title'         => 'Content Title',
+                        'is_active'     => true,
+                    ]
+                ]
+            ]
+        );
+        $I->dontSeeResponseContainsJson(
+            [
+                'type'         => 'category',
+                'translations' => [
+                    [
+                        'language_code' => 'en',
+                        'title'         => 'Category Title',
+                        'is_active'     => true,
+                    ]
+                ]
+            ]
+        );
+    }
+
+    public function shouldBeAbleToSortListOfContentsByLevel(FunctionalTester $I)
+    {
+        $user     = factory(User::class)->create();
+        $language = new Language(['code' => 'en']);
+
+        $category = dispatch_now(CreateContent::category('Category Title', $language, $user, ['is_active' => true]));
+
+        dispatch_now(CreateContent::content('Content Title', $language, $user, [
+            'is_active' => true,
+            'parent_id' => $category->id
+        ]));
+
+        $I->sendGET(apiUrl('contents?sort=level'));
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeResponseJsonMatchesJsonPath('data[*]');
+
+        $first  = $I->grabDataFromResponseByJsonPath('data[0].level');
+        $second = $I->grabDataFromResponseByJsonPath('data[1].level');
+
+        $I->assertEquals(0, head($first));
+        $I->assertEquals(1, head($second));
+
+        $I->sendGET(apiUrl('contents?sort=-level'));
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeResponseJsonMatchesJsonPath('data[*]');
+
+        $first  = $I->grabDataFromResponseByJsonPath('data[0].level');
+        $second = $I->grabDataFromResponseByJsonPath('data[1].level');
+
+        $I->assertEquals(1, head($first));
+        $I->assertEquals(0, head($second));
+    }
+
+    public function shouldBeAbleToFilterListOfContentsByAuthorId(FunctionalTester $I)
+    {
+        $user1    = factory(User::class)->create();
+        $user2    = factory(User::class)->create();
+        $language = new Language(['code' => 'en']);
+
+        dispatch_now(CreateContent::category('Category Title', $language, $user1, ['is_active' => true]));
+        dispatch_now(CreateContent::content('Content Title', $language, $user2, ['is_active' => true]));
+
+        $I->sendGET(apiUrl('contents?author_id=' . $user1->id));
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeResponseJsonMatchesJsonPath('data[*]');
+        $I->seeResponseContainsJson(
+            [
+                'type'         => 'category',
+                'translations' => [
+                    [
+                        'language_code' => 'en',
+                        'title'         => 'Category Title',
+                        'is_active'     => true,
+                    ]
+                ]
+            ]
+        );
+        $I->dontSeeResponseContainsJson(
+            [
+                'type'         => 'content',
+                'translations' => [
+                    [
+                        'language_code' => 'en',
+                        'title'         => 'Content Title',
+                        'is_active'     => true,
+                    ]
+                ]
+            ]
+        );
+
+        $I->sendGET(apiUrl('contents?author_id=' . $user2->id));
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeResponseJsonMatchesJsonPath('data[*]');
+        $I->seeResponseContainsJson(
+            [
+                'type'         => 'content',
+                'translations' => [
+                    [
+                        'language_code' => 'en',
+                        'title'         => 'Content Title',
+                        'is_active'     => true,
+                    ]
+                ]
+            ]
+        );
+        $I->dontSeeResponseContainsJson(
+            [
+                'type'         => 'category',
+                'translations' => [
+                    [
+                        'language_code' => 'en',
+                        'title'         => 'Category Title',
+                        'is_active'     => true,
+                    ]
+                ]
+            ]
+        );
+    }
+
+    public function shouldBeAbleToSortListOfContentsByAuthorId(FunctionalTester $I)
+    {
+        $user1    = factory(User::class)->create();
+        $user2    = factory(User::class)->create();
+        $language = new Language(['code' => 'en']);
+
+        dispatch_now(CreateContent::category('Category Title', $language, $user1, ['is_active' => true]));
+        dispatch_now(CreateContent::content('Content Title', $language, $user2, ['is_active' => true]));
+
+        $I->sendGET(apiUrl('contents?sort=author_id'));
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeResponseJsonMatchesJsonPath('data[*]');
+
+        $first  = $I->grabDataFromResponseByJsonPath('data[0].author_id');
+        $second = $I->grabDataFromResponseByJsonPath('data[1].author_id');
+
+        $I->assertEquals($user1->id, head($first));
+        $I->assertEquals($user2->id, head($second));
+
+        $I->sendGET(apiUrl('contents?sort=-author_id'));
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeResponseJsonMatchesJsonPath('data[*]');
+
+        $first  = $I->grabDataFromResponseByJsonPath('data[0].author_id');
+        $second = $I->grabDataFromResponseByJsonPath('data[1].author_id');
+
+        $I->assertEquals($user2->id, head($first));
+        $I->assertEquals($user1->id, head($second));
+    }
+
+    public function shouldBeAbleToFilterListOfContentsByFalgs(FunctionalTester $I)
+    {
+        $user     = factory(User::class)->create();
+        $language = new Language(['code' => 'en']);
+
+        dispatch_now(CreateContent::content('Sticked', $language, $user, ['is_active' => true, 'is_sticky' => true]));
+        dispatch_now(CreateContent::content('Promoted', $language, $user, ['is_active' => true, 'is_promoted' => true]));
+        dispatch_now(CreateContent::content('On homepage', $language, $user, ['is_active' => true, 'is_on_home' => true]));
+        dispatch_now(CreateContent::content('Comments', $language, $user, ['is_active' => true, 'is_comment_allowed' => true]));
+
+        $I->sendGET(apiUrl('contents?is_sticky=1'));
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeResponseJsonMatchesJsonPath('data[*]');
+        $I->seeResponseContainsJson(
+            [
+                'title' => 'Sticked'
+            ]
+        );
+        $I->dontSeeResponseContainsJson(
+            [
+                'title' => 'Promoted'
+            ],
+            [
+                'title' => 'On homepage'
+            ],
+            [
+                'title' => 'Comments'
+            ]
+        );
+
+        $I->sendGET(apiUrl('contents?is_sticky=0'));
+
+        $I->dontSeeResponseContainsJson(
+            [
+                'title' => 'Sticked'
+            ]
+        );
+
+        $I->sendGET(apiUrl('contents?is_promoted=1'));
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeResponseJsonMatchesJsonPath('data[*]');
+        $I->seeResponseContainsJson(
+            [
+                'title' => 'Promoted'
+            ]
+        );
+        $I->dontSeeResponseContainsJson(
+            [
+                'title' => 'Sticked'
+            ],
+            [
+                'title' => 'On homepage'
+            ],
+            [
+                'title' => 'Comments'
+            ]
+        );
+
+        $I->sendGET(apiUrl('contents?is_promoted=0'));
+
+        $I->dontSeeResponseContainsJson(
+            [
+                'title' => 'Promoted'
+            ]
+        );
+
+        $I->sendGET(apiUrl('contents?is_on_home=1'));
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeResponseJsonMatchesJsonPath('data[*]');
+        $I->seeResponseContainsJson(
+            [
+                'title' => 'On homepage'
+            ]
+        );
+        $I->dontSeeResponseContainsJson(
+            [
+                'title' => 'Sticked'
+            ],
+            [
+                'title' => 'Promoted'
+            ],
+            [
+                'title' => 'Comments'
+            ]
+        );
+
+        $I->sendGET(apiUrl('contents?is_on_home=0'));
+
+        $I->dontSeeResponseContainsJson(
+            [
+                'title' => 'On homepage'
+            ]
+        );
+
+        $I->sendGET(apiUrl('contents?is_comment_allowed=1'));
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeResponseJsonMatchesJsonPath('data[*]');
+        $I->seeResponseContainsJson(
+            [
+                'title' => 'Comments'
+            ]
+        );
+        $I->dontSeeResponseContainsJson(
+            [
+                'title' => 'Sticked'
+            ],
+            [
+                'title' => 'Promoted'
+            ],
+            [
+                'title' => 'On homepage'
+            ]
+        );
+
+        $I->sendGET(apiUrl('contents?is_comment_allowed=0'));
+
+        $I->dontSeeResponseContainsJson(
+            [
+                'title' => 'Comments'
+            ]
+        );
+    }
 }
