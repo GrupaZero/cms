@@ -152,6 +152,18 @@ class ContentReadRepository implements ReadRepository {
     }
 
     /**
+     * @param QueryBuilder $builder Query builder
+     *
+     * @throws RepositoryValidationException
+     *
+     * @return Collection|LengthAwarePaginator
+     */
+    public function getManyDeleted(QueryBuilder $builder)
+    {
+        return $this->getManyFrom(Content::query()->onlyTrashed(), $builder);
+    }
+
+    /**
      * Get all children specific content
      *
      * @param Content $content parent

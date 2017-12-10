@@ -13,6 +13,10 @@ Route::group(
     ],
     function ($router) {
         /** @var \Illuminate\Routing\Router $router */
+        $router->get('contents', 'ContentController@index');
+        $router->get('contents/{id}/children', 'NestedContentController@index');
+
+        $router->get('deleted-contents', 'DeletedContentController@index');
     }
 );
 
@@ -26,8 +30,5 @@ Route::group(
     ],
     function ($router) {
         /** @var \Illuminate\Routing\Router $router */
-        $router->get('contents', 'ContentController@index');
-        $router->get('contents/{id}/children', 'NestedContentController@index');
-
     }
 );

@@ -185,27 +185,6 @@ class ContentController extends ApiController {
     }
 
     /**
-     * Display list of soft deleted contents
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function indexOfDeleted()
-    {
-        $this->authorize('readList', Content::class);
-        $input  = $this->validator->validate('list');
-        $params = $this->processor->process($input)->getProcessedFields();
-
-        $results = $this->repository->getDeletedContents(
-            $params['filter'],
-            $params['orderBy'],
-            $params['page'],
-            $params['perPage']
-        );
-
-        return $this->respondWithSuccess($results, new ContentTransformer);
-    }
-
-    /**
      * Display a listing of the resource as nested tree.
      *
      * @param int|null $id Id used for nested resources

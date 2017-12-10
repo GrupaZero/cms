@@ -12,7 +12,7 @@ class ContentCest {
 
     public function _before(FunctionalTester $I)
     {
-        $I->loginAsAdmin();
+        $I->apiLoginAsAdmin();
     }
 
     public function shouldGetListOfContents(FunctionalTester $I)
@@ -632,134 +632,152 @@ class ContentCest {
         $I->assertEquals($user1->id, head($second));
     }
 
-    public function shouldBeAbleToFilterListOfContentsByFalgs(FunctionalTester $I)
+    public function shouldBeAbleToFilterListOfContentsByIsSticked(FunctionalTester $I)
     {
-        $user     = factory(User::class)->create();
-        $language = new Language(['code' => 'en']);
-
-        dispatch_now(CreateContent::content('Sticked', $language, $user, ['is_active' => true, 'is_sticky' => true]));
-        dispatch_now(CreateContent::content('Promoted', $language, $user, ['is_active' => true, 'is_promoted' => true]));
-        dispatch_now(CreateContent::content('On homepage', $language, $user, ['is_active' => true, 'is_on_home' => true]));
-        dispatch_now(CreateContent::content('Comments', $language, $user, ['is_active' => true, 'is_comment_allowed' => true]));
+        $I->haveContents([
+            [
+                'translations' => [
+                    ['language_code' => 'en', 'title' => 'Not Sticked']
+                ]
+            ],
+            [
+                'is_sticky'    => true,
+                'translations' => [
+                    ['language_code' => 'en', 'title' => 'Sticked']
+                ]
+            ]
+        ]);
 
         $I->sendGET(apiUrl('contents?is_sticky=1'));
 
         $I->seeResponseCodeIs(200);
-        $I->seeResponseIsJson();
-        $I->seeResponseJsonMatchesJsonPath('data[*]');
         $I->seeResponseContainsJson(
-            [
-                'title' => 'Sticked'
-            ]
+            ['title' => 'Sticked']
         );
         $I->dontSeeResponseContainsJson(
-            [
-                'title' => 'Promoted'
-            ],
-            [
-                'title' => 'On homepage'
-            ],
-            [
-                'title' => 'Comments'
-            ]
+            ['title' => 'Not Sticked']
         );
 
         $I->sendGET(apiUrl('contents?is_sticky=0'));
 
-        $I->dontSeeResponseContainsJson(
-            [
-                'title' => 'Sticked'
-            ]
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseContainsJson(
+            ['title' => 'Not Sticked']
         );
+        $I->dontSeeResponseContainsJson(
+            ['title' => 'Sticked']
+        );
+    }
+
+    public function shouldBeAbleToFilterListOfContentsByIsPromoted(FunctionalTester $I)
+    {
+        $I->haveContents([
+            [
+                'translations' => [
+                    ['language_code' => 'en', 'title' => 'Not Promoted']
+                ]
+            ],
+            [
+                'is_promoted'  => true,
+                'translations' => [
+                    ['language_code' => 'en', 'title' => 'Promoted']
+                ]
+            ]
+        ]);
 
         $I->sendGET(apiUrl('contents?is_promoted=1'));
 
         $I->seeResponseCodeIs(200);
-        $I->seeResponseIsJson();
-        $I->seeResponseJsonMatchesJsonPath('data[*]');
         $I->seeResponseContainsJson(
-            [
-                'title' => 'Promoted'
-            ]
+            ['title' => 'Promoted']
         );
         $I->dontSeeResponseContainsJson(
-            [
-                'title' => 'Sticked'
-            ],
-            [
-                'title' => 'On homepage'
-            ],
-            [
-                'title' => 'Comments'
-            ]
+            ['title' => 'Not Promoted']
         );
 
         $I->sendGET(apiUrl('contents?is_promoted=0'));
 
-        $I->dontSeeResponseContainsJson(
-            [
-                'title' => 'Promoted'
-            ]
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseContainsJson(
+            ['title' => 'Not Promoted']
         );
+        $I->dontSeeResponseContainsJson(
+            ['title' => 'Promoted']
+        );
+    }
+
+    public function shouldBeAbleToFilterListOfContentsByIsOnHome(FunctionalTester $I)
+    {
+        $I->haveContents([
+            [
+                'translations' => [
+                    ['language_code' => 'en', 'title' => 'Not On Homepage']
+                ]
+            ],
+            [
+                'is_on_home'   => true,
+                'translations' => [
+                    ['language_code' => 'en', 'title' => 'On Homepage']
+                ]
+            ]
+        ]);
 
         $I->sendGET(apiUrl('contents?is_on_home=1'));
 
         $I->seeResponseCodeIs(200);
-        $I->seeResponseIsJson();
-        $I->seeResponseJsonMatchesJsonPath('data[*]');
         $I->seeResponseContainsJson(
-            [
-                'title' => 'On homepage'
-            ]
+            ['title' => 'On Homepage']
         );
         $I->dontSeeResponseContainsJson(
-            [
-                'title' => 'Sticked'
-            ],
-            [
-                'title' => 'Promoted'
-            ],
-            [
-                'title' => 'Comments'
-            ]
+            ['title' => 'Not On Homepage']
         );
 
         $I->sendGET(apiUrl('contents?is_on_home=0'));
 
-        $I->dontSeeResponseContainsJson(
-            [
-                'title' => 'On homepage'
-            ]
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseContainsJson(
+            ['title' => 'Not On Homepage']
         );
+        $I->dontSeeResponseContainsJson(
+            ['title' => 'On Homepage']
+        );
+    }
+
+    public function shouldBeAbleToFilterListOfContentsByIsCommentAllowed(FunctionalTester $I)
+    {
+        $I->haveContents([
+            [
+                'is_comment_allowed' => false,
+                'translations'       => [
+                    ['language_code' => 'en', 'title' => 'Comments Not Allowed']
+                ]
+            ],
+            [
+                'is_comment_allowed' => true,
+                'translations'       => [
+                    ['language_code' => 'en', 'title' => 'Comments Allowed']
+                ]
+            ]
+        ]);
 
         $I->sendGET(apiUrl('contents?is_comment_allowed=1'));
 
         $I->seeResponseCodeIs(200);
-        $I->seeResponseIsJson();
-        $I->seeResponseJsonMatchesJsonPath('data[*]');
         $I->seeResponseContainsJson(
-            [
-                'title' => 'Comments'
-            ]
+            ['title' => 'Comments Allowed']
         );
         $I->dontSeeResponseContainsJson(
-            [
-                'title' => 'Sticked'
-            ],
-            [
-                'title' => 'Promoted'
-            ],
-            [
-                'title' => 'On homepage'
-            ]
+            ['title' => 'Comments Not Allowed']
         );
 
         $I->sendGET(apiUrl('contents?is_comment_allowed=0'));
 
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseContainsJson(
+            ['title' => 'Comments Not Allowed']
+        );
         $I->dontSeeResponseContainsJson(
-            [
-                'title' => 'Comments'
-            ]
+            ['title' => 'Comments Allowed']
         );
     }
 }
