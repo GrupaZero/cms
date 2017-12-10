@@ -108,7 +108,7 @@ class ContentController extends ApiController {
      *   @SWG\Parameter(
      *     name="is_comment_allowed",
      *     in="query",
-     *     description="Contents with commetns abbility filter",
+     *     description="Contents with comments ability filter",
      *     required=false,
      *     type="boolean",
      *     default="true"
@@ -288,12 +288,12 @@ class ContentController extends ApiController {
     public function show($id)
     {
         $content = $this->repository->getById($id);
-        if (empty($content)) {
-            return abort(404);
+
+        if (!$content) {
+            return $this->errorNotFound();
         }
 
         $this->authorize('read', $content);
-
         return new ContentResource($content);
     }
 
