@@ -2,7 +2,6 @@
 
 use Gzero\Cms\Models\Content;
 use Gzero\Cms\Models\ContentTranslation;
-use Gzero\Core\Exception;
 use Gzero\Core\Models\Language;
 use Gzero\Core\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -60,7 +59,6 @@ class AddContentTranslation {
      * Execute the job.
      *
      * @return bool
-     * @throws Exception
      */
     public function handle()
     {
