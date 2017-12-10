@@ -11,6 +11,7 @@ use Gzero\Core\Parsers\BoolParser;
 use Gzero\Core\Parsers\DateRangeParser;
 use Gzero\Core\Parsers\NumericParser;
 use Gzero\Core\Parsers\StringParser;
+use Gzero\Core\Services\LanguageService;
 use Gzero\Core\UrlParamsProcessor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection as LaravelCollection;
@@ -338,7 +339,6 @@ class ContentController extends ApiController {
      *     description="Successful operation",
      *     @SWG\Schema(type="object", ref="#/definitions/Content"),
      *   ),
-     *   @SWG\Response(response=404, description="Content not found"),
      *   @SWG\Response(
      *     response=422,
      *     description="Validation Error",
@@ -353,6 +353,9 @@ class ContentController extends ApiController {
         $this->authorize('create', Content::class);
 
         $input = $this->validator->validate('create');
+
+        // @TODO get Language by Code
+        // @TODO fix published_at date format validator
 
         $author       = auth()->user();
         $title        = array_get($input, 'title');

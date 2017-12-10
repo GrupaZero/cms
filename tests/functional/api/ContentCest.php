@@ -862,4 +862,63 @@ class ContentCest {
         $I->sendGet(apiUrl('contents', ['id' => 100]));
         $I->seeResponseCodeIs(404);
     }
+
+    public function canCreateContent(FunctionalTester $I)
+    {
+        // @TODO Finish this test and create content repo
+
+        //$I->sendPost(apiUrl('contents'),
+        //    [
+        //        'type'               => 'content',
+        //        'language_code'      => 'en',
+        //        'title'              => 'Example Title',
+        //        'teaser'             => 'Example Teaser',
+        //        'body'               => 'Example Body',
+        //        'seo_title'          => 'Example SEO Title',
+        //        'seo_description'    => 'Example SEO Description',
+        //        'is_active'          => true,
+        //        'is_on_home'         => true,
+        //        'is_promoted'        => true,
+        //        'is_sticky'          => true,
+        //        'is_comment_allowed' => true,
+        //        'published_at'       => Carbon::now()->format('c'),
+        //        'weight'             => 10,
+        //        'theme'              => 'is-content',
+        //    ]);
+        //
+        //$I->seeResponseCodeIs(200);
+        //$I->seeResponseIsJson();
+        //$I->dontSeeResponseJsonMatchesJsonPath('data[*]');
+        //$I->seeResponseContainsJson(
+        //    [
+        //        'type'               => 'content',
+        //        'parent_id'          => null,
+        //        'theme'              => 'is-content',
+        //        'weight'             => 10,
+        //        'rating'             => 0,
+        //        'is_on_home'         => true,
+        //        'is_comment_allowed' => true,
+        //        'is_promoted'        => true,
+        //        'is_sticky'          => true,
+        //        'routes'             => [
+        //            [
+        //                'language_code' => 'en',
+        //                'path'          => 'example-title',
+        //                'is_active'     => true
+        //            ]
+        //        ],
+        //        'translations'       => [
+        //            [
+        //                'language_code'   => 'en',
+        //                'title'           => 'Example Title',
+        //                'teaser'          => 'Example Teaser',
+        //                'body'            => 'Example Body',
+        //                'seo_title'       => 'Example SEO title',
+        //                'seo_description' => 'Example SEO description',
+        //                'is_active'       => true
+        //            ]
+        //        ]
+        //    ]
+        //);
+    }
 }

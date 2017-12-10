@@ -23,7 +23,6 @@ class DeleteContentTranslation {
      * Execute the job.
      *
      * @throws DomainException
-     * @throws \Exception|\Throwable
      *
      * @return bool
      */

@@ -131,8 +131,6 @@ class ContentReadRepository implements ReadRepository {
     /**
      * @param QueryBuilder $builder Query builder
      *
-     * @throws RepositoryValidationException
-     *
      * @return Collection|LengthAwarePaginator
      */
     public function getMany(QueryBuilder $builder)
@@ -153,8 +151,6 @@ class ContentReadRepository implements ReadRepository {
 
     /**
      * @param QueryBuilder $builder Query builder
-     *
-     * @throws RepositoryValidationException
      *
      * @return Collection|LengthAwarePaginator
      */
@@ -198,7 +194,7 @@ class ContentReadRepository implements ReadRepository {
      * @param QueryBuilder       $builder Query builder
      *
      * @return LengthAwarePaginator
-     * @throws RepositoryValidationException
+     * @throws InvalidArgumentException
      */
     protected function getManyFrom(Builder $query, QueryBuilder $builder): LengthAwarePaginator
     {
