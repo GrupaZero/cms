@@ -1,6 +1,7 @@
 <?php namespace Gzero\Cms\Http\Controllers\Api;
 
 use Gzero\Cms\Http\Resources\ContentCollection;
+use Gzero\Cms\Jobs\CreateContent;
 use Gzero\Cms\Models\Content;
 use Gzero\Cms\Http\Resources\Content as ContentResource;
 use Gzero\Cms\Repositories\ContentReadRepository;
@@ -300,14 +301,66 @@ class ContentController extends ApiController {
     /**
      * Stores newly created content in database.
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @SWG\Post(path="/contents",
+     *   tags={"content"},
+     *   summary="Stores newly created content in database",
+     *   description="Stores newly created content in database",
+     *   produces={"application/json"},
+     *   security={{"AdminAccess": {}}},
+     *   @SWG\Parameter(
+     *     in="body",
+     *     name="body",
+     *     description="Fields to create.",
+     *     required=true,
+     *     @SWG\Schema(
+     *       type="object",
+     *       required={"type, title, language_code"},
+     *       @SWG\Property(property="type", type="string", example="content"),
+     *       @SWG\Property(property="language_code", type="string", example="en"),
+     *       @SWG\Property(property="title", type="string", example="Example title"),
+     *       @SWG\Property(property="teaser", type="string", example="Example Teaser"),
+     *       @SWG\Property(property="body", type="string", example="Example Body"),
+     *       @SWG\Property(property="seo_title", type="string", example="Example SEO Title"),
+     *       @SWG\Property(property="seo_description", type="string", example="Example SEO Description"),
+     *       @SWG\Property(property="is_active", type="boolean", example="true"),
+     *       @SWG\Property(property="parent_id", type="numeric", example="1"),
+     *       @SWG\Property(property="published_at", type="string", format="date-time"),
+     *       @SWG\Property(property="is_on_home", type="boolean", example="true"),
+     *       @SWG\Property(property="is_promoted", type="boolean", example="true"),
+     *       @SWG\Property(property="is_sticky", type="boolean", example="true"),
+     *       @SWG\Property(property="is_comment_allowed", type="boolean", example="true"),
+     *       @SWG\Property(property="theme", type="string", example="is-content"),
+     *       @SWG\Property(property="weight", type="numeric", example="10"),
+     *     )
+     *   ),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="Successful operation",
+     *     @SWG\Schema(type="object", ref="#/definitions/Content"),
+     *   ),
+     *   @SWG\Response(response=404, description="Content not found"),
+     *   @SWG\Response(
+     *     response=422,
+     *     description="Validation Error",
+     *     @SWG\Schema(ref="#/definitions/ValidationErrors")
+     *  )
+     * )
+     *
+     * @return ContentResource
      */
     public function store()
     {
         $this->authorize('create', Content::class);
-        $input   = $this->validator->validate('create');
-        $content = $this->repository->create($input, auth()->user());
-        return $this->respondWithSuccess($content, new ContentTransformer);
+
+        $input = $this->validator->validate('create');
+
+        $author       = auth()->user();
+        $title        = array_get($input, 'title');
+        $languageCode = array_get($input, 'language_code');
+        $data         = array_except($input, ['title', 'language_code']);
+
+        $content = dispatch_now(CreateContent::make($title, $languageCode, $author, $data));
+        return new ContentResource($content);
     }
 
     /**

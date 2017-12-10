@@ -14,6 +14,7 @@ Route::group(
     function ($router) {
         /** @var \Illuminate\Routing\Router $router */
         $router->get('contents', 'ContentController@index');
+        $router->post('contents', 'ContentController@store');
         $router->get('contents/{id}', 'ContentController@show');
         $router->get('contents/{id}/children', 'NestedContentController@index');
 
