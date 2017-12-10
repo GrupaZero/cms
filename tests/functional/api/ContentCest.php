@@ -10,6 +10,11 @@ use Gzero\Core\Models\User;
 
 class ContentCest {
 
+    public function _before(FunctionalTester $I)
+    {
+        $I->loginAsAdmin();
+    }
+
     public function shouldGetListOfContents(FunctionalTester $I)
     {
         $user = factory(User::class)->create();

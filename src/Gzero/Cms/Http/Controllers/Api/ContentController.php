@@ -163,8 +163,7 @@ class ContentController extends ApiController {
      */
     public function index(UrlParamsProcessor $processor)
     {
-        // @TODO Can we trigger validation only for is active filter?
-        //$this->authorize('readList', Content::class);
+        $this->authorize('readList', Content::class);
 
         $processor
             ->addFilter(new StringParser('type'))
