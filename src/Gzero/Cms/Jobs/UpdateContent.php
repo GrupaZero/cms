@@ -2,7 +2,7 @@
 
 use Gzero\Cms\Models\Content;
 use Gzero\Cms\Models\File;
-use Gzero\Core\Exception;
+use Gzero\InvalidArgumentException;
 use Illuminate\Support\Facades\DB;
 
 class UpdateContent {
@@ -47,7 +47,8 @@ class UpdateContent {
     /**
      * Execute the job.
      *
-     * @throws Exception
+     * @throws InvalidArgumentException
+     * @throws \Exception|\Throwable
      *
      * @return Content
      */
@@ -66,13 +67,13 @@ class UpdateContent {
 
                     if ($this->content->type->name === 'category') {
                         if (!empty($this->content->children()->first())) {
-                            throw new Exception('Only parent for the category without children can be updated');
+                            throw new InvalidArgumentException('Only parent for the category without children can be updated');
                         }
                     };
 
                     $parent = Content::find($this->parentId);
                     if (!$parent) {
-                        throw new Exception('Parent not found');
+                        throw new InvalidArgumentException('Parent not found');
                     }
 
                     $this->content->setChildOf($parent);
@@ -90,7 +91,7 @@ class UpdateContent {
     /**
      * It handles thumb relation
      *
-     * @throws Exception
+     * @throws InvalidArgumentException
      *
      * @return void
      */
@@ -103,7 +104,7 @@ class UpdateContent {
 
             $thumb = File::find($this->thumbId);
             if (empty($thumb)) {
-                throw new Exception('Thumbnail file does not exist');
+                throw new InvalidArgumentException('Thumbnail file does not exist');
             }
             $this->content->thumb()->associate($thumb);
         }

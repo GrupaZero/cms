@@ -5,7 +5,7 @@ use Gzero\Cms\Models\ContentTranslation;
 use Gzero\Core\Models\Language;
 use Gzero\Core\Query\QueryBuilder;
 use Gzero\Core\Repositories\ReadRepository;
-use Gzero\Core\Repositories\RepositoryValidationException;
+use Gzero\InvalidArgumentException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Query\Builder as RawBuilder;
@@ -206,7 +206,7 @@ class ContentReadRepository implements ReadRepository {
 
         if ($builder->hasRelation('translations')) {
             if (!$builder->getFilter('translations.language_code')) {
-                throw new RepositoryValidationException('Language code is required');
+                throw new InvalidArgumentException('Language code is required');
             }
             $query->join('content_translations as t', 'contents.id', '=', 't.content_id');
             $builder->applyRelationFilters('translations', 't', $query);

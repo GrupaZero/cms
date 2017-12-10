@@ -14,6 +14,8 @@ use Gzero\Cms\Models\ContentTranslation;
 use Gzero\Core\Models\Language;
 use Gzero\Core\Models\Route;
 use Gzero\Core\Exception;
+use Gzero\DomainException;
+use Gzero\InvalidArgumentException;
 
 class ContentJobsTest extends Unit {
 
@@ -132,8 +134,7 @@ class ContentJobsTest extends Unit {
                 'parent_id' => 100,
                 'is_active' => true
             ]));
-        } catch (Exception $exception) {
-            $this->assertEquals(Exception::class, get_class($exception));
+        } catch (InvalidArgumentException $exception) {
             $this->assertEquals('Parent not found', $exception->getMessage());
             return;
         }
@@ -159,8 +160,7 @@ class ContentJobsTest extends Unit {
 
         try {
             dispatch_now(CreateContent::content('title', $language, $user, ['parent_id' => $parent->id]));
-        } catch (Exception $exception) {
-            $this->assertEquals(Exception::class, get_class($exception));
+        } catch (DomainException $exception) {
             $this->assertEquals('Content can be assigned only to category parent', $exception->getMessage());
             return;
         }
@@ -185,9 +185,8 @@ class ContentJobsTest extends Unit {
 
         try {
             dispatch_now(CreateContent::content('title', $language, $user, ['parent_id' => $parent->id]));
-        } catch (Exception $exception) {
-            $this->assertEquals(Exception::class, get_class($exception));
-            $this->assertEquals("There is no route in 'en' language for Content id: $parent->id", $exception->getMessage());
+        } catch (DomainException $exception) {
+            $this->assertEquals("There is no route in 'en' language for content: $parent->id", $exception->getMessage());
             return;
         }
 
@@ -202,8 +201,7 @@ class ContentJobsTest extends Unit {
 
         try {
             dispatch_now(CreateContent::make('title', $language, $user, ['type' => 'post']));
-        } catch (Exception $exception) {
-            $this->assertEquals(Exception::class, get_class($exception));
+        } catch (InvalidArgumentException $exception) {
             $this->assertEquals('Unknown content type', $exception->getMessage());
             return;
         }
@@ -447,8 +445,7 @@ class ContentJobsTest extends Unit {
 
         try {
             dispatch_now(new UpdateContent($parent, ['parent_id' => $root->id]));
-        } catch (Exception $exception) {
-            $this->assertEquals(Exception::class, get_class($exception));
+        } catch (InvalidArgumentException $exception) {
             $this->assertEquals('Only parent for the category without children can be updated', $exception->getMessage());
             return;
         }
@@ -639,8 +636,7 @@ class ContentJobsTest extends Unit {
 
         try {
             dispatch_now(new DeleteContentTranslation($content->translations->first()));
-        } catch (Exception $exception) {
-            $this->assertEquals(Exception::class, get_class($exception));
+        } catch (DomainException $exception) {
             $this->assertEquals('Cannot delete active translation', $exception->getMessage());
             return;
         }

@@ -1,11 +1,10 @@
 <?php namespace Gzero\Cms\Jobs;
 
-use Carbon\Carbon;
 use Gzero\Cms\Models\Content;
 use Gzero\Cms\Models\ContentTranslation;
-use Gzero\Core\Exception;
 use Gzero\Core\Models\Language;
 use Gzero\Core\Models\User;
+use Gzero\InvalidArgumentException;
 use Illuminate\Support\Facades\DB;
 
 class CreateContent {
@@ -107,7 +106,8 @@ class CreateContent {
     /**
      * Execute the job.
      *
-     * @throws Exception
+     * @throws \InvalidArgumentException
+     * @throws \Exception|\Throwable
      *
      * @return Content
      */
@@ -131,7 +131,7 @@ class CreateContent {
                 if ($this->attributes['parent_id']) {
                     $parent = Content::find($this->attributes['parent_id']);
                     if (!$parent) {
-                        throw new Exception('Parent not found');
+                        throw new InvalidArgumentException('Parent not found');
                     }
 
                     $content->setChildOf($parent);
