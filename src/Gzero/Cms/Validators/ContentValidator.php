@@ -41,7 +41,7 @@ class ContentValidator extends AbstractValidator {
             'seo_description'    => '',
             'is_active'          => 'boolean',
             'parent_id'          => 'numeric|nullable',
-            'published_at'       => 'date_format:c',
+            'published_at'       => 'date',
             'is_on_home'         => 'boolean',
             'is_promoted'        => 'boolean',
             'is_sticky'          => 'boolean',
@@ -59,7 +59,7 @@ class ContentValidator extends AbstractValidator {
             'is_comment_allowed' => 'boolean',
             'is_promoted'        => 'boolean',
             'is_sticky'          => 'boolean',
-            'published_at'       => 'date_format:c',
+            'published_at'       => 'date',
         ],
         'syncFiles' => [
             'data'          => 'present|array',

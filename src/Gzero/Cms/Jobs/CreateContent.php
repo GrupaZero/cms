@@ -1,5 +1,6 @@
 <?php namespace Gzero\Cms\Jobs;
 
+use Carbon\Carbon;
 use Gzero\Cms\Models\Content;
 use Gzero\Cms\Models\ContentTranslation;
 use Gzero\Core\Models\Language;
@@ -27,6 +28,7 @@ class CreateContent {
         'theme'              => null,
         'parent_id'          => null,
         'weight'             => 0,
+        'rating'             => 0,
         'is_active'          => false,
         'is_on_home'         => false,
         'is_promoted'        => false,
@@ -120,11 +122,13 @@ class CreateContent {
                     'type'               => $this->attributes['type'],
                     'theme'              => $this->attributes['theme'],
                     'weight'             => $this->attributes['weight'],
+                    'rating'             => $this->attributes['rating'],
                     'is_on_home'         => $this->attributes['is_on_home'],
                     'is_promoted'        => $this->attributes['is_promoted'],
                     'is_sticky'          => $this->attributes['is_sticky'],
                     'is_comment_allowed' => $this->attributes['is_comment_allowed'],
-                    'published_at'       => $this->attributes['published_at']
+                    'published_at'       => $this->attributes['published_at'] ?
+                        $this->convertToUTC($this->attributes['published_at']) : null
                 ]);
                 $content->author()->associate($this->author);
 
@@ -160,6 +164,18 @@ class CreateContent {
             }
         );
         return $content;
+    }
+
+    /**
+     * It converts specified date to UTC
+     *
+     * @param string $date Date string
+     *
+     * @return Carbon
+     */
+    protected function convertToUTC(string $date): Carbon
+    {
+        return Carbon::parse($date)->setTimezone('UTC');
     }
 
 }

@@ -11,7 +11,6 @@ use Gzero\Core\Parsers\BoolParser;
 use Gzero\Core\Parsers\DateRangeParser;
 use Gzero\Core\Parsers\NumericParser;
 use Gzero\Core\Parsers\StringParser;
-use Gzero\Core\Services\LanguageService;
 use Gzero\Core\UrlParamsProcessor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection as LaravelCollection;
@@ -354,16 +353,14 @@ class ContentController extends ApiController {
 
         $input = $this->validator->validate('create');
 
-        // @TODO get Language by Code
-        // @TODO fix published_at date format validator
+        $author   = auth()->user();
+        $title    = array_get($input, 'title');
+        $language = language(array_get($input, 'language_code'));
+        $data     = array_except($input, ['title', 'language_code']);
 
-        $author       = auth()->user();
-        $title        = array_get($input, 'title');
-        $languageCode = array_get($input, 'language_code');
-        $data         = array_except($input, ['title', 'language_code']);
+        $content = dispatch_now(CreateContent::make($title, $language, $author, $data));
 
-        $content = dispatch_now(CreateContent::make($title, $languageCode, $author, $data));
-        return new ContentResource($content);
+        return new ContentResource($this->repository->loadRelations($content));
     }
 
     /**

@@ -31,7 +31,7 @@ class ContentReadRepository implements ReadRepository {
      */
     public function getById($id)
     {
-        return $this->eagerLoad(Content::find($id));
+        return $this->loadRelations(Content::find($id));
     }
 
     /**
@@ -43,7 +43,7 @@ class ContentReadRepository implements ReadRepository {
      */
     public function getDeletedById($id)
     {
-        return $this->eagerLoad(Content::onlyTrashed()->find($id));
+        return $this->loadRelations(Content::onlyTrashed()->find($id));
     }
 
     /**
@@ -55,7 +55,7 @@ class ContentReadRepository implements ReadRepository {
      */
     public function getByIdWithTrashed($id)
     {
-        return $this->eagerLoad(Content::withTrashed()->find($id));
+        return $this->loadRelations(Content::withTrashed()->find($id));
     }
 
     /**
@@ -184,7 +184,7 @@ class ContentReadRepository implements ReadRepository {
      *
      * @return Content|Collection
      */
-    protected function eagerLoad($model)
+    public function loadRelations($model)
     {
         return optional($model)->load(self::$loadRelations);
     }
