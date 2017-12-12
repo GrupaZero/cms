@@ -1,11 +1,16 @@
 <?php namespace Gzero\Cms\Http\Controllers\Api;
 
 use Gzero\Cms\Http\Resources\ContentCollection;
+use Gzero\Cms\Jobs\CreateContent;
+use Gzero\Cms\Jobs\UpdateContent;
 use Gzero\Cms\Models\Content;
+use Gzero\Cms\Http\Resources\Content as ContentResource;
 use Gzero\Cms\Repositories\ContentReadRepository;
 use Gzero\Cms\Validators\ContentValidator;
 use Gzero\Core\Http\Controllers\ApiController;
+use Gzero\Core\Parsers\BoolParser;
 use Gzero\Core\Parsers\DateRangeParser;
+use Gzero\Core\Parsers\NumericParser;
 use Gzero\Core\Parsers\StringParser;
 use Gzero\Core\UrlParamsProcessor;
 use Illuminate\Http\Request;
@@ -55,7 +60,85 @@ class ContentController extends ApiController {
      *   produces={"application/json"},
      *   security={{"AdminAccess": {}}},
      *   @SWG\Parameter(
+     *     name="type",
+     *     in="query",
+     *     description="Type to filter by",
+     *     required=false,
+     *     type="string",
+     *     default="content"
+     *   ),
+     *   @SWG\Parameter(
+     *     name="level",
+     *     in="query",
+     *     description="Level to filter by",
+     *     required=false,
+     *     type="integer",
+     *     default="1"
+     *   ),
+     *   @SWG\Parameter(
+     *     name="author_id",
+     *     in="query",
+     *     description="Author id to filter by",
+     *     required=false,
+     *     type="integer",
+     *     default="1"
+     *   ),
+     *   @SWG\Parameter(
+     *     name="is_sticky",
+     *     in="query",
+     *     description="Sticked contents filter",
+     *     required=false,
+     *     type="boolean",
+     *     default="true"
+     *   ),
+     *   @SWG\Parameter(
+     *     name="is_on_home",
+     *     in="query",
+     *     description="Contents being displayed on homepage filter",
+     *     required=false,
+     *     type="boolean",
+     *     default="true"
+     *   ),
+     *   @SWG\Parameter(
+     *     name="is_promoted",
+     *     in="query",
+     *     description="Promoted contents filter",
+     *     required=false,
+     *     type="boolean",
+     *     default="true"
+     *   ),
+     *   @SWG\Parameter(
+     *     name="is_comment_allowed",
+     *     in="query",
+     *     description="Contents with comments ability filter",
+     *     required=false,
+     *     type="boolean",
+     *     default="true"
+     *   ),
+     *   @SWG\Parameter(
+     *     name="published_at",
+     *     in="query",
+     *     description="Date range to filter by",
+     *     required=false,
+     *     type="array",
+     *     minItems=2,
+     *     maxItems=2,
+     *     default={"2017-10-01","2017-10-07"},
+     *     @SWG\Items(type="string")
+     *   ),
+     *   @SWG\Parameter(
      *     name="created_at",
+     *     in="query",
+     *     description="Date range to filter by",
+     *     required=false,
+     *     type="array",
+     *     minItems=2,
+     *     maxItems=2,
+     *     default={"2017-10-01","2017-10-07"},
+     *     @SWG\Items(type="string")
+     *   ),
+     *   @SWG\Parameter(
+     *     name="updated_at",
      *     in="query",
      *     description="Date range to filter by",
      *     required=false,
@@ -83,15 +166,16 @@ class ContentController extends ApiController {
      */
     public function index(UrlParamsProcessor $processor)
     {
-        // @TODO Can we tigger validation only for is active filter?
-        //$this->authorize('readList', Content::class);
+        $this->authorize('readList', Content::class);
 
         $processor
-            ->addFilter(new StringParser('language'))
             ->addFilter(new StringParser('type'))
-            ->addFilter(new StringParser('is_active'))
-            ->addFilter(new StringParser('level'))
-            ->addFilter(new StringParser('trashed'))
+            ->addFilter(new NumericParser('level'))
+            ->addFilter(new NumericParser('author_id'))
+            ->addFilter(new BoolParser('is_sticky'))
+            ->addFilter(new BoolParser('is_on_home'))
+            ->addFilter(new BoolParser('is_promoted'))
+            ->addFilter(new BoolParser('is_comment_allowed'))
             ->addFilter(new DateRangeParser('published_at'))
             ->addFilter(new DateRangeParser('created_at'))
             ->addFilter(new DateRangeParser('updated_at'))
@@ -101,27 +185,6 @@ class ContentController extends ApiController {
         $results->setPath(apiUrl('contents'));
 
         return new ContentCollection($results);
-    }
-
-    /**
-     * Display list of soft deleted contents
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function indexOfDeleted()
-    {
-        $this->authorize('readList', Content::class);
-        $input  = $this->validator->validate('list');
-        $params = $this->processor->process($input)->getProcessedFields();
-
-        $results = $this->repository->getDeletedContents(
-            $params['filter'],
-            $params['orderBy'],
-            $params['page'],
-            $params['perPage']
-        );
-
-        return $this->respondWithSuccess($results, new ContentTransformer);
     }
 
     /**
@@ -196,33 +259,109 @@ class ContentController extends ApiController {
     }
 
     /**
-     * Display a specified resource.
+     * Display a specified content.
      *
-     * @param int $id Id of the resource
+     * @SWG\Get(
+     *   path="/contents/{id}",
+     *   tags={"content"},
+     *   summary="Returns a specific content by id",
+     *   description="Returns a specific content by id",
+     *   produces={"application/json"},
+     *   security={{"AdminAccess": {}}},
+     *   @SWG\Parameter(
+     *     name="id",
+     *     in="path",
+     *     description="Id of content that needs to be returned.",
+     *     required=true,
+     *     type="integer"
+     *   ),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="Successful operation",
+     *     @SWG\Schema(type="object", ref="#/definitions/Content"),
+     *  ),
+     *   @SWG\Response(response=404, description="Content not found")
+     * )
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @param int $id content Id
+     *
+     * @return ContentResource
      */
     public function show($id)
     {
         $content = $this->repository->getById($id);
-        if (!empty($content)) {
-            $this->authorize('read', $content);
-            return $this->respondWithSuccess($content, new ContentTransformer);
+
+        if (!$content) {
+            return $this->errorNotFound();
         }
-        return $this->respondNotFound();
+
+        $this->authorize('read', $content);
+        return new ContentResource($content);
     }
 
     /**
      * Stores newly created content in database.
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @SWG\Post(path="/contents",
+     *   tags={"content"},
+     *   summary="Stores newly created content",
+     *   description="Stores newly created content",
+     *   produces={"application/json"},
+     *   security={{"AdminAccess": {}}},
+     *   @SWG\Parameter(
+     *     in="body",
+     *     name="body",
+     *     description="Fields to create.",
+     *     required=true,
+     *     @SWG\Schema(
+     *       type="object",
+     *       required={"type, title, language_code"},
+     *       @SWG\Property(property="type", type="string", example="content"),
+     *       @SWG\Property(property="language_code", type="string", example="en"),
+     *       @SWG\Property(property="title", type="string", example="Example title"),
+     *       @SWG\Property(property="teaser", type="string", example="Example Teaser"),
+     *       @SWG\Property(property="body", type="string", example="Example Body"),
+     *       @SWG\Property(property="seo_title", type="string", example="Example SEO Title"),
+     *       @SWG\Property(property="seo_description", type="string", example="Example SEO Description"),
+     *       @SWG\Property(property="is_active", type="boolean", example="true"),
+     *       @SWG\Property(property="parent_id", type="numeric", example="1"),
+     *       @SWG\Property(property="published_at", type="string", format="date-time"),
+     *       @SWG\Property(property="is_on_home", type="boolean", example="true"),
+     *       @SWG\Property(property="is_promoted", type="boolean", example="true"),
+     *       @SWG\Property(property="is_sticky", type="boolean", example="true"),
+     *       @SWG\Property(property="is_comment_allowed", type="boolean", example="true"),
+     *       @SWG\Property(property="theme", type="string", example="is-content"),
+     *       @SWG\Property(property="weight", type="numeric", example="10"),
+     *     )
+     *   ),
+     *   @SWG\Response(
+     *     response=201,
+     *     description="Successful operation",
+     *     @SWG\Schema(type="object", ref="#/definitions/Content"),
+     *   ),
+     *   @SWG\Response(
+     *     response=422,
+     *     description="Validation Error",
+     *     @SWG\Schema(ref="#/definitions/ValidationErrors")
+     *  )
+     * )
+     *
+     * @return ContentResource
      */
     public function store()
     {
         $this->authorize('create', Content::class);
-        $input   = $this->validator->validate('create');
-        $content = $this->repository->create($input, auth()->user());
-        return $this->respondWithSuccess($content, new ContentTransformer);
+
+        $input = $this->validator->validate('create');
+
+        $author   = auth()->user();
+        $title    = array_get($input, 'title');
+        $language = language(array_get($input, 'language_code'));
+        $data     = array_except($input, ['title', 'language_code']);
+
+        $content = dispatch_now(CreateContent::make($title, $language, $author, $data));
+
+        return new ContentResource($this->repository->loadRelations($content));
     }
 
     /**
@@ -230,18 +369,48 @@ class ContentController extends ApiController {
      *
      * @param int $id Content id
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @SWG\Patch(path="/contents/{id}",
+     *   tags={"content"},
+     *   summary="Updates specified content",
+     *   description="Updates specified content",
+     *   produces={"application/json"},
+     *   security={{"AdminAccess": {}}},
+     *   @SWG\Parameter(
+     *     name="id",
+     *     in="path",
+     *     description="ID of content that needs to be updated.",
+     *     required=true,
+     *     type="integer"
+     *   ),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="Successful operation",
+     *     @SWG\Schema(type="object", ref="#/definitions/Content"),
+     *   ),
+     *   @SWG\Response(
+     *     response=422,
+     *     description="Validation Error",
+     *     @SWG\Schema(ref="#/definitions/ValidationErrors")
+     *  )
+     * )
+     *
+     * @return ContentResource
      */
     public function update($id)
     {
         $content = $this->repository->getById($id);
-        if (!empty($content)) {
-            $this->authorize('update', $content);
-            $input   = $this->validator->validate('update');
-            $content = $this->repository->update($content, $input, auth()->user());
-            return $this->respondWithSuccess($content, new ContentTransformer);
+
+        if (!$content) {
+            return $this->errorNotFound();
         }
-        return $this->respondNotFound();
+
+        $this->authorize('update', $content);
+
+        $input = $this->validator->validate('update');
+
+        $content = dispatch_now(new UpdateContent($content, $input));
+
+        return new ContentResource($this->repository->loadRelations($content));
     }
 
     /**

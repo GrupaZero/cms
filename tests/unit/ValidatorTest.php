@@ -62,7 +62,7 @@ class ValidatorTest extends Unit {
 
     /**
      * @test
-     * @expectedException \Gzero\Core\Exception
+     * @expectedException \Gzero\InvalidArgumentException
      */
     public function it_checks_validation_context()
     {

@@ -5,7 +5,7 @@ use Gzero\Cms\Models\ContentTranslation;
 use Gzero\Core\Models\Language;
 use Gzero\Core\Query\QueryBuilder;
 use Gzero\Core\Repositories\ReadRepository;
-use Gzero\Core\Repositories\RepositoryValidationException;
+use Gzero\InvalidArgumentException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Query\Builder as RawBuilder;
@@ -31,7 +31,7 @@ class ContentReadRepository implements ReadRepository {
      */
     public function getById($id)
     {
-        return $this->eagerLoad(Content::find($id));
+        return $this->loadRelations(Content::find($id));
     }
 
     /**
@@ -43,7 +43,7 @@ class ContentReadRepository implements ReadRepository {
      */
     public function getDeletedById($id)
     {
-        return $this->eagerLoad(Content::onlyTrashed()->find($id));
+        return $this->loadRelations(Content::onlyTrashed()->find($id));
     }
 
     /**
@@ -55,7 +55,7 @@ class ContentReadRepository implements ReadRepository {
      */
     public function getByIdWithTrashed($id)
     {
-        return $this->eagerLoad(Content::withTrashed()->find($id));
+        return $this->loadRelations(Content::withTrashed()->find($id));
     }
 
     /**
@@ -131,8 +131,6 @@ class ContentReadRepository implements ReadRepository {
     /**
      * @param QueryBuilder $builder Query builder
      *
-     * @throws RepositoryValidationException
-     *
      * @return Collection|LengthAwarePaginator
      */
     public function getMany(QueryBuilder $builder)
@@ -149,6 +147,16 @@ class ContentReadRepository implements ReadRepository {
     public function getManyChildren(Content $content, QueryBuilder $builder)
     {
         return $this->getManyFrom($content->children()->newQuery()->getQuery(), $builder);
+    }
+
+    /**
+     * @param QueryBuilder $builder Query builder
+     *
+     * @return Collection|LengthAwarePaginator
+     */
+    public function getManyDeleted(QueryBuilder $builder)
+    {
+        return $this->getManyFrom(Content::query()->onlyTrashed(), $builder);
     }
 
     /**
@@ -176,7 +184,7 @@ class ContentReadRepository implements ReadRepository {
      *
      * @return Content|Collection
      */
-    protected function eagerLoad($model)
+    public function loadRelations($model)
     {
         return optional($model)->load(self::$loadRelations);
     }
@@ -186,7 +194,7 @@ class ContentReadRepository implements ReadRepository {
      * @param QueryBuilder       $builder Query builder
      *
      * @return LengthAwarePaginator
-     * @throws RepositoryValidationException
+     * @throws InvalidArgumentException
      */
     protected function getManyFrom(Builder $query, QueryBuilder $builder): LengthAwarePaginator
     {
@@ -194,7 +202,7 @@ class ContentReadRepository implements ReadRepository {
 
         if ($builder->hasRelation('translations')) {
             if (!$builder->getFilter('translations.language_code')) {
-                throw new RepositoryValidationException('Language code is required');
+                throw new InvalidArgumentException('Language code is required');
             }
             $query->join('content_translations as t', 'contents.id', '=', 't.content_id');
             $builder->applyRelationFilters('translations', 't', $query);

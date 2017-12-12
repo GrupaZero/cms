@@ -1,8 +1,9 @@
 <?php namespace Gzero\Cms\Jobs;
 
+use Carbon\Carbon;
 use Gzero\Cms\Models\Content;
 use Gzero\Cms\Models\File;
-use Gzero\Core\Exception;
+use Gzero\InvalidArgumentException;
 use Illuminate\Support\Facades\DB;
 
 class UpdateContent {
@@ -23,6 +24,7 @@ class UpdateContent {
     protected $allowedAttributes = [
         'theme',
         'weight',
+        'rating',
         'is_on_home',
         'is_promoted',
         'is_sticky',
@@ -47,7 +49,8 @@ class UpdateContent {
     /**
      * Execute the job.
      *
-     * @throws Exception
+     * @throws InvalidArgumentException
+     * @throws \Exception|\Throwable
      *
      * @return Content
      */
@@ -55,6 +58,9 @@ class UpdateContent {
     {
         $content = DB::transaction(
             function () {
+                if (isset($this->attributes['published_at'])) {
+                    $this->attributes['published_at'] = Carbon::parse($this->attributes['published_at'])->setTimezone('UTC');
+                }
                 $this->content->fill($this->attributes);
                 $this->handleThumb();
 
@@ -66,13 +72,13 @@ class UpdateContent {
 
                     if ($this->content->type->name === 'category') {
                         if (!empty($this->content->children()->first())) {
-                            throw new Exception('Only parent for the category without children can be updated');
+                            throw new InvalidArgumentException('Only parent for the category without children can be updated');
                         }
                     };
 
                     $parent = Content::find($this->parentId);
                     if (!$parent) {
-                        throw new Exception('Parent not found');
+                        throw new InvalidArgumentException('Parent not found');
                     }
 
                     $this->content->setChildOf($parent);
@@ -90,11 +96,11 @@ class UpdateContent {
     /**
      * It handles thumb relation
      *
-     * @throws Exception
+     * @throws InvalidArgumentException
      *
      * @return void
      */
-    private function handleThumb()
+    protected function handleThumb()
     {
         if ($this->thumbId !== $this->content->thumb_id) {
             if ($this->thumbId === null) {
@@ -103,7 +109,7 @@ class UpdateContent {
 
             $thumb = File::find($this->thumbId);
             if (empty($thumb)) {
-                throw new Exception('Thumbnail file does not exist');
+                throw new InvalidArgumentException('Thumbnail file does not exist');
             }
             $this->content->thumb()->associate($thumb);
         }

@@ -95,6 +95,26 @@ class Functional extends \Codeception\Module {
         return $content;
     }
 
+
+    /**
+     * Create content with translations and routes and returns collection
+     *
+     * @param array $contents
+     *
+     * @return array
+     */
+    public function haveContents($contents = [])
+    {
+
+        $result = [];
+
+        foreach ($contents as $attributes) {
+            $result[] = $this->haveContent($attributes);
+        }
+
+        return $result;
+    }
+
     /**
      * @param callable $closure
      */

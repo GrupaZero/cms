@@ -13,7 +13,6 @@ use Gzero\Cms\Models\FileTranslation;
 use Gzero\Cms\Models\FileType;
 use Gzero\Cms\Repositories\ContentReadRepository;
 use Gzero\Cms\Services\BlockService;
-use Gzero\Core\Exception;
 use Gzero\Core\Models\Language;
 use Gzero\Core\Models\OptionCategory;
 use Gzero\Core\Models\User;
@@ -394,7 +393,6 @@ class CMSSeeder extends Seeder {
      * @param null     $isActive optional is_active value
      *
      * @return array
-     * @throws Exception
      */
     //private function prepareBlockTranslation(Language $language, $title = null, $isActive = null)
     //{
@@ -415,7 +413,6 @@ class CMSSeeder extends Seeder {
      * @param null     $title optional title value
      *
      * @return array
-     * @throws Exception
      */
     //private function prepareFileTranslation(Language $lang, $title = null)
     //{

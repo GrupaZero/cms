@@ -25,6 +25,7 @@ $factory->define(Content::class, function (Faker $faker) {
         'is_promoted'        => false,
         'is_sticky'          => false,
         'published_at'       => date('Y-m-d H:i:s'),
-        'updated_at'         => date('Y-m-d H:i:s')
+        'updated_at'         => date('Y-m-d H:i:s'),
+        'deleted_at'         => null
     ];
 });

@@ -3,9 +3,9 @@
 use Carbon\Carbon;
 use Gzero\Cms\Models\Content;
 use Gzero\Cms\Models\ContentTranslation;
-use Gzero\Core\Exception;
 use Gzero\Core\Models\Language;
 use Gzero\Core\Models\User;
+use Gzero\InvalidArgumentException;
 use Illuminate\Support\Facades\DB;
 
 class CreateContent {
@@ -28,6 +28,7 @@ class CreateContent {
         'theme'              => null,
         'parent_id'          => null,
         'weight'             => 0,
+        'rating'             => 0,
         'is_active'          => false,
         'is_on_home'         => false,
         'is_promoted'        => false,
@@ -107,7 +108,8 @@ class CreateContent {
     /**
      * Execute the job.
      *
-     * @throws Exception
+     * @throws \InvalidArgumentException
+     * @throws \Exception|\Throwable
      *
      * @return Content
      */
@@ -120,18 +122,20 @@ class CreateContent {
                     'type'               => $this->attributes['type'],
                     'theme'              => $this->attributes['theme'],
                     'weight'             => $this->attributes['weight'],
+                    'rating'             => $this->attributes['rating'],
                     'is_on_home'         => $this->attributes['is_on_home'],
                     'is_promoted'        => $this->attributes['is_promoted'],
                     'is_sticky'          => $this->attributes['is_sticky'],
                     'is_comment_allowed' => $this->attributes['is_comment_allowed'],
-                    'published_at'       => $this->attributes['published_at']
+                    'published_at'       => $this->attributes['published_at'] ?
+                        Carbon::parse($this->attributes['published_at'])->setTimezone('UTC') : null
                 ]);
                 $content->author()->associate($this->author);
 
                 if ($this->attributes['parent_id']) {
                     $parent = Content::find($this->attributes['parent_id']);
                     if (!$parent) {
-                        throw new Exception('Parent not found');
+                        throw new InvalidArgumentException('Parent not found');
                     }
 
                     $content->setChildOf($parent);
@@ -161,5 +165,4 @@ class CreateContent {
         );
         return $content;
     }
-
 }

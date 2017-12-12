@@ -4,7 +4,7 @@ use Codeception\Test\Unit;
 use Gzero\Cms\Repositories\ContentReadRepository;
 use Gzero\Core\Models\Language;
 use Gzero\Core\Query\QueryBuilder;
-use Gzero\Core\Repositories\RepositoryValidationException;
+use Gzero\InvalidArgumentException;
 
 class ContentReadRepositoryTest extends Unit {
 
@@ -161,7 +161,7 @@ class ContentReadRepositoryTest extends Unit {
                     ->where('translations.is_active', '=', true)
                     ->orderBy('id', 'asc')
             );
-        } catch (RepositoryValidationException $exception) {
+        } catch (InvalidArgumentException $exception) {
             $this->assertEquals('Language code is required', $exception->getMessage());
             return;
         }

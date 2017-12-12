@@ -1,7 +1,7 @@
 <?php namespace Gzero\Cms\Jobs;
 
 use Gzero\Cms\Models\ContentTranslation;
-use Gzero\Core\Exception;
+use Gzero\DomainException;
 use Illuminate\Support\Facades\DB;
 
 class DeleteContentTranslation {
@@ -22,15 +22,14 @@ class DeleteContentTranslation {
     /**
      * Execute the job.
      *
-     * @return bool
+     * @throws DomainException
      *
-     * @throws Exception
+     * @return bool
      */
     public function handle()
     {
-
         if ($this->translation->is_active) {
-            throw new Exception('Cannot delete active translation');
+            throw new DomainException('Cannot delete active translation');
         }
 
         return DB::transaction(

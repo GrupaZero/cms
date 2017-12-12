@@ -1,5 +1,7 @@
 <?php namespace Gzero\Cms\Models;
 
+use Gzero\DomainException;
+use Gzero\InvalidArgumentException;
 use Gzero\Cms\Handlers\Content\ContentTypeHandler;
 use Gzero\Cms\Repositories\ContentReadRepository;
 use Gzero\Core\Models\Language;
@@ -7,7 +9,6 @@ use Gzero\Core\Models\Routable;
 use Gzero\Core\Models\Route;
 use Gzero\Core\Models\User;
 use Gzero\Cms\Presenters\ContentPresenter;
-use Gzero\Core\Exception;
 use Gzero\EloquentTree\Model\Tree;
 use Illuminate\Http\Response;
 use Robbo\Presenter\PresentableInterface;
@@ -121,7 +122,7 @@ class Content extends Tree implements PresentableInterface, Uploadable, Routable
      *
      * @param string $languageCode Lang code
      *
-     * @throws Exception
+     * @throws DomainException
      *
      * @return string
      */
@@ -131,7 +132,7 @@ class Content extends Tree implements PresentableInterface, Uploadable, Routable
             ->where('language_code', $languageCode)
             ->first();
         if (empty($routeTranslation->path)) {
-            throw new Exception("There is no route in '$languageCode' language for Content id: $this->id");
+            throw new DomainException("There is no route in '$languageCode' language for content: $this->id");
         }
         return $routeTranslation->path;
     }
@@ -237,7 +238,7 @@ class Content extends Tree implements PresentableInterface, Uploadable, Routable
     /**
      * @param string $type Content type
      *
-     * @throws Exception
+     * @throws InvalidArgumentException
      *
      * @return void
      */
@@ -247,7 +248,7 @@ class Content extends Tree implements PresentableInterface, Uploadable, Routable
             $type = ContentType::getByName($type);
         }
         if (!$type) {
-            throw new Exception('Unknown content type');
+            throw new InvalidArgumentException('Unknown content type');
         }
         $this->type()->associate($type);
     }
@@ -273,14 +274,15 @@ class Content extends Tree implements PresentableInterface, Uploadable, Routable
     /**
      * Dynamically resolve content handler
      *
+     * @throws DomainException
+     *
      * @return ContentTypeHandler
-     * @throws Exception
      */
     protected function getHandler()
     {
         $handler = resolve($this->type->handler);
         if (!$handler instanceof ContentTypeHandler) {
-            throw new Exception("Type: $this->type must implement ContentTypeInterface");
+            throw new DomainException("Type: $this->type can't be handled");
         }
         return $handler;
     }
@@ -288,13 +290,14 @@ class Content extends Tree implements PresentableInterface, Uploadable, Routable
     /**
      * @param Tree|Content $parent Parent category
      *
+     * @throws DomainException
+     *
      * @return Content|Tree
-     * @throws Exception
      */
     public function setChildOf(Tree $parent)
     {
         if ($parent->type->name !== 'category') {
-            throw new Exception("Content can be assigned only to category parent");
+            throw new DomainException("Content can be assigned only to category parent");
         }
         return parent::setChildOf($parent);
     }
