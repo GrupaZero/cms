@@ -1019,4 +1019,26 @@ class ContentCest {
             ]
         ]);
     }
+
+    public function canDeleteContent(FunctionalTester $I)
+    {
+        $content = $I->haveContent(
+            [
+                'type'         => 'content',
+                'translations' => [
+                    [
+                        'language_code' => 'en',
+                        'title'         => 'Some Title',
+                        'teaser'        => 'Teaser',
+                        'body'          => 'Body',
+
+                    ]
+                ]
+            ]
+        );
+
+        $I->sendDELETE(apiUrl('contents', ['id' => $content->id]));
+
+        $I->seeResponseCodeIs(204);
+    }
 }
