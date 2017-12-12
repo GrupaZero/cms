@@ -95,36 +95,6 @@ class ContentServiceTest extends Unit {
         $this->assertNotEquals($content1->getUrl('en'), $content2->getUrl('en'));
     }
 
-    /**
-     * @test
-     */
-    public function itChecksExistenceOfContentUrl()
-    {
-        $this->markTestSkipped('FIX IT after refactor');
-
-        (new \TestSeeder())->run();
-        $this->assertNull($this->repository->getByUrl('example-title', 'en'));
-    }
-
-    /**
-     * @test
-     */
-    public function itShouldRetrieveNonTrashedContent()
-    {
-        $content = $this->tester->haveContent([
-            'type'         => 'content',
-            'translations' => [
-                [
-                    'language_code' => 'en',
-                    'title'         => 'Example title'
-                ]
-            ]
-        ]);
-
-        $result = $this->repository->getByIdWithTrashed($content->id);
-        $this->assertEquals($content->id, $result->id);
-    }
-
     /*
     |--------------------------------------------------------------------------
     | END Content tests

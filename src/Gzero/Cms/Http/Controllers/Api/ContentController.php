@@ -2,6 +2,7 @@
 
 use Gzero\Cms\Http\Resources\ContentCollection;
 use Gzero\Cms\Jobs\CreateContent;
+use Gzero\Cms\Jobs\UpdateContent;
 use Gzero\Cms\Models\Content;
 use Gzero\Cms\Http\Resources\Content as ContentResource;
 use Gzero\Cms\Repositories\ContentReadRepository;
@@ -303,8 +304,8 @@ class ContentController extends ApiController {
      *
      * @SWG\Post(path="/contents",
      *   tags={"content"},
-     *   summary="Stores newly created content in database",
-     *   description="Stores newly created content in database",
+     *   summary="Stores newly created content",
+     *   description="Stores newly created content",
      *   produces={"application/json"},
      *   security={{"AdminAccess": {}}},
      *   @SWG\Parameter(
@@ -334,7 +335,7 @@ class ContentController extends ApiController {
      *     )
      *   ),
      *   @SWG\Response(
-     *     response=200,
+     *     response=201,
      *     description="Successful operation",
      *     @SWG\Schema(type="object", ref="#/definitions/Content"),
      *   ),
@@ -368,18 +369,48 @@ class ContentController extends ApiController {
      *
      * @param int $id Content id
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @SWG\Patch(path="/contents/{id}",
+     *   tags={"content"},
+     *   summary="Updates specified content",
+     *   description="Updates specified content",
+     *   produces={"application/json"},
+     *   security={{"AdminAccess": {}}},
+     *   @SWG\Parameter(
+     *     name="id",
+     *     in="path",
+     *     description="ID of content that needs to be updated.",
+     *     required=true,
+     *     type="integer"
+     *   ),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="Successful operation",
+     *     @SWG\Schema(type="object", ref="#/definitions/Content"),
+     *   ),
+     *   @SWG\Response(
+     *     response=422,
+     *     description="Validation Error",
+     *     @SWG\Schema(ref="#/definitions/ValidationErrors")
+     *  )
+     * )
+     *
+     * @return ContentResource
      */
     public function update($id)
     {
         $content = $this->repository->getById($id);
-        if (!empty($content)) {
-            $this->authorize('update', $content);
-            $input   = $this->validator->validate('update');
-            $content = $this->repository->update($content, $input, auth()->user());
-            return $this->respondWithSuccess($content, new ContentTransformer);
+
+        if (!$content) {
+            return $this->errorNotFound();
         }
-        return $this->respondNotFound();
+
+        $this->authorize('update', $content);
+
+        $input = $this->validator->validate('update');
+
+        $content = dispatch_now(new UpdateContent($content, $input));
+
+        return new ContentResource($this->repository->loadRelations($content));
     }
 
     /**

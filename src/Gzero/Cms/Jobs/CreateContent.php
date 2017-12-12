@@ -128,7 +128,7 @@ class CreateContent {
                     'is_sticky'          => $this->attributes['is_sticky'],
                     'is_comment_allowed' => $this->attributes['is_comment_allowed'],
                     'published_at'       => $this->attributes['published_at'] ?
-                        $this->convertToUTC($this->attributes['published_at']) : null
+                        Carbon::parse($this->attributes['published_at'])->setTimezone('UTC') : null
                 ]);
                 $content->author()->associate($this->author);
 
@@ -165,17 +165,4 @@ class CreateContent {
         );
         return $content;
     }
-
-    /**
-     * It converts specified date to UTC
-     *
-     * @param string $date Date string
-     *
-     * @return Carbon
-     */
-    protected function convertToUTC(string $date): Carbon
-    {
-        return Carbon::parse($date)->setTimezone('UTC');
-    }
-
 }

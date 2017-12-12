@@ -1,5 +1,6 @@
 <?php namespace Gzero\Cms\Jobs;
 
+use Carbon\Carbon;
 use Gzero\Cms\Models\Content;
 use Gzero\Cms\Models\File;
 use Gzero\InvalidArgumentException;
@@ -23,6 +24,7 @@ class UpdateContent {
     protected $allowedAttributes = [
         'theme',
         'weight',
+        'rating',
         'is_on_home',
         'is_promoted',
         'is_sticky',
@@ -56,6 +58,9 @@ class UpdateContent {
     {
         $content = DB::transaction(
             function () {
+                if ($this->attributes['published_at']) {
+                    $this->attributes['published_at'] = Carbon::parse($this->attributes['published_at'])->setTimezone('UTC');
+                }
                 $this->content->fill($this->attributes);
                 $this->handleThumb();
 
@@ -95,7 +100,7 @@ class UpdateContent {
      *
      * @return void
      */
-    private function handleThumb()
+    protected function handleThumb()
     {
         if ($this->thumbId !== $this->content->thumb_id) {
             if ($this->thumbId === null) {

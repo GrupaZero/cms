@@ -53,6 +53,7 @@ class ContentValidator extends AbstractValidator {
             'parent_id'          => 'numeric|nullable',
             'thumb_id'           => 'numeric|nullable',
             'weight'             => 'numeric',
+            'rating'             => 'numeric',
             'theme'              => '',
             'is_active'          => 'boolean',
             'is_on_home'         => 'boolean',

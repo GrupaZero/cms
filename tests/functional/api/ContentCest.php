@@ -803,7 +803,7 @@ class ContentCest {
             'is_active'       => true
         ]));
 
-        $I->sendGet(apiUrl('contents', ['id' => $category->id]));
+        $I->sendGET(apiUrl('contents', ['id' => $category->id]));
 
         $I->seeResponseCodeIs(200);
         $I->seeResponseIsJson();
@@ -858,14 +858,13 @@ class ContentCest {
 
     public function shouldNotBeAbleToGetNonExistingContent(FunctionalTester $I)
     {
-
-        $I->sendGet(apiUrl('contents', ['id' => 100]));
+        $I->sendGET(apiUrl('contents', ['id' => 100]));
         $I->seeResponseCodeIs(404);
     }
 
     public function canCreateContent(FunctionalTester $I)
     {
-        $I->sendPost(apiUrl('contents'),
+        $I->sendPOST(apiUrl('contents'),
             [
                 'type'               => 'content',
                 'language_code'      => 'en',
@@ -914,6 +913,74 @@ class ContentCest {
                         'seo_title'       => 'Example SEO Title',
                         'seo_description' => 'Example SEO Description',
                         'is_active'       => true
+                    ]
+                ]
+            ]
+        );
+    }
+
+    public function canUpdateContent(FunctionalTester $I)
+    {
+        $content = $I->haveContent(
+            [
+                'parent_id'          => null,
+                'type'               => 'content',
+                'weight'             => 1,
+                'rating'             => 1,
+                'is_on_home'         => true,
+                'is_comment_allowed' => true,
+                'is_promoted'        => true,
+                'is_sticky'          => true,
+                'theme'              => 'first-content',
+                'translations'       => [
+                    [
+                        'language_code' => 'en',
+                        'title'         => 'Some Title',
+                        'teaser'        => 'Teaser',
+                        'body'          => 'Body',
+
+                    ]
+                ]
+            ]
+        );
+
+        $I->sendPATCH(apiUrl('contents', ['id' => $content->id]),
+            [
+                'type'               => 'category',
+                'is_on_home'         => false,
+                'is_promoted'        => false,
+                'is_sticky'          => false,
+                'is_comment_allowed' => false,
+                'published_at'       => Carbon::tomorrow()->toIso8601String(),
+                'weight'             => 20,
+                'rating'             => 9,
+                'theme'              => 'changed-content',
+            ]);
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->dontSeeResponseJsonMatchesJsonPath('data[*]');
+        $I->seeResponseContainsJson(
+            [
+                'type'               => 'content',
+                'parent_id'          => null,
+                'theme'              => 'changed-content',
+                'weight'             => 20,
+                'rating'             => 9,
+                'is_on_home'         => false,
+                'is_comment_allowed' => false,
+                'is_promoted'        => false,
+                'is_sticky'          => false,
+                'routes'             => [
+                    ['language_code' => 'en', 'path' => 'some-title', 'is_active' => true]
+                ],
+                'translations'       => [
+                    [
+                        'language_code' => 'en',
+                        'title'         => 'Some Title',
+                        'teaser'        => 'Teaser',
+                        'body'          => 'Body',
+                        'is_active'     => true
                     ]
                 ]
             ]
