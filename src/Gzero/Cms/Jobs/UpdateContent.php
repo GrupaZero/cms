@@ -58,7 +58,7 @@ class UpdateContent {
     {
         $content = DB::transaction(
             function () {
-                if ($this->attributes['published_at']) {
+                if (isset($this->attributes['published_at'])) {
                     $this->attributes['published_at'] = Carbon::parse($this->attributes['published_at'])->setTimezone('UTC');
                 }
                 $this->content->fill($this->attributes);
