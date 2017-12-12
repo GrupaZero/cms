@@ -337,7 +337,7 @@ class ContentJobsTest extends Unit {
         dispatch_now(new AddContentTranslation($content, 'Example Title', $language, $user));
 
         $content = Content::find($content->id);
-        $route   = $content->routes->last();
+        $route   = $content->routes->firstWhere('language_code', 'pl');
 
         $this->assertEquals('example-title', $route->path);
         $this->assertEquals('pl', $route->language_code);
