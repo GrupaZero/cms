@@ -1,5 +1,6 @@
 <?php namespace Gzero\Cms\Repositories;
 
+use Carbon\Carbon;
 use Gzero\Cms\Models\Content;
 use Gzero\Cms\Models\ContentTranslation;
 use Gzero\Core\Models\Language;
@@ -231,4 +232,56 @@ class ContentReadRepository implements ReadRepository {
             $builder->getPage()
         );
     }
+
+    /**
+     * Get only publicly accessible data on published content.
+     *
+     * @param QueryBuilder $builder Query builder
+     *
+     * @return LengthAwarePaginator
+     */
+    public function getManyPublished(QueryBuilder $builder): LengthAwarePaginator
+    {
+        $query = Content::query()->where('published_at', '<=', Carbon::now())
+            ->join('routes as r', function ($join) {
+                $join->on('contents.id', '=', 'r.routable_id')
+                    ->where('r.routable_type', '=', Content::class)
+                    ->where('r.is_active', true);
+            })
+            ->distinct();
+
+        $count = clone $query->getQuery();
+
+        $results = $query->limit($builder->getPageSize())
+            ->offset($builder->getPageSize() * ($builder->getPage() - 1))
+            ->get(['contents.*']);
+
+        $results->load(
+            array_merge(
+                self::$loadRelations,
+                [
+                    'routes' => function ($query) {
+                        $query->where('is_active', true);
+                    }
+                ]
+            )
+        );
+
+        $results->transform(function ($content) {
+            $languages            = $content->routes->pluck('language_code');
+            $filteredTranslations = $content->translations->filter(function ($translation) use ($languages) {
+                return $languages->contains($translation->language_code);
+            });
+            $content->setRelation('translations', $filteredTranslations);
+            return $content;
+        });
+
+        return new LengthAwarePaginator(
+            $results,
+            $count->select('contents.id')->get()->count(),
+            $builder->getPageSize(),
+            $builder->getPage()
+        );
+    }
+
 }

@@ -1,5 +1,6 @@
 <?php namespace Cms;
 
+use Carbon\Carbon;
 use Codeception\Test\Unit;
 use Gzero\Cms\Repositories\ContentReadRepository;
 use Gzero\Core\Models\Language;
@@ -172,7 +173,6 @@ class ContentReadRepositoryTest extends Unit {
     /** @test */
     public function canPaginateResults()
     {
-
         $this->tester->haveContents([
             [
                 'translations' => [
@@ -222,6 +222,149 @@ class ContentReadRepositoryTest extends Unit {
         $this->assertEquals(2, $result->currentPage());
         $this->assertEquals('B title', $result->first()->translations->first()->title);
         $this->assertEquals('A title', $result->last()->translations->first()->title);
+    }
+
+    /** @test */
+    public function getManyPublishedShouldHideTranslationsForInactiveRoutes()
+    {
+        $this->tester->haveContents([
+            [
+                'published_at' => Carbon::now()->subDays(4),
+                'translations' => [
+                    [
+                        'language_code' => 'en',
+                        'title'         => 'Inactive translation title',
+                        'is_active'     => false // under the hood, we're creating inactive route too
+                    ],
+                    [
+                        'language_code' => 'en',
+                        'title'         => 'Active translation title',
+                        'is_active'     => true
+                    ],
+                    [
+                        'language_code' => 'pl',
+                        'title'         => 'Example active english translation four days ago',
+                        'is_active'     => true
+                    ],
+                ]
+            ]
+        ]);
+
+        $result = $this->repository->getManyPublished(new QueryBuilder());
+
+        $this->assertEquals(1, $result->count());
+        $this->assertEquals(1, $result->total());
+
+        $content = $result->first();
+
+        $this->assertEmpty($content->translations->firstWhere('language_code', 'en'));
+        $this->assertNotEmpty($content->translations->firstWhere('language_code', 'pl'));
+        $this->assertCount(1, $content->routes);
+        $this->assertNotEmpty($content->routes->firstWhere('language_code', 'pl'));
+    }
+
+    /** @test */
+    public function getManyPublishedShouldReturnContentWitchHavePublishedAtDateInThePastAndDifferentThanNull()
+    {
+        $this->tester->haveContents([
+            [
+                'published_at' => Carbon::now()->subDays(1),
+                'translations' => [
+                    [
+                        'language_code' => 'en',
+                        'title'         => 'Active translation title pubished one day ago'
+                    ]
+                ]
+            ],
+            [
+                'published_at' => Carbon::now(),
+                'translations' => [
+                    [
+                        'language_code' => 'en',
+                        'title'         => 'Active translation title pubished now'
+                    ]
+                ]
+            ],
+            [
+                'published_at' => Carbon::tomorrow(),
+                'translations' => [
+                    [
+                        'language_code' => 'en',
+                        'title'         => 'Active translation title pubished tomorrow'
+                    ]
+                ]
+            ],
+            [
+                'published_at' => null,
+                'translations' => [
+                    [
+                        'language_code' => 'en',
+                        'title'         => 'Active translation title with published date set to null'
+                    ]
+                ]
+            ]
+        ]);
+
+        $result = $this->repository->getManyPublished(new QueryBuilder());
+
+        $this->assertEquals(2, $result->count());
+        $this->assertEquals(2, $result->total());
+        $this->assertNotEmpty($result->items()[0]->translations->firstWhere('title', 'Active translation title pubished one day ago'));
+        $this->assertNotEmpty($result->items()[1]->translations->firstWhere('title', 'Active translation title pubished now'));
+    }
+
+    /** @test */
+    public function getManyPublishedShouldReturnNonDuplicateContent()
+    {
+        $this->tester->haveContents([
+            [
+                'published_at' => Carbon::now()->subDays(1),
+                'translations' => [
+                    [
+                        'language_code' => 'en',
+                        'title'         => 'Active english translation title 1',
+                        'is_active'     => true
+                    ],
+                    [
+                        'language_code' => 'pl',
+                        'title'         => 'Active polish translation title 2',
+                        'is_active'     => true
+                    ],
+                    [
+                        'language_code' => 'en',
+                        'title'         => 'Active translation title 3',
+                        'is_active'     => false
+                    ]
+                ]
+            ]
+        ]);
+
+        $result = $this->repository->getManyPublished(new QueryBuilder());
+
+        // check how much content is returned
+        $this->assertEquals(1, $result->count());
+        $this->assertEquals(1, $result->total());
+        // check how much entries for routes and translations there is in content
+        $this->assertCount(2, $result->items()[0]->translations);
+        $this->assertCount(2, $result->items()[0]->routes);
+        // check if we expect this translations in this content
+        $this->assertEquals(
+            'Active english translation title 1',
+            $result->items()[0]->translations->firstWhere('language_code', 'en')->title
+        );
+        $this->assertEquals(
+            'Active polish translation title 2',
+            $result->items()[0]->translations->firstWhere('language_code', 'pl')->title
+        );
+        // check if we expect this routes in this content
+        $this->assertEquals(
+            'active-english-translation-title-1',
+            $result->items()[0]->routes->firstWhere('language_code', 'en')->path
+        );
+        $this->assertEquals(
+            'active-polish-translation-title-2',
+            $result->items()[0]->routes->firstWhere('language_code', 'pl')->path
+        );
     }
 }
 

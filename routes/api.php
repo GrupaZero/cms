@@ -21,6 +21,7 @@ Route::group(
         $router->get('contents/{id}/children', 'NestedContentController@index');
 
         $router->get('deleted-contents', 'DeletedContentController@index');
+        $router->get('public-contents', 'PublicContentController@index');
     }
 );
 
