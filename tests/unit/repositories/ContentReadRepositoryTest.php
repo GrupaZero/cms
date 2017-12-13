@@ -225,7 +225,7 @@ class ContentReadRepositoryTest extends Unit {
     }
 
     /** @test */
-    public function getManyPublishedShouldHideTranslationsForInactiveRoutes()
+    public function shouldHideTranslationsForInactiveRoutes()
     {
         $this->tester->haveContents([
             [
@@ -264,36 +264,9 @@ class ContentReadRepositoryTest extends Unit {
     }
 
     /** @test */
-    public function getManyPublishedShouldReturnContentWitchHavePublishedAtDateInThePastAndDifferentThanNull()
+    public function shouldNotReturnContentWithPublishedAtSetToNull()
     {
         $this->tester->haveContents([
-            [
-                'published_at' => Carbon::now()->subDays(1),
-                'translations' => [
-                    [
-                        'language_code' => 'en',
-                        'title'         => 'Active translation title pubished one day ago'
-                    ]
-                ]
-            ],
-            [
-                'published_at' => Carbon::now(),
-                'translations' => [
-                    [
-                        'language_code' => 'en',
-                        'title'         => 'Active translation title pubished now'
-                    ]
-                ]
-            ],
-            [
-                'published_at' => Carbon::tomorrow(),
-                'translations' => [
-                    [
-                        'language_code' => 'en',
-                        'title'         => 'Active translation title pubished tomorrow'
-                    ]
-                ]
-            ],
             [
                 'published_at' => null,
                 'translations' => [
@@ -307,14 +280,12 @@ class ContentReadRepositoryTest extends Unit {
 
         $result = $this->repository->getManyPublished(new QueryBuilder());
 
-        $this->assertEquals(2, $result->count());
-        $this->assertEquals(2, $result->total());
-        $this->assertNotEmpty($result->items()[0]->translations->firstWhere('title', 'Active translation title pubished one day ago'));
-        $this->assertNotEmpty($result->items()[1]->translations->firstWhere('title', 'Active translation title pubished now'));
+        $this->assertEquals(0, $result->count());
+        $this->assertEquals(0, $result->total());
     }
 
     /** @test */
-    public function getManyPublishedShouldReturnNonDuplicateContent()
+    public function shouldReturnNonDuplicateContent()
     {
         $this->tester->haveContents([
             [

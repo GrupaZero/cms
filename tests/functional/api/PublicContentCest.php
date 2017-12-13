@@ -8,11 +8,6 @@ use Gzero\Core\Models\User;
 
 class PublicContentCest {
 
-    public function _before(FunctionalTester $I)
-    {
-        $I->apiLoginAsAdmin();
-    }
-
     public function shouldGetListOfPublicContents(FunctionalTester $I)
     {
         $user     = factory(User::class)->create();

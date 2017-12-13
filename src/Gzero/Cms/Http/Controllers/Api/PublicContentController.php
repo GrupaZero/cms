@@ -7,7 +7,7 @@ use Gzero\Core\Query\QueryBuilder;
 use Illuminate\Http\Request;
 
 /**
- * Class DeletedContentController
+ * Class PublicContentController
  *
  * @SWG\Tag(
  *   name="content",
@@ -39,7 +39,7 @@ class PublicContentController extends ApiController {
      *
      * @SWG\Get(
      *   path="/public-contents",
-     *   tags={"content"},
+     *   tags={"content, public"},
      *   summary="List of public contents",
      *   description="List of all publicly accessible contents",
      *   produces={"application/json"},
