@@ -8,11 +8,6 @@ use Illuminate\Http\Request;
 
 /**
  * Class PublicContentController
- *
- * @SWG\Tag(
- *   name="content",
- *   description="Everything about deleted app content"
- *   )
  */
 class PublicContentController extends ApiController {
 

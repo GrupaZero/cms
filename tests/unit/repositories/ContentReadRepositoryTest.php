@@ -285,7 +285,7 @@ class ContentReadRepositoryTest extends Unit {
     }
 
     /** @test */
-    public function shouldReturnNonDuplicateContent()
+    public function shouldNotReturnDuplicateContent()
     {
         $this->tester->haveContents([
             [

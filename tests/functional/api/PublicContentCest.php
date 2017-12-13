@@ -48,6 +48,20 @@ class PublicContentCest {
         $I->seeResponseCodeIs(200);
         $I->seeResponseIsJson();
         $I->seeResponseJsonMatchesJsonPath('data[*]');
+        $I->dontSeeResponseContainsJson(
+            [
+                [
+                    'type'         => 'content',
+                    'translations' => [
+                        [
+                            'language_code' => 'en',
+                            'title'         => 'Content Title published tomorrow',
+                            'is_active'     => true,
+                        ]
+                    ]
+                ]
+            ]
+        );
         $I->seeResponseContainsJson(
             [
                 [
