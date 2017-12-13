@@ -279,45 +279,82 @@ class ContentJobsTest extends Unit {
     {
         $user     = $this->tester->haveUser();
         $language = new Language(['code' => 'en']);
-        $category = $this->tester->haveContent([
-            'type'         => 'category',
-            'translations' => [
-                [
-                    'language_code' => 'en',
-                    'title'         => 'Category Title'
-                ]
-            ]
-        ]);
+
+        $parent = dispatch_now(CreateContent::category('Parent Title', $language, $user, [
+            'is_active' => true
+        ]));
+
+        $parent1 = dispatch_now(CreateContent::category('Parent Title', $language, $user, [
+            'is_active' => true
+        ]));
+
+        $child = dispatch_now(CreateContent::category('Child Title', $language, $user, [
+            'parent_id' => $parent->id,
+            'is_active' => true
+        ]));
+
+        $child1 = dispatch_now(CreateContent::category('Child Title', $language, $user, [
+            'parent_id' => $parent1->id,
+            'is_active' => true
+        ]));
+
+        $child2 = dispatch_now(CreateContent::category('Child Title', $language, $user, [
+            'parent_id' => $parent1->id,
+            'is_active' => true
+        ]));
+
+        $parent       = Content::find($parent->id);
+        $parent1      = Content::find($parent1->id);
+        $child        = Content::find($child->id);
+        $child1       = Content::find($child1->id);
+        $child2       = Content::find($child2->id);
+        $parentRoute  = $parent->routes->firstWhere('language_code', 'en');
+        $parentRoute1 = $parent1->routes->firstWhere('language_code', 'en');
+        $childRoute   = $child->routes->firstWhere('language_code', 'en');
+        $childRoute1  = $child1->routes->firstWhere('language_code', 'en');
+        $childRoute2  = $child2->routes->firstWhere('language_code', 'en');
+
+        $this->assertEquals('parent-title', $parentRoute->path);
+        $this->assertEquals('parent-title/child-title', $childRoute->path);
+        // parent-title already exists - add 1
+        $this->assertEquals('parent-title-1', $parentRoute1->path);
+        // parent-title-1/child-title does not exists
+        $this->assertEquals('parent-title-1/child-title', $childRoute1->path);
+        // parent-title-1/child-title already exists - add 1
+        $this->assertEquals('parent-title-1/child-title-1', $childRoute2->path);
+    }
+
+    /** @test */
+    public function shouldNotCreateContentRouteWhenAddingAnotherTranslationInSpecifiedLanguage()
+    {
+        $user     = $this->tester->haveUser();
+        $language = new Language(['code' => 'pl']);
         $content  = $this->tester->haveContent([
             'translations' => [
                 [
                     'language_code' => 'en',
-                    'title'         => 'Content Title'
+                    'title'         => 'Example Title'
                 ]
             ]
         ]);
-        $content->setChildOf($category);
 
-        dispatch_now(new AddContentTranslation($category, 'Category Title', $language, $user));
-        dispatch_now(new AddContentTranslation($content, 'Content Title', $language, $user));
+        dispatch_now(new AddContentTranslation($content, 'Example Title', $language, $user));
 
-        $content       = $content->fresh();
-        $category      = $category->fresh();
-        $contentRoute  = $content->routes;
-        $categoryRoute = $category->routes;
+        $content = Content::find($content->id);
+        $route   = $content->routes->firstWhere('language_code', 'en');
 
-        // Category has only one translation because it was found and updated
-        $this->assertEquals('en', $categoryRoute->first()->language_code);
-        $this->assertEquals('category-title-1', $categoryRoute->first()->path);
-        $this->assertTrue($categoryRoute->first()->is_active);
+        $this->assertEquals('example-title', $route->path);
+        $this->assertEquals('en', $route->language_code);
+        $this->assertTrue($route->is_active);
 
-        // Content has two translations because translation was added after content was assigned as child
-        // so the `category-title-1/content-title` was searched and `content-title` is in database
-        // because setChildOf is not mean to update route path
-        $this->assertEquals('en', $contentRoute->first()->language_code);
-        $this->assertEquals('content-title', $contentRoute->first()->path);
-        $this->assertEquals('en', $contentRoute->last()->language_code);
-        $this->assertEquals('category-title-1/content-title', $contentRoute->last()->path);
+        dispatch_now(new AddContentTranslation($content, 'Totally New Title', $language, $user));
+
+        $content = Content::find($content->id);
+        $route   = $content->routes->firstWhere('language_code', 'en');
+
+        $this->assertEquals('example-title', $route->path);
+        $this->assertEquals('en', $route->language_code);
+        $this->assertTrue($route->is_active);
     }
 
     /** @test */

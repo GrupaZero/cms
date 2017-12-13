@@ -16,6 +16,7 @@ Route::group(
         $router->get('contents', 'ContentController@index');
         $router->post('contents', 'ContentController@store');
         $router->patch('contents/{id}', 'ContentController@update');
+        $router->delete('contents/{id}', 'ContentController@destroy');
         $router->get('contents/{id}', 'ContentController@show');
         $router->get('contents/{id}/children', 'NestedContentController@index');
 

@@ -206,14 +206,13 @@ class Content extends Tree implements PresentableInterface, Uploadable, Routable
      */
     public function createRoute(ContentTranslation $translation, bool $isActive = false)
     {
+        $path = Route::buildUniquePath($this->getSlug($translation), $translation->language_code);
         $route = Route::firstOrNew([
             'language_code' => $translation->language_code,
-            'path'          => $this->getSlug($translation),
+            'path'          => $path,
         ], [
             'is_active' => $isActive
         ]);
-
-        $route->path = Route::buildUniquePath($route->path, $translation->language_code);
 
         $this->routes()->save($route);
 

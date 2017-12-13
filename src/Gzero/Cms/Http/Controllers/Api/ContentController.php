@@ -2,6 +2,7 @@
 
 use Gzero\Cms\Http\Resources\ContentCollection;
 use Gzero\Cms\Jobs\CreateContent;
+use Gzero\Cms\Jobs\DeleteContent;
 use Gzero\Cms\Jobs\UpdateContent;
 use Gzero\Cms\Models\Content;
 use Gzero\Cms\Http\Resources\Content as ContentResource;
@@ -391,7 +392,8 @@ class ContentController extends ApiController {
      *     response=422,
      *     description="Validation Error",
      *     @SWG\Schema(ref="#/definitions/ValidationErrors")
-     *  )
+     *  ),
+     *   @SWG\Response(response=404, description="Content not found")
      * )
      *
      * @return ContentResource
@@ -416,28 +418,41 @@ class ContentController extends ApiController {
     /**
      * Removes the specified resource from database.
      *
-     * @param Request $request Request object
-     * @param int     $id      Content id
+     * @SWG\Delete(path="/contents/{id}",
+     *   tags={"content"},
+     *   summary="Soft deletes specified content",
+     *   description="Content will be mark as deleted.",
+     *   produces={"application/json"},
+     *   security={{"AdminAccess": {}}},
+     *   @SWG\Parameter(
+     *     name="id",
+     *     in="path",
+     *     description="Id of content that needs to be soft deleted.",
+     *     required=true,
+     *     type="integer"
+     *   ),
+     *   @SWG\Response(
+     *     response=204,
+     *     description="Successful operation"
+     *   ),
+     *   @SWG\Response(response=404, description="Content not found")
+     * )
+     *
+     * @param int $id Content id
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function destroy(Request $request, $id)
+    public function destroy($id)
     {
-        $forceDelete = $request->get('force', false);
+        $content = $this->repository->getById($id);
 
-        $content = $this->repository->getByIdWithTrashed($id);
-
-        if (!empty($content)) {
-            $this->authorize('delete', $content);
-            if ($forceDelete) {
-                $this->repository->forceDelete($content);
-            } else {
-                $this->repository->delete($content);
-            }
-            return $this->respondWithSimpleSuccess(['success' => true]);
+        if (!$content) {
+            return $this->errorNotFound();
         }
 
-        return $this->respondNotFound();
+        dispatch_now(new DeleteContent($content));
+
+        return $this->successNoContent();
     }
 
     /**

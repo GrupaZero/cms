@@ -986,4 +986,59 @@ class ContentCest {
             ]
         );
     }
+
+    public function canCreateContentWithSameTitleMultipleTimes(FunctionalTester $I)
+    {
+        $I->sendPOST(apiUrl('contents'), ['type' => 'content', 'language_code' => 'en', 'title' => 'Example title']);
+
+        $I->seeResponseCodeIs(201);
+        $I->seeResponseContainsJson([
+            'routes' => [
+                'language_code' => 'en',
+                'path'          => 'example-title'
+            ]
+        ]);
+
+        $I->sendPOST(apiUrl('contents'), ['type' => 'content', 'language_code' => 'en', 'title' => 'Example title']);
+
+        $I->seeResponseCodeIs(201);
+        $I->seeResponseContainsJson([
+            'routes' => [
+                'language_code' => 'en',
+                'path'          => 'example-title-1'
+            ]
+        ]);
+
+        $I->sendPOST(apiUrl('contents'), ['type' => 'content', 'language_code' => 'en', 'title' => 'Example title']);
+
+        $I->seeResponseCodeIs(201);
+        $I->seeResponseContainsJson([
+            'routes' => [
+                'language_code' => 'en',
+                'path'          => 'example-title-2'
+            ]
+        ]);
+    }
+
+    public function canDeleteContent(FunctionalTester $I)
+    {
+        $content = $I->haveContent(
+            [
+                'type'         => 'content',
+                'translations' => [
+                    [
+                        'language_code' => 'en',
+                        'title'         => 'Some Title',
+                        'teaser'        => 'Teaser',
+                        'body'          => 'Body',
+
+                    ]
+                ]
+            ]
+        );
+
+        $I->sendDELETE(apiUrl('contents', ['id' => $content->id]));
+
+        $I->seeResponseCodeIs(204);
+    }
 }
