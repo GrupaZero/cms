@@ -264,7 +264,7 @@ class ContentReadRepositoryTest extends Unit {
     }
 
     /** @test */
-    public function shouldNotReturnContentWhichPublishedAtSetToNull()
+    public function shouldNotReturnContentWithPublishedAtSetToNull()
     {
         $this->tester->haveContents([
             [
