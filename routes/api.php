@@ -34,5 +34,6 @@ Route::group(
     ],
     function ($router) {
         /** @var \Illuminate\Routing\Router $router */
+        $router->get('public-contents', 'PublicContentController@index');
     }
 );
