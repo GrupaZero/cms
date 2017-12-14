@@ -13,17 +13,6 @@ class ContentValidator extends AbstractValidator {
             'is_active' => 'boolean',
             'sort'      => ''
         ],
-        'list'      => [
-            'lang'      => 'required_with:sort|in:pl,en,de,fr',
-            'page'      => 'numeric',
-            'per_page'  => 'numeric',
-            'type'      => 'in:content,category',
-            'parent_id' => 'numeric',
-            'is_active' => 'boolean',
-            'sort'      => '',
-            'level'     => '',
-            'trashed'   => ''
-        ],
         'files'     => [
             'lang'      => 'required_with:sort|in:pl,en,de,fr',
             'page'      => 'numeric',
@@ -55,7 +44,6 @@ class ContentValidator extends AbstractValidator {
             'weight'             => 'numeric',
             'rating'             => 'numeric',
             'theme'              => '',
-            'is_active'          => 'boolean',
             'is_on_home'         => 'boolean',
             'is_comment_allowed' => 'boolean',
             'is_promoted'        => 'boolean',

@@ -76,7 +76,7 @@ class Content extends Tree implements PresentableInterface, Uploadable, Routable
     public function translations($active = true)
     {
         if ($active) {
-            return $this->hasMany(ContentTranslation::class)->where('is_active', '=', 1);
+            return $this->hasMany(ContentTranslation::class)->where('is_active', '=', true);
         }
         return $this->hasMany(ContentTranslation::class);
     }

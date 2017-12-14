@@ -1,6 +1,7 @@
 <?php namespace Gzero\Cms\Http\Controllers\Api;
 
 use Gzero\Cms\Http\Resources\ContentCollection;
+use Gzero\Cms\Jobs\ForceDeleteContent;
 use Gzero\Cms\Models\Content;
 use Gzero\Cms\Repositories\ContentReadRepository;
 use Gzero\Cms\Validators\ContentValidator;
@@ -91,5 +92,45 @@ class DeletedContentController extends ApiController {
         $results->setPath(apiUrl('deleted-contents'));
 
         return new ContentCollection($results);
+    }
+
+    /**
+     * Removes the specified resource from database.
+     *
+     * @SWG\Delete(path="/deleted-contents/{id}",
+     *   tags={"content"},
+     *   summary="Deletes soft deleted content",
+     *   description="Deletes soft deleted content.",
+     *   produces={"application/json"},
+     *   security={{"AdminAccess": {}}},
+     *   @SWG\Parameter(
+     *     name="id",
+     *     in="path",
+     *     description="Id of soft deleted content that needs to be deleted.",
+     *     required=true,
+     *     type="integer"
+     *   ),
+     *   @SWG\Response(
+     *     response=204,
+     *     description="Successful operation"
+     *   ),
+     *   @SWG\Response(response=404, description="Content not found")
+     * )
+     *
+     * @param int $id Content id
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function destroy($id)
+    {
+        $content = $this->repository->getDeletedById($id);
+
+        if (!$content) {
+            return $this->errorNotFound();
+        }
+
+        dispatch_now(new ForceDeleteContent($content));
+
+        return $this->successNoContent();
     }
 }

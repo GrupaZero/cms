@@ -25,6 +25,8 @@ $factory->define(ContentTranslation::class, function (Faker $faker) {
         'body'            => $faker->text(),
         'seo_title'       => $faker->realText(60, 1),
         'seo_description' => $faker->realText(160, 1),
+        'created_at'      => date('Y-m-d H:i:s'),
+        'updated_at'      => date('Y-m-d H:i:s'),
         'is_active'       => true
     ];
 });
@@ -39,6 +41,8 @@ $factory->state(ContentTranslation::class, 'inactive', function (Faker $faker) {
         'body'            => $faker->text(),
         'seo_title'       => $faker->realText(60, 1),
         'seo_description' => $faker->realText(160, 1),
-        'is_active'       => false,
+        'created_at'      => date('Y-m-d H:i:s'),
+        'updated_at'      => date('Y-m-d H:i:s'),
+        'is_active'       => false
     ];
 });

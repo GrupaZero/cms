@@ -91,4 +91,32 @@ class DeletedContentCest {
             ['title' => "Today's deleted content"]
         );
     }
+
+    public function canDeleteOnlySoftDeletedContent(FunctionalTester $I)
+    {
+        $content = $I->haveContent(
+            [
+                'type'         => 'content',
+                'translations' => [
+                    [
+                        'language_code' => 'en',
+                        'title'         => 'Some Title',
+                        'teaser'        => 'Teaser',
+                        'body'          => 'Body',
+
+                    ]
+                ]
+            ]
+        );
+
+        $I->sendDELETE(apiUrl('deleted-contents', ['id' => $content->id]));
+
+        $I->seeResponseCodeIs(404);
+
+        dispatch_now(new DeleteContent($content));
+
+        $I->sendDELETE(apiUrl('deleted-contents', ['id' => $content->id]));
+
+        $I->seeResponseCodeIs(204);
+    }
 }

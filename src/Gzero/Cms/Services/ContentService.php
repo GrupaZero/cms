@@ -161,40 +161,6 @@ class ContentService extends BaseService {
             ->first(['contents.*']);
     }
 
-    /**
-     * Get all translations to specific content
-     *
-     * @param Content  $content  Content content
-     * @param array    $criteria Filter criteria
-     * @param array    $orderBy  Array of columns
-     * @param int|null $page     Page number (if null == disabled pagination)
-     * @param int|null $pageSize Limit results
-     *
-     * @throws RepositoryException
-     * @return EloquentCollection
-     */
-    public function getTranslations(
-        Content $content,
-        array $criteria = [],
-        array $orderBy = [],
-        $page = 1,
-        $pageSize = self::ITEMS_PER_PAGE
-    ) {
-        $query  = $content->translations(false);
-        $parsed = $this->parseArgs($criteria, $orderBy);
-        $this->handleFilterCriteria($this->getTranslationsTableName(), $query, $parsed['filter']);
-        $this->handleOrderBy(
-            $this->getTranslationsTableName(),
-            $parsed['orderBy'],
-            $query,
-            function ($query) {
-                // default order by
-                $query->orderBy('content_translations.is_active', 'DESC');
-            }
-        );
-        return $this->handlePagination($this->getTranslationsTableName(), $query, $page, $pageSize);
-    }
-
     /*
     |--------------------------------------------------------------------------
     | START TreeRepository
@@ -341,46 +307,6 @@ class ContentService extends BaseService {
         $pageSize = self::ITEMS_PER_PAGE
     ) {
         $query  = $this->newORMTreeQuery();
-        $parsed = $this->parseArgs($criteria, $orderBy);
-        $this->handleTranslationsJoin($parsed['filter'], $parsed['orderBy'], $query);
-        $this->handleFilterCriteria(
-            $this->getTableName(),
-            $query,
-            $parsed['filter']
-        );
-        $this->handleAuthorJoin($query);
-        $this->handleOrderBy(
-            $this->getTableName(),
-            $parsed['orderBy'],
-            $query,
-            $this->contentDefaultOrderBy()
-        );
-        return $this->handlePagination(
-            $this->getTableName(),
-            $query,
-            $page,
-            $pageSize
-        );
-    }
-
-    /**
-     * Get all soft deleted contents with specific criteria with tree structure
-     *
-     * @param array    $criteria Filter criteria
-     * @param array    $orderBy  Array of columns
-     * @param int|null $page     Page number (if null == disabled pagination)
-     * @param int|null $pageSize Limit results
-     *
-     * @throws RepositoryException
-     * @return EloquentCollection
-     */
-    public function getDeletedContents(
-        array $criteria = [],
-        array $orderBy = [],
-        $page = 1,
-        $pageSize = self::ITEMS_PER_PAGE
-    ) {
-        $query  = $this->newORMQuery()->onlyTrashed();
         $parsed = $this->parseArgs($criteria, $orderBy);
         $this->handleTranslationsJoin($parsed['filter'], $parsed['orderBy'], $query);
         $this->handleFilterCriteria(

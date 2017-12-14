@@ -60,18 +60,6 @@ class ContentReadRepository implements ReadRepository {
     }
 
     /**
-     * Retrieve a content translation by given id
-     *
-     * @param int $id Entity id
-     *
-     * @return mixed
-     */
-    public function getTranslationById($id)
-    {
-        return ContentTranslation::find($id);
-    }
-
-    /**
      * Retrieve a content by given path
      *
      * @param string $path         URI path
@@ -228,6 +216,35 @@ class ContentReadRepository implements ReadRepository {
         return new LengthAwarePaginator(
             $results,
             $count->select('contents.id')->count(),
+            $builder->getPageSize(),
+            $builder->getPage()
+        );
+    }
+
+    /**
+     * Get all content translations for specified content.
+     *
+     * @param Content      $content Content model
+     * @param QueryBuilder $builder Query builder
+     *
+     * @return Collection|LengthAwarePaginator
+     */
+    public function getManyTranslations(Content $content, QueryBuilder $builder): LengthAwarePaginator
+    {
+        $query = $content->translations(false)->newQuery()->getQuery();
+
+        $builder->applyFilters($query);
+        $builder->applySorts($query);
+
+        $count = clone $query->getQuery();
+
+        $results = $query->limit($builder->getPageSize())
+            ->offset($builder->getPageSize() * ($builder->getPage() - 1))
+            ->get(['content_translations.*']);
+
+        return new LengthAwarePaginator(
+            $results,
+            $count->select('content_translations.id')->get()->count(),
             $builder->getPageSize(),
             $builder->getPage()
         );

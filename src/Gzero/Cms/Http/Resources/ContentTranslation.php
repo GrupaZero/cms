@@ -8,14 +8,19 @@ use Illuminate\Http\Resources\Json\Resource;
  *   type="object",
  *   required={"title", "language_code"},
  *   @SWG\Property(
- *     property="title",
- *     type="string",
- *     example="example title"
+ *     property="author_id",
+ *     type="number",
+ *     example="10"
  *   ),
  *   @SWG\Property(
  *     property="language_code",
  *     type="string",
  *     example="en"
+ *   ),
+ *   @SWG\Property(
+ *     property="title",
+ *     type="string",
+ *     example="example title"
  *   ),
  *   @SWG\Property(
  *     property="teaser",
@@ -36,6 +41,11 @@ use Illuminate\Http\Resources\Json\Resource;
  *     property="seo_description",
  *     type="string",
  *     example="SEO description"
+ *   ),
+ *   @SWG\Property(
+ *     property="is_active",
+ *     type="boolean",
+ *     example="true"
  *   ),
  *   @SWG\Property(
  *     property="created_at",
@@ -62,6 +72,7 @@ class ContentTranslation extends Resource {
     {
         return [
             'id'              => (int) $this->id,
+            'author_id'       => $this->author_id,
             'language_code'   => $this->language_code,
             'title'           => $this->title,
             'teaser'          => $this->teaser,
