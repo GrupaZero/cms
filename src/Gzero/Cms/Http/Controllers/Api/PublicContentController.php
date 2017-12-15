@@ -34,7 +34,7 @@ class PublicContentController extends ApiController {
      *
      * @SWG\Get(
      *   path="/public-contents",
-     *   tags={"content, public"},
+     *   tags={"content","public"},
      *   summary="List of public contents",
      *   description="List of all publicly accessible contents",
      *   produces={"application/json"},

@@ -648,7 +648,7 @@ class ContentCest {
             ]
         ]);
 
-        $I->sendGET(apiUrl('contents?is_sticky=1'));
+        $I->sendGET(apiUrl('contents?is_sticky=true'));
 
         $I->seeResponseCodeIs(200);
         $I->seeResponseContainsJson(
@@ -658,7 +658,7 @@ class ContentCest {
             ['title' => 'Not Sticked']
         );
 
-        $I->sendGET(apiUrl('contents?is_sticky=0'));
+        $I->sendGET(apiUrl('contents?is_sticky=false'));
 
         $I->seeResponseCodeIs(200);
         $I->seeResponseContainsJson(
@@ -685,7 +685,7 @@ class ContentCest {
             ]
         ]);
 
-        $I->sendGET(apiUrl('contents?is_promoted=1'));
+        $I->sendGET(apiUrl('contents?is_promoted=true'));
 
         $I->seeResponseCodeIs(200);
         $I->seeResponseContainsJson(
@@ -695,7 +695,7 @@ class ContentCest {
             ['title' => 'Not Promoted']
         );
 
-        $I->sendGET(apiUrl('contents?is_promoted=0'));
+        $I->sendGET(apiUrl('contents?is_promoted=false'));
 
         $I->seeResponseCodeIs(200);
         $I->seeResponseContainsJson(
@@ -722,7 +722,7 @@ class ContentCest {
             ]
         ]);
 
-        $I->sendGET(apiUrl('contents?is_on_home=1'));
+        $I->sendGET(apiUrl('contents?is_on_home=true'));
 
         $I->seeResponseCodeIs(200);
         $I->seeResponseContainsJson(
@@ -732,7 +732,7 @@ class ContentCest {
             ['title' => 'Not On Homepage']
         );
 
-        $I->sendGET(apiUrl('contents?is_on_home=0'));
+        $I->sendGET(apiUrl('contents?is_on_home=false'));
 
         $I->seeResponseCodeIs(200);
         $I->seeResponseContainsJson(
@@ -760,7 +760,7 @@ class ContentCest {
             ]
         ]);
 
-        $I->sendGET(apiUrl('contents?is_comment_allowed=1'));
+        $I->sendGET(apiUrl('contents?is_comment_allowed=true'));
 
         $I->seeResponseCodeIs(200);
         $I->seeResponseContainsJson(
@@ -770,7 +770,7 @@ class ContentCest {
             ['title' => 'Comments Not Allowed']
         );
 
-        $I->sendGET(apiUrl('contents?is_comment_allowed=0'));
+        $I->sendGET(apiUrl('contents?is_comment_allowed=false'));
 
         $I->seeResponseCodeIs(200);
         $I->seeResponseContainsJson(
@@ -1041,4 +1041,395 @@ class ContentCest {
 
         $I->seeResponseCodeIs(204);
     }
+
+    public function shouldBeAbleToGetContentTranslations(FunctionalTester $I)
+    {
+        $user = factory(User::class)->create();
+        $en   = new Language(['code' => 'en']);
+        $pl   = new Language(['code' => 'pl']);
+
+        $content = dispatch_now(CreateContent::content('Original Title', $en, $user, [
+            'teaser'          => 'Original translation',
+            'body'            => 'Original body',
+            'seo_title'       => 'Original SEO title',
+            'seo_description' => 'Original SEO description',
+            'is_active'       => true
+        ]));
+
+        dispatch_now(new AddContentTranslation($content, 'Modified title', $en, $user, [
+            'teaser'          => 'Modified teaser',
+            'body'            => 'Modified body',
+            'seo_title'       => 'Modified SEO title',
+            'seo_description' => 'Modified SEO description',
+            'is_active'       => true
+        ]));
+
+        dispatch_now(new AddContentTranslation($content, 'Oryginalny Tytuł', $pl, $user, [
+            'teaser'          => 'Oryginalny wstęp',
+            'body'            => 'Oryginalna treść',
+            'seo_title'       => 'Oryginalny tytuł SEO',
+            'seo_description' => 'Oryginalny opis SEO',
+            'is_active'       => true
+        ]));
+
+        dispatch_now(new AddContentTranslation($content, 'Nowy Tytuł', $pl, $user, [
+            'teaser'          => 'Nowy wstęp',
+            'body'            => 'Nowa treść',
+            'seo_title'       => 'Nowy tytuł SEO',
+            'seo_description' => 'Nowy opis SEO',
+            'is_active'       => true
+        ]));
+
+        $I->sendGET(apiUrl("contents/$content->id/translations"));
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeResponseJsonMatchesJsonPath('data[*]');
+        $I->seeResponseContainsJson(
+            [
+                [
+                    'language_code'   => 'en',
+                    'title'           => 'Original Title',
+                    'teaser'          => 'Original translation',
+                    'body'            => 'Original body',
+                    'seo_title'       => 'Original SEO title',
+                    'seo_description' => 'Original SEO description',
+                    'is_active'       => false
+                ],
+                [
+                    'language_code'   => 'en',
+                    'title'           => 'Modified title',
+                    'teaser'          => 'Modified teaser',
+                    'body'            => 'Modified body',
+                    'seo_title'       => 'Modified SEO title',
+                    'seo_description' => 'Modified SEO description',
+                    'is_active'       => true
+                ],
+                [
+                    'language_code'   => 'pl',
+                    'title'           => 'Oryginalny Tytuł',
+                    'teaser'          => 'Oryginalny wstęp',
+                    'body'            => 'Oryginalna treść',
+                    'seo_title'       => 'Oryginalny tytuł SEO',
+                    'seo_description' => 'Oryginalny opis SEO',
+                    'is_active'       => false
+                ],
+                [
+                    'language_code'   => 'pl',
+                    'title'           => 'Nowy Tytuł',
+                    'teaser'          => 'Nowy wstęp',
+                    'body'            => 'Nowa treść',
+                    'seo_title'       => 'Nowy tytuł SEO',
+                    'seo_description' => 'Nowy opis SEO',
+                    'is_active'       => true
+                ]
+            ]
+        );
+    }
+
+    public function shouldBeAbleToFilterListOfContentTranslationsByLanguageCode(FunctionalTester $I)
+    {
+        $user = factory(User::class)->create();
+        $en   = new Language(['code' => 'en']);
+        $pl   = new Language(['code' => 'pl']);
+
+        $content = dispatch_now(CreateContent::content('Example Title', $en, $user));
+
+        dispatch_now(new AddContentTranslation($content, 'Przykładowy Tytuł', $pl, $user));
+
+        $I->sendGET(apiUrl("contents/$content->id/translations?language_code=en"));
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeResponseJsonMatchesJsonPath('data[*]');
+        $I->seeResponseContainsJson(
+            [
+                ['language_code' => 'en', 'title' => 'Example Title']
+            ]
+        );
+
+        $I->dontSeeResponseContainsJson(
+            [
+                ['language_code' => 'pl', 'title' => 'Przykładowy Tytuł']
+            ]
+        );
+
+        $I->sendGET(apiUrl("contents/$content->id/translations?language_code=pl"));
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeResponseJsonMatchesJsonPath('data[*]');
+        $I->seeResponseContainsJson(
+            [
+                ['language_code' => 'pl', 'title' => 'Przykładowy Tytuł']
+            ]
+        );
+
+        $I->dontSeeResponseContainsJson(
+            [
+                ['language_code' => 'en', 'title' => 'Example Title']
+            ]
+        );
+    }
+
+    public function shouldBeAbleToFilterListOfContentTranslationsByIsActive(FunctionalTester $I)
+    {
+        $user     = factory(User::class)->create();
+        $language = new Language(['code' => 'en']);
+
+        $content = dispatch_now(CreateContent::content('Original Title', $language, $user));
+
+        dispatch_now(new AddContentTranslation($content, 'Modified title', $language, $user));
+
+        $I->sendGET(apiUrl("contents/$content->id/translations?is_active=true"));
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeResponseJsonMatchesJsonPath('data[*]');
+        $I->seeResponseContainsJson(
+            [
+                ['language_code' => 'en', 'title' => 'Modified title', 'is_active' => true]
+            ]
+        );
+
+        $I->dontSeeResponseContainsJson(
+            [
+                ['language_code' => 'en', 'title' => 'Original Title', 'is_active' => false]
+            ]
+        );
+
+        $I->sendGET(apiUrl("contents/$content->id/translations?is_active=false"));
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeResponseJsonMatchesJsonPath('data[*]');
+        $I->seeResponseContainsJson(
+            [
+                ['language_code' => 'en', 'title' => 'Original Title', 'is_active' => false]
+            ]
+        );
+
+        $I->dontSeeResponseContainsJson(
+            [
+                ['language_code' => 'en', 'title' => 'Modified Title', 'is_active' => true]
+            ]
+        );
+    }
+
+    public function shouldBeAbleToFilterListOfContentTranslationsByAuthorId(FunctionalTester $I)
+    {
+        $user1    = factory(User::class)->create();
+        $user2    = factory(User::class)->create();
+        $language = new Language(['code' => 'en']);
+
+        $content = dispatch_now(CreateContent::content('Example Title', $language, $user1));
+
+        dispatch_now(new AddContentTranslation($content, 'Translation from first user', $language, $user1));
+        dispatch_now(new AddContentTranslation($content, 'Translation from second user', $language, $user2));
+
+        $I->sendGET(apiUrl("contents/$content->id/translations?author_id=$user1->id"));
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeResponseJsonMatchesJsonPath('data[*]');
+        $I->seeResponseContainsJson(
+            [
+                ['title' => 'Translation from first user']
+            ]
+        );
+
+        $I->dontSeeResponseContainsJson(
+            [
+                ['title' => 'Translation from second user']
+            ]
+        );
+
+        $I->sendGET(apiUrl("contents/$content->id/translations?author_id=$user2->id"));
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeResponseJsonMatchesJsonPath('data[*]');
+        $I->seeResponseContainsJson(
+            [
+                ['title' => 'Translation from second user']
+            ]
+        );
+
+        $I->dontSeeResponseContainsJson(
+            [
+                ['title' => 'Translation from first user']
+            ]
+        );
+    }
+
+    public function shouldBeAbleToFilterListOfContentTranslationsByCreatedAt(FunctionalTester $I)
+    {
+        $fourDaysAgo = Carbon::now()->subDays(4);
+        $yesterday   = Carbon::yesterday()->format('Y-m-d');
+        $today       = Carbon::now()->format('Y-m-d');
+
+        $content = $I->haveContent([
+            'type'         => 'content',
+            'created_at'   => $fourDaysAgo,
+            'translations' => [
+                [
+                    'language_code' => 'en',
+                    'title'         => "Four day's ago content's content",
+                    'is_active'     => true,
+                    'created_at'    => $fourDaysAgo
+                ]
+            ]
+        ]);
+
+        $I->sendGET(apiUrl("contents/$content->id/translations?created_at=$yesterday,$today"));
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->assertEmpty($I->grabDataFromResponseByJsonPath('data[*]'));
+
+        $I->sendGET(apiUrl("contents/$content->id/translations?created_at=!$yesterday,$today"));
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeResponseJsonMatchesJsonPath('data[*]');
+        $I->seeResponseContainsJson(
+            [
+                ['title' => "Four day's ago content's content"]
+            ]
+        );
+    }
+
+    public function shouldBeAbleToFilterListOfContentTranslationsByUpdatedAt(FunctionalTester $I)
+    {
+        $fourDaysAgo = Carbon::now()->subDays(4);
+        $yesterday   = Carbon::yesterday()->format('Y-m-d');
+        $today       = Carbon::now()->format('Y-m-d');
+
+        $content = $I->haveContent([
+            'type'         => 'content',
+            'created_at'   => $fourDaysAgo,
+            'translations' => [
+                [
+                    'language_code' => 'en',
+                    'title'         => "Four day's ago content's content",
+                    'is_active'     => true,
+                    'updated_at'    => $fourDaysAgo
+                ]
+            ]
+        ]);
+
+        $I->sendGET(apiUrl("contents/$content->id/translations?updated_at=$yesterday,$today"));
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->assertEmpty($I->grabDataFromResponseByJsonPath('data[*]'));
+
+        $I->sendGET(apiUrl("contents/$content->id/translations?updated_at=!$yesterday,$today"));
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeResponseJsonMatchesJsonPath('data[*]');
+        $I->seeResponseContainsJson(
+            [
+                ['title' => "Four day's ago content's content"]
+            ]
+        );
+    }
+
+    public function canCreateContentTranslation(FunctionalTester $I)
+    {
+        $user     = factory(User::class)->create();
+        $language = new Language(['code' => 'en']);
+
+        $content = dispatch_now(CreateContent::content('Original Title', $language, $user));
+
+        $I->sendPOST(apiUrl("contents/$content->id/translations"),
+            [
+                'language_code'   => 'en',
+                'title'           => 'Example Title',
+                'teaser'          => 'Example Teaser',
+                'body'            => 'Example Body',
+                'seo_title'       => 'Example SEO Title',
+                'seo_description' => 'Example SEO Description'
+            ]);
+
+        $I->seeResponseCodeIs(201);
+        $I->seeResponseIsJson();
+        $I->dontSeeResponseJsonMatchesJsonPath('data[*]');
+        $I->seeResponseContainsJson(
+            [
+                'language_code'   => 'en',
+                'title'           => 'Example Title',
+                'teaser'          => 'Example Teaser',
+                'body'            => 'Example Body',
+                'seo_title'       => 'Example SEO Title',
+                'seo_description' => 'Example SEO Description',
+                'is_active'       => true
+            ]
+        );
+
+        $I->sendPOST(apiUrl("contents/$content->id/translations"),
+            [
+                'language_code'   => 'pl',
+                'title'           => 'Nowy Tytuł',
+                'teaser'          => 'Nowy wstęp',
+                'body'            => 'Nowa treść',
+                'seo_title'       => 'Nowy tytuł SEO',
+                'seo_description' => 'Nowy opis SEO'
+            ]);
+
+        $I->seeResponseCodeIs(201);
+        $I->seeResponseIsJson();
+        $I->dontSeeResponseJsonMatchesJsonPath('data[*]');
+        $I->seeResponseContainsJson(
+            [
+                'language_code'   => 'pl',
+                'title'           => 'Nowy Tytuł',
+                'teaser'          => 'Nowy wstęp',
+                'body'            => 'Nowa treść',
+                'seo_title'       => 'Nowy tytuł SEO',
+                'seo_description' => 'Nowy opis SEO',
+                'is_active'       => true
+            ]
+        );
+    }
+
+    public function canDeleteInactiveContentTranslation(FunctionalTester $I)
+    {
+        $user     = factory(User::class)->create();
+        $language = new Language(['code' => 'en']);
+
+        $content = dispatch_now(CreateContent::content('Example Title', $language, $user));
+
+        $translation = dispatch_now(new AddContentTranslation($content, 'Inactive Translation', $language, $user));
+
+        dispatch_now(new AddContentTranslation($content, 'New Active Title', $language, $user));
+
+        $I->sendDELETE(apiUrl("contents/$content->id/translations", ['translationId' => $translation->id]));
+
+        $I->seeResponseCodeIs(204);
+    }
+
+    public function cantDeleteActiveContentTranslation(FunctionalTester $I)
+    {
+        $user = factory(User::class)->create();
+        $en   = new Language(['code' => 'en']);
+        $pl   = new Language(['code' => 'pl']);
+
+        $content = dispatch_now(CreateContent::content('Example Title', $en, $user));
+
+        $translation = dispatch_now(new AddContentTranslation($content, 'Przykładowy Tytuł', $pl, $user));
+
+        $I->sendDELETE(apiUrl("contents/$content->id/translations", ['translationId' => $translation->id]));
+
+        $I->seeResponseCodeIs(400);
+        $I->seeResponseIsJson();
+        $I->dontSeeResponseJsonMatchesJsonPath('data[*]');
+        $I->seeResponseContainsJson(
+            [
+                'message' => 'Cannot delete active translation'
+            ]
+        );
+    }
+
 }

@@ -20,7 +20,12 @@ Route::group(
         $router->get('contents/{id}', 'ContentController@show');
         $router->get('contents/{id}/children', 'NestedContentController@index');
 
+        $router->get('contents/{id}/translations', 'ContentTranslationController@index');
+        $router->post('contents/{id}/translations', 'ContentTranslationController@store');
+        $router->delete('contents/{id}/translations/{translationId}', 'ContentTranslationController@destroy');
+
         $router->get('deleted-contents', 'DeletedContentController@index');
+        $router->delete('deleted-contents/{id}', 'DeletedContentController@destroy');
     }
 );
 
