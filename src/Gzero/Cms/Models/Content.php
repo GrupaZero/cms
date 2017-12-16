@@ -168,7 +168,19 @@ class Content extends Tree implements PresentableInterface, Uploadable, Routable
      */
     public function canBeShown()
     {
-        return $this->is_active;
+        return ($this->published_at <= Carbon::now());
+    }
+
+    /**
+     * Checks if route in specified language code exists
+     *
+     * @param string $languageCode language code
+     *
+     * @return bool
+     */
+    public function hasRoute($languageCode)
+    {
+        return $this->routes()->where('language_code', $languageCode)->exists();
     }
 
     /**
@@ -206,7 +218,7 @@ class Content extends Tree implements PresentableInterface, Uploadable, Routable
      */
     public function createRoute(ContentTranslation $translation, bool $isActive = false)
     {
-        $path = Route::buildUniquePath($this->getSlug($translation), $translation->language_code);
+        $path  = Route::buildUniquePath($this->getSlug($translation), $translation->language_code);
         $route = Route::firstOrNew([
             'language_code' => $translation->language_code,
             'path'          => $path,

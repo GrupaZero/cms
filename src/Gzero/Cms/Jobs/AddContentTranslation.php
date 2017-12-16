@@ -78,7 +78,10 @@ class AddContentTranslation {
 
                 $this->content->disableActiveTranslations($translation->language_code);
                 $this->content->translations()->save($translation);
-                $this->content->createRoute($translation, $this->attributes['is_active']);
+
+                if (!$this->content->hasRoute($this->language->code)) {
+                    $this->content->createRoute($translation, $this->attributes['is_active']);
+                }
 
                 event('content.translation.created', [$translation]);
                 return $translation;

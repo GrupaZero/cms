@@ -155,7 +155,6 @@ class CreateContent {
                 ]);
                 $translation->author()->associate($this->author);
 
-                $content->disableActiveTranslations($translation->language_code);
                 $content->translations()->save($translation);
                 $content->createRoute($translation, $this->attributes['is_active']);
 

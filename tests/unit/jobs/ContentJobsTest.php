@@ -328,7 +328,7 @@ class ContentJobsTest extends Unit {
     public function shouldNotCreateContentRouteWhenAddingAnotherTranslationInSpecifiedLanguage()
     {
         $user     = $this->tester->haveUser();
-        $language = new Language(['code' => 'pl']);
+        $language = new Language(['code' => 'en']);
         $content  = $this->tester->haveContent([
             'translations' => [
                 [
@@ -343,6 +343,7 @@ class ContentJobsTest extends Unit {
         $content = Content::find($content->id);
         $route   = $content->routes->firstWhere('language_code', 'en');
 
+        $this->assertEquals(1, $content->routes->count());
         $this->assertEquals('example-title', $route->path);
         $this->assertEquals('en', $route->language_code);
         $this->assertTrue($route->is_active);
@@ -352,6 +353,7 @@ class ContentJobsTest extends Unit {
         $content = Content::find($content->id);
         $route   = $content->routes->firstWhere('language_code', 'en');
 
+        $this->assertEquals(1, $content->routes->count());
         $this->assertEquals('example-title', $route->path);
         $this->assertEquals('en', $route->language_code);
         $this->assertTrue($route->is_active);
