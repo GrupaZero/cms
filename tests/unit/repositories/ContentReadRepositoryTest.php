@@ -405,7 +405,7 @@ class ContentReadRepositoryTest extends Unit {
         ]));
 
         dispatch_now(CreateContent::content('Active content', $language, $user, [
-            'published_at' => Carbon::now(),
+            'published_at' => Carbon::now()->subDay(),
             'is_on_home'   => true,
             'is_active'    => true
         ]));

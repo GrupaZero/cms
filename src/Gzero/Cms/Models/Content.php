@@ -1,5 +1,6 @@
 <?php namespace Gzero\Cms\Models;
 
+use Carbon\Carbon;
 use Gzero\DomainException;
 use Gzero\InvalidArgumentException;
 use Gzero\Cms\Handlers\Content\ContentTypeHandler;
@@ -168,7 +169,11 @@ class Content extends Tree implements PresentableInterface, Uploadable, Routable
      */
     public function canBeShown()
     {
-        return ($this->published_at <= Carbon::now());
+        if ($this->published_at === null) {
+            return false;
+        }
+
+        return Carbon::parse($this->published_at)->lte(Carbon::now());
     }
 
     /**

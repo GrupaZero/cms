@@ -23,7 +23,10 @@ class ContentCest {
     {
         $user = factory(User::class)->create();
 
-        dispatch_now(CreateContent::content('Content Title', new Language(['code' => 'en']), $user, ['is_active' => true]));
+        dispatch_now(CreateContent::content('Content Title', new Language(['code' => 'en']), $user, [
+            'published_at' => Carbon::now(),
+            'is_active'    => true
+        ]));
 
         $I->amOnPage('content-title');
         $I->seeResponseCodeIs(200);
@@ -37,9 +40,10 @@ class ContentCest {
         $user = factory(User::class)->create();
 
         dispatch_now(CreateContent::content('Content Title', new Language(['code' => 'en']), $user, [
-            'teaser'    => 'Content teaser.',
-            'body'      => 'Content body.',
-            'is_active' => true
+            'published_at' => Carbon::now(),
+            'teaser'       => 'Content teaser.',
+            'body'         => 'Content body.',
+            'is_active'    => true
         ]));
 
         $I->amOnPage('content-title');
@@ -53,6 +57,19 @@ class ContentCest {
         $user = factory(User::class)->create();
 
         dispatch_now(CreateContent::content('New Title', new Language(['code' => 'en']), $user));
+
+        $I->amOnPage('new-title');
+        $I->seeResponseCodeIs(404);
+    }
+
+    public function cantSeeContentPublishedInTheFuture(FunctionalTester $I)
+    {
+        $user = factory(User::class)->create();
+
+        dispatch_now(CreateContent::content('Content Title', new Language(['code' => 'en']), $user, [
+            'published_at' => Carbon::now()->addDay(),
+            'is_active'    => true
+        ]));
 
         $I->amOnPage('new-title');
         $I->seeResponseCodeIs(404);
@@ -80,15 +97,18 @@ class ContentCest {
         $user = factory(User::class)->create();
 
         $root   = dispatch_now(CreateContent::category('Grandparent - Title', $en, $user, [
-            'is_active' => true
+            'published_at' => Carbon::now(),
+            'is_active'    => true
         ]));
         $parent = dispatch_now(CreateContent::category('Parent - Title', $en, $user, [
-            'parent_id' => $root->id,
-            'is_active' => true
+            'published_at' => Carbon::now(),
+            'parent_id'    => $root->id,
+            'is_active'    => true
         ]));
         $child  = dispatch_now(CreateContent::content('Child - Title', $en, $user, [
-            'parent_id' => $parent->id,
-            'is_active' => true
+            'published_at' => Carbon::now(),
+            'parent_id'    => $parent->id,
+            'is_active'    => true
         ]));
 
         dispatch_now(new AddContentTranslation($root, 'Dziadek - Tytuł', $pl, $user));
@@ -133,7 +153,8 @@ class ContentCest {
         $user = factory(User::class)->create();
 
         $root   = dispatch_now(CreateContent::category('Grandparent - Title', $en, $user, [
-            'is_active' => true
+            'published_at' => Carbon::now(),
+            'is_active'    => true
         ]));
         $parent = dispatch_now(CreateContent::category('Parent - Title', $en, $user, [
             'published_at' => Carbon::now(),
@@ -187,8 +208,9 @@ class ContentCest {
         $language = new Language(['code' => 'en']);
 
         $root   = dispatch_now(CreateContent::category('Grandparent - Title', $language, $user, [
-            'teaser'    => 'Grandparent teaser',
-            'is_active' => true
+            'teaser'       => 'Grandparent teaser',
+            'published_at' => Carbon::now(),
+            'is_active'    => true
         ]));
         $parent = dispatch_now(CreateContent::category('Parent - Title', $language, $user1, [
             'teaser'       => 'Parent teaser',
@@ -217,7 +239,8 @@ class ContentCest {
         $language = new Language(['code' => 'en']);
 
         $parent = dispatch_now(CreateContent::category('Parent - Title', $language, $user, [
-            'is_active' => true
+            'published_at' => Carbon::now(),
+            'is_active'    => true
         ]));
         dispatch_now(CreateContent::content('First - Title', $language, $user, [
             'published_at' => Carbon::now(),
@@ -261,7 +284,8 @@ class ContentCest {
         $language = new Language(['code' => 'en']);
 
         $parent = dispatch_now(CreateContent::category('Parent - Title', $language, $user, [
-            'is_active' => true
+            'published_at' => Carbon::now(),
+            'is_active'    => true
         ]));
 
         dispatch_now(CreateContent::content('Published - Title', $language, $user, [

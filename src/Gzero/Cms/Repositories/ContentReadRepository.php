@@ -167,7 +167,7 @@ class ContentReadRepository implements ReadRepository {
             ->orderBy('is_promoted', 'DESC')
             ->orderBy('is_sticky', 'DESC')
             ->orderBy('weight', 'ASC')
-            ->orderBy('published_at', 'ASC')
+            ->orderBy('published_at', 'DESC')
             ->paginate(option('general', 'default_page_size', 20));
     }
 
@@ -191,7 +191,7 @@ class ContentReadRepository implements ReadRepository {
             ->orderBy('is_promoted', 'DESC')
             ->orderBy('is_sticky', 'DESC')
             ->orderBy('weight', 'ASC')
-            ->orderBy('published_at', 'ASC')
+            ->orderBy('published_at', 'DESC')
             ->paginate(option('general', 'default_page_size', 20));
     }
 
