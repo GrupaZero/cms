@@ -456,24 +456,6 @@ class ContentController extends ApiController {
     }
 
     /**
-     * Restore soft deleted content
-     *
-     * @param int $id Content id
-     *
-     * @return mixed
-     */
-    public function restore($id)
-    {
-        $content = $this->repository->getDeletedById($id);
-        if (!empty($content)) {
-            $this->authorize('update', $content);
-            $content->restore();
-            return $this->respondWithSimpleSuccess(['success' => true]);
-        }
-        return $this->respondNotFound();
-    }
-
-    /**
      * Sync files with specific content
      *
      * @param int $contentId Content id

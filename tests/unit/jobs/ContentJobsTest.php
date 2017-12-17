@@ -3,6 +3,7 @@
 use Carbon\Carbon;
 use Codeception\Test\Unit;
 use Gzero\Cms\Handlers\Content\ContentHandler;
+use Gzero\Cms\Jobs\RestoreContent;
 use Gzero\Cms\Jobs\UpdateContent;
 use Gzero\Cms\Models\Content;
 use Gzero\Cms\Jobs\CreateContent;
@@ -626,6 +627,20 @@ class ContentJobsTest extends Unit {
 
         $this->assertNull(Content::withTrashed()->find($category->id));
         $this->assertNull(Content::withTrashed()->find($content->id));
+    }
+
+    /** @test */
+    public function canRestoreContent()
+    {
+        $content = $this->tester->haveContent(['deleted_at' => Carbon::now()->subDay()]);
+
+        $this->assertNull(Content::find($content->id));
+
+        dispatch_now(new RestoreContent($content));
+
+        $content = Content::find($content->id);
+
+        $this->assertNull($content->deleted_at);
     }
 
     /** @test */

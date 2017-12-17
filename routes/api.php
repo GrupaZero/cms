@@ -25,6 +25,7 @@ Route::group(
         $router->delete('contents/{id}/translations/{translationId}', 'ContentTranslationController@destroy');
 
         $router->get('deleted-contents', 'DeletedContentController@index');
+        $router->patch('deleted-contents/{id}', 'DeletedContentController@restore');
         $router->delete('deleted-contents/{id}', 'DeletedContentController@destroy');
     }
 );
