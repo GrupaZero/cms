@@ -119,4 +119,32 @@ class DeletedContentCest {
 
         $I->seeResponseCodeIs(204);
     }
+
+    public function canRestoreOnlySoftDeletedContent(FunctionalTester $I)
+    {
+        $content = $I->haveContent(
+            [
+                'translations' => [
+                    [
+                        'language_code' => 'en',
+                        'title'         => 'Restored content',
+                    ]
+                ]
+            ]
+        );
+
+        $I->sendPOST(apiUrl("deleted-contents/$content->id/restore"));
+
+        $I->seeResponseCodeIs(404);
+
+        dispatch_now(new DeleteContent($content));
+
+        $I->sendPOST(apiUrl("deleted-contents/$content->id/restore"));
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->dontSeeResponseJsonMatchesJsonPath('data[*]');
+        $I->seeResponseContainsJson(
+            ['title' => 'Restored content']);
+    }
 }

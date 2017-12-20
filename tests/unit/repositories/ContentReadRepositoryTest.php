@@ -2,8 +2,10 @@
 
 use Carbon\Carbon;
 use Codeception\Test\Unit;
+use Gzero\Cms\Jobs\CreateContent;
 use Gzero\Cms\Repositories\ContentReadRepository;
 use Gzero\Core\Models\Language;
+use Gzero\Core\Models\User;
 use Gzero\Core\Query\QueryBuilder;
 use Gzero\InvalidArgumentException;
 
@@ -285,7 +287,7 @@ class ContentReadRepositoryTest extends Unit {
     }
 
     /** @test */
-    public function shouldNotReturnDuplicateContent()
+    public function shouldNotReturnDuplicatedContent()
     {
         $this->tester->haveContents([
             [
@@ -336,6 +338,102 @@ class ContentReadRepositoryTest extends Unit {
             'active-polish-translation-title-2',
             $result->items()[0]->routes->firstWhere('language_code', 'pl')->path
         );
+    }
+
+
+    /** @test */
+    public function getChildrenShouldReturnOnlyActiveChildren()
+    {
+        $user     = factory(User::class)->create();
+        $language = new Language(['code' => 'en']);
+        $category = $this->tester->haveContent([
+            'type'         => 'category',
+            'translations' => [
+                [
+                    'language_code' => 'en',
+                    'title'         => 'Active translation title',
+                    'is_active'     => true
+                ]
+            ]
+        ]);
+
+        dispatch_now(CreateContent::content('Future content', $language, $user, [
+            'published_at' => Carbon::now()->addDays(1),
+            'parent_id'    => $category->id,
+            'is_active'    => false
+        ]));
+
+        dispatch_now(CreateContent::content('Inactive content', $language, $user, [
+            'published_at' => Carbon::now(),
+            'parent_id'    => $category->id,
+            'is_active'    => false
+        ]));
+
+        dispatch_now(CreateContent::content('Active content', $language, $user, [
+            'published_at' => Carbon::now(),
+            'parent_id'    => $category->id,
+            'is_active'    => true
+        ]));
+
+        $result = $this->repository->getChildren($category, $language);
+
+        $this->assertEquals(1, $result->count());
+        $this->assertEquals(1, $result->total());
+
+        $content     = $result->first();
+        $translation = $content->translations->firstWhere('language_code', 'en');
+
+        $this->assertEquals('Active content', $translation->title);
+    }
+
+    /** @test */
+    public function getForHomepageShouldReturnOnlyActiveContents()
+    {
+        $user     = factory(User::class)->create();
+        $language = new Language(['code' => 'en']);
+
+        dispatch_now(CreateContent::content('Future content', $language, $user, [
+            'published_at' => Carbon::now()->addDays(1),
+            'is_on_home'   => true,
+            'is_active'    => false
+        ]));
+
+        dispatch_now(CreateContent::content('Inactive content', $language, $user, [
+            'published_at' => Carbon::now(),
+            'is_on_home'   => true,
+            'is_active'    => false
+        ]));
+
+        dispatch_now(CreateContent::content('Active content', $language, $user, [
+            'published_at' => Carbon::now()->subDay(),
+            'is_on_home'   => true,
+            'is_active'    => true
+        ]));
+
+        dispatch_now(CreateContent::category('Active category', $language, $user, [
+            'published_at' => Carbon::now(),
+            'is_on_home'   => true,
+            'is_active'    => true
+        ]));
+
+        dispatch_now(CreateContent::content('Not on homepage', $language, $user, [
+            'published_at' => Carbon::now(),
+            'is_on_home'   => false,
+            'is_active'    => true
+        ]));
+
+        $result = $this->repository->getForHomepage($language);
+
+        $this->assertEquals(2, $result->count());
+        $this->assertEquals(2, $result->total());
+
+        $content             = $result->last();
+        $translation         = $content->translations->firstWhere('language_code', 'en');
+        $category            = $result->first();
+        $categoryTranslation = $category->translations->firstWhere('language_code', 'en');
+
+        $this->assertEquals('Active content', $translation->title);
+        $this->assertEquals('Active category', $categoryTranslation->title);
     }
 }
 

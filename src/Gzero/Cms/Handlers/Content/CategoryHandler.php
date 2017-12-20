@@ -46,7 +46,7 @@ class CategoryHandler implements ContentTypeHandler {
      */
     public function handle(Content $content, Language $language): Response
     {
-        $children = $this->repo->getChildren($content)->setPath($this->request->url());
+        $children = $this->repo->getChildren($content, $language)->setPath($this->request->url());
         $files    = $this->fileRepo->getEntityFiles($content, [['is_active', '=', true]]);
 
         ContentHandler::buildBreadcrumbs($content, $language);

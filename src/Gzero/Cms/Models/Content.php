@@ -1,5 +1,6 @@
 <?php namespace Gzero\Cms\Models;
 
+use Carbon\Carbon;
 use Gzero\DomainException;
 use Gzero\InvalidArgumentException;
 use Gzero\Cms\Handlers\Content\ContentTypeHandler;
@@ -168,7 +169,23 @@ class Content extends Tree implements PresentableInterface, Uploadable, Routable
      */
     public function canBeShown()
     {
-        return $this->is_active;
+        if ($this->published_at === null) {
+            return false;
+        }
+
+        return Carbon::parse($this->published_at)->lte(Carbon::now());
+    }
+
+    /**
+     * Checks if route in specified language code exists
+     *
+     * @param string $languageCode language code
+     *
+     * @return bool
+     */
+    public function hasRoute($languageCode)
+    {
+        return $this->routes()->where('language_code', $languageCode)->exists();
     }
 
     /**
@@ -207,12 +224,16 @@ class Content extends Tree implements PresentableInterface, Uploadable, Routable
     public function createRoute(ContentTranslation $translation, bool $isActive = false)
     {
         $path = Route::buildUniquePath($this->getSlug($translation), $translation->language_code);
-        $route = Route::firstOrNew([
-            'language_code' => $translation->language_code,
-            'path'          => $path,
-        ], [
-            'is_active' => $isActive
-        ]);
+
+        $route = Route::firstOrNew(
+            [
+                'language_code' => $translation->language_code,
+                'path'          => $path,
+            ],
+            [
+                'is_active' => $isActive
+            ]
+        );
 
         $this->routes()->save($route);
 

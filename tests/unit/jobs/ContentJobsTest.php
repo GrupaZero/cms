@@ -3,6 +3,7 @@
 use Carbon\Carbon;
 use Codeception\Test\Unit;
 use Gzero\Cms\Handlers\Content\ContentHandler;
+use Gzero\Cms\Jobs\RestoreContent;
 use Gzero\Cms\Jobs\UpdateContent;
 use Gzero\Cms\Models\Content;
 use Gzero\Cms\Jobs\CreateContent;
@@ -328,7 +329,7 @@ class ContentJobsTest extends Unit {
     public function shouldNotCreateContentRouteWhenAddingAnotherTranslationInSpecifiedLanguage()
     {
         $user     = $this->tester->haveUser();
-        $language = new Language(['code' => 'pl']);
+        $language = new Language(['code' => 'en']);
         $content  = $this->tester->haveContent([
             'translations' => [
                 [
@@ -343,6 +344,7 @@ class ContentJobsTest extends Unit {
         $content = Content::find($content->id);
         $route   = $content->routes->firstWhere('language_code', 'en');
 
+        $this->assertEquals(1, $content->routes->count());
         $this->assertEquals('example-title', $route->path);
         $this->assertEquals('en', $route->language_code);
         $this->assertTrue($route->is_active);
@@ -352,6 +354,7 @@ class ContentJobsTest extends Unit {
         $content = Content::find($content->id);
         $route   = $content->routes->firstWhere('language_code', 'en');
 
+        $this->assertEquals(1, $content->routes->count());
         $this->assertEquals('example-title', $route->path);
         $this->assertEquals('en', $route->language_code);
         $this->assertTrue($route->is_active);
@@ -624,6 +627,20 @@ class ContentJobsTest extends Unit {
 
         $this->assertNull(Content::withTrashed()->find($category->id));
         $this->assertNull(Content::withTrashed()->find($content->id));
+    }
+
+    /** @test */
+    public function canRestoreContent()
+    {
+        $content = $this->tester->haveContent(['deleted_at' => Carbon::now()->subDay()]);
+
+        $this->assertNull(Content::find($content->id));
+
+        dispatch_now(new RestoreContent($content));
+
+        $content = Content::find($content->id);
+
+        $this->assertNull($content->deleted_at);
     }
 
     /** @test */

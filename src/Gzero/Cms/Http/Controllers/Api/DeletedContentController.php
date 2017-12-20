@@ -2,7 +2,9 @@
 
 use Gzero\Cms\Http\Resources\ContentCollection;
 use Gzero\Cms\Jobs\ForceDeleteContent;
+use Gzero\Cms\Jobs\RestoreContent;
 use Gzero\Cms\Models\Content;
+use Gzero\Cms\Http\Resources\Content as ContentResource;
 use Gzero\Cms\Repositories\ContentReadRepository;
 use Gzero\Cms\Validators\ContentValidator;
 use Gzero\Core\Http\Controllers\ApiController;
@@ -92,6 +94,48 @@ class DeletedContentController extends ApiController {
         $results->setPath(apiUrl('deleted-contents'));
 
         return new ContentCollection($results);
+    }
+
+    /**
+     * Restore soft deleted content
+     *
+     * @SWG\Post(path="/deleted-contents/{id}/restore",
+     *   tags={"content"},
+     *   summary="Restores soft deleted content",
+     *   description="Restores soft deleted content.",
+     *   produces={"application/json"},
+     *   security={{"AdminAccess": {}}},
+     *   @SWG\Parameter(
+     *     name="id",
+     *     in="path",
+     *     description="Id of soft deleted content that needs to be restored.",
+     *     required=true,
+     *     type="integer"
+     *   ),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="Successful operation",
+     *     @SWG\Schema(type="object", ref="#/definitions/Content"),
+     *   ),
+     *   @SWG\Response(response=404, description="Content not found")
+     * )
+     *
+     * @param int $id Content id
+     *
+     * @return ContentResource
+     */
+    public function restore($id)
+    {
+        $content = $this->repository->getDeletedById($id);
+
+        if (!$content) {
+            return $this->errorNotFound();
+        }
+
+        $this->authorize('update', $content);
+        dispatch_now(new RestoreContent($content));
+
+        return new ContentResource($this->repository->loadRelations($content));
     }
 
     /**

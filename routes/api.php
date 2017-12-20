@@ -26,6 +26,7 @@ Route::group(
 
         $router->get('deleted-contents', 'DeletedContentController@index');
         $router->delete('deleted-contents/{id}', 'DeletedContentController@destroy');
+        $router->post('deleted-contents/{id}/restore', 'DeletedContentController@restore');
     }
 );
 

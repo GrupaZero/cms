@@ -23,7 +23,10 @@ class ContentCest {
     {
         $user = factory(User::class)->create();
 
-        dispatch_now(CreateContent::content('Content Title', new Language(['code' => 'en']), $user, ['is_active' => true]));
+        dispatch_now(CreateContent::content('Content Title', new Language(['code' => 'en']), $user, [
+            'published_at' => Carbon::now(),
+            'is_active'    => true
+        ]));
 
         $I->amOnPage('content-title');
         $I->seeResponseCodeIs(200);
@@ -37,9 +40,10 @@ class ContentCest {
         $user = factory(User::class)->create();
 
         dispatch_now(CreateContent::content('Content Title', new Language(['code' => 'en']), $user, [
-            'teaser'    => 'Content teaser.',
-            'body'      => 'Content body.',
-            'is_active' => true
+            'published_at' => Carbon::now(),
+            'teaser'       => 'Content teaser.',
+            'body'         => 'Content body.',
+            'is_active'    => true
         ]));
 
         $I->amOnPage('content-title');
@@ -53,6 +57,19 @@ class ContentCest {
         $user = factory(User::class)->create();
 
         dispatch_now(CreateContent::content('New Title', new Language(['code' => 'en']), $user));
+
+        $I->amOnPage('new-title');
+        $I->seeResponseCodeIs(404);
+    }
+
+    public function cantSeeContentPublishedInTheFuture(FunctionalTester $I)
+    {
+        $user = factory(User::class)->create();
+
+        dispatch_now(CreateContent::content('Content Title', new Language(['code' => 'en']), $user, [
+            'published_at' => Carbon::now()->addDay(),
+            'is_active'    => true
+        ]));
 
         $I->amOnPage('new-title');
         $I->seeResponseCodeIs(404);
@@ -80,15 +97,18 @@ class ContentCest {
         $user = factory(User::class)->create();
 
         $root   = dispatch_now(CreateContent::category('Grandparent - Title', $en, $user, [
-            'is_active' => true
+            'published_at' => Carbon::now(),
+            'is_active'    => true
         ]));
         $parent = dispatch_now(CreateContent::category('Parent - Title', $en, $user, [
-            'parent_id' => $root->id,
-            'is_active' => true
+            'published_at' => Carbon::now(),
+            'parent_id'    => $root->id,
+            'is_active'    => true
         ]));
         $child  = dispatch_now(CreateContent::content('Child - Title', $en, $user, [
-            'parent_id' => $parent->id,
-            'is_active' => true
+            'published_at' => Carbon::now(),
+            'parent_id'    => $parent->id,
+            'is_active'    => true
         ]));
 
         dispatch_now(new AddContentTranslation($root, 'Dziadek - Tytuł', $pl, $user));
@@ -133,15 +153,18 @@ class ContentCest {
         $user = factory(User::class)->create();
 
         $root   = dispatch_now(CreateContent::category('Grandparent - Title', $en, $user, [
-            'is_active' => true
+            'published_at' => Carbon::now(),
+            'is_active'    => true
         ]));
         $parent = dispatch_now(CreateContent::category('Parent - Title', $en, $user, [
-            'parent_id' => $root->id,
-            'is_active' => true
+            'published_at' => Carbon::now(),
+            'parent_id'    => $root->id,
+            'is_active'    => true
         ]));
         $child  = dispatch_now(CreateContent::content('Child - Title', $en, $user, [
-            'parent_id' => $parent->id,
-            'is_active' => true
+            'published_at' => Carbon::now(),
+            'parent_id'    => $parent->id,
+            'is_active'    => true
         ]));
 
         dispatch_now(new AddContentTranslation($root, 'Dziadek - Tytuł', $pl, $user));
@@ -185,8 +208,9 @@ class ContentCest {
         $language = new Language(['code' => 'en']);
 
         $root   = dispatch_now(CreateContent::category('Grandparent - Title', $language, $user, [
-            'teaser'    => 'Grandparent teaser',
-            'is_active' => true
+            'teaser'       => 'Grandparent teaser',
+            'published_at' => Carbon::now(),
+            'is_active'    => true
         ]));
         $parent = dispatch_now(CreateContent::category('Parent - Title', $language, $user1, [
             'teaser'       => 'Parent teaser',
@@ -215,37 +239,79 @@ class ContentCest {
         $language = new Language(['code' => 'en']);
 
         $parent = dispatch_now(CreateContent::category('Parent - Title', $language, $user, [
-            'is_active' => true
+            'published_at' => Carbon::now(),
+            'is_active'    => true
         ]));
         dispatch_now(CreateContent::content('First - Title', $language, $user, [
-            'parent_id' => $parent->id,
-            'is_active' => true,
-            'weight'    => 0
+            'published_at' => Carbon::now(),
+            'parent_id'    => $parent->id,
+            'is_active'    => true,
+            'weight'       => 0
         ]));
         dispatch_now(CreateContent::content('Second - Title', $language, $user, [
-            'parent_id' => $parent->id,
-            'is_active' => true,
-            'weight'    => 1
+            'published_at' => Carbon::now(),
+            'parent_id'    => $parent->id,
+            'is_active'    => true,
+            'weight'       => 1
         ]));
         dispatch_now(CreateContent::content('Sticky - Title', $language, $user, [
-            'parent_id' => $parent->id,
-            'is_active' => true,
-            'is_sticky' => true,
-            'weight'    => 10
+            'published_at' => Carbon::now(),
+            'parent_id'    => $parent->id,
+            'is_active'    => true,
+            'is_sticky'    => true,
+            'weight'       => 10
         ]));
         dispatch_now(CreateContent::content('Promoted - Title', $language, $user, [
-            'parent_id'   => $parent->id,
-            'is_active'   => true,
-            'is_promoted' => true,
-            'weight'      => 20
+            'published_at' => Carbon::now(),
+            'parent_id'    => $parent->id,
+            'is_active'    => true,
+            'is_promoted'  => true,
+            'weight'       => 20
         ]));
 
         $I->amOnPage('parent-title');
         $I->seeResponseCodeIs(200);
 
-        $I->See('Promoted - Title', Locator::firstElement('article'));
-        $I->See('Sticky - Title', Locator::elementAt('article', 2));
-        $I->See('First - Title', Locator::elementAt('article', 3));
-        $I->See('Second - Title', Locator::lastElement('article'));
+        $I->see('Promoted - Title', Locator::firstElement('article'));
+        $I->see('Sticky - Title', Locator::elementAt('article', 2));
+        $I->see('First - Title', Locator::elementAt('article', 3));
+        $I->see('Second - Title', Locator::lastElement('article'));
     }
+
+    public function cantSeeUnpublishedArticlesOnCategoryPage(FunctionalTester $I)
+    {
+        $user     = factory(User::class)->create();
+        $language = new Language(['code' => 'en']);
+
+        $parent = dispatch_now(CreateContent::category('Parent - Title', $language, $user, [
+            'published_at' => Carbon::now(),
+            'is_active'    => true
+        ]));
+
+        dispatch_now(CreateContent::content('Published - Title', $language, $user, [
+            'published_at' => Carbon::now(),
+            'parent_id'    => $parent->id,
+            'is_active'    => true
+        ]));
+
+        dispatch_now(CreateContent::content('Unpublished - Title', $language, $user, [
+            'published_at' => Carbon::now(),
+            'parent_id'    => $parent->id,
+            'is_active'    => false
+        ]));
+
+        dispatch_now(CreateContent::content('Future - Title', $language, $user, [
+            'published_at' => Carbon::now()->addDays(1),
+            'parent_id'    => $parent->id,
+            'is_active'    => true
+        ]));
+
+        $I->amOnPage('parent-title');
+        $I->seeResponseCodeIs(200);
+
+        $I->see('Published - Title', '.article-title');
+        $I->dontSee('Unpublished - Title', '.article-title');
+        $I->dontSee('Future - Title', '.article-title');
+    }
+
 }

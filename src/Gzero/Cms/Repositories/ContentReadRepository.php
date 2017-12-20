@@ -2,7 +2,6 @@
 
 use Carbon\Carbon;
 use Gzero\Cms\Models\Content;
-use Gzero\Cms\Models\ContentTranslation;
 use Gzero\Core\Models\Language;
 use Gzero\Core\Query\QueryBuilder;
 use Gzero\Core\Repositories\ReadRepository;
@@ -151,18 +150,48 @@ class ContentReadRepository implements ReadRepository {
     /**
      * Get all children specific content
      *
-     * @param Content $content parent
+     * @param Content  $content  parent
+     * @param Language $language Current language
      *
      * @return mixed
      */
-    public function getChildren(Content $content)
+    public function getChildren(Content $content, Language $language)
     {
         return $content->children()
             ->with(self::$loadRelations)
+            ->where('published_at', '<=', Carbon::now())
+            ->whereHas('routes', function ($query) use ($language) {
+                $query->where('routes.is_active', true)
+                    ->where('language_code', $language->code);
+            })
             ->orderBy('is_promoted', 'DESC')
             ->orderBy('is_sticky', 'DESC')
             ->orderBy('weight', 'ASC')
-            ->orderBy('published_at', 'ASC')
+            ->orderBy('published_at', 'DESC')
+            ->paginate(option('general', 'default_page_size', 20));
+    }
+
+    /**
+     * Get all contents for homepage
+     *
+     * @param Language $language Current language
+     *
+     * @return mixed
+     */
+    public function getForHomepage(Language $language)
+    {
+        return Content::query()
+            ->with(self::$loadRelations)
+            ->where('published_at', '<=', Carbon::now())
+            ->where('is_on_home', '=', true)
+            ->whereHas('routes', function ($query) use ($language) {
+                $query->where('routes.is_active', true)
+                    ->where('language_code', $language->code);
+            })
+            ->orderBy('is_promoted', 'DESC')
+            ->orderBy('is_sticky', 'DESC')
+            ->orderBy('weight', 'ASC')
+            ->orderBy('published_at', 'DESC')
             ->paginate(option('general', 'default_page_size', 20));
     }
 
