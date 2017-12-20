@@ -133,13 +133,13 @@ class DeletedContentCest {
             ]
         );
 
-        $I->sendPATCH(apiUrl('deleted-contents', ['id' => $content->id]));
+        $I->sendPOST(apiUrl("deleted-contents/$content->id/restore"));
 
         $I->seeResponseCodeIs(404);
 
         dispatch_now(new DeleteContent($content));
 
-        $I->sendPATCH(apiUrl('deleted-contents', ['id' => $content->id]));
+        $I->sendPOST(apiUrl("deleted-contents/$content->id/restore"));
 
         $I->seeResponseCodeIs(200);
         $I->seeResponseIsJson();

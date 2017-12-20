@@ -99,7 +99,7 @@ class DeletedContentController extends ApiController {
     /**
      * Restore soft deleted content
      *
-     * @SWG\Patch(path="/deleted-contents/{id}",
+     * @SWG\Post(path="/deleted-contents/{id}/restore",
      *   tags={"content"},
      *   summary="Restores soft deleted content",
      *   description="Restores soft deleted content.",
