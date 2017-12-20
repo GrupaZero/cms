@@ -3,6 +3,8 @@
 // here you can define custom actions
 // all public methods declared in helper class will be available in $I
 
+use Gzero\Cms\Models\Block;
+use Gzero\Cms\Models\BlockTranslation;
 use Gzero\Cms\Models\Content;
 use Gzero\Cms\Models\ContentTranslation;
 use Gzero\Core\Models\Route;
@@ -90,5 +92,38 @@ class Unit extends \Codeception\Module {
         }
 
         return $result;
+    }
+
+    /**
+     * Create block with translations and return entity
+     *
+     * @param array $attributes
+     *
+     * @return \Gzero\Cms\Models\Block
+     */
+    public function haveBlock($attributes = [])
+    {
+        $data            = array_except($attributes, ['translations']);
+        $transByLangCode = collect(array_get($attributes, 'translations'))->groupBy('language_code');
+
+        $block = factory(Block::class)->make($data);
+        $block->save();
+
+        if (empty($transByLangCode)) {
+            return $block;
+        }
+
+        $transByLangCode->each(function ($translations) use ($block) {
+            // Create block translations
+            foreach ($translations as $translation) {
+                $block->translations()
+                    ->save(
+                        factory(BlockTranslation::class)
+                            ->make($translation)
+                    );
+            }
+        });
+
+        return $block;
     }
 }
