@@ -4,19 +4,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class BlockType extends Model {
 
-    /**
-     * @var bool
-     */
-    public $incrementing = false;
-
-    /**
-     * @var string
-     */
-    protected $primaryKey = 'name';
-
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $fillable = [
         'name',
         'is_active'
@@ -28,4 +16,16 @@ class BlockType extends Model {
     protected $attributes = [
         'is_active' => false
     ];
+
+    /**
+     * Get block type by name
+     *
+     * @param string $name Type name
+     *
+     * @return BlockType
+     */
+    public static function getByName($name)
+    {
+        return self::where('name', $name)->first();
+    }
 }

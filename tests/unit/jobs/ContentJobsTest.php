@@ -672,7 +672,6 @@ class ContentJobsTest extends Unit {
         $this->assertEquals(1, $content->translations($withActive)->count());
     }
 
-
     /** @test */
     public function cantDeleteActiveTranslation()
     {

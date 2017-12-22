@@ -1,6 +1,7 @@
 <?php namespace Gzero\Cms\Models;
 
 use Gzero\Core\Models\Language;
+use Gzero\Core\Models\User;
 use Gzero\Cms\Presenters\BlockTranslationPresenter;
 use Illuminate\Database\Eloquent\Model;
 use Robbo\Presenter\PresentableInterface;
@@ -8,9 +9,7 @@ use Robbo\Presenter\Robbo;
 
 class BlockTranslation extends Model implements PresentableInterface {
 
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $fillable = [
         'language_code',
         'title',
@@ -34,6 +33,26 @@ class BlockTranslation extends Model implements PresentableInterface {
     public function lang()
     {
         return $this->belongsTo(Language::class);
+    }
+
+    /**
+     * Block reverse relation
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function block()
+    {
+        return $this->belongsTo(Block::class);
+    }
+
+    /**
+     * Block author relation
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\belongsTo
+     */
+    public function author()
+    {
+        return $this->belongsTo(User::class, 'author_id', 'id');
     }
 
     /**

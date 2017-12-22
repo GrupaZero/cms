@@ -16,9 +16,9 @@ class CreateBlock extends Migration {
         Schema::create(
             'block_types',
             function (Blueprint $table) {
-                $table->string('name');
+                $table->increments('id');
+                $table->string('name')->unique();
                 $table->boolean('is_active')->default(false);
-                $table->primary('name');
                 $table->timestamps();
             }
         );
@@ -27,10 +27,9 @@ class CreateBlock extends Migration {
             'blocks',
             function (Blueprint $table) {
                 $table->increments('id');
-                $table->string('type');
+                $table->integer('type_id')->unsigned()->nullable();
                 $table->string('region')->nullable();
                 $table->string('theme')->nullable();
-                $table->integer('blockable_id')->unsigned()->nullable();
                 $table->string('blockable_type')->nullable();
                 $table->integer('author_id')->unsigned()->nullable();
                 $table->text('filter')->nullable();
@@ -40,9 +39,9 @@ class CreateBlock extends Migration {
                 $table->boolean('is_cacheable')->default(false);
                 $table->timestamps();
                 $table->timestamp('deleted_at')->nullable();
-                $table->index(['blockable_id', 'blockable_type']);
+                $table->index(['type_id', 'blockable_type']);
                 $table->foreign('author_id')->references('id')->on('users')->onDelete('SET NULL');
-                $table->foreign('type')->references('name')->on('block_types')->onDelete('CASCADE');
+                $table->foreign('type_id')->references('id')->on('block_types')->onDelete('SET NULL');
             }
         );
 
@@ -52,6 +51,7 @@ class CreateBlock extends Migration {
                 $table->increments('id');
                 $table->string('language_code', 2);
                 $table->integer('block_id')->unsigned();
+                $table->integer('author_id')->unsigned()->nullable();
                 $table->string('title');
                 $table->text('body')->nullable();
                 $table->text('custom_fields')->nullable();

@@ -4,6 +4,7 @@ use Gzero\Core\Models\User;
 use Gzero\Cms\Presenters\BlockPresenter;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Gzero\InvalidArgumentException;
 use Robbo\Presenter\PresentableInterface;
 
 class Block extends Model implements Uploadable, PresentableInterface {
@@ -44,7 +45,7 @@ class Block extends Model implements Uploadable, PresentableInterface {
      */
     public function type()
     {
-        return $this->belongsTo(BlockType::class, 'name', 'type');
+        return $this->belongsTo(BlockType::class);
     }
 
     /**
@@ -112,6 +113,24 @@ class Block extends Model implements Uploadable, PresentableInterface {
             ->where('block_id', $this->id)
             ->where('language_code', $languageCode)
             ->update(['is_active' => false]);
+    }
+
+    /**
+     * @param string $type Block type
+     *
+     * @throws InvalidArgumentException
+     *
+     * @return void
+     */
+    public function setTypeAttribute($type)
+    {
+        if (!$type instanceof BlockType) {
+            $type = BlockType::getByName($type);
+        }
+        if (!$type) {
+            throw new InvalidArgumentException('Unknown block type');
+        }
+        $this->type()->associate($type);
     }
 
     /**

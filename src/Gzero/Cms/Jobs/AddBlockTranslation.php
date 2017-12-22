@@ -36,15 +36,17 @@ class AddBlockTranslation {
      * @param Block    $block      Block model
      * @param string   $title      Title
      * @param Language $language   Language code
+     * @param User     $author     User model
      * @param array    $attributes Array of optional attributes
      *
      * @internal param array $attributes Array of attributes
      */
-    public function __construct(Block $block, string $title, Language $language, array $attributes = [])
+    public function __construct(Block $block, string $title, Language $language, User $author, array $attributes = [])
     {
         $this->block      = $block;
         $this->language   = $language;
         $this->title      = $title;
+        $this->author     = $author;
         $this->attributes = array_merge(
             $this->allowedAttributes,
             array_only($attributes, array_keys($this->allowedAttributes))
@@ -68,6 +70,7 @@ class AddBlockTranslation {
                     'custom_fields' => $this->attributes['custom_fields'],
                     'is_active'     => true,
                 ]);
+                $translation->author()->associate($this->author);
 
                 $this->block->disableActiveTranslations($translation->language_code);
                 $this->block->translations()->save($translation);
