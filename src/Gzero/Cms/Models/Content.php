@@ -165,6 +165,8 @@ class Content extends Tree implements PresentableInterface, Uploadable, Routable
     /**
      * Return true if content can be shown on frontend
      *
+     * @TODO What about active url?
+     *
      * @return bool
      */
     public function canBeShown()
