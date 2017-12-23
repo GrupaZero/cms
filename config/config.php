@@ -32,16 +32,6 @@ return [
         ],
 
     ],
-    'block_type'               => [
-        'basic'  => Gzero\Cms\Handlers\Block\Basic::class,
-        'menu'   => Gzero\Cms\Handlers\Block\Menu::class,
-        'slider' => Gzero\Cms\Handlers\Block\Slider::class,
-        'widget' => Gzero\Cms\Handlers\Block\Widget::class
-    ],
-    'content_type'             => [
-        'content'  => Gzero\Cms\Handlers\Content\ContentHandler::class,
-        'category' => Gzero\Cms\Handlers\Content\Category::class
-    ],
     'file_type'                => [
         'image'    => Gzero\Cms\Handlers\File\Image::class,
         'document' => Gzero\Cms\Handlers\File\Document::class,

@@ -6,7 +6,8 @@ class BlockType extends Model {
 
     /** @var array */
     protected $fillable = [
-        'name'
+        'name',
+        'handler'
     ];
 
     /**
