@@ -18,6 +18,7 @@ class CreateBlock extends Migration {
             function (Blueprint $table) {
                 $table->increments('id');
                 $table->string('name')->unique();
+                $table->string('handler');
                 $table->timestamps();
             }
         );
@@ -97,9 +98,10 @@ class CreateBlock extends Migration {
      */
     private function seedBlockTypes()
     {
-        foreach (['basic', 'menu', 'slider', 'widget'] as $type) {
-            BlockType::firstOrCreate(['name' => $type]);
-        }
+        BlockType::firstOrCreate(['name' => 'basic', 'handler' => Gzero\Cms\Handlers\Block\Basic::class]);
+        BlockType::firstOrCreate(['name' => 'menu', 'handler' => Gzero\Cms\Handlers\Block\Menu::class]);
+        BlockType::firstOrCreate(['name' => 'slider', 'handler' => Gzero\Cms\Handlers\Block\Slider::class]);
+        BlockType::firstOrCreate(['name' => 'widget', 'handler' => Gzero\Cms\Handlers\Block\Widget::class]);
     }
 
 }
