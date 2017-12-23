@@ -72,7 +72,6 @@ class BlockLoad {
             $this->handleBlockRendering($blocks);
             $blocks = $blocks->groupBy('region');
             view()->share('blocks', $blocks);
-            view()->share('sidebarsNumber', $this->getSidebarsNumber($blocks));
         }
     }
 
@@ -91,7 +90,6 @@ class BlockLoad {
         $this->handleBlockRendering($blocks);
         $blocks = $blocks->groupBy('region');
         view()->share('blocks', $blocks);
-        view()->share('sidebarsNumber', $this->getSidebarsNumber($blocks));
     }
 
     /**
@@ -108,23 +106,4 @@ class BlockLoad {
             $block->view = $type->handle($block, $this->languageService->getCurrent());
         }
     }
-
-    /**
-     * It gets number of active sidebars regions
-     *
-     * @param Collection $blocks List of blocks
-     *
-     * @return int number of active sidebars
-     */
-    protected function getSidebarsNumber($blocks)
-    {
-        $sidebarsNumber = 0;
-        foreach (['sidebarLeft', 'sidebarRight'] as $region) {
-            if ($blocks->has($region)) {
-                $sidebarsNumber++;
-            }
-        }
-        return $sidebarsNumber;
-    }
-
 }

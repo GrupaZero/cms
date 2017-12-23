@@ -93,7 +93,7 @@ class CMSSeeder extends Seeder {
 
         dispatch_now(new AddContentTranslation($news, 'Aktualności', $pl, $user));
         dispatch_now(new AddContentTranslation($offer, 'Oferta', $pl, $user));
-        dispatch_now(new AddContentTranslation($aboutUs, 'About us', $pl, $user, $this->generateContentTranslation($pl)));
+        dispatch_now(new AddContentTranslation($aboutUs, 'O nas', $pl, $user, $this->generateContentTranslation($pl)));
 
         $contents = [$news, $offer, $aboutUs];
 
@@ -451,7 +451,7 @@ class CMSSeeder extends Seeder {
             }
             // insert image
             if ($i == $paragraphImageNumber) {
-                $html[] = '<p><img src="' . $imageUrl . '" class="img-responsive"/></p>';
+                $html[] = '<p><img src="' . $imageUrl . '" class="img-fluid"/></p>';
             }
         }
         return implode('', $html);

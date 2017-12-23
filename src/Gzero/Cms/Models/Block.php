@@ -73,7 +73,6 @@ class Block extends Model implements Uploadable, PresentableInterface {
         return $this->morphTo();
     }
 
-
     /**
      * Get all of the files for the content.
      *
@@ -131,6 +130,20 @@ class Block extends Model implements Uploadable, PresentableInterface {
             throw new InvalidArgumentException('Unknown block type');
         }
         $this->type()->associate($type);
+    }
+
+    /**
+     * Returns active translation in specific language
+     *
+     * @param string $languageCode Language code
+     *
+     * @return mixed
+     */
+    public function getActiveTranslation($languageCode)
+    {
+        return $this->translations->first(function ($translation) use ($languageCode) {
+            return $translation->is_active === true && $translation->language_code === $languageCode;
+        });
     }
 
     /**
