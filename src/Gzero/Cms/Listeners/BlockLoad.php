@@ -2,7 +2,7 @@
 
 use Gzero\Cms\Services\BlockService;
 use Gzero\Cms\BlockFinder;
-use Gzero\Cms\Events\ContentRouteMatched;
+use Gzero\Core\Events\RouteMatched as GzeroRouteMatched;
 use Gzero\Core\Services\LanguageService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Routing\Events\RouteMatched;
@@ -51,8 +51,8 @@ class BlockLoad {
             $this->handleLaravelRoute($event);
         }
 
-        if ($event instanceof ContentRouteMatched) {
-            $this->handleContentRoute($event);
+        if ($event instanceof GzeroRouteMatched) {
+            $this->handleRoute($event);
         }
     }
 
@@ -79,14 +79,14 @@ class BlockLoad {
     /**
      * Handle the event. It loads block for dynamic router.
      *
-     * @param ContentRouteMatched $event dispatched event
+     * @param GzeroRouteMatched $event dispatched event
      *
      * @return void
      *
      */
-    public function handleContentRoute(ContentRouteMatched $event)
+    public function handleRoute(GzeroRouteMatched $event)
     {
-        $blockIds = $this->blockFinder->getBlocksIds($event->content->path, true);
+        $blockIds = $this->blockFinder->getBlocksIds($event->route->path, true);
         $blocks   = $this->blockRepository->getVisibleBlocks($blockIds, true);
         $this->handleBlockRendering($blocks);
         $blocks = $blocks->groupBy('region');
@@ -104,8 +104,8 @@ class BlockLoad {
     protected function handleBlockRendering($blocks)
     {
         foreach ($blocks as &$block) {
-            $type        = app('block:type:' . $block->type);
-            $block->view = $type->render($block, $this->languageService->getCurrent());
+            $type        = resolve($block->type->handler);
+            $block->view = $type->handle($block, $this->languageService->getCurrent());
         }
     }
 
