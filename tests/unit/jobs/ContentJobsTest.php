@@ -665,9 +665,11 @@ class ContentJobsTest extends Unit {
             ]
         );
 
+        $translation = $content->translations($withActive)->where('title', 'Example title')->first();
+
         $this->assertEquals(2, $content->translations($withActive)->count());
 
-        dispatch_now(new DeleteContentTranslation($content->translations($withActive)->first()));
+        dispatch_now(new DeleteContentTranslation($translation));
 
         $this->assertEquals(1, $content->translations($withActive)->count());
     }
