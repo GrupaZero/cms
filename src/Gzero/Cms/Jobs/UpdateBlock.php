@@ -1,9 +1,11 @@
 <?php namespace Gzero\Cms\Jobs;
 
 use Gzero\Cms\Models\Block;
-use Illuminate\Support\Facades\DB;
+use Gzero\Core\DBTransactionTrait;
 
 class UpdateBlock {
+
+    use DBTransactionTrait;
 
     /** @var Block */
     protected $block;
@@ -41,15 +43,13 @@ class UpdateBlock {
      */
     public function handle()
     {
-        $block = DB::transaction(
-            function () {
-                $this->block->fill($this->attributes);
-                $this->block->save();
+        $block = $this->dbTransaction(function () {
+            $this->block->fill($this->attributes);
+            $this->block->save();
 
-                event('block.updated', [$this->block]);
-                return $this->block;
-            }
-        );
+            event('block.updated', [$this->block]);
+            return $this->block;
+        });
         return $block;
     }
 }

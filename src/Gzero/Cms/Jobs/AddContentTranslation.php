@@ -2,11 +2,13 @@
 
 use Gzero\Cms\Models\Content;
 use Gzero\Cms\Models\ContentTranslation;
+use Gzero\Core\DBTransactionTrait;
 use Gzero\Core\Models\Language;
 use Gzero\Core\Models\User;
-use Illuminate\Support\Facades\DB;
 
 class AddContentTranslation {
+
+    use DBTransactionTrait;
 
     /** @var Content */
     protected $content;
@@ -62,31 +64,29 @@ class AddContentTranslation {
      */
     public function handle()
     {
-        $translation = DB::transaction(
-            function () {
-                $translation = new ContentTranslation();
-                $translation->fill([
-                    'title'           => $this->title,
-                    'language_code'   => $this->language->code,
-                    'teaser'          => $this->attributes['teaser'],
-                    'body'            => $this->attributes['body'],
-                    'seo_title'       => $this->attributes['seo_title'],
-                    'seo_description' => $this->attributes['seo_description'],
-                    'is_active'       => true,
-                ]);
-                $translation->author()->associate($this->author);
+        $translation = $this->dbTransaction(function () {
+            $translation = new ContentTranslation();
+            $translation->fill([
+                'title'           => $this->title,
+                'language_code'   => $this->language->code,
+                'teaser'          => $this->attributes['teaser'],
+                'body'            => $this->attributes['body'],
+                'seo_title'       => $this->attributes['seo_title'],
+                'seo_description' => $this->attributes['seo_description'],
+                'is_active'       => true,
+            ]);
+            $translation->author()->associate($this->author);
 
-                $this->content->disableActiveTranslations($translation->language_code);
-                $this->content->translations()->save($translation);
+            $this->content->disableActiveTranslations($translation->language_code);
+            $this->content->translations()->save($translation);
 
-                if (!$this->content->hasRoute($this->language->code)) {
-                    $this->content->createRoute($translation, $this->attributes['is_active']);
-                }
-
-                event('content.translation.created', [$translation]);
-                return $translation;
+            if (!$this->content->hasRoute($this->language->code)) {
+                $this->content->createRoute($translation, $this->attributes['is_active']);
             }
-        );
+
+            event('content.translation.created', [$translation]);
+            return $translation;
+        });
         return $translation;
     }
 }

@@ -1,9 +1,11 @@
 <?php namespace Gzero\Cms\Jobs;
 
 use Gzero\Cms\Models\Content;
-use Illuminate\Support\Facades\DB;
+use Gzero\Core\DBTransactionTrait;
 
 class RestoreContent {
+
+    use DBTransactionTrait;
 
     /** @var Content */
     protected $content;
@@ -25,15 +27,13 @@ class RestoreContent {
      */
     public function handle()
     {
-        return DB::transaction(
-            function () {
-                $lastAction = $this->content->restore();
+        return $this->dbTransaction(function () {
+            $lastAction = $this->content->restore();
 
-                event('content.restored', [$this->content]);
+            event('content.restored', [$this->content]);
 
-                return $lastAction;
-            }
-        );
+            return $lastAction;
+        });
     }
 
 }

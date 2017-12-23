@@ -3,10 +3,12 @@
 use Carbon\Carbon;
 use Gzero\Cms\Models\Content;
 use Gzero\Cms\Models\File;
+use Gzero\Core\DBTransactionTrait;
 use Gzero\InvalidArgumentException;
-use Illuminate\Support\Facades\DB;
 
 class UpdateContent {
+
+    use DBTransactionTrait;
 
     /** @var Content */
     protected $content;
@@ -56,40 +58,38 @@ class UpdateContent {
      */
     public function handle()
     {
-        $content = DB::transaction(
-            function () {
-                if (isset($this->attributes['published_at'])) {
-                    $this->attributes['published_at'] = Carbon::parse($this->attributes['published_at'])->setTimezone('UTC');
-                }
-                $this->content->fill($this->attributes);
-                $this->handleThumb();
-
-                if ($this->parentId === null) {
-                    $this->content->setAsRoot();
-                }
-
-                if ($this->parentId !== $this->content->parent_id) {
-
-                    if ($this->content->type->name === 'category') {
-                        if (!empty($this->content->children()->first())) {
-                            throw new InvalidArgumentException('Only parent for the category without children can be updated');
-                        }
-                    };
-
-                    $parent = Content::find($this->parentId);
-                    if (!$parent) {
-                        throw new InvalidArgumentException('Parent not found');
-                    }
-
-                    $this->content->setChildOf($parent);
-                } else {
-                    $this->content->save();
-                }
-
-                event('content.updated', [$this->content]);
-                return $this->content;
+        $content = $this->dbTransaction(function () {
+            if (isset($this->attributes['published_at'])) {
+                $this->attributes['published_at'] = Carbon::parse($this->attributes['published_at'])->setTimezone('UTC');
             }
-        );
+            $this->content->fill($this->attributes);
+            $this->handleThumb();
+
+            if ($this->parentId === null) {
+                $this->content->setAsRoot();
+            }
+
+            if ($this->parentId !== $this->content->parent_id) {
+
+                if ($this->content->type->name === 'category') {
+                    if (!empty($this->content->children()->first())) {
+                        throw new InvalidArgumentException('Only parent for the category without children can be updated');
+                    }
+                };
+
+                $parent = Content::find($this->parentId);
+                if (!$parent) {
+                    throw new InvalidArgumentException('Parent not found');
+                }
+
+                $this->content->setChildOf($parent);
+            } else {
+                $this->content->save();
+            }
+
+            event('content.updated', [$this->content]);
+            return $this->content;
+        });
         return $content;
     }
 

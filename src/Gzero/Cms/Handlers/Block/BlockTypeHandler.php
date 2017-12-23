@@ -8,11 +8,11 @@ interface BlockTypeHandler {
     /**
      * Load block
      *
-     * @param Block    $block Block
-     * @param Language $lang  Language
+     * @param Block    $block    Block
+     * @param Language $language Language
      *
      * @return BlockTypeHandler
      */
-    public function render(Block $block, Language $lang);
+    public function handle(Block $block, Language $language);
 
 }

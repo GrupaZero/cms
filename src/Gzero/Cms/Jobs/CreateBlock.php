@@ -2,11 +2,13 @@
 
 use Gzero\Cms\Models\Block;
 use Gzero\Cms\Models\BlockTranslation;
+use Gzero\Core\DBTransactionTrait;
 use Gzero\Core\Models\Language;
 use Gzero\Core\Models\User;
-use Illuminate\Support\Facades\DB;
 
 class CreateBlock {
+
+    use DBTransactionTrait;
 
     /** @var string */
     protected $title;
@@ -93,37 +95,35 @@ class CreateBlock {
      */
     public function handle()
     {
-        $block = DB::transaction(
-            function () {
-                $block = new Block();
-                $block->fill([
-                    'type'         => $this->attributes['type'],
-                    'region'       => $this->attributes['region'],
-                    'theme'        => $this->attributes['theme'],
-                    'weight'       => $this->attributes['weight'],
-                    'filter'       => $this->attributes['filter'],
-                    'options'      => $this->attributes['options'],
-                    'is_active'    => $this->attributes['is_active'],
-                    'is_cacheable' => $this->attributes['is_cacheable']
+        $block = $this->dbTransaction(function () {
+            $block = new Block();
+            $block->fill([
+                'type'         => $this->attributes['type'],
+                'region'       => $this->attributes['region'],
+                'theme'        => $this->attributes['theme'],
+                'weight'       => $this->attributes['weight'],
+                'filter'       => $this->attributes['filter'],
+                'options'      => $this->attributes['options'],
+                'is_active'    => $this->attributes['is_active'],
+                'is_cacheable' => $this->attributes['is_cacheable']
 
-                ]);
-                $block->author()->associate($this->author);
-                $block->save();
+            ]);
+            $block->author()->associate($this->author);
+            $block->save();
 
-                $translation = new BlockTranslation();
-                $translation->fill([
-                    'title'         => $this->title,
-                    'language_code' => $this->language->code,
-                    'body'          => $this->attributes['body'],
-                    'custom_fields' => $this->attributes['custom_fields'],
-                    'is_active'     => true
-                ]);
-                $block->translations()->save($translation);
+            $translation = new BlockTranslation();
+            $translation->fill([
+                'title'         => $this->title,
+                'language_code' => $this->language->code,
+                'body'          => $this->attributes['body'],
+                'custom_fields' => $this->attributes['custom_fields'],
+                'is_active'     => true
+            ]);
+            $block->translations()->save($translation);
 
-                event('block.created', [$block]);
-                return $block;
-            }
-        );
+            event('block.created', [$block]);
+            return $block;
+        });
         return $block;
     }
 }

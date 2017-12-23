@@ -1,9 +1,11 @@
 <?php namespace Gzero\Cms\Jobs;
 
 use Gzero\Cms\Models\Block;
-use Illuminate\Support\Facades\DB;
+use Gzero\Core\DBTransactionTrait;
 
 class DeleteBlock {
+
+    use DBTransactionTrait;
 
     /** @var Block */
     protected $block;
@@ -25,17 +27,15 @@ class DeleteBlock {
      */
     public function handle()
     {
-        return DB::transaction(
-            function () {
-                // Detach all files
-                $this->block->files()->sync([]);
-                $lastAction = $this->block->delete();
+        return $this->dbTransaction(function () {
+            // Detach all files
+            $this->block->files()->sync([]);
+            $lastAction = $this->block->delete();
 
-                event('block.deleted', [$this->block]);
+            event('block.deleted', [$this->block]);
 
-                return $lastAction;
-            }
-        );
+            return $lastAction;
+        });
     }
 
 }
