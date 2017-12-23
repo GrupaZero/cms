@@ -2,11 +2,13 @@
 
 use Gzero\Cms\Models\Block;
 use Gzero\Cms\Models\BlockTranslation;
+use Gzero\Core\DBTransactionTrait;
 use Gzero\Core\Models\Language;
 use Gzero\Core\Models\User;
-use Illuminate\Support\Facades\DB;
 
 class AddBlockTranslation {
+
+    use DBTransactionTrait;
 
     /** @var Block */
     protected $block;
@@ -60,25 +62,23 @@ class AddBlockTranslation {
      */
     public function handle()
     {
-        $translation = DB::transaction(
-            function () {
-                $translation = new BlockTranslation();
-                $translation->fill([
-                    'title'         => $this->title,
-                    'language_code' => $this->language->code,
-                    'body'          => $this->attributes['body'],
-                    'custom_fields' => $this->attributes['custom_fields'],
-                    'is_active'     => true,
-                ]);
-                $translation->author()->associate($this->author);
+        $translation = $this->dbTransaction(function () {
+            $translation = new BlockTranslation();
+            $translation->fill([
+                'title'         => $this->title,
+                'language_code' => $this->language->code,
+                'body'          => $this->attributes['body'],
+                'custom_fields' => $this->attributes['custom_fields'],
+                'is_active'     => true,
+            ]);
+            $translation->author()->associate($this->author);
 
-                $this->block->disableActiveTranslations($translation->language_code);
-                $this->block->translations()->save($translation);
+            $this->block->disableActiveTranslations($translation->language_code);
+            $this->block->translations()->save($translation);
 
-                event('block.translation.created', [$translation]);
-                return $translation;
-            }
-        );
+            event('block.translation.created', [$translation]);
+            return $translation;
+        });
         return $translation;
     }
 }

@@ -26,14 +26,14 @@ class Slider implements BlockTypeHandler {
     /**
      * Load block
      *
-     * @param Block    $block Block
-     * @param Language $lang  Language
+     * @param Block    $block    Block
+     * @param Language $language Language
      *
      * @return string
      */
-    public function render(Block $block, Language $lang)
+    public function handle(Block $block, Language $language)
     {
-        $html = $this->getFromCache($block, $lang);
+        $html = $this->getFromCache($block, $language);
         if ($html !== null) {
             return $html;
         }
@@ -44,8 +44,8 @@ class Slider implements BlockTypeHandler {
                 ['is_active', '=', true]
             ]
         );
-        $html   = view('blocks.slider', ['block' => $block, 'images' => $images, 'lang' => $lang])->render();
-        $this->putInCache($block, $lang, $html);
+        $html   = view('blocks.slider', ['block' => $block, 'images' => $images])->render();
+        $this->putInCache($block, $language, $html);
         return $html;
     }
 }

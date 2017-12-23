@@ -1,10 +1,12 @@
 <?php namespace Gzero\Cms\Jobs;
 
 use Gzero\Cms\Models\BlockTranslation;
+use Gzero\Core\DBTransactionTrait;
 use Gzero\DomainException;
-use Illuminate\Support\Facades\DB;
 
 class DeleteBlockTranslation {
+
+    use DBTransactionTrait;
 
     /** @var BlockTranslation */
     protected $translation;
@@ -32,14 +34,12 @@ class DeleteBlockTranslation {
             throw new DomainException('Cannot delete active translation');
         }
 
-        return DB::transaction(
-            function () {
-                $lastAction = $this->translation->delete();
+        return $this->dbTransaction(function () {
+            $lastAction = $this->translation->delete();
 
-                event('block.translation.deleted', [$this->translation]);
+            event('block.translation.deleted', [$this->translation]);
 
-                return $lastAction;
-            }
-        );
+            return $lastAction;
+        });
     }
 }

@@ -3,12 +3,14 @@
 use Carbon\Carbon;
 use Gzero\Cms\Models\Content;
 use Gzero\Cms\Models\ContentTranslation;
+use Gzero\Core\DBTransactionTrait;
 use Gzero\Core\Models\Language;
 use Gzero\Core\Models\User;
 use Gzero\InvalidArgumentException;
-use Illuminate\Support\Facades\DB;
 
 class CreateContent {
+
+    use DBTransactionTrait;
 
     /** @var string */
     protected $title;
@@ -115,53 +117,51 @@ class CreateContent {
      */
     public function handle()
     {
-        $content = DB::transaction(
-            function () {
-                $content = new Content();
-                $content->fill([
-                    'type'               => $this->attributes['type'],
-                    'theme'              => $this->attributes['theme'],
-                    'weight'             => $this->attributes['weight'],
-                    'rating'             => $this->attributes['rating'],
-                    'is_on_home'         => $this->attributes['is_on_home'],
-                    'is_promoted'        => $this->attributes['is_promoted'],
-                    'is_sticky'          => $this->attributes['is_sticky'],
-                    'is_comment_allowed' => $this->attributes['is_comment_allowed'],
-                    'published_at'       => $this->attributes['published_at'] ?
-                        Carbon::parse($this->attributes['published_at'])->setTimezone('UTC') : null
-                ]);
-                $content->author()->associate($this->author);
+        $content = $this->dbTransaction(function () {
+            $content = new Content();
+            $content->fill([
+                'type'               => $this->attributes['type'],
+                'theme'              => $this->attributes['theme'],
+                'weight'             => $this->attributes['weight'],
+                'rating'             => $this->attributes['rating'],
+                'is_on_home'         => $this->attributes['is_on_home'],
+                'is_promoted'        => $this->attributes['is_promoted'],
+                'is_sticky'          => $this->attributes['is_sticky'],
+                'is_comment_allowed' => $this->attributes['is_comment_allowed'],
+                'published_at'       => $this->attributes['published_at'] ?
+                    Carbon::parse($this->attributes['published_at'])->setTimezone('UTC') : null
+            ]);
+            $content->author()->associate($this->author);
 
-                if ($this->attributes['parent_id']) {
-                    $parent = Content::find($this->attributes['parent_id']);
-                    if (!$parent) {
-                        throw new InvalidArgumentException('Parent not found');
-                    }
-
-                    $content->setChildOf($parent);
-                } else {
-                    $content->setAsRoot();
+            if ($this->attributes['parent_id']) {
+                $parent = Content::find($this->attributes['parent_id']);
+                if (!$parent) {
+                    throw new InvalidArgumentException('Parent not found');
                 }
 
-                $translation = new ContentTranslation();
-                $translation->fill([
-                    'title'           => $this->title,
-                    'language_code'   => $this->language->code,
-                    'teaser'          => $this->attributes['teaser'],
-                    'body'            => $this->attributes['body'],
-                    'seo_title'       => $this->attributes['seo_title'],
-                    'seo_description' => $this->attributes['seo_description'],
-                    'is_active'       => true,
-                ]);
-                $translation->author()->associate($this->author);
-
-                $content->translations()->save($translation);
-                $content->createRoute($translation, $this->attributes['is_active']);
-
-                event('content.created', [$content]);
-                return $content;
+                $content->setChildOf($parent);
+            } else {
+                $content->setAsRoot();
             }
-        );
+
+            $translation = new ContentTranslation();
+            $translation->fill([
+                'title'           => $this->title,
+                'language_code'   => $this->language->code,
+                'teaser'          => $this->attributes['teaser'],
+                'body'            => $this->attributes['body'],
+                'seo_title'       => $this->attributes['seo_title'],
+                'seo_description' => $this->attributes['seo_description'],
+                'is_active'       => true,
+            ]);
+            $translation->author()->associate($this->author);
+
+            $content->translations()->save($translation);
+            $content->createRoute($translation, $this->attributes['is_active']);
+
+            event('content.created', [$content]);
+            return $content;
+        });
         return $content;
     }
 }

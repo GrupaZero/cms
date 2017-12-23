@@ -4,6 +4,7 @@ use Carbon\Carbon;
 use Faker\Factory;
 use Faker\Generator;
 use Gzero\Cms\Jobs\AddContentTranslation;
+use Gzero\Cms\Jobs\CreateBlock;
 use Gzero\Cms\Jobs\CreateContent;
 use Gzero\Cms\Models\Block;
 use Gzero\Cms\Models\BlockType;
@@ -18,43 +19,24 @@ use Gzero\Core\Models\OptionCategory;
 use Gzero\Core\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 
 class CMSSeeder extends Seeder {
 
     const RANDOM_USERS = 12;
+    const RANDOM_CONTENTS = 10;
     const RANDOM_BLOCKS = 10;
     const RANDOM_FILES = 4;
 
-    /**
-     * @var \Faker\Generator
-     */
+    /** @var \Faker\Generator */
     protected $faker;
 
     /**
-     * @var BlockService
-     */
-    protected $blockService;
-    /**
-     * @var ContentReadRepository
-     */
-    protected $contentRepository;
-
-    /**
      * CMSSeeder constructor
-     *
-     * @param BlockService          $blockService      Block service
-     * @param ContentReadRepository $contentRepository Content repository
      */
-    public function __construct(
-        BlockService $blockService,
-        ContentReadRepository $contentRepository
-    ) {
-        $this->faker             = Factory::create();
-        $this->contentRepository = $contentRepository;
-        $this->blockService      = $blockService;
-        // We don't want to allow to pass everything to Eloquent model
-        Model::reguard();
+    public function __construct()
+    {
+        $this->faker = Factory::create();
+        Model::reguard(); // We don't want to allow to pass everything to Eloquent model
     }
 
     /**
@@ -64,13 +46,14 @@ class CMSSeeder extends Seeder {
      */
     public function run()
     {
+        config()->set('gzero-core.db_transactions', false);
         $languages = Language::all()->keyBy('code');
         $users     = $this->seedUsers();
-        $this->seedContent($languages, $users);
-        //$blocks       = $this->seedBlock($blockTypes, $languages, $users, $contents);
+        $contents  = $this->seedContent($languages, $users);
+        $this->seedBlock(BlockType::all(), $languages, $users, $contents);
         //$fileTypes    = $this->seedFileTypes();
         //$files        = $this->seedFiles($fileTypes, $languages, $users, $contents, $blocks);
-        //$this->seedOptions($langs);
+        //$this->seedOptions($languages);
     }
 
 
@@ -114,7 +97,7 @@ class CMSSeeder extends Seeder {
 
         $contents = [$news, $offer, $aboutUs];
 
-        for ($i = 0; $i < 10; $i++) {
+        for ($i = 0; $i < self::RANDOM_CONTENTS; $i++) {
             $contents[] = $this->seedRandomContent('content', $news, $languages, $users);
             $contents[] = $this->seedRandomContent('content', $offer, $languages, $users);
         }
@@ -228,68 +211,71 @@ class CMSSeeder extends Seeder {
      * Seed block
      *
      * @param array $blockTypes Block type
-     * @param array $langs      Array with langs
+     * @param array $languages  Array with languages
      * @param array $users      Array with users
      * @param array $contents   Array with contents
      *
-     * @return Block
+     * @return array
      */
-    //private function seedBlock($blockTypes, $langs, $users, $contents)
-    //{
-    //    $blocks = [];
-    //    for ($x = 0; $x < self::RANDOM_BLOCKS; $x++) {
-    //        /** @var TYPE_NAME $contents */
-    //        $block    = $this->seedRandomBlock(
-    //            $blockTypes[array_rand($blockTypes)],
-    //            $langs,
-    //            $users,
-    //            $contents
-    //        );
-    //        $blocks[] = $block;
-    //    }
-    //
-    //    return $blocks;
-    //}
+    private function seedBlock($blockTypes, $languages, $users, $contents)
+    {
+        $blocks = [];
+        for ($x = 0; $x < self::RANDOM_BLOCKS; $x++) {
+            $block    = $this->seedRandomBlock(
+                $blockTypes->random(),
+                $languages,
+                $users,
+                $contents
+            );
+            $blocks[] = $block;
+        }
+
+        return $blocks;
+    }
 
     /**
      * Seed single block
      *
-     * @param BlockType $type     Block type
-     * @param array     $langs    Array with langs
-     * @param array     $users    Array with users
-     * @param array     $contents Array with contents
+     * @param BlockType $type      Block type
+     * @param array     $languages Array with languages
+     * @param array     $users     Array with users
+     * @param array     $contents  Array with contents
      *
      * @return Block
      */
-    //private function seedRandomBlock(BlockType $type, $langs, $users, $contents)
-    //{
-    //    $isActive    = (bool) rand(0, 1);
-    //    $isCacheable = (bool) rand(0, 1);
-    //    $filter      = (rand(0, 1)) ? [
-    //        '+' => [$this->getRandomBlockFilter($contents)],
-    //        '-' => [$this->getRandomBlockFilter($contents)]
-    //    ] : null;
-    //    $input       = [
-    //        'type'         => $type->name,
-    //        'region'       => $this->getRandomBlockRegion(),
-    //        'weight'       => rand(0, 12),
-    //        'filter'       => $filter,
-    //        'options'      => array_combine($this->faker->words(), $this->faker->words()),
-    //        'is_active'    => $isActive,
-    //        'is_cacheable' => $isCacheable,
-    //        'translations' => $this->prepareBlockTranslation($langs['en']),
-    //        'widget'       => [
-    //            'name'         => $this->faker->unique()->word,
-    //            'args'         => array_combine($this->faker->words(), $this->faker->words()),
-    //            'is_active'    => $isActive,
-    //            'is_cacheable' => $isCacheable,
-    //        ],
-    //    ];
-    //
-    //    $block = $this->blockService->create($input, $users[array_rand($users)]);
-    //    $this->blockService->createTranslation($block, $this->prepareBlockTranslation($langs['pl']));
-    //    return $block;
-    //}
+    private function seedRandomBlock(BlockType $type, $languages, $users, $contents)
+    {
+        $language    = $languages->random();
+        $faker       = Factory::create($language->i18n);
+        $isActive    = (bool) rand(0, 1);
+        $isCacheable = (bool) rand(0, 1);
+        $filter      = (rand(0, 1)) ? [
+            '+' => [$this->getRandomBlockFilter($contents)],
+            '-' => [$this->getRandomBlockFilter($contents)]
+        ] : null;
+        $input       = [
+            'type'          => $type->name,
+            'region'        => $this->getRandomBlockRegion(),
+            'weight'        => rand(0, 12),
+            'filter'        => $filter,
+            'options'       => array_combine($this->faker->words(), $this->faker->words()),
+            'is_active'     => $isActive,
+            'is_cacheable'  => $isCacheable,
+            'translations'  => $this->prepareBlockTranslation($languages['en']),
+            'widget'        => [
+                'name'         => $this->faker->unique()->word,
+                'args'         => array_combine($this->faker->words(), $this->faker->words()),
+                'is_active'    => $isActive,
+                'is_cacheable' => $isCacheable,
+            ],
+            'body'          => $faker->realText(300),
+            'custom_fields' => array_combine($this->faker->words(), $this->faker->words()),
+        ];
+
+        $block = dispatch_now(CreateBlock::make($faker->realText(38, 1), $language, $users->random(), $input));
+
+        return $block;
+    }
 
     /**
      * Seed file
@@ -394,17 +380,17 @@ class CMSSeeder extends Seeder {
      *
      * @return array
      */
-    //private function prepareBlockTranslation(Language $language, $title = null, $isActive = null)
-    //{
-    //    $faker = Factory::create($language->i18n);
-    //    return [
-    //        'language_code' => $language->code,
-    //        'title'         => ($title) ? $title : $faker->realText(38, 1),
-    //        'body'          => $faker->realText(300),
-    //        'custom_fields' => array_combine($this->faker->words(), $this->faker->words()),
-    //        'is_active'     => (bool) ($title) ? $isActive : rand(0, 1)
-    //    ];
-    //}
+    private function prepareBlockTranslation(Language $language, $title = null, $isActive = null)
+    {
+        $faker = Factory::create($language->i18n);
+        return [
+            'language_code' => $language->code,
+            'title'         => ($title) ? $title : $faker->realText(38, 1),
+            'body'          => $faker->realText(300),
+            'custom_fields' => array_combine($this->faker->words(), $this->faker->words()),
+            'is_active'     => (bool) ($title) ? $isActive : rand(0, 1)
+        ];
+    }
 
     /**
      * Function generates translation for specified language
@@ -478,19 +464,19 @@ class CMSSeeder extends Seeder {
      *
      * @return string
      */
-    //private function getRandomBlockFilter($contents)
-    //{
-    //    return rand(0, 1) ? $contents[array_rand($contents)]->path . '*' : $contents[array_rand($contents)]->path;
-    //}
+    private function getRandomBlockFilter($contents)
+    {
+        return rand(0, 1) ? $contents[array_rand($contents)]->path . '*' : $contents[array_rand($contents)]->path;
+    }
 
     /**
      * Function returns one of the available block regions
      *
      * @return string
      */
-    //private function getRandomBlockRegion()
-    //{
-    //    $availableRegions = config('gzero-cms.available_blocks_regions');
-    //    return $availableRegions[array_rand($availableRegions, 1)];
-    //}
+    private function getRandomBlockRegion()
+    {
+        $availableRegions = config('gzero-cms.available_blocks_regions');
+        return $availableRegions[array_rand($availableRegions, 1)];
+    }
 }
