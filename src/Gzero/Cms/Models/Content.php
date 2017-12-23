@@ -230,9 +230,7 @@ class Content extends Tree implements PresentableInterface, Uploadable, Routable
                 'language_code' => $translation->language_code,
                 'path'          => $path,
             ],
-            [
-                'is_active' => $isActive
-            ]
+            ['is_active' => $isActive]
         );
 
         $this->routes()->save($route);

@@ -4,6 +4,7 @@ use Gzero\Core\Models\User;
 use Gzero\Cms\Presenters\BlockPresenter;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Gzero\InvalidArgumentException;
 use Robbo\Presenter\PresentableInterface;
 
 class Block extends Model implements Uploadable, PresentableInterface {
@@ -44,7 +45,7 @@ class Block extends Model implements Uploadable, PresentableInterface {
      */
     public function type()
     {
-        return $this->belongsTo(BlockType::class, 'name', 'type');
+        return $this->belongsTo(BlockType::class);
     }
 
     /**
@@ -57,7 +58,7 @@ class Block extends Model implements Uploadable, PresentableInterface {
     public function translations($active = true)
     {
         if ($active) {
-            return $this->hasMany(BlockTranslation::class)->where('is_active', '=', 1);
+            return $this->hasMany(BlockTranslation::class)->where('is_active', '=', true);
         }
         return $this->hasMany(BlockTranslation::class);
     }
@@ -100,17 +101,36 @@ class Block extends Model implements Uploadable, PresentableInterface {
     }
 
     /**
-     * It disables active translation for specific language
+     * Function sets all content translations in provided language code as inactive
      *
      * @param string $languageCode language code
      *
-     * @return void
+     * @return mixed
      */
-    public function disableAllActiveTranslations($languageCode)
+    public function disableActiveTranslations($languageCode)
     {
-        $this->translations()
+        return $this->translations()
+            ->where('block_id', $this->id)
             ->where('language_code', $languageCode)
             ->update(['is_active' => false]);
+    }
+
+    /**
+     * @param string $type Block type
+     *
+     * @throws InvalidArgumentException
+     *
+     * @return void
+     */
+    public function setTypeAttribute($type)
+    {
+        if (!$type instanceof BlockType) {
+            $type = BlockType::getByName($type);
+        }
+        if (!$type) {
+            throw new InvalidArgumentException('Unknown block type');
+        }
+        $this->type()->associate($type);
     }
 
     /**
