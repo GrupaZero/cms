@@ -45,7 +45,7 @@ class CreateContent extends Migration {
                 $table->index(['path', 'level']);
                 $table->foreign('author_id')->references('id')->on('users')->onDelete('SET NULL');
                 $table->foreign('parent_id')->references('id')->on('contents')->onDelete('CASCADE');
-                $table->foreign('type_id')->references('id')->on('content_types')->onDelete('SET NULL');
+                $table->foreign('type_id')->references('id')->on('content_types')->onDelete('CASCADE');
             }
         );
 

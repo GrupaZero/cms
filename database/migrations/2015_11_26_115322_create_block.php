@@ -41,7 +41,7 @@ class CreateBlock extends Migration {
                 $table->timestamp('deleted_at')->nullable();
                 $table->index(['type_id', 'blockable_type']);
                 $table->foreign('author_id')->references('id')->on('users')->onDelete('SET NULL');
-                $table->foreign('type_id')->references('id')->on('block_types')->onDelete('SET NULL');
+                $table->foreign('type_id')->references('id')->on('block_types')->onDelete('CASCADE');
             }
         );
 
