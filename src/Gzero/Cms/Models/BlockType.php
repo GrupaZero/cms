@@ -6,15 +6,7 @@ class BlockType extends Model {
 
     /** @var array */
     protected $fillable = [
-        'name',
-        'is_active'
-    ];
-
-    /**
-     * @var array
-     */
-    protected $attributes = [
-        'is_active' => false
+        'name'
     ];
 
     /**

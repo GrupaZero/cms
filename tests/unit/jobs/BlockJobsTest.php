@@ -18,7 +18,6 @@ class BlockJobsTest extends Unit {
 
     /** @test */
     public function canCreateBlock()
-
     {
         $user  = $this->tester->haveUser();
         $block = dispatch_now(CreateBlock::basic('New One', new Language(['code' => 'en']), $user, [

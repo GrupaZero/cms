@@ -18,7 +18,6 @@ class CreateBlock extends Migration {
             function (Blueprint $table) {
                 $table->increments('id');
                 $table->string('name')->unique();
-                $table->boolean('is_active')->default(false);
                 $table->timestamps();
             }
         );
@@ -99,7 +98,7 @@ class CreateBlock extends Migration {
     private function seedBlockTypes()
     {
         foreach (['basic', 'menu', 'slider', 'widget'] as $type) {
-            BlockType::firstOrCreate(['name' => $type, 'is_active' => true]);
+            BlockType::firstOrCreate(['name' => $type]);
         }
     }
 
