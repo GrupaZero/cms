@@ -1,8 +1,16 @@
 <?php namespace Gzero\Cms\Presenters;
 
+use Carbon\Carbon;
+use Gzero\Core\Presenters\UserPresenter;
 use Robbo\Presenter\Presenter;
 
 class ContentPresenter extends Presenter {
+
+    protected $author;
+
+    protected $route;
+
+    protected $routes;
 
     protected $translation;
 
@@ -10,6 +18,7 @@ class ContentPresenter extends Presenter {
 
     /** @var array */
     protected $allowedAttributes = [
+        'id',
         'theme',
         'weight',
         'rating',
@@ -28,40 +37,25 @@ class ContentPresenter extends Presenter {
     public function __construct(array $data)
     {
         $this->object       = array_only($data, $this->allowedAttributes);
+        $this->routes       = array_get($data, 'routes', []);
         $this->translations = array_get($data, 'translations', []);
-        $this->translation  = array_first($this->translations, function ($translation) {
+        $this->author       = new UserPresenter(array_get($data, 'author', []));
+
+        $this->translation = array_first($this->translations, function ($translation) {
             return $translation['language_code'] === app()->getLocale();
+        },
+            [
+                'title'           => null,
+                'teaser'          => null,
+                'body'            => null,
+                'seo_title'       => null,
+                'seo_description' => null
+            ]
+        );
+
+        $this->route = array_first($this->routes, function ($route) {
+            return $route['language_code'] === app()->getLocale() && $route['is_active'] === true;
         });
-    }
-
-    /**
-     * @param string|null $language
-     *
-     * @return string
-     */
-    public function getTitle(?string $language = null): string
-    {
-        return array_get($this->translation, 'title', 'Default');
-    }
-
-    /**
-     * @param string|null $language
-     *
-     * @return string
-     */
-    public function getTeaser(?string $language = null): string
-    {
-        return array_get($this->translation, 'teaser', 'Default');
-    }
-
-    /**
-     * @param string|null $language
-     *
-     * @return string
-     */
-    public function getBody(?string $language = null): string
-    {
-        return array_get($this->translation, 'body', 'Default');
     }
 
     /**
@@ -97,6 +91,144 @@ class ContentPresenter extends Presenter {
     }
 
     /**
+     * @return mixed
+     */
+    public function isPublished()
+    {
+        if ($this->published_at === null) {
+            return false;
+        }
+
+        return Carbon::parse($this->published_at)->lte(Carbon::now());
+    }
+
+    /**
+     * @return mixed
+     */
+    public function hasTeaser()
+    {
+        return !empty($this->getTeaser());
+    }
+
+    /**
+     * @return mixed
+     */
+    public function hasThumbnail()
+    {
+        return !empty($this->thumb_id);
+    }
+
+    /**
+     * @return integer
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    /**
+     * @param string|null $language
+     *
+     * @return string
+     */
+    public function getTitle(string $language = null): ?string
+    {
+        return array_get($this->translation, 'title');
+    }
+
+    /**
+     * @param string|null $language
+     *
+     * @return string
+     */
+    public function getTeaser(string $language = null): ?string
+    {
+        return array_get($this->translation, 'teaser');
+    }
+
+    /**
+     * @param string|null $language
+     *
+     * @return string
+     */
+    public function getBody(string $language = null): ?string
+    {
+        return array_get($this->translation, 'body');
+    }
+
+    /**
+     * @param string|null $language
+     *
+     * @return string
+     */
+    public function getUrl(string $language = null): ?string
+    {
+        $languageCode = ($language) ?? app()->getLocale();
+        $path         = array_get($this->route, 'path');
+
+        return urlMl($path, $languageCode);
+    }
+
+    /**
+     * Return seoTitle of translation if exists
+     * otherwise return generated one
+     *
+     * @param mixed $alternativeField alternative field to display when seoTitle field is empty
+     *
+     * @return string
+     */
+    public function seoTitle($alternativeField = false)
+    {
+        if (!$alternativeField) {
+            $alternativeField = config('gzero.seo.alternative_title', 'title');
+        }
+
+        $text = $this->removeNewLinesAndWhitespace($this->translation[$alternativeField]);
+        // if alternative field is not empty
+        if ($text) {
+            return $this->translation['seo_title'] ? $this->removeNewLinesAndWhitespace($this->translation['seo_title']) : $text;
+        }
+        // show site name as default
+        return option('general', 'site_name');
+    }
+
+    /**
+     * Return seoDescription of translation if exists
+     * otherwise return generated one
+     *
+     * @param mixed $alternativeField alternative field to display when seoDescription field is empty
+     *
+     * @return string
+     */
+    public function seoDescription($alternativeField = false)
+    {
+        $descLength = option('seo', 'desc_length', config('gzero.seo.desc_length', 160));
+        if (!$alternativeField) {
+            $alternativeField = config('gzero.seo.alternative_desc', 'body');
+        }
+        // if SEO description is set
+        if ($this->translation['seo_description']) {
+            return $this->removeNewLinesAndWhitespace($this->translation['seo_description']);
+        } else {
+            $text = $this->removeNewLinesAndWhitespace($this->translation[$alternativeField]);
+            // if alternative field is not empty
+            if ($text) {
+                return strlen($text) >= $descLength ? substr($text, 0, strpos($text, ' ', $descLength)) : $text;
+            };
+            // show site description as default
+            return option('general', 'site_desc');
+        }
+    }
+
+    /**
+     * @return string
+     */
+    public function getTheme()
+    {
+        return array_get($this, 'theme');
+    }
+
+    /**
      * This function returns formatted publish date
      *
      * @return string
@@ -121,7 +253,7 @@ class ContentPresenter extends Presenter {
             return trans('gzero-core::common.anonymous');
         }
 
-        return $this->author->getPresenter()->displayName();
+        return $this->author->displayName();
     }
 
     /**
@@ -224,5 +356,18 @@ class ContentPresenter extends Presenter {
         //}
         //
         //return implode('', $html);
+    }
+
+    /**
+     * Function removes new lines and strip whitespace (or other characters) from the beginning and end of a string
+     *
+     * @param string $string  string to replace
+     * @param string $replace replacement
+     *
+     * @return string
+     */
+    private function removeNewLinesAndWhitespace($string, $replace = " ")
+    {
+        return str_replace(["\n\r", "\n\n", "\n", "\r"], $replace, trim(strip_tags($string)));
     }
 }

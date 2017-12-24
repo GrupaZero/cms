@@ -16,6 +16,7 @@ class ContentPresenterTest extends Unit {
     public function canAccessArrayValuesAsObjectProperties()
     {
         $presenter = new ContentPresenter([
+            'id'                 => 1,
             'theme'              => 'is-sticky',
             'weight'             => 10,
             'is_active'          => true,
@@ -24,6 +25,13 @@ class ContentPresenterTest extends Unit {
             'is_sticky'          => true,
             'is_comment_allowed' => true,
             'published_at'       => Carbon::now(),
+            'routes'             => [
+                [
+                    'language_code' => 'en',
+                    'path'          => 'example-title',
+                    'is_active'     => true,
+                ]
+            ],
             'translations'       => [
                 [
                     'language_code'   => 'en',
@@ -36,14 +44,16 @@ class ContentPresenterTest extends Unit {
             ]
         ]);
 
-        $this->assertEquals('is-sticky', $presenter->theme);
         $this->assertTrue($presenter->isOnHome());
         $this->assertTrue($presenter->isPromoted());
         $this->assertTrue($presenter->isSticky());
         $this->assertTrue($presenter->isCommentAllowed());
+        $this->assertEquals(1, $presenter->getId());
         $this->assertEquals('Example title', $presenter->getTitle());
         $this->assertEquals('Example teaser', $presenter->getTeaser());
         $this->assertEquals('Example body', $presenter->getBody());
+        $this->assertEquals(urlMl('example-title', 'en'), $presenter->getUrl());
+        $this->assertEquals('is-sticky', $presenter->getTheme());
 
     }
 }
