@@ -1,8 +1,8 @@
-@extends('gzero-core::layouts.master')
+@extends('gzero-core::layouts.withRegions')
 @section('bodyClass', $content->theme)
 
-@section('title'){{ $translation->seoTitle() }}@stop
-@section('seoDescription'){{ $translation->seoDescription() }}@stop
+@section('title', $translation->seoTitle())
+@section('seoDescription', $translation->seoDescription())
 @section('head')
     @parent
     @include('gzero-cms::contents._canonical', ['paginator' => $children])
@@ -11,16 +11,11 @@
         {!! $content->stDataMarkup($language->code) !!}
     @endif
 @stop
-@section('mainContent')
+@section('breadcrumbs')
     {!! Breadcrumbs::render('category') !!}
-    @parent
 @stop
 @section('content')
-    <div class="row justify-content-md-center">
-        <div class="col col-md-auto">
-            @include('gzero-cms::contents._notPublishedContentMsg')
-        </div>
-    </div>
+    @include('gzero-cms::contents._notPublishedContentMsg')
     <h1 class="content-title">
         {{ $translation->title }}
     </h1>
