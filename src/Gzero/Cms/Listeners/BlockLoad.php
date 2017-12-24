@@ -66,7 +66,7 @@ class BlockLoad {
      */
     public function handleLaravelRoute(RouteMatched $event)
     {
-        if ($event->request->method() === 'GET' && $event->route->domain() === env('DOMAIN') && $event->route->getName()) {
+        if ($this->ifFrontendRoute($event)) {
             $blockIds = $this->blockFinder->getBlocksIds($event->route->getName(), true);
             $blocks   = $this->blockRepository->getVisibleBlocks($blockIds, true);
             $this->handleBlockRendering($blocks);
@@ -105,5 +105,17 @@ class BlockLoad {
             $type        = resolve($block->type->handler);
             $block->view = $type->handle($block, $this->languageService->getCurrent());
         }
+    }
+
+    /**
+     * @param RouteMatched $event dispatched event
+     *
+     * @return bool
+     */
+    protected function ifFrontendRoute(RouteMatched $event): bool
+    {
+        return $event->request->method() === 'GET'
+            && $event->route->domain() !== 'api.' . env('DOMAIN')
+            && $event->route->getName();
     }
 }
