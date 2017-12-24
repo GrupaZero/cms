@@ -45,6 +45,42 @@ class ContentPresenter extends Presenter {
     }
 
     /**
+     * @param string|null $language
+     *
+     * @return string
+     */
+    public function getTeaser(?string $language = null): string
+    {
+        return array_get($this->translation, 'teaser', 'Default');
+    }
+
+    /**
+     * @param string|null $language
+     *
+     * @return string
+     */
+    public function getBody(?string $language = null): string
+    {
+        return array_get($this->translation, 'body', 'Default');
+    }
+
+    /**
+     * @return mixed
+     */
+    public function isOnHome()
+    {
+        return $this->is_on_home;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function isPromoted()
+    {
+        return $this->is_promoted;
+    }
+
+    /**
      * @return mixed
      */
     public function isSticky()
@@ -53,67 +89,11 @@ class ContentPresenter extends Presenter {
     }
 
     /**
-     * This function get single translation
-     *
-     * @param string $langCode LangCode
-     *
-     * @return string
+     * @return mixed
      */
-    public function translation($langCode)
+    public function isCommentAllowed()
     {
-        $translation = '';
-        if (!empty($this->translations) && !empty($langCode)) {
-            $translation = $this->translations->filter(
-                function ($translation) use ($langCode) {
-                    return $translation->language_code === $langCode;
-                }
-            )->first();
-        }
-        return $translation;
-    }
-
-    /**
-     * This function get single route translation
-     *
-     * @param string $langCode LangCode
-     *
-     * @return string
-     */
-    public function routeTranslation($langCode)
-    {
-        $routeTranslation = '';
-        if (!empty($this->routes) && !empty($langCode)) {
-            $routeTranslation = $this->routes->filter(
-                function ($translation) use ($langCode) {
-                    return $translation->language_code === $langCode;
-                }
-            )->first();
-        }
-        return $routeTranslation;
-    }
-
-    /**
-     * This function get single route url
-     *
-     * @param string $languageCode Language code
-     *
-     * @return string
-     */
-    public function routeUrl(string $languageCode)
-    {
-        $routeUrl = '';
-        if (!empty($this->routes) && !empty($languageCode)) {
-            $route = $this->routes->filter(
-                function ($translation) use ($languageCode) {
-                    return $translation->language_code === $languageCode;
-                }
-            )->first();
-
-            if (!empty($route)) {
-                $routeUrl = urlMl($route->path, $languageCode);
-            }
-        }
-        return $routeUrl;
+        return $this->is_comment_allowed;
     }
 
     /**
@@ -121,7 +101,7 @@ class ContentPresenter extends Presenter {
      *
      * @return string
      */
-    public function publishDate()
+    public function getPublishDate()
     {
         if (empty($this->published_at)) {
             return trans('gzero-core::common.unknown');
@@ -135,34 +115,13 @@ class ContentPresenter extends Presenter {
      *
      * @return string
      */
-    public function authorName()
+    public function getAuthorName()
     {
         if (empty($this->author)) {
             return trans('gzero-core::common.anonymous');
         }
 
         return $this->author->getPresenter()->displayName();
-    }
-
-    /**
-     * This function returns the star rating
-     *
-     * @return string html containing star icons
-     */
-    public function ratingStars()
-    {
-        if (!empty($this->rating)) {
-            $html = [];
-            for ($i = 0; $i < 5; $i++) {
-                if ($i < $this->rating && $this->rating > 0) {
-                    $html[] = '<i class="glyphicon glyphicon-star"></i> ';
-                } else {
-                    $html[] = '<i class="glyphicon glyphicon-star-empty"></i> ';
-                }
-            }
-            return implode('', $html);
-        }
-        return trans('gzero-core::common.no_ratings');
     }
 
     /**
@@ -198,72 +157,72 @@ class ContentPresenter extends Presenter {
      */
     public function stDataMarkup($langCode, $type = 'Article', $imageDimensions = ['729', '486'])
     {
-        $html = [];
-        $tags = null;
-
-        if (!empty($langCode)) {
-            $translation      = $this->translation($langCode);
-            $routeTranslation = $this->routeTranslation($langCode);
-
-            if (!empty($translation)) {
-                $firstImageUrl = $this->getFirstImageUrl($translation->teaser);
-
-                $tags = [
-                    '@context'         => 'http://schema.org',
-                    '@type'            => $type,
-                    'publisher'        => [
-                        '@type' => 'Brand',
-                        'url'   => routeMl('home'),
-                        'name'  => config('app.name'),
-                        'logo'  => [
-                            '@type' => 'ImageObject',
-                            'url'   => asset('/images/logo.png')
-                        ]
-                    ],
-                    'mainEntityOfPage' => [
-                        '@type' => 'WebPage',
-                        '@id'   => routeMl('home')
-                    ],
-                    'headline'         => $translation->title,
-                    'author'           => [
-                        '@type' => "Person",
-                        'name'  => $this->authorName()
-                    ],
-                    'datePublished'    => $this->created_at,
-                    'dateModified'     => $this->updated_at,
-                    'url'              => $this->routeUrl($langCode),
-                ];
-
-                //@TODO add parent categories names
-                if ($this->level > 0) {
-                    $url = explode('/', $routeTranslation->path);
-                    if ($this->level === '1') {
-                        $tags['articleSection'] = [ucfirst($url[0])];
-                    } else {
-                        $tags['articleSection'] = [ucfirst($url[0]), ucfirst($url[1])];
-                    }
-                }
-            }
-        }
-
-        //@TODO use content thumbnail
-        if (!empty($firstImageUrl)) {
-            $tags['image'] = [
-                '@type'  => 'ImageObject',
-                'url'    => $firstImageUrl,
-                'width'  => $imageDimensions[0],
-                'height' => $imageDimensions[1]
-            ];
-        }
-
-        if (!empty($tags)) {
-            $html = [
-                '<script type="application/ld+json">',
-                json_encode($tags, true),
-                '</script>'
-            ];
-        }
-
-        return implode('', $html);
+        //$html = [];
+        //$tags = null;
+        //
+        //if (!empty($langCode)) {
+        //    $translation      = $this->translation($langCode);
+        //    $routeTranslation = $this->routeTranslation($langCode);
+        //
+        //    if (!empty($translation)) {
+        //        $firstImageUrl = $this->getFirstImageUrl($translation->teaser);
+        //
+        //        $tags = [
+        //            '@context'         => 'http://schema.org',
+        //            '@type'            => $type,
+        //            'publisher'        => [
+        //                '@type' => 'Brand',
+        //                'url'   => routeMl('home'),
+        //                'name'  => config('app.name'),
+        //                'logo'  => [
+        //                    '@type' => 'ImageObject',
+        //                    'url'   => asset('/images/logo.png')
+        //                ]
+        //            ],
+        //            'mainEntityOfPage' => [
+        //                '@type' => 'WebPage',
+        //                '@id'   => routeMl('home')
+        //            ],
+        //            'headline'         => $translation->title,
+        //            'author'           => [
+        //                '@type' => "Person",
+        //                'name'  => $this->authorName()
+        //            ],
+        //            'datePublished'    => $this->created_at,
+        //            'dateModified'     => $this->updated_at,
+        //            'url'              => $this->routeUrl($langCode),
+        //        ];
+        //
+        //        //@TODO add parent categories names
+        //        if ($this->level > 0) {
+        //            $url = explode('/', $routeTranslation->path);
+        //            if ($this->level === '1') {
+        //                $tags['articleSection'] = [ucfirst($url[0])];
+        //            } else {
+        //                $tags['articleSection'] = [ucfirst($url[0]), ucfirst($url[1])];
+        //            }
+        //        }
+        //    }
+        //}
+        //
+        ////@TODO use content thumbnail
+        //if (!empty($firstImageUrl)) {
+        //    $tags['image'] = [
+        //        '@type'  => 'ImageObject',
+        //        'url'    => $firstImageUrl,
+        //        'width'  => $imageDimensions[0],
+        //        'height' => $imageDimensions[1]
+        //    ];
+        //}
+        //
+        //if (!empty($tags)) {
+        //    $html = [
+        //        '<script type="application/ld+json">',
+        //        json_encode($tags, true),
+        //        '</script>'
+        //    ];
+        //}
+        //
+        //return implode('', $html);
     }
 }

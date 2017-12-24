@@ -34,8 +34,8 @@
     <div class="row justify-content-md-between content-meta">
         <div class="col-12 col-md-auto">
             <p class="content-author text-muted">
-                <i>@lang('gzero-core::common.posted_by') {{ $content->authorName() }}</i>
-                <i>@lang('gzero-core::common.posted_on') {{ $content->publishDate() }}</i>
+                <i>@lang('gzero-core::common.posted_by') {{ $content->getAuthorName() }}</i>
+                <i>@lang('gzero-core::common.posted_on') {{ $content->getPublishDate() }}</i>
             </p>
         </div>
         @if(isProviderLoaded('Gzero\Social\ServiceProvider') && function_exists('shareButtons'))
@@ -84,11 +84,4 @@
             </div>
         </div>
     @endif
-    <div class="row justify-content-end mb-2">
-        <div class="col-auto">
-            <div class="text-muted">
-                @lang('gzero-core::common.rating') {!! $content->ratingStars() !!}
-            </div>
-        </div>
-    </div>
 @stop

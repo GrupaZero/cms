@@ -159,7 +159,7 @@ class Content extends Tree implements PresentableInterface, Uploadable, Routable
      */
     public function getPresenter()
     {
-        return new ContentPresenter($this);
+        return new ContentPresenter($this->toArray());
     }
 
     /**
