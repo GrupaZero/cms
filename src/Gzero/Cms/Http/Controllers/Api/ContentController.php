@@ -168,7 +168,7 @@ class ContentController extends ApiController {
     public function index(UrlParamsProcessor $processor)
     {
         $this->authorize('readList', Content::class);
-
+        throw new \Error('TEST');
         $processor
             ->addFilter(new StringParser('type'))
             ->addFilter(new NumericParser('level'))

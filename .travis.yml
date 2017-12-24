@@ -31,5 +31,8 @@ script:
 after_success:
   - travis_retry php vendor/bin/coveralls -v -r /home/travis/build/GrupaZero/cms
 
+after_failure:
+  - cat vendor/orchestra/testbench-core/laravel/storage/logs/laravel-$(date +"%Y-%m-%d").log
+
 matrix:
   fast_finish: true
