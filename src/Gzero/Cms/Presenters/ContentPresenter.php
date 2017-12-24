@@ -4,6 +4,54 @@ use Robbo\Presenter\Presenter;
 
 class ContentPresenter extends Presenter {
 
+    protected $translation;
+
+    protected $translations;
+
+    /** @var array */
+    protected $allowedAttributes = [
+        'theme',
+        'weight',
+        'rating',
+        'is_on_home',
+        'is_promoted',
+        'is_sticky',
+        'is_comment_allowed',
+        'published_at'
+    ];
+
+    /**
+     * ContentPresenter constructor.
+     *
+     * @param array $data
+     */
+    public function __construct(array $data)
+    {
+        $this->object       = array_only($data, $this->allowedAttributes);
+        $this->translations = array_get($data, 'translations', []);
+        $this->translation  = array_first($this->translations, function ($translation) {
+            return $translation['language_code'] === app()->getLocale();
+        });
+    }
+
+    /**
+     * @param string|null $language
+     *
+     * @return string
+     */
+    public function getTitle(?string $language = null): string
+    {
+        return array_get($this->translation, 'title', 'Default');
+    }
+
+    /**
+     * @return mixed
+     */
+    public function isSticky()
+    {
+        return $this->is_sticky;
+    }
+
     /**
      * This function get single translation
      *
