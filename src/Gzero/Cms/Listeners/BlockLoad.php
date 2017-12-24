@@ -66,13 +66,12 @@ class BlockLoad {
      */
     public function handleLaravelRoute(RouteMatched $event)
     {
-        if ($event->request->method() === 'GET' && $event->route->domain() === env('DOMAIN') && $event->route->getName()) {
+        if ($this->ifFrontendRoute($event)) {
             $blockIds = $this->blockFinder->getBlocksIds($event->route->getName(), true);
             $blocks   = $this->blockRepository->getVisibleBlocks($blockIds, true);
             $this->handleBlockRendering($blocks);
             $blocks = $blocks->groupBy('region');
             view()->share('blocks', $blocks);
-            view()->share('sidebarsNumber', $this->getSidebarsNumber($blocks));
         }
     }
 
@@ -91,7 +90,6 @@ class BlockLoad {
         $this->handleBlockRendering($blocks);
         $blocks = $blocks->groupBy('region');
         view()->share('blocks', $blocks);
-        view()->share('sidebarsNumber', $this->getSidebarsNumber($blocks));
     }
 
     /**
@@ -110,21 +108,14 @@ class BlockLoad {
     }
 
     /**
-     * It gets number of active sidebars regions
+     * @param RouteMatched $event dispatched event
      *
-     * @param Collection $blocks List of blocks
-     *
-     * @return int number of active sidebars
+     * @return bool
      */
-    protected function getSidebarsNumber($blocks)
+    protected function ifFrontendRoute(RouteMatched $event): bool
     {
-        $sidebarsNumber = 0;
-        foreach (['sidebarLeft', 'sidebarRight'] as $region) {
-            if ($blocks->has($region)) {
-                $sidebarsNumber++;
-            }
-        }
-        return $sidebarsNumber;
+        return $event->request->method() === 'GET'
+            && $event->route->domain() !== 'api.' . env('DOMAIN')
+            && $event->route->getName();
     }
-
 }

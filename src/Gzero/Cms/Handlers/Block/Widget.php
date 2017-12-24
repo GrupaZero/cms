@@ -21,7 +21,10 @@ class Widget implements BlockTypeHandler {
         if ($html !== null) {
             return $html;
         }
-        $html = view('blocks.widget', ['block' => $block])->render();
+        $html = view('gzero-cms::blocks.widget', [
+            'block'       => $block,
+            'translation' => $block->getActiveTranslation($language->code)
+        ])->render();
         $this->putInCache($block, $language, $html);
         return $html;
     }
