@@ -8,8 +8,8 @@
     @endif
 @stop
 
-@section('title', $content->seoTitle())
-@section('seoDescription', $content->seoDescription())
+@section('title', $content->getSeoTitle())
+@section('seoDescription', $content->getSeoDescription())
 @section('head')
     @parent
     @include('gzero-cms::contents._canonical')
@@ -31,7 +31,7 @@
     <div class="row justify-content-md-between content-meta">
         <div class="col-12 col-md-auto">
             <p class="content-author text-muted">
-                <i>@lang('gzero-core::common.posted_by') {{ $content->getAuthorName() }}</i>
+                <i>@lang('gzero-core::common.posted_by') {{ $content->getAuthor()->displayName() }}</i>
                 <i>@lang('gzero-core::common.posted_on') {{ $content->getPublishDate() }}</i>
             </p>
         </div>

@@ -8,8 +8,8 @@
     @endif
 @stop
 
-@section('title', $content->seoTitle())
-@section('seoDescription', $content->seoDescription())
+@section('title', $content->getSeoTitle())
+@section('seoDescription', $content->getSeoDescription())
 @section('head')
     @parent
     @include('gzero-cms::contents._canonical', ['paginator' => $children])

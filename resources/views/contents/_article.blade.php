@@ -8,7 +8,7 @@
     <div class="row justify-content-between article-meta">
         <div class="col col-md-auto">
             <p class="text-muted">
-                <small>@lang('gzero-core::common.posted_by') {{ $child->getAuthorName() }}</small>
+                <small>@lang('gzero-core::common.posted_by') {{ $child->getAuthor()->displayName() }}</small>
                 <small>@lang('gzero-core::common.posted_on') {{ $child->getPublishDate() }}</small>
             </p>
         </div>

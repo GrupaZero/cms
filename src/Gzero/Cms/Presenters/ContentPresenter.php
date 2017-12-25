@@ -32,7 +32,7 @@ class ContentPresenter extends Presenter {
     /**
      * ContentPresenter constructor.
      *
-     * @param array $data
+     * @param array $data data to create presenter instance
      */
     public function __construct(array $data)
     {
@@ -43,15 +43,13 @@ class ContentPresenter extends Presenter {
 
         $this->translation = array_first($this->translations, function ($translation) {
             return $translation['language_code'] === app()->getLocale();
-        },
-            [
-                'title'           => null,
-                'teaser'          => null,
-                'body'            => null,
-                'seo_title'       => null,
-                'seo_description' => null
-            ]
-        );
+        }, [
+            'title'           => null,
+            'teaser'          => null,
+            'body'            => null,
+            'seo_title'       => null,
+            'seo_description' => null
+        ]);
 
         $this->route = array_first($this->routes, function ($route) {
             return $route['language_code'] === app()->getLocale() && $route['is_active'] === true;
@@ -127,46 +125,79 @@ class ContentPresenter extends Presenter {
     }
 
     /**
-     * @param string|null $language
+     * @param string|null $language optional language code to search for
      *
      * @return string
      */
     public function getTitle(string $language = null): ?string
     {
-        return array_get($this->translation, 'title');
+        if ($language === null) {
+            return array_get($this->translation, 'title');
+        }
+
+        $translation = array_first($this->translations, function ($translation) use ($language) {
+            return $translation['language_code'] === $language;
+        });
+
+        return array_get($translation, 'title');
     }
 
     /**
-     * @param string|null $language
+     * @param string|null $language optional language code to search for
      *
      * @return string
      */
     public function getTeaser(string $language = null): ?string
     {
-        return array_get($this->translation, 'teaser');
+        if ($language === null) {
+            return array_get($this->translation, 'teaser');
+        }
+
+        $translation = array_first($this->translations, function ($translation) use ($language) {
+            return $translation['language_code'] === $language;
+        });
+
+        return array_get($translation, 'teaser');
     }
 
     /**
-     * @param string|null $language
+     * @param string|null $language optional language code to search for
      *
      * @return string
      */
     public function getBody(string $language = null): ?string
     {
-        return array_get($this->translation, 'body');
+        if ($language === null) {
+            return array_get($this->translation, 'body');
+        }
+
+        $translation = array_first($this->translations, function ($translation) use ($language) {
+            return $translation['language_code'] === $language;
+        });
+
+        return array_get($translation, 'body');
     }
 
     /**
-     * @param string|null $language
+     * @param string|null $language optional language code to search for
      *
      * @return string
      */
     public function getUrl(string $language = null): ?string
     {
-        $languageCode = ($language) ?? app()->getLocale();
-        $path         = array_get($this->route, 'path');
+        if ($this->route === null) {
+            return null;
+        }
 
-        return urlMl($path, $languageCode);
+        if ($language === null) {
+            return urlMl(array_get($this->route, 'path'), app()->getLocale());
+        }
+
+        $route = array_first($this->routes, function ($route) use ($language) {
+            return $route['language_code'] === $language && $route['is_active'] === true;
+        });
+
+        return urlMl(array_get($route, 'path'), $language);
     }
 
     /**
@@ -177,7 +208,7 @@ class ContentPresenter extends Presenter {
      *
      * @return string
      */
-    public function seoTitle($alternativeField = false)
+    public function getSeoTitle($alternativeField = false)
     {
         if (!$alternativeField) {
             $alternativeField = config('gzero.seo.alternative_title', 'title');
@@ -200,7 +231,7 @@ class ContentPresenter extends Presenter {
      *
      * @return string
      */
-    public function seoDescription($alternativeField = false)
+    public function getSeoDescription($alternativeField = false)
     {
         $descLength = option('seo', 'desc_length', config('gzero.seo.desc_length', 160));
         if (!$alternativeField) {
@@ -209,15 +240,15 @@ class ContentPresenter extends Presenter {
         // if SEO description is set
         if ($this->translation['seo_description']) {
             return $this->removeNewLinesAndWhitespace($this->translation['seo_description']);
-        } else {
-            $text = $this->removeNewLinesAndWhitespace($this->translation[$alternativeField]);
-            // if alternative field is not empty
-            if ($text) {
-                return strlen($text) >= $descLength ? substr($text, 0, strpos($text, ' ', $descLength)) : $text;
-            };
-            // show site description as default
-            return option('general', 'site_desc');
         }
+
+        $text = $this->removeNewLinesAndWhitespace($this->translation[$alternativeField]);
+        // if alternative field is not empty
+        if ($text) {
+            return strlen($text) >= $descLength ? substr($text, 0, strpos($text, ' ', $descLength)) : $text;
+        };
+        // show site description as default
+        return option('general', 'site_desc');
     }
 
     /**
@@ -245,15 +276,11 @@ class ContentPresenter extends Presenter {
     /**
      * This function returns author first and last name
      *
-     * @return string
+     * @return UserPresenter
      */
-    public function getAuthorName()
+    public function getAuthor()
     {
-        if (empty($this->author)) {
-            return trans('gzero-core::common.anonymous');
-        }
-
-        return $this->author->displayName();
+        return optional($this->author);
     }
 
     /**
@@ -287,76 +314,76 @@ class ContentPresenter extends Presenter {
      *
      * @return string first image url
      */
-    public function stDataMarkup($langCode, $type = 'Article', $imageDimensions = ['729', '486'])
-    {
-        //$html = [];
-        //$tags = null;
-        //
-        //if (!empty($langCode)) {
-        //    $translation      = $this->translation($langCode);
-        //    $routeTranslation = $this->routeTranslation($langCode);
-        //
-        //    if (!empty($translation)) {
-        //        $firstImageUrl = $this->getFirstImageUrl($translation->teaser);
-        //
-        //        $tags = [
-        //            '@context'         => 'http://schema.org',
-        //            '@type'            => $type,
-        //            'publisher'        => [
-        //                '@type' => 'Brand',
-        //                'url'   => routeMl('home'),
-        //                'name'  => config('app.name'),
-        //                'logo'  => [
-        //                    '@type' => 'ImageObject',
-        //                    'url'   => asset('/images/logo.png')
-        //                ]
-        //            ],
-        //            'mainEntityOfPage' => [
-        //                '@type' => 'WebPage',
-        //                '@id'   => routeMl('home')
-        //            ],
-        //            'headline'         => $translation->title,
-        //            'author'           => [
-        //                '@type' => "Person",
-        //                'name'  => $this->authorName()
-        //            ],
-        //            'datePublished'    => $this->created_at,
-        //            'dateModified'     => $this->updated_at,
-        //            'url'              => $this->routeUrl($langCode),
-        //        ];
-        //
-        //        //@TODO add parent categories names
-        //        if ($this->level > 0) {
-        //            $url = explode('/', $routeTranslation->path);
-        //            if ($this->level === '1') {
-        //                $tags['articleSection'] = [ucfirst($url[0])];
-        //            } else {
-        //                $tags['articleSection'] = [ucfirst($url[0]), ucfirst($url[1])];
-        //            }
-        //        }
-        //    }
-        //}
-        //
-        ////@TODO use content thumbnail
-        //if (!empty($firstImageUrl)) {
-        //    $tags['image'] = [
-        //        '@type'  => 'ImageObject',
-        //        'url'    => $firstImageUrl,
-        //        'width'  => $imageDimensions[0],
-        //        'height' => $imageDimensions[1]
-        //    ];
-        //}
-        //
-        //if (!empty($tags)) {
-        //    $html = [
-        //        '<script type="application/ld+json">',
-        //        json_encode($tags, true),
-        //        '</script>'
-        //    ];
-        //}
-        //
-        //return implode('', $html);
-    }
+    //public function stDataMarkup($langCode, $type = 'Article', $imageDimensions = ['729', '486'])
+    //{
+    //    $html = [];
+    //    $tags = null;
+    //
+    //    if (!empty($langCode)) {
+    //        $translation      = $this->translation($langCode);
+    //        $routeTranslation = $this->routeTranslation($langCode);
+    //
+    //        if (!empty($translation)) {
+    //            $firstImageUrl = $this->getFirstImageUrl($translation->teaser);
+    //
+    //            $tags = [
+    //                '@context'         => 'http://schema.org',
+    //                '@type'            => $type,
+    //                'publisher'        => [
+    //                    '@type' => 'Brand',
+    //                    'url'   => routeMl('home'),
+    //                    'name'  => config('app.name'),
+    //                    'logo'  => [
+    //                        '@type' => 'ImageObject',
+    //                        'url'   => asset('/images/logo.png')
+    //                    ]
+    //                ],
+    //                'mainEntityOfPage' => [
+    //                    '@type' => 'WebPage',
+    //                    '@id'   => routeMl('home')
+    //                ],
+    //                'headline'         => $translation->title,
+    //                'author'           => [
+    //                    '@type' => "Person",
+    //                    'name'  => $this->authorName()
+    //                ],
+    //                'datePublished'    => $this->created_at,
+    //                'dateModified'     => $this->updated_at,
+    //                'url'              => $this->routeUrl($langCode),
+    //            ];
+    //
+    //            //@TODO add parent categories names
+    //            if ($this->level > 0) {
+    //                $url = explode('/', $routeTranslation->path);
+    //                if ($this->level === '1') {
+    //                    $tags['articleSection'] = [ucfirst($url[0])];
+    //                } else {
+    //                    $tags['articleSection'] = [ucfirst($url[0]), ucfirst($url[1])];
+    //                }
+    //            }
+    //        }
+    //    }
+    //
+    //    //@TODO use content thumbnail
+    //    if (!empty($firstImageUrl)) {
+    //        $tags['image'] = [
+    //            '@type'  => 'ImageObject',
+    //            'url'    => $firstImageUrl,
+    //            'width'  => $imageDimensions[0],
+    //            'height' => $imageDimensions[1]
+    //        ];
+    //    }
+    //
+    //    if (!empty($tags)) {
+    //        $html = [
+    //            '<script type="application/ld+json">',
+    //            json_encode($tags, true),
+    //            '</script>'
+    //        ];
+    //    }
+    //
+    //    return implode('', $html);
+    //}
 
     /**
      * Function removes new lines and strip whitespace (or other characters) from the beginning and end of a string
