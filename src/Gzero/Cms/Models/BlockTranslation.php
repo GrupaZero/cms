@@ -2,12 +2,9 @@
 
 use Gzero\Core\Models\Language;
 use Gzero\Core\Models\User;
-use Gzero\Cms\Presenters\BlockTranslationPresenter;
 use Illuminate\Database\Eloquent\Model;
-use Robbo\Presenter\PresentableInterface;
-use Robbo\Presenter\Robbo;
 
-class BlockTranslation extends Model implements PresentableInterface {
+class BlockTranslation extends Model {
 
     /** @var array */
     protected $fillable = [
@@ -53,16 +50,6 @@ class BlockTranslation extends Model implements PresentableInterface {
     public function author()
     {
         return $this->belongsTo(User::class, 'author_id', 'id');
-    }
-
-    /**
-     * Return a created presenter.
-     *
-     * @return \Robbo\Presenter\Presenter
-     */
-    public function getPresenter()
-    {
-        return new BlockTranslationPresenter($this);
     }
 
     /**

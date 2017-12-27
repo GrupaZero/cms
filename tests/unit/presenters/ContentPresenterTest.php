@@ -199,4 +199,35 @@ class ContentPresenterTest extends Unit {
 
         $this->assertEquals('Example body', $presenter->getSeoDescription());
     }
+
+    /** @test */
+    public function shouldBeAbleToGetFirstImageUrlFromSpecifiedField()
+    {
+        $presenter = new ContentPresenter([
+            'translations' => [
+                [
+                    'language_code' => 'en',
+                    'body'          => 'Example body <img src="http://localhost/images/first-image.png" class="img-fluid">'
+                ]
+            ]
+        ]);
+
+        $this->assertEquals('http://localhost/images/first-image.png', $presenter->getFirstImageUrl($presenter->getBody()));
+    }
+
+    /** @test */
+    public function shouldBeAbleToGetAncestorsNamesFromRoutePath()
+    {
+        $presenter = new ContentPresenter([
+            'routes' => [
+                [
+                    'language_code' => 'en',
+                    'path'          => 'offer/category/example-title',
+                    'is_active'     => true,
+                ]
+            ]
+        ]);
+
+        $this->assertEquals(['Offer', 'Category'], $presenter->getAncestorsNames());
+    }
 }

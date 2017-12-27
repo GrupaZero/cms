@@ -153,7 +153,7 @@ class Block extends Model implements Uploadable, PresentableInterface {
      */
     public function getPresenter()
     {
-        return new BlockPresenter($this);
+        return new BlockPresenter($this->toArray());
     }
 
     /**

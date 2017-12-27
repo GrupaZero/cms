@@ -6,6 +6,8 @@ use Robbo\Presenter\Presenter;
 
 class ContentPresenter extends Presenter {
 
+    protected $level;
+
     protected $author;
 
     protected $route;
@@ -26,7 +28,8 @@ class ContentPresenter extends Presenter {
         'is_promoted',
         'is_sticky',
         'is_comment_allowed',
-        'published_at'
+        'published_at',
+        'updated_at'
     ];
 
     /**
@@ -40,6 +43,7 @@ class ContentPresenter extends Presenter {
         $this->routes       = array_get($data, 'routes', []);
         $this->translations = array_get($data, 'translations', []);
         $this->author       = new UserPresenter(array_get($data, 'author', []));
+        $this->level        = array_get($data, 'level');
 
         $this->translation = array_first($this->translations, function ($translation) {
             return $translation['language_code'] === app()->getLocale();
@@ -114,6 +118,14 @@ class ContentPresenter extends Presenter {
     public function hasThumbnail()
     {
         return !empty($this->thumb_id);
+    }
+
+    /**
+     * @return mixed
+     */
+    public function hasAncestors()
+    {
+        return ($this->level > 0);
     }
 
     /**
@@ -274,6 +286,20 @@ class ContentPresenter extends Presenter {
     }
 
     /**
+     * This function returns formatted updated date
+     *
+     * @return string
+     */
+    public function getUpdatedDate()
+    {
+        if (empty($this->updated_at)) {
+            return trans('gzero-core::common.unknown');
+        }
+
+        return $this->updated_at;
+    }
+
+    /**
      * This function returns author first and last name
      *
      * @return UserPresenter
@@ -286,13 +312,15 @@ class ContentPresenter extends Presenter {
     /**
      * This function returns the first img url from provided text
      *
-     * @param string $text text to get first image url from
+     * @param string $text    text to get first image url from
+     *
+     * @param null   $default default url to return if image is not found
      *
      * @return string first image url
      */
-    public function getFirstImageUrl($text)
+    public function getFirstImageUrl($text, $default = null)
     {
-        $url = null;
+        $url = $default;
 
         if (!empty($text)) {
             preg_match('/< *img[^>]*src *= *["\']?([^"\']*)/i', $text, $matches);
@@ -306,84 +334,22 @@ class ContentPresenter extends Presenter {
     }
 
     /**
-     * This function returns the JSON-LD Structured Data Markup for specified language
+     * This function returns names of all ancestors based on route path
      *
-     * @param string $langCode        translation lang code to get tags for
-     * @param string $type            schema.org hierarchy type for the content - 'Article' as default
-     * @param array  $imageDimensions optional image dimensions
-     *
-     * @return string first image url
+     * @return array ancestors names
      */
-    //public function stDataMarkup($langCode, $type = 'Article', $imageDimensions = ['729', '486'])
-    //{
-    //    $html = [];
-    //    $tags = null;
-    //
-    //    if (!empty($langCode)) {
-    //        $translation      = $this->translation($langCode);
-    //        $routeTranslation = $this->routeTranslation($langCode);
-    //
-    //        if (!empty($translation)) {
-    //            $firstImageUrl = $this->getFirstImageUrl($translation->teaser);
-    //
-    //            $tags = [
-    //                '@context'         => 'http://schema.org',
-    //                '@type'            => $type,
-    //                'publisher'        => [
-    //                    '@type' => 'Brand',
-    //                    'url'   => routeMl('home'),
-    //                    'name'  => config('app.name'),
-    //                    'logo'  => [
-    //                        '@type' => 'ImageObject',
-    //                        'url'   => asset('/images/logo.png')
-    //                    ]
-    //                ],
-    //                'mainEntityOfPage' => [
-    //                    '@type' => 'WebPage',
-    //                    '@id'   => routeMl('home')
-    //                ],
-    //                'headline'         => $translation->title,
-    //                'author'           => [
-    //                    '@type' => "Person",
-    //                    'name'  => $this->authorName()
-    //                ],
-    //                'datePublished'    => $this->created_at,
-    //                'dateModified'     => $this->updated_at,
-    //                'url'              => $this->routeUrl($langCode),
-    //            ];
-    //
-    //            //@TODO add parent categories names
-    //            if ($this->level > 0) {
-    //                $url = explode('/', $routeTranslation->path);
-    //                if ($this->level === '1') {
-    //                    $tags['articleSection'] = [ucfirst($url[0])];
-    //                } else {
-    //                    $tags['articleSection'] = [ucfirst($url[0]), ucfirst($url[1])];
-    //                }
-    //            }
-    //        }
-    //    }
-    //
-    //    //@TODO use content thumbnail
-    //    if (!empty($firstImageUrl)) {
-    //        $tags['image'] = [
-    //            '@type'  => 'ImageObject',
-    //            'url'    => $firstImageUrl,
-    //            'width'  => $imageDimensions[0],
-    //            'height' => $imageDimensions[1]
-    //        ];
-    //    }
-    //
-    //    if (!empty($tags)) {
-    //        $html = [
-    //            '<script type="application/ld+json">',
-    //            json_encode($tags, true),
-    //            '</script>'
-    //        ];
-    //    }
-    //
-    //    return implode('', $html);
-    //}
+    public function getAncestorsNames()
+    {
+        $ancestors = explode('/', array_get($this->route, 'path'));
+
+        if (empty($ancestors)) {
+            return null;
+        }
+
+        array_pop($ancestors);
+
+        return array_map('ucfirst', $ancestors);
+    }
 
     /**
      * Function removes new lines and strip whitespace (or other characters) from the beginning and end of a string

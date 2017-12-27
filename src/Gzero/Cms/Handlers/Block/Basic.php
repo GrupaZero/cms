@@ -22,8 +22,7 @@ class Basic implements BlockTypeHandler {
             return $html;
         }
         $html = view('gzero-cms::blocks.basic', [
-            'block'       => $block,
-            'translation' => $block->getActiveTranslation($language->code),
+            'block' => $block
         ])->render();
         $this->putInCache($block, $language, $html);
         return $html;

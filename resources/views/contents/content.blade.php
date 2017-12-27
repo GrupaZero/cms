@@ -14,9 +14,7 @@
     @parent
     @include('gzero-cms::contents._canonical')
     @include('gzero-cms::contents._alternateLinks', ['content' => $content])
-    @if(method_exists($content, 'stDataMarkup'))
-        {!! $content->stDataMarkup($language->code) !!}
-    @endif
+    @include('gzero-cms::contents._stDataMarkup', ['content' => $content])
 @stop
 
 @section('breadcrumbs')

@@ -1,10 +1,13 @@
-<div class="block {{isset($block->theme) ? $block->theme : 'col-sm-12'}}">
-    @if(isset($translation))
+<?php /* @var $block \Gzero\Cms\Presenters\BlockPresenter */ ?>
+<div class="block {{ $block->getTheme('col-sm-12') }}">
+    @if($block->hasTitle())
         <div class="block-title">
-            <h2>{{ $translation->title }}</h2>
+            <h4>{{ $block->getTitle() }}</h4>
         </div>
+    @endif
+    @if($block->hasBody())
         <div class="block-body">
-            {!! $translation->body !!}
+            {!! $block->getBody() !!}
         </div>
     @endif
 </div>

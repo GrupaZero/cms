@@ -314,4 +314,109 @@ class ContentCest {
         $I->dontSee('Future - Title', '.article-title');
     }
 
+    public function canSeeStDataMarkupWithShareLogo(FunctionalTester $I)
+    {
+        $user       = factory(User::class)->create(['name' => 'John Doe']);
+        $thumbWidth = config('gzero-cms.image.thumb.width');
+
+        $content = dispatch_now(CreateContent::content('Content Title', new Language(['code' => 'en']), $user, [
+            'published_at' => Carbon::now(),
+            'teaser'       => 'Content teaser.',
+            'body'         => 'Content body.',
+            'is_active'    => true
+        ]));
+
+        $content = $content->fresh();
+        $tag     = 'script[type="application/ld+json"]';
+
+        $I->amOnPage('content-title');
+        $I->seeResponseCodeIs(200);
+        $I->see('"@context": "http://schema.org"', $tag);
+        $I->see('"@type": "Article"', $tag);
+        $I->see('"headline": "Content Title"', $tag);
+        $I->see('"url": "http://localhost/content-title"', $tag);
+        $I->see('"datePublished": "' . $content->published_at->toDateTimeString() . '"', $tag);
+        $I->see('"dateModified": "' . $content->updated_at->toDateTimeString() . '"', $tag);
+
+        $I->see('"author": 
+        {
+                "@type": "Person",
+                "name": "John Doe"
+        }', $tag);
+
+        $I->see('"publisher": 
+        {
+            "@type": "Organization",
+            "url": "http://localhost",
+            "name": "Laravel",
+            "logo": {
+                "@type": "ImageObject",
+                "url": "http://localhost/images/logo.png"
+            }
+        }', $tag);
+
+        $I->see('"mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "http://localhost"
+        }', $tag);
+
+        $I->see('"image": {
+            "@type": "ImageObject",
+            "url": "http://localhost/images/share-logo.png",
+            "width": "' . $thumbWidth . '",
+            "height": "auto"
+        }', $tag);
+    }
+
+    public function canSeeStDataMarkupWithAncestorsNames(FunctionalTester $I)
+    {
+        $user     = factory(User::class)->create(['name' => 'John Doe']);
+        $language = new Language(['code' => 'en']);
+
+        $root = dispatch_now(CreateContent::category('Offer', $language, $user, [
+            'published_at' => Carbon::now(),
+            'is_active'    => true
+        ]));
+
+        $parent = dispatch_now(CreateContent::category('Category', $language, $user, [
+            'published_at' => Carbon::now(),
+            'parent_id'    => $root->id,
+            'is_active'    => true
+        ]));
+
+        dispatch_now(CreateContent::content('Content Title', $language, $user, [
+            'published_at' => Carbon::now(),
+            'parent_id'    => $parent->id,
+            'teaser'       => 'Content teaser.',
+            'body'         => 'Content body.',
+            'is_active'    => true
+        ]));
+
+        $I->amOnPage('offer/category/content-title');
+        $I->seeResponseCodeIs(200);
+        $I->see('"articleSection": "Offer,Category', 'script[type="application/ld+json"]');
+    }
+
+    public function canSeeStDataMarkupWithFirstImageUrlFromTeaser(FunctionalTester $I)
+    {
+        $user       = factory(User::class)->create(['name' => 'John Doe']);
+        $language   = new Language(['code' => 'en']);
+        $thumbWidth = config('gzero-cms.image.thumb.width');
+
+        dispatch_now(CreateContent::content('Content Title', $language, $user, [
+            'published_at' => Carbon::now(),
+            'teaser'       => 'Content teaser. <img src="http://localhost/images/first-image.png" class="img-fluid">',
+            'body'         => 'Content body.',
+            'is_active'    => true
+        ]));
+
+        $I->amOnPage('content-title');
+        $I->seeResponseCodeIs(200);
+        $I->see('"image": {
+            "@type": "ImageObject",
+            "url": "http://localhost/images/first-image.png",
+            "width": "' . $thumbWidth . '",
+            "height": "auto"
+        }', 'script[type="application/ld+json"]');
+    }
 }
