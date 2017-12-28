@@ -2,7 +2,7 @@
 
 use Carbon\Carbon;
 use Codeception\Test\Unit;
-use Gzero\Cms\Presenters\ContentPresenter;
+use Gzero\Cms\ViewModels\ContentViewModel;
 use Gzero\Core\Models\User;
 
 class ContentPresenterTest extends Unit {
@@ -10,7 +10,7 @@ class ContentPresenterTest extends Unit {
     /** @test */
     public function canInstantiate()
     {
-        $this->assertInstanceOf(ContentPresenter::class, new ContentPresenter([]));
+        $this->assertInstanceOf(ContentViewModel::class, new ContentViewModel([]));
     }
 
     /** @test */
@@ -18,7 +18,7 @@ class ContentPresenterTest extends Unit {
     {
         $date      = Carbon::now();
         $user      = factory(User::class)->create(['name' => 'John Doe']);
-        $presenter = new ContentPresenter([
+        $presenter = new ContentViewModel([
             'id'                 => 1,
             'theme'              => 'is-sticky',
             'weight'             => 10,
@@ -28,7 +28,7 @@ class ContentPresenterTest extends Unit {
             'is_sticky'          => true,
             'is_comment_allowed' => true,
             'published_at'       => $date,
-            'author'             => $user,
+            'author'             => $user->toArray(),
             'routes'             => [
                 [
                     'language_code' => 'en',
@@ -52,22 +52,22 @@ class ContentPresenterTest extends Unit {
         $this->assertTrue($presenter->isPromoted());
         $this->assertTrue($presenter->isSticky());
         $this->assertTrue($presenter->isCommentAllowed());
-        $this->assertEquals(1, $presenter->getId());
-        $this->assertEquals('Example title', $presenter->getTitle());
-        $this->assertEquals('Example teaser', $presenter->getTeaser());
-        $this->assertEquals('Example body', $presenter->getBody());
-        $this->assertEquals(urlMl('example-title', 'en'), $presenter->getUrl());
-        $this->assertEquals('is-sticky', $presenter->getTheme());
-        $this->assertEquals('SEO title', $presenter->getSeoTitle());
-        $this->assertEquals('SEO description', $presenter->getSeoDescription());
-        $this->assertEquals($date, $presenter->getPublishDate());
-        $this->assertEquals('John Doe', $presenter->getAuthor()->displayName());
+        $this->assertEquals(1, $presenter->id());
+        $this->assertEquals('Example title', $presenter->title());
+        $this->assertEquals('Example teaser', $presenter->teaser());
+        $this->assertEquals('Example body', $presenter->body());
+        $this->assertEquals(urlMl('example-title', 'en'), $presenter->url());
+        $this->assertEquals('is-sticky', $presenter->theme());
+        $this->assertEquals('SEO title', $presenter->seoTitle());
+        $this->assertEquals('SEO description', $presenter->seoDescription());
+        $this->assertEquals($date, $presenter->publishedAt());
+        $this->assertEquals('John Doe', $presenter->author()->displayName());
     }
 
     /** @test */
     public function shouldBeAbleToGetTitleInSpecifiedLanguage()
     {
-        $presenter = new ContentPresenter([
+        $presenter = new ContentViewModel([
             'translations' => [
                 [
                     'language_code' => 'en',
@@ -80,14 +80,14 @@ class ContentPresenterTest extends Unit {
             ]
         ]);
 
-        $this->assertEquals('Example title', $presenter->getTitle());
-        $this->assertEquals('Przykładowy tytuł', $presenter->getTitle('pl'));
+        $this->assertEquals('Example title', $presenter->title());
+        $this->assertEquals('Przykładowy tytuł', $presenter->title('pl'));
     }
 
     /** @test */
     public function shouldBeAbleToGetBodyInSpecifiedLanguage()
     {
-        $presenter = new ContentPresenter([
+        $presenter = new ContentViewModel([
             'translations' => [
                 [
                     'language_code' => 'en',
@@ -100,14 +100,14 @@ class ContentPresenterTest extends Unit {
             ]
         ]);
 
-        $this->assertEquals('Example body', $presenter->getBody());
-        $this->assertEquals('Przykładowa treść', $presenter->getBody('pl'));
+        $this->assertEquals('Example body', $presenter->body());
+        $this->assertEquals('Przykładowa treść', $presenter->body('pl'));
     }
 
     /** @test */
     public function shouldBeAbleToGetTeaserInSpecifiedLanguage()
     {
-        $presenter = new ContentPresenter([
+        $presenter = new ContentViewModel([
             'translations' => [
                 [
                     'language_code' => 'en',
@@ -120,14 +120,14 @@ class ContentPresenterTest extends Unit {
             ]
         ]);
 
-        $this->assertEquals('Example teaser', $presenter->getTeaser());
-        $this->assertEquals('Przykładowy wstęp', $presenter->getTeaser('pl'));
+        $this->assertEquals('Example teaser', $presenter->teaser());
+        $this->assertEquals('Przykładowy wstęp', $presenter->teaser('pl'));
     }
 
     /** @test */
     public function shouldBeAbleToGetUrlInSpecifiedLanguage()
     {
-        $presenter = new ContentPresenter([
+        $presenter = new ContentViewModel([
             'routes' => [
                 [
                     'language_code' => 'en',
@@ -142,14 +142,14 @@ class ContentPresenterTest extends Unit {
             ]
         ]);
 
-        $this->assertEquals(urlMl('example-title', 'en'), $presenter->getUrl());
-        $this->assertEquals(urlMl('przykladowy-tytul', 'pl'), $presenter->getUrl('pl'));
+        $this->assertEquals(urlMl('example-title', 'en'), $presenter->url());
+        $this->assertEquals(urlMl('przykladowy-tytul', 'pl'), $presenter->url('pl'));
     }
 
     /** @test */
     public function shouldNotBeAbleToGetInactiveUrlInSpecifiedLanguage()
     {
-        $presenter = new ContentPresenter([
+        $presenter = new ContentViewModel([
             'routes' => [
                 [
                     'language_code' => 'en',
@@ -164,14 +164,14 @@ class ContentPresenterTest extends Unit {
             ]
         ]);
 
-        $this->assertNull($presenter->getUrl());
-        $this->assertNull($presenter->getUrl('pl'));
+        $this->assertNull($presenter->url());
+        $this->assertNull($presenter->url('pl'));
     }
 
     /** @test */
     public function shouldBeAbleToGetSeoTitleFromAlternativeField()
     {
-        $presenter = new ContentPresenter([
+        $presenter = new ContentViewModel([
             'translations' => [
                 [
                     'language_code' => 'en',
@@ -181,13 +181,13 @@ class ContentPresenterTest extends Unit {
             ]
         ]);
 
-        $this->assertEquals('Example title', $presenter->getSeoTitle());
+        $this->assertEquals('Example title', $presenter->seoTitle());
     }
 
     /** @test */
     public function shouldBeAbleToGetSeoDescriptionFromAlternativeField()
     {
-        $presenter = new ContentPresenter([
+        $presenter = new ContentViewModel([
             'translations' => [
                 [
                     'language_code'   => 'en',
@@ -197,13 +197,13 @@ class ContentPresenterTest extends Unit {
             ]
         ]);
 
-        $this->assertEquals('Example body', $presenter->getSeoDescription());
+        $this->assertEquals('Example body', $presenter->seoDescription());
     }
 
     /** @test */
     public function shouldBeAbleToGetFirstImageUrlFromSpecifiedField()
     {
-        $presenter = new ContentPresenter([
+        $presenter = new ContentViewModel([
             'translations' => [
                 [
                     'language_code' => 'en',
@@ -212,13 +212,13 @@ class ContentPresenterTest extends Unit {
             ]
         ]);
 
-        $this->assertEquals('http://localhost/images/first-image.png', $presenter->getFirstImageUrl($presenter->getBody()));
+        $this->assertEquals('http://localhost/images/first-image.png', $presenter->firstImageUrl($presenter->body()));
     }
 
     /** @test */
     public function shouldBeAbleToGetAncestorsNamesFromRoutePath()
     {
-        $presenter = new ContentPresenter([
+        $presenter = new ContentViewModel([
             'routes' => [
                 [
                     'language_code' => 'en',
@@ -228,6 +228,6 @@ class ContentPresenterTest extends Unit {
             ]
         ]);
 
-        $this->assertEquals(['Offer', 'Category'], $presenter->getAncestorsNames());
+        $this->assertEquals(['Offer', 'Category'], $presenter->ancestorsNames());
     }
 }

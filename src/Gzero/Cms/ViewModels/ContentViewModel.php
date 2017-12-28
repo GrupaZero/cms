@@ -1,21 +1,26 @@
-<?php namespace Gzero\Cms\Presenters;
+<?php namespace Gzero\Cms\ViewModels;
 
 use Carbon\Carbon;
-use Gzero\Core\Presenters\UserPresenter;
-use Robbo\Presenter\Presenter;
+use Gzero\Core\ViewModels\UserViewModel;
 
-class ContentPresenter extends Presenter {
+class ContentViewModel {
 
-    protected $level;
+    /** @var array */
+    protected $data;
 
+    /** @var array */
     protected $author;
 
+    /** @var array */
     protected $route;
 
+    /** @var array */
     protected $routes;
 
+    /** @var array */
     protected $translation;
 
+    /** @var array */
     protected $translations;
 
     /** @var array */
@@ -23,6 +28,7 @@ class ContentPresenter extends Presenter {
         'id',
         'theme',
         'weight',
+        'level',
         'rating',
         'is_on_home',
         'is_promoted',
@@ -33,17 +39,16 @@ class ContentPresenter extends Presenter {
     ];
 
     /**
-     * ContentPresenter constructor.
+     * ContentViewModel constructor.
      *
      * @param array $data data to create presenter instance
      */
     public function __construct(array $data)
     {
-        $this->object       = array_only($data, $this->allowedAttributes);
+        $this->data         = array_only($data, $this->allowedAttributes);
         $this->routes       = array_get($data, 'routes', []);
         $this->translations = array_get($data, 'translations', []);
-        $this->author       = new UserPresenter(array_get($data, 'author', []));
-        $this->level        = array_get($data, 'level');
+        $this->author       = new UserViewModel(array_get($data, 'author', []));
 
         $this->translation = array_first($this->translations, function ($translation) {
             return $translation['language_code'] === app()->getLocale();
@@ -61,19 +66,19 @@ class ContentPresenter extends Presenter {
     }
 
     /**
-     * @return mixed
+     * @return bool
      */
     public function isOnHome()
     {
-        return $this->is_on_home;
+        return array_get($this->data, 'is_on_home', false);
     }
 
     /**
-     * @return mixed
+     * @return bool
      */
     public function isPromoted()
     {
-        return $this->is_promoted;
+        return array_get($this->data, 'is_promoted', false);
     }
 
     /**
@@ -81,7 +86,7 @@ class ContentPresenter extends Presenter {
      */
     public function isSticky()
     {
-        return $this->is_sticky;
+        return array_get($this->data, 'is_sticky', false);
     }
 
     /**
@@ -89,7 +94,7 @@ class ContentPresenter extends Presenter {
      */
     public function isCommentAllowed()
     {
-        return $this->is_comment_allowed;
+        return array_get($this->data, 'is_comment_allowed', false);
     }
 
     /**
@@ -97,11 +102,12 @@ class ContentPresenter extends Presenter {
      */
     public function isPublished()
     {
-        if ($this->published_at === null) {
+        $publishedAt = array_get($this->data, 'published_at', null);
+        if ($publishedAt === null) {
             return false;
         }
 
-        return Carbon::parse($this->published_at)->lte(Carbon::now());
+        return Carbon::parse($publishedAt)->lte(Carbon::now());
     }
 
     /**
@@ -109,7 +115,7 @@ class ContentPresenter extends Presenter {
      */
     public function hasTeaser()
     {
-        return !empty($this->getTeaser());
+        return !empty($this->teaser());
     }
 
     /**
@@ -117,7 +123,7 @@ class ContentPresenter extends Presenter {
      */
     public function hasThumbnail()
     {
-        return !empty($this->thumb_id);
+        return array_has($this->data, 'thumb_id');
     }
 
     /**
@@ -125,15 +131,15 @@ class ContentPresenter extends Presenter {
      */
     public function hasAncestors()
     {
-        return ($this->level > 0);
+        return (array_get($this->data, 'level', 0) > 0);
     }
 
     /**
      * @return integer
      */
-    public function getId()
+    public function id()
     {
-        return $this->id;
+        return array_get($this->data, 'id');
     }
 
     /**
@@ -141,7 +147,7 @@ class ContentPresenter extends Presenter {
      *
      * @return string
      */
-    public function getTitle(string $language = null): ?string
+    public function title(string $language = null): ?string
     {
         if ($language === null) {
             return array_get($this->translation, 'title');
@@ -159,7 +165,7 @@ class ContentPresenter extends Presenter {
      *
      * @return string
      */
-    public function getTeaser(string $language = null): ?string
+    public function teaser(string $language = null): ?string
     {
         if ($language === null) {
             return array_get($this->translation, 'teaser');
@@ -177,7 +183,7 @@ class ContentPresenter extends Presenter {
      *
      * @return string
      */
-    public function getBody(string $language = null): ?string
+    public function body(string $language = null): ?string
     {
         if ($language === null) {
             return array_get($this->translation, 'body');
@@ -195,7 +201,7 @@ class ContentPresenter extends Presenter {
      *
      * @return string
      */
-    public function getUrl(string $language = null): ?string
+    public function url(string $language = null): ?string
     {
         if ($this->route === null) {
             return null;
@@ -220,7 +226,7 @@ class ContentPresenter extends Presenter {
      *
      * @return string
      */
-    public function getSeoTitle($alternativeField = false)
+    public function seoTitle($alternativeField = false)
     {
         if (!$alternativeField) {
             $alternativeField = config('gzero.seo.alternative_title', 'title');
@@ -243,7 +249,7 @@ class ContentPresenter extends Presenter {
      *
      * @return string
      */
-    public function getSeoDescription($alternativeField = false)
+    public function seoDescription($alternativeField = false)
     {
         $descLength = option('seo', 'desc_length', config('gzero.seo.desc_length', 160));
         if (!$alternativeField) {
@@ -266,9 +272,9 @@ class ContentPresenter extends Presenter {
     /**
      * @return string
      */
-    public function getTheme()
+    public function theme()
     {
-        return array_get($this, 'theme');
+        return array_get($this->data, 'theme');
     }
 
     /**
@@ -276,13 +282,15 @@ class ContentPresenter extends Presenter {
      *
      * @return string
      */
-    public function getPublishDate()
+    public function publishedAt()
     {
-        if (empty($this->published_at)) {
+        $publishedAt = array_get($this->data, 'published_at', null);
+
+        if ($publishedAt === null) {
             return trans('gzero-core::common.unknown');
         }
 
-        return $this->published_at;
+        return $publishedAt;
     }
 
     /**
@@ -290,21 +298,23 @@ class ContentPresenter extends Presenter {
      *
      * @return string
      */
-    public function getUpdatedDate()
+    public function updatedAt()
     {
-        if (empty($this->updated_at)) {
+        $updatedAt = array_get($this->data, 'updated_at', null);
+
+        if ($updatedAt === null) {
             return trans('gzero-core::common.unknown');
         }
 
-        return $this->updated_at;
+        return $updatedAt;
     }
 
     /**
      * This function returns author first and last name
      *
-     * @return UserPresenter
+     * @return UserViewModel
      */
-    public function getAuthor()
+    public function author()
     {
         return optional($this->author);
     }
@@ -318,7 +328,7 @@ class ContentPresenter extends Presenter {
      *
      * @return string first image url
      */
-    public function getFirstImageUrl($text, $default = null)
+    public function firstImageUrl($text, $default = null)
     {
         $url = $default;
 
@@ -338,7 +348,7 @@ class ContentPresenter extends Presenter {
      *
      * @return array ancestors names
      */
-    public function getAncestorsNames()
+    public function ancestorsNames()
     {
         $ancestors = explode('/', array_get($this->route, 'path'));
 

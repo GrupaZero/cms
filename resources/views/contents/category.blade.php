@@ -1,15 +1,15 @@
-<?php /* @var $content \Gzero\Cms\Presenters\ContentPresenter */ ?>
+<?php /* @var $content \Gzero\Cms\ViewModels\ContentViewModel */ ?>
 @extends('gzero-core::layouts.withRegions')
-@section('bodyClass', $content->getTheme())
+@section('bodyClass', $content->theme())
 
 @section('metaData')
     @if(isProviderLoaded('Gzero\Social\ServiceProvider') && function_exists('fbOgTags'))
-        {!! fbOgTags($content->getUrl(), $content->translation) !!}
+        {!! fbOgTags($content->url(), $content->translation) !!}
     @endif
 @stop
 
-@section('title', $content->getSeoTitle())
-@section('seoDescription', $content->getSeoDescription())
+@section('title', $content->seoTitle())
+@section('seoDescription', $content->seoDescription())
 @section('head')
     @parent
     @include('gzero-cms::contents._canonical', ['paginator' => $children])
@@ -22,9 +22,9 @@
 @section('content')
     @include('gzero-cms::contents._notPublishedContentMsg')
     <h1 class="content-title">
-        {{ $content->getTitle() }}
+        {{ $content->title() }}
     </h1>
-    {!! $content->getBody() !!}
+    {!! $content->body() !!}
     @if($children)
         @foreach($children as $index => $child)
             @include('gzero-cms::contents._article', ['child' => $child])

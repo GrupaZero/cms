@@ -1,13 +1,13 @@
-<?php /* @var $block \Gzero\Cms\Presenters\BlockPresenter */ ?>
-<div class="block {{ $block->getTheme('col-sm-12') }}">
+<?php /* @var $block \Gzero\Cms\ViewModels\BlockViewModel */ ?>
+<div class="block {{ $block->theme('col-sm-12') }}">
     @if($block->hasTitle())
         <div class="block-title">
-            <h4>{{ $block->getTitle() }}</h4>
+            <h4>{{ $block->title() }}</h4>
         </div>
     @endif
     @if($block->hasBody())
         <div class="block-body">
-            {!! $block->getBody() !!}
+            {!! $block->body() !!}
         </div>
     @endif
 </div>

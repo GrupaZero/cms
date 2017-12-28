@@ -1,7 +1,7 @@
 <?php namespace Gzero\Cms\Models;
 
 use Gzero\Core\Models\User;
-use Gzero\Cms\Presenters\BlockPresenter;
+use Gzero\Cms\ViewModels\BlockViewModel;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Gzero\InvalidArgumentException;
@@ -153,7 +153,7 @@ class Block extends Model implements Uploadable, PresentableInterface {
      */
     public function getPresenter()
     {
-        return new BlockPresenter($this->toArray());
+        return new BlockViewModel($this->toArray());
     }
 
     /**

@@ -1,4 +1,4 @@
-<?php /* @var $content \Gzero\Cms\Presenters\ContentPresenter */ ?>
+<?php /* @var $content \Gzero\Cms\ViewModels\ContentViewModel */ ?>
 <script type="application/ld+json">
     {
         "@context": "http://schema.org",
@@ -17,16 +17,16 @@
             "@id": "{{ routeMl('home') }}"
         },
         @if(isset($content))
-            "headline": "{{ $content->getTitle()}}",
+            "headline": "{{ $content->title()}}",
             "author": {
                 "@type": "Person",
-                "name": "{{ $content->getAuthor()->displayName() }}"
+                "name": "{{ $content->author()->displayName() }}"
             },
-            "datePublished": "{{ $content->published_at }}",
-            "dateModified": "{{ $content->updated_at }}",
-            "url": "{{ $content->getUrl() }}",
+            "datePublished": "{{ $content->publishedAt() }}",
+            "dateModified": "{{ $content->updatedAt() }}",
+            "url": "{{ $content->url() }}",
             @if($content->hasAncestors())
-                "articleSection": "{{ implode(',', $content->getAncestorsNames()) }}",
+                "articleSection": "{{ implode(',', $content->ancestorsNames()) }}",
             @endif
             "image": {
                 "@type": "ImageObject",
@@ -35,7 +35,7 @@
                     "width": "{{ isset($width) ? $width : config('gzero-cms.image.thumb.width') }}",
                     "height": "{{ isset($height) ? $height : 'auto' }}"
                 @else
-                    "url": "{{ $content->getFirstImageUrl($content->getTeaser(), asset('images/share-logo.png')) }}",
+                    "url": "{{ $content->firstImageUrl($content->teaser(), asset('images/share-logo.png')) }}",
                     "width": "{{ config('gzero-cms.image.thumb.width') }}",
                     "height": "{{ 'auto' }}"
                 @endif

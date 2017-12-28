@@ -1,4 +1,4 @@
-<?php namespace Gzero\Cms\Presenters;
+<?php namespace Gzero\Cms\ViewModels;
 
 use Robbo\Presenter\Presenter;
 

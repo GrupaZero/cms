@@ -9,7 +9,7 @@ use Gzero\Core\Models\Language;
 use Gzero\Core\Models\Routable;
 use Gzero\Core\Models\Route;
 use Gzero\Core\Models\User;
-use Gzero\Cms\Presenters\ContentPresenter;
+use Gzero\Cms\ViewModels\ContentViewModel;
 use Gzero\EloquentTree\Model\Tree;
 use Illuminate\Http\Response;
 use Robbo\Presenter\PresentableInterface;
@@ -155,11 +155,11 @@ class Content extends Tree implements PresentableInterface, Uploadable, Routable
     /**
      * Return a created presenter.
      *
-     * @return \Robbo\Presenter\Presenter
+     * @return ContentViewModel
      */
     public function getPresenter()
     {
-        return new ContentPresenter($this->toArray());
+        return new ContentViewModel($this->toArray());
     }
 
     /**
