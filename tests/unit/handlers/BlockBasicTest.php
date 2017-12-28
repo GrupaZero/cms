@@ -1,4 +1,4 @@
-<?php namespace unit\Handlers\Block\Basic;
+<?php namespace Cms;
 
 use Codeception\Test\Unit;
 use Gzero\Cms\BlockFinder;
@@ -29,10 +29,8 @@ class BlockFinderTest extends Unit {
         m::close();
     }
 
-    /**
-     * @test
-     */
-    public function it_finds_correct_block()
+    /** @test */
+    public function itFindsCorrectBlock()
     {
         // Our content path
         $contentPath = '1/2/3/4/5/6/';
@@ -103,10 +101,8 @@ class BlockFinderTest extends Unit {
         $this->assertContains(7, $this->finder->getBlocksIds($rootPath));
     }
 
-    /**
-     * @test
-     */
-    public function it_finds_correct_block_for_static_pages()
+    /** @test */
+    public function itFindsCorrectBlockForStaticPages()
     {
         // Home page route name
         $findPath = 'home';
@@ -161,10 +157,8 @@ class BlockFinderTest extends Unit {
     }
 
 
-    /**
-     * @test
-     */
-    public function it_finds_block_with_only_hidden_filter_on_other_pages()
+    /** @test */
+    public function itFindsBlockWithOnlyHiddenFilterOnOtherPages()
     {
         // Our content path
         $findPath = '1/2/3/4/5/6/';
@@ -213,10 +207,8 @@ class BlockFinderTest extends Unit {
         $this->assertContains(4, $this->finder->getBlocksIds($rootPath));
     }
 
-    /**
-     * @test
-     */
-    public function it_finds_block_with_only_hidden_filter_on_root_pages()
+    /** @test */
+    public function itFindsBlockWithOnlyHiddenFilterOnRootPages()
     {
         // Our content root path
         $findPath = '1/';
@@ -244,10 +236,8 @@ class BlockFinderTest extends Unit {
         $this->assertNotContains(2, $this->finder->getBlocksIds($findPath));
     }
 
-    /**
-     * @test
-     */
-    public function it_uses_correct_order_of_operations()
+    /** @test */
+    public function itUsesCorrectOrderOfOperations()
     {
         // Our content path
         $contentPath    = '1/2/';
@@ -265,11 +255,8 @@ class BlockFinderTest extends Unit {
         $this->assertNotContains(1, $this->finder->getBlocksIds($contentPath));
     }
 
-
-    /**
-     * @test
-     */
-    public function it_finds_correct_block_for_non_filtered_pages()
+    /** @test */
+    public function itFindsCorrectBlockForNonFilteredPages()
     {
         // Our pages paths
         $contentPath    = '1/2/';

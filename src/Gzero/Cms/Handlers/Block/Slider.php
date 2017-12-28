@@ -45,9 +45,8 @@ class Slider implements BlockTypeHandler {
             ]
         );
         $html   = view('gzero-cms::blocks.slider', [
-            'block'       => $block,
-            'translation' => $block->getActiveTranslation($language->code),
-            'images'      => $images
+            'block'  => $block,
+            'images' => $images
         ])->render();
         $this->putInCache($block, $language, $html);
         return $html;

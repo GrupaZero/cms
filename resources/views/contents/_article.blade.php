@@ -1,61 +1,48 @@
-<?php $childTranslation = $child->translation($language->code); ?>
-@if($childTranslation)
-    <?php $childUrl = $child->routeUrl($language->code); ?>
-    <article class="{{ $child->is_sticky ? 'is-sticky' : '' }}{{ $child->is_promoted ? ' is-promoted' : '' }}">
-        <h2 class="article-title">
-            <a href="{{ $childUrl }}">
-                {{ $childTranslation->title }}
-            </a>
-        </h2>
-        <div class="row justify-content-between article-meta">
-            <div class="col col-md-auto">
-                <p class="text-muted">
-                    <small>@lang('gzero-core::common.posted_by') {{ $child->authorName() }}</small>
-                    <small>@lang('gzero-core::common.posted_on') {{ $child->publishDate() }}</small>
-                </p>
-            </div>
-            @if(config('gzero-cms.disqus.enabled') && $child->is_comment_allowed)
-                <div class="col-auto">
-                    <a href="{{ $childUrl }}#disqus_thread"
-                       data-disqus-identifier="{{ $child->id }}"
-                       class="disqus-comment-count">
-                        0 @lang('gzero-core::common.comments')
-                    </a>
-                </div>
-            @endif
+<?php /* @var $child \Gzero\Cms\Presenters\ContentPresenter */ ?>
+<article class="{{ $child->isSticky() ? 'is-sticky' : '' }}{{ $child->isPromoted() ? ' is-promoted' : '' }}">
+    <h2 class="article-title">
+        <a href="{{ $child->getUrl() }}">
+            {{ $child->getTitle() }}
+        </a>
+    </h2>
+    <div class="row justify-content-between article-meta">
+        <div class="col col-md-auto">
+            <p class="text-muted">
+                <small>@lang('gzero-core::common.posted_by') {{ $child->getAuthor()->displayName() }}</small>
+                <small>@lang('gzero-core::common.posted_on') {{ $child->getPublishDate() }}</small>
+            </p>
         </div>
-        @if($child->thumb)
-            <?php $thumbTranslation = $child->thumb->translation($language->code); ?>
-            <div class="row mb-2">
-                <div class="col">
-                    <img class="img-fluid img-thumbnail"
-                         title="{{($thumbTranslation)? $thumbTranslation->title : ''}}"
-                         src="{{croppaUrl($child->thumb->getFullPath(),
-                                config('gzero.image.thumb.width'), config('gzero.image.thumb.height'), ['resize'])}}"
-                         alt="{{($thumbTranslation)? $thumbTranslation->title : ''}}">
-                </div>
-            </div>
-        @endif
-        {!! $childTranslation->teaser !!}
-        <div class="row justify-content-md-between">
-            <div class="col-12 col-md-auto mb-3 mb-md-0">
-                <a href="{{ $childUrl }}" class="btn btn-outline-primary">
-                    @lang('gzero-core::common.read_more')
+        @if(config('gzero-cms.disqus.enabled') && $child->isCommentAllowed())
+            <div class="col-auto">
+                <a href="{{ $child->getUrl() }}#disqus_thread"
+                   data-disqus-identifier="{{ $child->getId() }}"
+                   class="disqus-comment-count">
+                    0 @lang('gzero-core::common.comments')
                 </a>
             </div>
-            <div class="col col-md-auto">
-                <ul class="list-inline text-muted">
-                    <li class="list-inline-item">
-                        @lang('gzero-core::common.rating') {!! $child->ratingStars() !!}
-                    </li>
-                    <li class="list-inline-item">
-                        @lang('gzero-core::common.number_of_views') {{ $child->visits }}
-                    </li>
-                </ul>
+        @endif
+    </div>
+    @if($child->hasThumbnail())
+        <?php $thumbTranslation = $child->thumb->translation($language->code); ?>
+        <div class="row mb-2">
+            <div class="col">
+                <img class="img-fluid img-thumbnail"
+                     title="{{($thumbTranslation)? $thumbTranslation->title : ''}}"
+                     src="{{croppaUrl($child->thumb->getFullPath(),
+                                config('gzero.image.thumb.width'), config('gzero.image.thumb.height'), ['resize'])}}"
+                     alt="{{($thumbTranslation)? $thumbTranslation->title : ''}}">
             </div>
         </div>
-    </article>
-    @if($loop->remaining)
-        <hr class="my-4"/>
     @endif
+    {!! $child->getTeaser() !!}
+    <div class="row justify-content-md-between">
+        <div class="col-12 col-md-auto mb-3 mb-md-0">
+            <a href="{{ $child->getUrl() }}" class="btn btn-outline-primary">
+                @lang('gzero-core::common.read_more')
+            </a>
+        </div>
+    </div>
+</article>
+@if($loop->remaining)
+    <hr class="my-4"/>
 @endif
