@@ -86,6 +86,21 @@ class CreateBlock {
     }
 
     /**
+     * It creates job to create block
+     *
+     * @param string   $title      Translation title
+     * @param Language $language   Language
+     * @param User     $author     User model
+     * @param array    $attributes Array of optional attributes
+     *
+     * @return CreateBlock
+     */
+    public static function slider(string $title, Language $language, User $author, array $attributes = [])
+    {
+        return new self($title, $language, $author, array_merge($attributes, ['type' => 'slider']));
+    }
+
+    /**
      * Execute the job.
      *
      * @throws \InvalidArgumentException
