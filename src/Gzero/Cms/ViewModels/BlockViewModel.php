@@ -1,16 +1,22 @@
-<?php namespace Gzero\Cms\Presenters;
+<?php namespace Gzero\Cms\ViewModels;
 
-use Gzero\Core\Presenters\UserPresenter;
-use Robbo\Presenter\Presenter;
+use Gzero\Core\ViewModels\UserViewModel;
 
-class BlockPresenter extends Presenter {
+class BlockViewModel {
 
+    /** @var array */
+    protected $data;
+
+    /** @var array */
     protected $author;
 
+    /** @var string */
     protected $view;
 
+    /** @var array */
     protected $translation;
 
+    /** @var array */
     protected $translations;
 
     /** @var array */
@@ -31,9 +37,9 @@ class BlockPresenter extends Presenter {
      */
     public function __construct(array $data)
     {
-        $this->object       = array_only($data, $this->allowedAttributes);
+        $this->data         = array_only($data, $this->allowedAttributes);
         $this->translations = array_get($data, 'translations', []);
-        $this->author       = new UserPresenter(array_get($data, 'author', []));
+        $this->author       = new UserViewModel(array_get($data, 'author', []));
         $this->view         = array_get($data, 'view');
 
         $this->translation = array_first($this->translations, function ($translation) {
@@ -50,7 +56,7 @@ class BlockPresenter extends Presenter {
      */
     public function isActive()
     {
-        return $this->is_active;
+        return array_get($this->data, 'is_active', false);
     }
 
     /**
@@ -58,7 +64,7 @@ class BlockPresenter extends Presenter {
      */
     public function isCacheable()
     {
-        return $this->is_cacheable;
+        return array_get($this->data, 'is_cacheable', false);
     }
 
     /**
@@ -66,7 +72,7 @@ class BlockPresenter extends Presenter {
      */
     public function hasTitle()
     {
-        return !empty($this->getTitle());
+        return !empty($this->title());
     }
 
     /**
@@ -74,23 +80,23 @@ class BlockPresenter extends Presenter {
      */
     public function hasBody()
     {
-        return !empty($this->getBody());
+        return !empty($this->body());
     }
 
     /**
      * @return integer
      */
-    public function getId()
+    public function id()
     {
-        return $this->id;
+        return array_get($this->data, 'id');
     }
 
     /**
      * @return string
      */
-    public function getView()
+    public function view()
     {
-        return $this->view;
+        return array_get($this->data, 'view');
     }
 
     /**
@@ -98,7 +104,7 @@ class BlockPresenter extends Presenter {
      *
      * @return string
      */
-    public function getTitle(string $language = null): ?string
+    public function title(string $language = null): ?string
     {
         if ($language === null) {
             return array_get($this->translation, 'title');
@@ -117,7 +123,7 @@ class BlockPresenter extends Presenter {
      *
      * @return string
      */
-    public function getBody(string $language = null): ?string
+    public function body(string $language = null): ?string
     {
         if ($language === null) {
             return array_get($this->translation, 'body');
@@ -135,7 +141,7 @@ class BlockPresenter extends Presenter {
      *
      * @return string
      */
-    public function getCustomFields(string $language = null): ?string
+    public function customFields(string $language = null): ?string
     {
         if ($language === null) {
             return array_get($this->translation, 'custom_fields');
@@ -153,41 +159,41 @@ class BlockPresenter extends Presenter {
      *
      * @return string
      */
-    public function getTheme($default = null)
+    public function theme($default = null)
     {
-        return array_get($this, 'theme', $default);
+        return array_get($this->data, 'theme', $default);
     }
 
     /**
      * @return string
      */
-    public function getRegion()
+    public function region()
     {
-        return array_get($this, 'region');
+        return array_get($this->data, 'region');
     }
 
     /**
      * @return string
      */
-    public function getWeight()
+    public function weight()
     {
-        return array_get($this, 'weight');
+        return array_get($this->data, 'weight');
     }
 
     /**
      * @return string
      */
-    public function getOptions()
+    public function options()
     {
-        return array_get($this, 'options');
+        return array_get($this->data, 'options');
     }
 
     /**
      * This function returns author first and last name
      *
-     * @return UserPresenter
+     * @return UserViewModel
      */
-    public function getAuthor()
+    public function author()
     {
         return optional($this->author);
     }
