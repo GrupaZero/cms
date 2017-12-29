@@ -719,4 +719,369 @@ class BlockCest {
 
         $I->seeResponseCodeIs(204);
     }
+
+    public function shouldBeAbleToGetBlockTranslations(FunctionalTester $I)
+    {
+        $user = factory(User::class)->create();
+        $en   = new Language(['code' => 'en']);
+        $pl   = new Language(['code' => 'pl']);
+
+        $block = dispatch_now(CreateBlock::basic('Original Title', $en, $user, [
+            'body'          => 'Original body',
+            'custom_fields' => 'Original fields',
+            'is_active'     => true
+        ]));
+
+        dispatch_now(new AddBlockTranslation($block, 'Modified title', $en, $user, [
+            'body'          => 'Modified body',
+            'custom_fields' => 'Modified fields',
+            'is_active'     => true
+        ]));
+
+        dispatch_now(new AddBlockTranslation($block, 'Oryginalny Tytuł', $pl, $user, [
+            'body'          => 'Oryginalna treść',
+            'custom_fields' => 'Originalne pola',
+            'is_active'     => true
+        ]));
+
+        dispatch_now(new AddBlockTranslation($block, 'Nowy Tytuł', $pl, $user, [
+            'body'          => 'Nowa treść',
+            'custom_fields' => 'Nowe pola',
+            'is_active'     => true
+        ]));
+
+        $I->sendGET(apiUrl("blocks/$block->id/translations"));
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeResponseJsonMatchesJsonPath('data[*]');
+        $I->seeResponseContainsJson(
+            [
+                [
+                    'language_code' => 'en',
+                    'title'         => 'Original Title',
+                    'body'          => 'Original body',
+                    'custom_fields' => 'Original fields',
+                    'is_active'     => false
+                ],
+                [
+                    'language_code' => 'en',
+                    'title'         => 'Modified title',
+                    'body'          => 'Modified body',
+                    'custom_fields' => 'Modified fields',
+                    'is_active'     => true
+                ],
+                [
+                    'language_code' => 'pl',
+                    'title'         => 'Oryginalny Tytuł',
+                    'body'          => 'Oryginalna treść',
+                    'custom_fields' => 'Originalne pola',
+                    'is_active'     => false
+                ],
+                [
+                    'language_code' => 'pl',
+                    'title'         => 'Nowy Tytuł',
+                    'body'          => 'Nowa treść',
+                    'custom_fields' => 'Nowe pola',
+                    'is_active'     => true
+                ]
+            ]
+        );
+    }
+
+    public function shouldBeAbleToFilterListOfBlockTranslationsByLanguageCode(FunctionalTester $I)
+    {
+        $user = factory(User::class)->create();
+        $en   = new Language(['code' => 'en']);
+        $pl   = new Language(['code' => 'pl']);
+
+        $block = dispatch_now(CreateBlock::basic('Example Title', $en, $user));
+
+        dispatch_now(new AddBlockTranslation($block, 'Przykładowy Tytuł', $pl, $user));
+
+        $I->sendGET(apiUrl("blocks/$block->id/translations?language_code=en"));
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeResponseJsonMatchesJsonPath('data[*]');
+        $I->seeResponseContainsJson(
+            [
+                ['language_code' => 'en', 'title' => 'Example Title']
+            ]
+        );
+
+        $I->dontSeeResponseContainsJson(
+            [
+                ['language_code' => 'pl', 'title' => 'Przykładowy Tytuł']
+            ]
+        );
+
+        $I->sendGET(apiUrl("blocks/$block->id/translations?language_code=pl"));
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeResponseJsonMatchesJsonPath('data[*]');
+        $I->seeResponseContainsJson(
+            [
+                ['language_code' => 'pl', 'title' => 'Przykładowy Tytuł']
+            ]
+        );
+
+        $I->dontSeeResponseContainsJson(
+            [
+                ['language_code' => 'en', 'title' => 'Example Title']
+            ]
+        );
+    }
+
+    public function shouldBeAbleToFilterListOfBlockTranslationsByIsActive(FunctionalTester $I)
+    {
+        $user     = factory(User::class)->create();
+        $language = new Language(['code' => 'en']);
+
+        $block = dispatch_now(CreateBlock::basic('Original Title', $language, $user));
+
+        dispatch_now(new AddBlockTranslation($block, 'Modified title', $language, $user));
+
+        $I->sendGET(apiUrl("blocks/$block->id/translations?is_active=true"));
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeResponseJsonMatchesJsonPath('data[*]');
+        $I->seeResponseContainsJson(
+            [
+                ['language_code' => 'en', 'title' => 'Modified title', 'is_active' => true]
+            ]
+        );
+
+        $I->dontSeeResponseContainsJson(
+            [
+                ['language_code' => 'en', 'title' => 'Original Title', 'is_active' => false]
+            ]
+        );
+
+        $I->sendGET(apiUrl("blocks/$block->id/translations?is_active=false"));
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeResponseJsonMatchesJsonPath('data[*]');
+        $I->seeResponseContainsJson(
+            [
+                ['language_code' => 'en', 'title' => 'Original Title', 'is_active' => false]
+            ]
+        );
+
+        $I->dontSeeResponseContainsJson(
+            [
+                ['language_code' => 'en', 'title' => 'Modified Title', 'is_active' => true]
+            ]
+        );
+    }
+
+    public function shouldBeAbleToFilterListOfBlockTranslationsByAuthorId(FunctionalTester $I)
+    {
+        $user1    = factory(User::class)->create();
+        $user2    = factory(User::class)->create();
+        $language = new Language(['code' => 'en']);
+
+        $block = dispatch_now(CreateBlock::basic('Example Title', $language, $user1));
+
+        dispatch_now(new AddBlockTranslation($block, 'Translation from first user', $language, $user1));
+        dispatch_now(new AddBlockTranslation($block, 'Translation from second user', $language, $user2));
+
+        $I->sendGET(apiUrl("blocks/$block->id/translations?author_id=$user1->id"));
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeResponseJsonMatchesJsonPath('data[*]');
+        $I->seeResponseContainsJson(
+            [
+                ['title' => 'Translation from first user']
+            ]
+        );
+
+        $I->dontSeeResponseContainsJson(
+            [
+                ['title' => 'Translation from second user']
+            ]
+        );
+
+        $I->sendGET(apiUrl("blocks/$block->id/translations?author_id=$user2->id"));
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeResponseJsonMatchesJsonPath('data[*]');
+        $I->seeResponseContainsJson(
+            [
+                ['title' => 'Translation from second user']
+            ]
+        );
+
+        $I->dontSeeResponseContainsJson(
+            [
+                ['title' => 'Translation from first user']
+            ]
+        );
+    }
+
+    public function shouldBeAbleToFilterListOfBlockTranslationsByCreatedAt(FunctionalTester $I)
+    {
+        $fourDaysAgo = Carbon::now()->subDays(4);
+        $yesterday   = Carbon::yesterday()->format('Y-m-d');
+        $today       = Carbon::now()->format('Y-m-d');
+
+        $block = $I->haveBlock([
+            'type'         => 'basic',
+            'created_at'   => $fourDaysAgo,
+            'translations' => [
+                [
+                    'language_code' => 'en',
+                    'title'         => "Four day's ago blocks's content",
+                    'is_active'     => true,
+                    'created_at'    => $fourDaysAgo
+                ]
+            ]
+        ]);
+
+        $I->sendGET(apiUrl("blocks/$block->id/translations?created_at=$yesterday,$today"));
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->assertEmpty($I->grabDataFromResponseByJsonPath('data[*]'));
+
+        $I->sendGET(apiUrl("blocks/$block->id/translations?created_at=!$yesterday,$today"));
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeResponseJsonMatchesJsonPath('data[*]');
+        $I->seeResponseContainsJson(
+            [
+                ['title' => "Four day's ago blocks's content"]
+            ]
+        );
+    }
+
+    public function shouldBeAbleToFilterListOfBlockTranslationsByUpdatedAt(FunctionalTester $I)
+    {
+        $fourDaysAgo = Carbon::now()->subDays(4);
+        $yesterday   = Carbon::yesterday()->format('Y-m-d');
+        $today       = Carbon::now()->format('Y-m-d');
+
+        $block = $I->haveBlock([
+            'type'         => 'basic',
+            'created_at'   => $fourDaysAgo,
+            'translations' => [
+                [
+                    'language_code' => 'en',
+                    'title'         => "Four day's ago block's content",
+                    'is_active'     => true,
+                    'updated_at'    => $fourDaysAgo
+                ]
+            ]
+        ]);
+
+        $I->sendGET(apiUrl("blocks/$block->id/translations?updated_at=$yesterday,$today"));
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->assertEmpty($I->grabDataFromResponseByJsonPath('data[*]'));
+
+        $I->sendGET(apiUrl("blocks/$block->id/translations?updated_at=!$yesterday,$today"));
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeResponseJsonMatchesJsonPath('data[*]');
+        $I->seeResponseContainsJson(
+            [
+                ['title' => "Four day's ago block's content"]
+            ]
+        );
+    }
+
+    public function canCreateBlockTranslation(FunctionalTester $I)
+    {
+        $user     = factory(User::class)->create();
+        $language = new Language(['code' => 'en']);
+
+        $block = dispatch_now(CreateBlock::basic('Original Title', $language, $user));
+
+        $I->sendPOST(apiUrl("blocks/$block->id/translations"),
+            [
+                'language_code' => 'en',
+                'title'         => 'Example title',
+                'body'          => 'Example body',
+                'custom_fields' => 'Example fields',
+                'is_active'     => true
+            ]);
+
+        $I->seeResponseCodeIs(201);
+        $I->seeResponseIsJson();
+        $I->dontSeeResponseJsonMatchesJsonPath('data[*]');
+        $I->seeResponseContainsJson(
+            [
+                'language_code' => 'en',
+                'title'         => 'Example title',
+                'body'          => 'Example body',
+                'custom_fields' => 'Example fields'
+            ]
+        );
+
+        $I->sendPOST(apiUrl("blocks/$block->id/translations"),
+            [
+                'language_code' => 'pl',
+                'title'         => 'Nowy tytuł',
+                'body'          => 'Nowa treść',
+                'custom_fields' => 'Nowe pola'
+            ]);
+
+        $I->seeResponseCodeIs(201);
+        $I->seeResponseIsJson();
+        $I->dontSeeResponseJsonMatchesJsonPath('data[*]');
+        $I->seeResponseContainsJson(
+            [
+                'language_code' => 'pl',
+                'title'         => 'Nowy tytuł',
+                'body'          => 'Nowa treść',
+                'custom_fields' => 'Nowe pola'
+            ]
+        );
+    }
+
+    public function canDeleteInactiveBlockTranslation(FunctionalTester $I)
+    {
+        $user     = factory(User::class)->create();
+        $language = new Language(['code' => 'en']);
+
+        $block = dispatch_now(CreateBlock::basic('Example Title', $language, $user));
+
+        $translation = dispatch_now(new AddBlockTranslation($block, 'Inactive Translation', $language, $user));
+
+        dispatch_now(new AddBlockTranslation($block, 'New Active Title', $language, $user));
+
+        $I->sendDELETE(apiUrl("blocks/$block->id/translations", ['translationId' => $translation->id]));
+
+        $I->seeResponseCodeIs(204);
+    }
+
+    public function cantDeleteActiveBlockTranslation(FunctionalTester $I)
+    {
+        $user = factory(User::class)->create();
+        $en   = new Language(['code' => 'en']);
+        $pl   = new Language(['code' => 'pl']);
+
+        $block = dispatch_now(CreateBlock::basic('Example Title', $en, $user));
+
+        $translation = dispatch_now(new AddBlockTranslation($block, 'Przykładowy Tytuł', $pl, $user));
+
+        $I->sendDELETE(apiUrl("blocks/$block->id/translations", ['translationId' => $translation->id]));
+
+        $I->seeResponseCodeIs(400);
+        $I->seeResponseIsJson();
+        $I->dontSeeResponseJsonMatchesJsonPath('data[*]');
+        $I->seeResponseContainsJson(
+            [
+                'message' => 'Cannot delete active translation'
+            ]
+        );
+    }
 }

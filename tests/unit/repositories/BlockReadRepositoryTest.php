@@ -3,6 +3,7 @@
 use Codeception\Test\Unit;
 use Gzero\Cms\Repositories\BlockReadRepository;
 use Gzero\Core\Models\Language;
+use Gzero\Core\Query\QueryBuilder;
 
 class BlockReadRepositoryTest extends Unit {
 
@@ -15,6 +16,60 @@ class BlockReadRepositoryTest extends Unit {
     protected function _before()
     {
         $this->repository = new BlockReadRepository();
+    }
+
+    /** @test */
+    public function canPaginateResults()
+    {
+        $this->tester->haveBlocks([
+            [
+                'translations' => [
+                    [
+                        'language_code' => 'en',
+                        'title'         => 'A title'
+                    ]
+                ]
+            ],
+            [
+                'translations' => [
+                    [
+                        'language_code' => 'en',
+                        'title'         => 'B title'
+                    ]
+                ]
+            ],
+            [
+                'translations' => [
+                    [
+                        'language_code' => 'en',
+                        'title'         => 'C title'
+                    ]
+                ]
+            ],
+            [
+                'translations' => [
+                    [
+                        'language_code' => 'en',
+                        'title'         => 'D title'
+                    ]
+                ]
+            ]
+        ]);
+
+        $result = $this->repository->getMany(
+            (new QueryBuilder)
+                ->where('translations.is_active', '=', true)
+                ->where('translations.language_code', '=', 'en')
+                ->orderBy('translations.title', 'desc')
+                ->setPageSize(2)
+                ->setPage(2)
+        );
+
+        $this->assertEquals(2, $result->count());
+        $this->assertEquals(2, $result->perPage());
+        $this->assertEquals(2, $result->currentPage());
+        $this->assertEquals('B title', $result->first()->translations->first()->title);
+        $this->assertEquals('A title', $result->last()->translations->first()->title);
     }
 
     /** @test */

@@ -130,4 +130,33 @@ class BlockReadRepository implements ReadRepository {
             $builder->getPage()
         );
     }
+
+    /**
+     * Get all block translations for specified content.
+     *
+     * @param Block        $block   Content model
+     * @param QueryBuilder $builder Query builder
+     *
+     * @return Collection|LengthAwarePaginator
+     */
+    public function getManyTranslations(Block $block, QueryBuilder $builder): LengthAwarePaginator
+    {
+        $query = $block->translations(false)->newQuery()->getQuery();
+
+        $builder->applyFilters($query);
+        $builder->applySorts($query);
+
+        $count = clone $query->getQuery();
+
+        $results = $query->limit($builder->getPageSize())
+            ->offset($builder->getPageSize() * ($builder->getPage() - 1))
+            ->get(['block_translations.*']);
+
+        return new LengthAwarePaginator(
+            $results,
+            $count->select('block_translations.id')->get()->count(),
+            $builder->getPageSize(),
+            $builder->getPage()
+        );
+    }
 }
