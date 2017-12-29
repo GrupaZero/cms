@@ -53,14 +53,13 @@ class ContentHandler implements ContentTypeHandler {
         return response()->view(
             'gzero-cms::contents.content',
             [
-                'content'     => $content,
-                'translation' => $content->getActiveTranslation($language->code),
-                'images'      => $files->filter(
-                    function ($file) {
-                        return $file->type === 'image';
+                'content'   => $content,
+                'images'    => $files->filter(
+                    function ($file) use ($content) {
+                        return $file->type === 'image' && $file->id !== $content->thumb_id;
                     }
                 ),
-                'documents'   => $files->filter(
+                'documents' => $files->filter(
                     function ($file) {
                         return $file->type === 'document';
                     }

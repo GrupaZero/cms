@@ -1,15 +1,20 @@
+<?php /* @var $content \Gzero\Cms\ViewModels\ContentViewModel */ ?>
 @extends('gzero-core::layouts.withRegions')
-@section('bodyClass', $content->theme)
+@section('bodyClass', $content->theme())
 
-@section('title', $translation->seoTitle())
-@section('seoDescription', $translation->seoDescription())
+@section('metaData')
+    @if(isProviderLoaded('Gzero\Social\ServiceProvider') && function_exists('fbOgTags'))
+        {!! fbOgTags($content->url(), $content->translation) !!}
+    @endif
+@stop
+
+@section('title', $content->seoTitle())
+@section('seoDescription', $content->seoDescription())
 @section('head')
     @parent
     @include('gzero-cms::contents._canonical', ['paginator' => $children])
     @include('gzero-cms::contents._alternateLinks', ['content' => $content])
-    @if(method_exists($content, 'stDataMarkup'))
-        {!! $content->stDataMarkup($language->code) !!}
-    @endif
+    @include('gzero-cms::contents._stDataMarkup', ['content' => $content])
 @stop
 @section('breadcrumbs')
     {!! Breadcrumbs::render('category') !!}
@@ -17,9 +22,9 @@
 @section('content')
     @include('gzero-cms::contents._notPublishedContentMsg')
     <h1 class="content-title">
-        {{ $translation->title }}
+        {{ $content->title() }}
     </h1>
-    {!! $translation->body !!}
+    {!! $content->body() !!}
     @if($children)
         @foreach($children as $index => $child)
             @include('gzero-cms::contents._article', ['child' => $child])

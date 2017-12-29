@@ -34,7 +34,7 @@ class BlockFinderTest extends Unit {
     /**
      * @test
      */
-    public function it_finds_correct_block()
+    public function itFindsCorrectBlock()
     {
         // Our content path
         $contentPath = '1/2/3/4/5/6/';
@@ -108,7 +108,7 @@ class BlockFinderTest extends Unit {
     /**
      * @test
      */
-    public function it_finds_correct_block_for_static_pages()
+    public function itFindsCorrectBlockForStaticPages()
     {
         // Home page route name
         $findPath = 'home';
@@ -166,7 +166,7 @@ class BlockFinderTest extends Unit {
     /**
      * @test
      */
-    public function it_finds_block_with_only_hidden_filter_on_other_pages()
+    public function itFindsBlockWithOnlyHiddenFilterOnOtherPages()
     {
         // Our content path
         $findPath = '1/2/3/4/5/6/';
@@ -218,7 +218,7 @@ class BlockFinderTest extends Unit {
     /**
      * @test
      */
-    public function it_finds_block_with_only_hidden_filter_on_root_pages()
+    public function itFindsBlockWithOnlyHiddenFilterOnRootPages()
     {
         // Our content root path
         $findPath = '1/';
@@ -249,7 +249,7 @@ class BlockFinderTest extends Unit {
     /**
      * @test
      */
-    public function it_uses_correct_order_of_operations()
+    public function itUsesCorrectOrderOfOperations()
     {
         // Our content path
         $contentPath    = '1/2/';
@@ -271,7 +271,7 @@ class BlockFinderTest extends Unit {
     /**
      * @test
      */
-    public function it_finds_correct_block_for_non_filtered_pages()
+    public function itFindsCorrectBlockForNotFilteredPages()
     {
         // Our pages paths
         $contentPath    = '1/2/';

@@ -1,22 +1,20 @@
+<?php /* @var $content \Gzero\Cms\ViewModels\ContentViewModel */ ?>
 @extends('gzero-core::layouts.withRegions')
-@section('bodyClass', $content->theme)
-<?php $url = $content->routeUrl($language->code); ?>
+@section('bodyClass', $content->theme())
 
 @section('metaData')
     @if(isProviderLoaded('Gzero\Social\ServiceProvider') && function_exists('fbOgTags'))
-        {!! fbOgTags($url, $translation) !!}
+        {!! fbOgTags($content->url(), $content->translation) !!}
     @endif
 @stop
 
-@section('title', $translation->seoTitle())
-@section('seoDescription', $translation->seoDescription())
+@section('title', $content->seoTitle())
+@section('seoDescription', $content->seoDescription())
 @section('head')
     @parent
     @include('gzero-cms::contents._canonical')
     @include('gzero-cms::contents._alternateLinks', ['content' => $content])
-    @if(method_exists($content, 'stDataMarkup'))
-        {!! $content->stDataMarkup($language->code) !!}
-    @endif
+    @include('gzero-cms::contents._stDataMarkup', ['content' => $content])
 @stop
 
 @section('breadcrumbs')
@@ -26,24 +24,24 @@
 @section('content')
     @include('gzero-cms::contents._notPublishedContentMsg')
     <h1 class="content-title">
-        {{ $translation->title }}
+        {{ $content->title() }}
     </h1>
     <div class="row justify-content-md-between content-meta">
         <div class="col-12 col-md-auto">
             <p class="content-author text-muted">
-                <i>@lang('gzero-core::common.posted_by') {{ $content->authorName() }}</i>
-                <i>@lang('gzero-core::common.posted_on') {{ $content->publishDate() }}</i>
+                <i>@lang('gzero-core::common.posted_by') {{ $content->author()->displayName() }}</i>
+                <i>@lang('gzero-core::common.posted_on') {{ $content->publishedAt() }}</i>
             </p>
         </div>
         @if(isProviderLoaded('Gzero\Social\ServiceProvider') && function_exists('shareButtons'))
             <div class="col-12 col-md-auto">
                 <div class="social-buttons">
-                    {!! shareButtons($url, $translation) !!}
+                    {!! shareButtons($content->url(), $content->translation) !!}
                 </div>
             </div>
         @endif
     </div>
-    @if($content->thumb)
+    @if($content->hasThumbnail())
         <?php $thumbTranslation = $content->thumb->translation($language->code); ?>
         <div class="row mb-2">
             <div class="col">
@@ -55,18 +53,18 @@
             </div>
         </div>
     @endif
-    @if(!empty($translation->teaser))
+    @if($content->hasTeaser())
         <p class="lead">
-            {!! $translation->teaser !!}
+            {!! $content->teaser() !!}
         </p>
     @endif
-    {!! $translation->body !!}
-    @include('gzero-cms::contents._gallery', ['images' => $images, 'thumb' => $content->thumb])
-    @if(config('gzero-cms.disqus.enabled') && $content->is_comment_allowed)
+    {!! $content->body() !!}
+    {{--@include('gzero-cms::contents._gallery', ['images' => $images, 'thumb' => $content->thumb])--}}
+    @if(config('gzero-cms.disqus.enabled') && $content->isCommentAllowed())
         <div class="row">
             <div class="col">
                 <div class="text-center">
-                    @include('gzero-cms::contents._disqus', ['contentId' => $content->id, 'url' => $url])
+                    @include('gzero-cms::contents._disqus', ['contentId' => $content->id(), 'url' => $content->url()])
                 </div>
             </div>
         </div>
@@ -76,16 +74,9 @@
         <div class="row mb-2">
             <div class="col">
                 <div class="social-buttons">
-                    {!! likeButtons($url, $translation) !!}
+                    {!! likeButtons($content->url(), $content->translation) !!}
                 </div>
             </div>
         </div>
     @endif
-    <div class="row justify-content-end mb-2">
-        <div class="col-auto">
-            <div class="text-muted">
-                @lang('gzero-core::common.rating') {!! $content->ratingStars() !!}
-            </div>
-        </div>
-    </div>
 @stop

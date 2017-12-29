@@ -1,6 +1,6 @@
 <?php namespace Gzero\Cms\Listeners;
 
-use Gzero\Cms\Services\BlockService;
+use Gzero\Cms\Repositories\BlockReadRepository;
 use Gzero\Cms\BlockFinder;
 use Gzero\Core\Events\RouteMatched as GzeroRouteMatched;
 use Gzero\Core\Services\LanguageService;
@@ -15,7 +15,7 @@ class BlockLoad {
     protected $blockFinder;
 
     /**
-     * @var BlockService
+     * @var BlockReadRepository
      */
     protected $blockRepository;
 
@@ -27,11 +27,11 @@ class BlockLoad {
     /**
      * Event constructor.
      *
-     * @param BlockFinder     $blockFinder     Block Finder
-     * @param BlockService    $blockRepository Block Repository
-     * @param LanguageService $langRepository  Lang Repository
+     * @param BlockFinder         $blockFinder     Block Finder
+     * @param BlockReadRepository $blockRepository Block Repository
+     * @param LanguageService     $langRepository  Lang Repository
      */
-    public function __construct(BlockFinder $blockFinder, BlockService $blockRepository, LanguageService $langRepository)
+    public function __construct(BlockFinder $blockFinder, BlockReadRepository $blockRepository, LanguageService $langRepository)
     {
         $this->blockFinder     = $blockFinder;
         $this->blockRepository = $blockRepository;
@@ -66,9 +66,9 @@ class BlockLoad {
      */
     public function handleLaravelRoute(RouteMatched $event)
     {
-        if ($event->request->method() === 'GET' && $event->route->domain() === env('DOMAIN') && $event->route->getName()) {
+        if ($this->ifFrontendRoute($event)) {
             $blockIds = $this->blockFinder->getBlocksIds($event->route->getName(), true);
-            $blocks   = $this->blockRepository->getVisibleBlocks($blockIds, true);
+            $blocks   = $this->blockRepository->getVisibleBlocks($blockIds, $this->languageService->getCurrent(), true);
             $this->handleBlockRendering($blocks);
             $blocks = $blocks->groupBy('region');
             view()->share('blocks', $blocks);
@@ -86,7 +86,7 @@ class BlockLoad {
     public function handleRoute(GzeroRouteMatched $event)
     {
         $blockIds = $this->blockFinder->getBlocksIds($event->route->path, true);
-        $blocks   = $this->blockRepository->getVisibleBlocks($blockIds, true);
+        $blocks   = $this->blockRepository->getVisibleBlocks($blockIds, $this->languageService->getCurrent(), true);
         $this->handleBlockRendering($blocks);
         $blocks = $blocks->groupBy('region');
         view()->share('blocks', $blocks);
@@ -105,5 +105,17 @@ class BlockLoad {
             $type        = resolve($block->type->handler);
             $block->view = $type->handle($block, $this->languageService->getCurrent());
         }
+    }
+
+    /**
+     * @param RouteMatched $event dispatched event
+     *
+     * @return bool
+     */
+    protected function ifFrontendRoute(RouteMatched $event): bool
+    {
+        return $event->request->method() === 'GET'
+            && $event->route->domain() !== 'api.' . env('DOMAIN')
+            && $event->route->getName();
     }
 }
