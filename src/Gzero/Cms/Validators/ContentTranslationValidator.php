@@ -17,9 +17,7 @@ class ContentTranslationValidator extends AbstractValidator {
         ]
     ];
 
-    /**
-     * @var array
-     */
+    /** @var array */
     protected $filters = [
         'title'           => 'trim',
         'seo_title'       => 'trim',

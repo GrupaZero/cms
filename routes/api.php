@@ -27,6 +27,16 @@ Route::group(
         $router->get('deleted-contents', 'DeletedContentController@index');
         $router->delete('deleted-contents/{id}', 'DeletedContentController@destroy');
         $router->post('deleted-contents/{id}/restore', 'DeletedContentController@restore');
+
+        $router->get('blocks', 'BlockController@index');
+        $router->post('blocks', 'BlockController@store');
+        $router->patch('blocks/{id}', 'BlockController@update');
+        $router->delete('blocks/{id}', 'BlockController@destroy');
+        $router->get('blocks/{id}', 'BlockController@show');
+
+        $router->get('blocks/{id}/translations', 'BlockTranslationController@index');
+        $router->post('blocks/{id}/translations', 'BlockTranslationController@store');
+        $router->delete('blocks/{id}/translations/{translationId}', 'BlockTranslationController@destroy');
     }
 );
 

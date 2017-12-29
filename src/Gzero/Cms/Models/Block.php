@@ -149,7 +149,7 @@ class Block extends Model implements Uploadable, PresentableInterface {
     /**
      * Return a created presenter.
      *
-     * @return \Robbo\Presenter\Presenter
+     * @return BlockViewModel
      */
     public function getPresenter()
     {

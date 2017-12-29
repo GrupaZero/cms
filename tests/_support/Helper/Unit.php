@@ -9,6 +9,7 @@ use Gzero\Cms\Models\Content;
 use Gzero\Cms\Models\ContentTranslation;
 use Gzero\Core\Models\Route;
 use Gzero\Core\Models\User;
+
 class Unit extends \Codeception\Module {
 
     /**
@@ -123,5 +124,25 @@ class Unit extends \Codeception\Module {
         });
 
         return $block;
+    }
+
+
+    /**
+     * Create block with translations and routes and returns collection
+     *
+     * @param array $blocks
+     *
+     * @return array
+     */
+    public function haveBlocks($blocks = [])
+    {
+
+        $result = [];
+
+        foreach ($blocks as $attributes) {
+            $result[] = $this->haveBlock($attributes);
+        }
+
+        return $result;
     }
 }

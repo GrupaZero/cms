@@ -10,9 +10,6 @@ class BlockViewModel {
     /** @var array */
     protected $author;
 
-    /** @var string */
-    protected $view;
-
     /** @var array */
     protected $translation;
 
@@ -22,6 +19,7 @@ class BlockViewModel {
     /** @var array */
     protected $allowedAttributes = [
         'id',
+        'view',
         'region',
         'theme',
         'weight',
@@ -40,7 +38,6 @@ class BlockViewModel {
         $this->data         = array_only($data, $this->allowedAttributes);
         $this->translations = array_get($data, 'translations', []);
         $this->author       = new UserViewModel(array_get($data, 'author', []));
-        $this->view         = array_get($data, 'view');
 
         $this->translation = array_first($this->translations, function ($translation) {
             return $translation['language_code'] === app()->getLocale();
