@@ -150,7 +150,7 @@ class BlockTranslationController extends ApiController {
      *       @SWG\Property(property="language_code", type="string", example="en"),
      *       @SWG\Property(property="title", type="string", example="Example title"),
      *       @SWG\Property(property="body", type="string", example="Example Body"),
-     *       @SWG\Property(property="custom_fields", type="json", example="{'key':'value'}"),
+     *       @SWG\Property(property="custom_fields", type="array", example="{'key':'value'}", @SWG\Items(type="string")),
      *       @SWG\Property(property="is_active", type="boolean", example="true"),
      *     )
      *   ),

@@ -11,7 +11,7 @@ class BlockTranslationValidator extends AbstractValidator {
             'is_active'     => '',
             'title'         => 'required',
             'body'          => '',
-            'custom_fields' => '',
+            'custom_fields' => 'array',
         ]
     ];
 

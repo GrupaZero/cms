@@ -383,6 +383,25 @@ class ContentController extends ApiController {
      *     required=true,
      *     type="integer"
      *   ),
+     *   @SWG\Parameter(
+     *     in="body",
+     *     name="body",
+     *     description="Fields to update.",
+     *     required=true,
+     *     @SWG\Schema(
+     *       type="object",
+     *       @SWG\Property(property="parent_id", type="numeric", example="1"),
+     *       @SWG\Property(property="thumb_id", type="numeric", example="1"),
+     *       @SWG\Property(property="published_at", type="string", format="date-time"),
+     *       @SWG\Property(property="is_on_home", type="boolean", example="true"),
+     *       @SWG\Property(property="is_promoted", type="boolean", example="true"),
+     *       @SWG\Property(property="is_sticky", type="boolean", example="true"),
+     *       @SWG\Property(property="is_comment_allowed", type="boolean", example="true"),
+     *       @SWG\Property(property="theme", type="string", example="is-content"),
+     *       @SWG\Property(property="weight", type="numeric", example="10"),
+     *       @SWG\Property(property="rating", type="numeric", example="10"),
+     *     )
+     *   ),
      *   @SWG\Response(
      *     response=200,
      *     description="Successful operation",

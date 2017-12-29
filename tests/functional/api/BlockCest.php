@@ -596,10 +596,10 @@ class BlockCest {
                 'region'        => 'region',
                 'theme'         => 'theme',
                 'weight'        => 10,
-                'filter'        => 'filter',
-                'options'       => 'options',
+                'filter'        => ['+' => ['1/*']],
+                'options'       => ['key' => 'value'],
                 'body'          => 'Body',
-                'custom_fields' => 'Custom fields',
+                'custom_fields' => ['custom' => 'value'],
                 'is_active'     => true,
                 'is_cacheable'  => true
             ]);
@@ -613,8 +613,8 @@ class BlockCest {
                 'region'       => 'region',
                 'theme'        => 'theme',
                 'weight'       => 10,
-                'filter'       => 'filter',
-                'options'      => 'options',
+                'filter'       => ['+' => ['1/*']],
+                'options'      => ['key' => 'value'],
                 'is_active'    => true,
                 'is_cacheable' => true,
                 'translations' => [
@@ -622,7 +622,7 @@ class BlockCest {
                         'language_code' => 'en',
                         'title'         => 'New Block',
                         'body'          => 'Body',
-                        'custom_fields' => 'Custom fields',
+                        'custom_fields' => ['custom' => 'value'],
                         'is_active'     => true
                     ]
                 ]
@@ -1010,7 +1010,7 @@ class BlockCest {
                 'language_code' => 'en',
                 'title'         => 'Example title',
                 'body'          => 'Example body',
-                'custom_fields' => 'Example fields',
+                'custom_fields' => ['example' => 'value'],
                 'is_active'     => true
             ]);
 
@@ -1022,7 +1022,7 @@ class BlockCest {
                 'language_code' => 'en',
                 'title'         => 'Example title',
                 'body'          => 'Example body',
-                'custom_fields' => 'Example fields'
+                'custom_fields' => ['example' => 'value']
             ]
         );
 
@@ -1031,7 +1031,7 @@ class BlockCest {
                 'language_code' => 'pl',
                 'title'         => 'Nowy tytuł',
                 'body'          => 'Nowa treść',
-                'custom_fields' => 'Nowe pola'
+                'custom_fields' => ['nowe' => 'pole']
             ]);
 
         $I->seeResponseCodeIs(201);
@@ -1042,7 +1042,7 @@ class BlockCest {
                 'language_code' => 'pl',
                 'title'         => 'Nowy tytuł',
                 'body'          => 'Nowa treść',
-                'custom_fields' => 'Nowe pola'
+                'custom_fields' => ['nowe' => 'pole']
             ]
         );
     }

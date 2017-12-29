@@ -221,12 +221,12 @@ class BlockController extends ApiController {
      *       @SWG\Property(property="region", type="string", example="sidebarLeft"),
      *       @SWG\Property(property="theme", type="string", example="is-content"),
      *       @SWG\Property(property="weight", type="numeric", example="10"),
-     *       @SWG\Property(property="filter", type="json", example="{'key':'value'}"),
-     *       @SWG\Property(property="options", type="json", example="{'key':'value'}"),
+     *       @SWG\Property(property="filter", type="array", example="{'key':'value'}", @SWG\Items(type="string")),
+     *       @SWG\Property(property="options", type="array", example="{'key':'value'}", @SWG\Items(type="string")),
      *       @SWG\Property(property="is_active", type="boolean", example="true"),
      *       @SWG\Property(property="is_cacheable", type="boolean", example="true"),
      *       @SWG\Property(property="body", type="string", example="Example Body"),
-     *       @SWG\Property(property="custom_fields", type="json", example="{'key':'value'}"),
+     *       @SWG\Property(property="custom_fields", type="array", example="{'key':'value'}", @SWG\Items(type="string")),
      *     )
      *   ),
      *   @SWG\Response(
@@ -276,6 +276,22 @@ class BlockController extends ApiController {
      *     description="ID of block that needs to be updated.",
      *     required=true,
      *     type="integer"
+     *   ),
+     *   @SWG\Parameter(
+     *     in="body",
+     *     name="body",
+     *     description="Fields to update.",
+     *     required=true,
+     *     @SWG\Schema(
+     *       type="object",
+     *       @SWG\Property(property="region", type="string", example="sidebarLeft"),
+     *       @SWG\Property(property="theme", type="string", example="is-content"),
+     *       @SWG\Property(property="weight", type="numeric", example="10"),
+     *       @SWG\Property(property="filter", type="array", example="{'key':'value'}", @SWG\Items(type="string")),
+     *       @SWG\Property(property="options", type="array", example="{'key':'value'}", @SWG\Items(type="string")),
+     *       @SWG\Property(property="is_active", type="boolean", example="true"),
+     *       @SWG\Property(property="is_cacheable", type="boolean", example="true"),
+     *     )
      *   ),
      *   @SWG\Response(
      *     response=200,
