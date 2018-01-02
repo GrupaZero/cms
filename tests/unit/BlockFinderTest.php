@@ -21,7 +21,7 @@ class BlockFinderTest extends Unit {
     protected function _before()
     {
         // Start the Laravel application
-        $this->repo   = m::mock('Gzero\Cms\Services\BlockService');
+        $this->repo   = m::mock('Gzero\Cms\Repositories\BlockReadRepository');
         $this->finder = new BlockFinder($this->repo, new CacheManager(app()));
     }
 
@@ -31,9 +31,7 @@ class BlockFinderTest extends Unit {
         m::close();
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function itFindsCorrectBlock()
     {
         // Our content path
@@ -69,7 +67,7 @@ class BlockFinderTest extends Unit {
         $block7->filter = ['-' => ['1/2/3/*']];
 
         // Check for repository method call
-        $this->repo->shouldReceive('getBlocks')->andReturn(
+        $this->repo->shouldReceive('getBlocksWithFilter')->andReturn(
             [
                 $block1,
                 $block2,
@@ -105,9 +103,7 @@ class BlockFinderTest extends Unit {
         $this->assertContains(7, $this->finder->getBlocksIds($rootPath));
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function itFindsCorrectBlockForStaticPages()
     {
         // Home page route name
@@ -136,7 +132,7 @@ class BlockFinderTest extends Unit {
         $block5->filter = ['+' => ['1/2/3/4/5/6/'], '-' => ['home']];
 
         // Check for repository method call
-        $this->repo->shouldReceive('getBlocks')->andReturn(
+        $this->repo->shouldReceive('getBlocksWithFilter')->andReturn(
             [
                 $block1,
                 $block2,
@@ -163,9 +159,7 @@ class BlockFinderTest extends Unit {
     }
 
 
-    /**
-     * @test
-     */
+    /** @test */
     public function itFindsBlockWithOnlyHiddenFilterOnOtherPages()
     {
         // Our content path
@@ -190,7 +184,7 @@ class BlockFinderTest extends Unit {
         $block4->filter = ['+' => [], '-' => ['1/2/3/4/5/6/']];
 
         // Check for repository method call
-        $this->repo->shouldReceive('getBlocks')->andReturn(
+        $this->repo->shouldReceive('getBlocksWithFilter')->andReturn(
             [
                 $block1,
                 $block2,
@@ -215,9 +209,7 @@ class BlockFinderTest extends Unit {
         $this->assertContains(4, $this->finder->getBlocksIds($rootPath));
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function itFindsBlockWithOnlyHiddenFilterOnRootPages()
     {
         // Our content root path
@@ -232,7 +224,7 @@ class BlockFinderTest extends Unit {
         $block2->filter = ['+' => [], '-' => ['1/']];
 
         // Check for repository method call
-        $this->repo->shouldReceive('getBlocks')->andReturn(
+        $this->repo->shouldReceive('getBlocksWithFilter')->andReturn(
             [
                 $block1,
                 $block2
@@ -246,9 +238,7 @@ class BlockFinderTest extends Unit {
         $this->assertNotContains(2, $this->finder->getBlocksIds($findPath));
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function itUsesCorrectOrderOfOperations()
     {
         // Our content path
@@ -258,19 +248,14 @@ class BlockFinderTest extends Unit {
         $block1->filter = ['+' => ['1/*'], '-' => [$contentPath]];
 
         // Check for repository method call
-        $this->repo->shouldReceive('getBlocks')->andReturn(
-            [
-                $block1
-            ]
-        );
+        $this->repo->shouldReceive('getBlocksWithFilter')->andReturn([$block1]);
+
         // Block should be hidden because of order operation
         $this->assertNotContains(1, $this->finder->getBlocksIds($contentPath));
     }
 
 
-    /**
-     * @test
-     */
+    /** @test */
     public function itFindsCorrectBlockForNotFilteredPages()
     {
         // Our pages paths
@@ -296,7 +281,7 @@ class BlockFinderTest extends Unit {
         $block4->filter = ['+' => ['home'], '-' => []];
 
         // Check for repository method call
-        $this->repo->shouldReceive('getBlocks')->andReturn(
+        $this->repo->shouldReceive('getBlocksWithFilter')->andReturn(
             [
                 $block1,
                 $block2,

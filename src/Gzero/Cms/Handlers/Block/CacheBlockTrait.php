@@ -8,15 +8,15 @@ trait CacheBlockTrait {
     /**
      * Get rendered block from cache
      *
-     * @param Block    $block Block
-     * @param Language $lang  Language
+     * @param Block    $block    Block
+     * @param Language $language Language
      *
      * @return string|null
      */
-    protected function getFromCache(Block $block, Language $lang)
+    protected function getFromCache(Block $block, Language $language)
     {
         if ($block->is_cacheable) {
-            return cache('blocks:cache:' . $block->id . ':' . $lang->code, null);
+            return cache('blocks:cache:' . $block->id . ':' . $language->code, null);
         }
         return null;
     }
@@ -24,16 +24,16 @@ trait CacheBlockTrait {
     /**
      * Put rendered html in to block cache
      *
-     * @param Block    $block Block
-     * @param Language $lang  Language
-     * @param string   $html  Rendered html
+     * @param Block    $block    Block
+     * @param Language $language Language
+     * @param string   $html     Rendered html
      *
      * @return void
      */
-    protected function putInCache(Block $block, Language $lang, $html)
+    protected function putInCache(Block $block, Language $language, $html)
     {
         if ($block->is_cacheable) {
-            cache()->forever('blocks:cache:' . $block->id . ':' . $lang->code, $html);
+            cache()->forever('blocks:cache:' . $block->id . ':' . $language->code, $html);
         }
     }
 

@@ -85,7 +85,7 @@ class BlockLoad {
      */
     public function handleRoute(GzeroRouteMatched $event)
     {
-        $blockIds = $this->blockFinder->getBlocksIds($event->route->path, true);
+        $blockIds = $this->blockFinder->getBlocksIds($event->route->getRoutable()->path, true);
         $blocks   = $this->blockRepository->getVisibleBlocks($blockIds, $this->languageService->getCurrent(), true);
         $this->handleBlockRendering($blocks);
         $blocks = $blocks->groupBy('region');

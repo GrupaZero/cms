@@ -2,8 +2,8 @@
 
 use Codeception\Test\Unit;
 use Gzero\Cms\BlockFinder;
+use Gzero\Cms\Repositories\BlockReadRepository;
 use Gzero\Core\Models\User;
-use Gzero\Cms\Services\BlockService;
 use Illuminate\Cache\CacheManager;
 
 class BlockServiceTest extends Unit {
@@ -14,7 +14,7 @@ class BlockServiceTest extends Unit {
     protected $tester;
 
     /**
-     * @var BlockService
+     * @var BlockReadRepository
      */
     protected $service;
 
@@ -30,7 +30,7 @@ class BlockServiceTest extends Unit {
 
     protected function _before()
     {
-        $this->service  = new BlockService();
+        $this->service  = new BlockReadRepository();
         $this->finder   = new BlockFinder($this->service, new CacheManager(app()));
         $this->filesDir = __DIR__ . '/../../resources';
     }
