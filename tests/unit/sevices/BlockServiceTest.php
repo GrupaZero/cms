@@ -85,35 +85,6 @@ class BlockServiceTest extends Unit {
     }
 
     /** @test */
-    public function canCreateBlockTypeWidget()
-    {
-        $this->markTestSkipped('FIX IT after refactor');
-
-        $block    = $this->service->create(
-            [
-                'type'         => 'widget',
-                'widget'       => [
-                    'name'         => 'getLastContent',
-                    'args'         => ['content_id' => 1],
-                    'is_active'    => 1,
-                    'is_cacheable' => 1,
-                ],
-                'translations' => [
-                    'language_code' => 'en',
-                    'title'         => 'Example title'
-                ]
-            ]
-        );
-        $newBlock = $this->service->getById($block->id);
-        // Block
-        $this->assertNotSame($block, $newBlock);
-        $this->assertEquals($block->type, $newBlock->type);
-        // Widget
-        $this->assertEquals($block->blockable->name, $newBlock->blockable->name);
-        $this->assertSame($block->blockable->args, $newBlock->blockable->args);
-    }
-
-    /** @test */
     public function canCreateBlockWithoutAuthor()
     {
         $this->markTestSkipped('FIX IT after refactor');
@@ -177,26 +148,6 @@ class BlockServiceTest extends Unit {
         $this->service->create(
             [
                 'type'         => 'fakeType',
-                'translations' => [
-                    'language_code' => 'en',
-                    'title'         => 'Example block title'
-                ]
-            ]
-        );
-    }
-
-    /**
-     * @test
-     * @expectedExceptionMessage Widget is required
-     */
-    public function itChecksExistenceOfWidget()
-    {
-
-        $this->markTestSkipped('FIX IT after refactor');
-
-        $this->service->create(
-            [
-                'type'         => 'widget',
                 'translations' => [
                     'language_code' => 'en',
                     'title'         => 'Example block title'
@@ -366,24 +317,6 @@ class BlockServiceTest extends Unit {
     {
         $this->markTestSkipped('FIX IT after refactor');
 
-        // Widget type block
-        $this->service->create(
-            [
-                'type'         => 'widget',
-                'is_active'    => 1,
-                'widget'       => [
-                    'name'         => 'getLastContent',
-                    'args'         => ['content_id' => 1],
-                    'is_active'    => 1,
-                    'is_cacheable' => 1,
-                ],
-                'translations' => [
-                    'language_code' => 'en',
-                    'title'         => 'Example block title'
-                ]
-            ]
-        );
-
         // Slider type block
         $this->service->create(
             [
@@ -396,17 +329,16 @@ class BlockServiceTest extends Unit {
             ]
         );
 
-        // Get widgets block
+        // Get basic block
         $blocks = $this->service->getBlocks(
             [
-                ['type', '=', 'widget'],
+                ['type', '=', 'basic'],
                 ['is_active', '=', true]
             ]
         );
 
         // Check results
         foreach ($blocks as $block) {
-            $this->assertEquals('widget', $block->type);
             $this->assertNotEquals('slider', $block->type);
             $this->assertEquals(true, $block->is_active);
         }

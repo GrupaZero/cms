@@ -62,18 +62,6 @@ class CreateBlock extends Migration {
             }
         );
 
-        Schema::create(
-            'widgets',
-            function (Blueprint $table) {
-                $table->increments('id');
-                $table->string('name')->unique();
-                $table->text('args')->nullable();
-                $table->boolean('is_active')->default(false);
-                $table->boolean('is_cacheable')->default(false);
-                $table->timestamps();
-            }
-        );
-
         // Seed block types
         $this->seedBlockTypes();
     }
@@ -88,7 +76,6 @@ class CreateBlock extends Migration {
         Schema::dropIfExists('block_translations');
         Schema::dropIfExists('blocks');
         Schema::dropIfExists('block_types');
-        Schema::dropIfExists('widgets');
     }
 
     /**
@@ -101,7 +88,6 @@ class CreateBlock extends Migration {
         BlockType::firstOrCreate(['name' => 'basic', 'handler' => Gzero\Cms\Handlers\Block\Basic::class]);
         BlockType::firstOrCreate(['name' => 'menu', 'handler' => Gzero\Cms\Handlers\Block\Menu::class]);
         BlockType::firstOrCreate(['name' => 'slider', 'handler' => Gzero\Cms\Handlers\Block\Slider::class]);
-        BlockType::firstOrCreate(['name' => 'widget', 'handler' => Gzero\Cms\Handlers\Block\Widget::class]);
     }
 
 }
