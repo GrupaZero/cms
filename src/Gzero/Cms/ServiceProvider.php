@@ -4,15 +4,13 @@ use Bkwld\Croppa\ServiceProvider as CroppaServiceProvider;
 use DaveJamesMiller\Breadcrumbs\Facade as BreadcrumbsFacade;
 use DaveJamesMiller\Breadcrumbs\ServiceProvider as BreadcrumbServiceProvider;
 use Gzero\Cms\Listeners\BlockLoad;
+use Gzero\Cms\Policies\BlockPolicy;
+use Gzero\Cms\Policies\ContentPolicy;
 use Gzero\Core\AbstractServiceProvider;
 use Gzero\Core\Events\RouteMatched as GzeroRouteMatched;
 use Illuminate\Database\Eloquent\Factory;
 use Gzero\Cms\Models\Block;
 use Gzero\Cms\Models\Content;
-use Gzero\Cms\Models\File;
-use Gzero\Core\Policies\BlockPolicy;
-use Gzero\Core\Policies\ContentPolicy;
-use Gzero\Core\Policies\FilePolicy;
 use Illuminate\Routing\Events\RouteMatched;
 use Illuminate\Support\Facades\Event;
 
@@ -44,8 +42,7 @@ class ServiceProvider extends AbstractServiceProvider {
      */
     protected $policies = [
         Block::class   => BlockPolicy::class,
-        Content::class => ContentPolicy::class,
-        File::class    => FilePolicy::class,
+        Content::class => ContentPolicy::class
     ];
 
     /**

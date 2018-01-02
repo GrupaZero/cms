@@ -1,24 +1,24 @@
 <?php namespace Gzero\Cms\Handlers\Block;
 
 use Gzero\Cms\Models\Block;
-use Gzero\Cms\Services\FileService;
 use Gzero\Core\Models\Language;
+use Gzero\Core\Repositories\FileReadRepository;
 
 class Slider implements BlockTypeHandler {
 
     use CacheBlockTrait;
 
     /**
-     * @var FileService
+     * @var FileReadRepository
      */
     private $fileRepo;
 
     /**
      * Slider constructor.
      *
-     * @param FileService $fileRepo File repository
+     * @param FileReadRepository $fileRepo File repository
      */
-    public function __construct(FileService $fileRepo)
+    public function __construct(FileReadRepository $fileRepo)
     {
         $this->fileRepo = $fileRepo;
     }
@@ -37,13 +37,14 @@ class Slider implements BlockTypeHandler {
         if ($html !== null) {
             return $html;
         }
-        $images = $this->fileRepo->getEntityFiles(
-            $block,
-            [
-                ['type', '=', 'image'],
-                ['is_active', '=', true]
-            ]
-        );
+        //$images = $this->fileRepo->getEntityFiles(
+        //    $block,
+        //    [
+        //        ['type', '=', 'image'],
+        //        ['is_active', '=', true]
+        //    ]
+        //);
+        $images = collect();
         $html   = view('gzero-cms::blocks.slider', [
             'block'  => $block,
             'images' => $images
