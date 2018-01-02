@@ -181,7 +181,6 @@ class BlockTranslationController extends ApiController {
         }
 
         $this->authorize('create', $block);
-        $this->authorize('update', $block);
 
         $input = $this->validator->validate('create');
 

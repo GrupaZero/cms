@@ -182,7 +182,6 @@ class ContentTranslationController extends ApiController {
         }
 
         $this->authorize('create', $content);
-        $this->authorize('update', $content);
 
         $input = $this->validator->validate('create');
 
