@@ -262,12 +262,6 @@ class CMSSeeder extends Seeder {
             'is_active'     => $isActive,
             'is_cacheable'  => $isCacheable,
             'translations'  => $this->prepareBlockTranslation($languages['en']),
-            'widget'        => [
-                'name'         => $this->faker->unique()->word,
-                'args'         => array_combine($this->faker->words(), $this->faker->words()),
-                'is_active'    => $isActive,
-                'is_cacheable' => $isCacheable,
-            ],
             'body'          => $faker->realText(300),
             'custom_fields' => array_combine($this->faker->words(), $this->faker->words()),
         ];

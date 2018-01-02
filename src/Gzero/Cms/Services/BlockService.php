@@ -3,9 +3,6 @@
 use Gzero\Core\Models\User;
 use Gzero\Cms\Models\Block;
 use Gzero\Cms\Models\BlockTranslation;
-use Gzero\Cms\Models\Widget;
-use Gzero\Core\Repositories\RepositoryException;
-use Gzero\Core\Repositories\RepositoryValidationException;
 use Illuminate\Database\Eloquent\Collection as EloquentCollection;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Cache;
@@ -77,14 +74,10 @@ class BlockService extends BaseService {
             throw new RepositoryValidationException("Block type and translation is required");
         }
         /** @TODO get registered types */
-        $this->validateType($data['type'], ['basic', 'menu', 'slider', 'widget', 'content']);
+        $this->validateType($data['type'], ['basic', 'menu', 'slider', 'content']);
         $block = new Block();
         $block->fill($data);
         event('block.creating', [$block, $author]);
-        /** @TODO How to set blockable polymorphic relation here, based on type ? */
-        if ($data['type'] === 'widget') {
-            $this->createWidget($block, $data);
-        }
         if ($author) {
             $block->author()->associate($author);
         }
@@ -415,25 +408,6 @@ class BlockService extends BaseService {
             }
         }
         return false;
-    }
-
-    /**
-     * Creates a block widget
-     *
-     * @param Block $block block entity
-     * @param array $data  input data
-     *
-     * @return string
-     * @throws RepositoryValidationException
-     *
-     */
-    private function createWidget(Block $block, array $data)
-    {
-        if (array_key_exists('widget', $data) && is_array($data['widget'])) {
-            $block->blockable()->associate(Widget::create($data['widget']));
-        } else {
-            throw new RepositoryValidationException("Widget is required");
-        }
     }
 
     /**
