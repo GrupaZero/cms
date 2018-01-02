@@ -469,6 +469,7 @@ class ContentController extends ApiController {
             return $this->errorNotFound();
         }
 
+        $this->authorize('delete', $content);
         dispatch_now(new DeleteContent($content));
 
         return $this->successNoContent();

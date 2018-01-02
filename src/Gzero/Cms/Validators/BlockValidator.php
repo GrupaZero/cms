@@ -49,6 +49,6 @@ class BlockValidator extends AbstractValidator {
      * @var array
      */
     protected $filters = [
-        'translations.title' => 'trim'
+        'title' => 'trim'
     ];
 }

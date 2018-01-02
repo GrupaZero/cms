@@ -3,6 +3,7 @@
 use Gzero\Cms\Http\Resources\BlockTranslationCollection;
 use Gzero\Cms\Jobs\AddBlockTranslation;
 use Gzero\Cms\Jobs\DeleteBlockTranslation;
+use Gzero\Cms\Models\Block;
 use Gzero\Cms\Repositories\BlockReadRepository;
 use Gzero\Cms\Validators\BlockTranslationValidator;
 use Gzero\Cms\Http\Resources\BlockTranslation as BlockTranslationResource;
@@ -90,14 +91,14 @@ class BlockTranslationController extends ApiController {
      *   @SWG\Response(
      *     response=200,
      *     description="Successful operation",
-     *     @SWG\Schema(type="array", @SWG\Items(ref="#/definitions/ContentTranslation")),
+     *     @SWG\Schema(type="array", @SWG\Items(ref="#/definitions/BlockTranslation")),
      *  ),
      *   @SWG\Response(
      *     response=422,
      *     description="Validation Error",
      *     @SWG\Schema(ref="#/definitions/ValidationErrors")
      *  ),
-     *   @SWG\Response(response=404, description="Content not found")
+     *   @SWG\Response(response=404, description="Block not found")
      * )
      *
      * @param UrlParamsProcessor $processor Params processor
@@ -113,7 +114,7 @@ class BlockTranslationController extends ApiController {
             return $this->errorNotFound();
         }
 
-        $this->authorize('readList', Content::class);
+        $this->authorize('readList', Block::class);
 
         $processor
             ->addFilter(new StringParser('language_code'), 'in:pl,en,de,fr')
@@ -164,7 +165,7 @@ class BlockTranslationController extends ApiController {
      *     description="Validation Error",
      *     @SWG\Schema(ref="#/definitions/ValidationErrors")
      *  ),
-     *   @SWG\Response(response=404, description="Content not found")
+     *   @SWG\Response(response=404, description="Block not found")
      * )
      *
      * @param int $id Id of the content
@@ -238,6 +239,7 @@ class BlockTranslationController extends ApiController {
             return $this->errorNotFound();
         }
 
+        $this->authorize('delete', $block);
         $translation = $block->translations(false)->find($translationId);
 
         if (!$translation) {

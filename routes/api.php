@@ -13,6 +13,8 @@ Route::group(
     ],
     function ($router) {
         /** @var \Illuminate\Routing\Router $router */
+
+        // ======== Contents ========
         $router->get('contents', 'ContentController@index');
         $router->post('contents', 'ContentController@store');
         $router->patch('contents/{id}', 'ContentController@update');
@@ -28,6 +30,7 @@ Route::group(
         $router->delete('deleted-contents/{id}', 'DeletedContentController@destroy');
         $router->post('deleted-contents/{id}/restore', 'DeletedContentController@restore');
 
+        // ======== Blocks ========
         $router->get('blocks', 'BlockController@index');
         $router->post('blocks', 'BlockController@store');
         $router->patch('blocks/{id}', 'BlockController@update');

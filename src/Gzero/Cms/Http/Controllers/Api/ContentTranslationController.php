@@ -240,6 +240,7 @@ class ContentTranslationController extends ApiController {
             return $this->errorNotFound();
         }
 
+        $this->authorize('delete', $content);
         $translation = $content->translations(false)->find($translationId);
 
         if (!$translation) {

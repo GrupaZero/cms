@@ -158,7 +158,6 @@ class Functional extends \Codeception\Module {
         $this->getModule('Laravel5')->clearApplicationHandlers();
     }
 
-
     /**
      * Create block with translations and return entity
      *
