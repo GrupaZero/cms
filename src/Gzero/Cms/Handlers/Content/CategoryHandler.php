@@ -2,8 +2,8 @@
 
 use Gzero\Cms\Models\Content;
 use Gzero\Cms\Repositories\ContentReadRepository;
-use Gzero\Cms\Services\FileService;
 use Gzero\Core\Models\Language;
+use Gzero\Core\Repositories\FileReadRepository;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
@@ -26,10 +26,10 @@ class CategoryHandler implements ContentTypeHandler {
      * CategoryHandler constructor.
      *
      * @param ContentReadRepository $repo     Content repository
-     * @param FileService           $fileRepo File repository
+     * @param FileReadRepository    $fileRepo File repository
      * @param Request               $request  Request
      */
-    public function __construct(ContentReadRepository $repo, FileService $fileRepo, Request $request)
+    public function __construct(ContentReadRepository $repo, FileReadRepository $fileRepo, Request $request)
     {
         $this->repo     = $repo;
         $this->fileRepo = $fileRepo;
@@ -47,7 +47,8 @@ class CategoryHandler implements ContentTypeHandler {
     public function handle(Content $content, Language $language): Response
     {
         $children = $this->repo->getChildren($content, $language)->setPath($this->request->url());
-        $files    = $this->fileRepo->getEntityFiles($content, [['is_active', '=', true]]);
+        //$files    = $this->fileRepo->getEntityFiles($content, [['is_active', '=', true]]);
+        $files = collect();
 
         ContentHandler::buildBreadcrumbs($content, $language);
 

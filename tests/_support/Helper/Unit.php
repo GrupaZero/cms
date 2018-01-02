@@ -126,9 +126,8 @@ class Unit extends \Codeception\Module {
         return $block;
     }
 
-
     /**
-     * Create block with translations and routes and returns collection
+     * Create block with translations and returns collection
      *
      * @param array $blocks
      *

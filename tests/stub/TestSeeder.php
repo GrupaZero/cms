@@ -106,7 +106,7 @@ class TestSeeder extends Seeder {
     private function seedFileTypes()
     {
         foreach (['image', 'document', 'video', 'music'] as $type) {
-            FileType::firstOrCreate(['name' => $type, 'is_active' => true]);
+            FileType::firstOrCreate(['name' => $type]);
         }
     }
 }
