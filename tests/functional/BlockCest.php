@@ -15,7 +15,7 @@ class BlockCest {
     {
         $I->haveMlRoutes(function ($router, $language) {
             /** @var Router $router */
-            $router->get('/', 'Gzero\Cms\Http\Controllers\HomeController@index')->name('home-' . $language);
+            $router->get('/', 'Gzero\Cms\Http\Controllers\HomeController@index')->name(mlSuffix('home', $language));
             $router->get('{path?}', 'Gzero\Core\Http\Controllers\RouteController@dynamicRouter')->where('path', '.*');
         });
     }
@@ -180,6 +180,33 @@ class BlockCest {
         $I->see('Block with theme class', '#header-region .my-block');
     }
 
+    public function shouldNotBeAbleToSeeFilteredBlocksOnLaravelRoutes(FunctionalTester $I)
+    {
+        $user = factory(User::class)->create();
+        $en   = new Language(['code' => 'en']);
+
+        dispatch_now(CreateBlock::basic('Sidebar left', $en, $user, [
+            'body'      => 'Block in sidebar left region',
+            'region'    => 'sidebarLeft',
+            'filter'    => ['+' => ['home-en']],
+            'is_active' => true
+        ]));
+
+        dispatch_now(CreateBlock::basic('Sidebar right', $en, $user, [
+            'body'      => 'Block in sidebar right region',
+            'region'    => 'sidebarRight',
+            'filter'    => ['-' => ['home-en']],
+            'is_active' => true
+        ]));
+
+        $I->amOnPage('/');
+        $I->seeResponseCodeIs(200);
+        $I->see('Sidebar left', '#sidebarLeft .block-title');
+        $I->see('Block in sidebar left region', '#sidebarLeft .block-body');
+        $I->dontSee('Sidebar right', '#sidebarRight .block-title');
+        $I->dontSee('Block in sidebar right region', '#sidebarRight .block-body');
+    }
+
     public function shouldNotBeAbleToSeeFilteredBlocksOnDynamicRoutes(FunctionalTester $I)
     {
         $user = factory(User::class)->create();
@@ -208,6 +235,111 @@ class BlockCest {
         $I->seeResponseCodeIs(200);
         $I->see('Sidebar left', '#sidebarLeft .block-title');
         $I->see('Block in sidebar left region', '#sidebarLeft .block-body');
+        $I->dontSee('Sidebar right', '#sidebarRight .block-title');
+        $I->dontSee('Block in sidebar right region', '#sidebarRight .block-body');
+    }
+
+    public function shouldNotBeAbleToSeeFilteredBlocksOnNestedDynamicRoutes(FunctionalTester $I)
+    {
+        $user = factory(User::class)->create();
+        $en   = new Language(['code' => 'en']);
+
+        $parent = dispatch_now(CreateContent::category('Parent', $en, $user, [
+            'published_at' => Carbon::now(),
+            'is_active'    => true
+        ]));
+
+        dispatch_now(CreateContent::content('Content', $en, $user, [
+            'parent_id'    => $parent->id,
+            'published_at' => Carbon::now(),
+            'is_active'    => true
+        ]));
+
+        dispatch_now(CreateBlock::basic('Sidebar left', $en, $user, [
+            'body'      => 'Block in sidebar left region',
+            'region'    => 'sidebarLeft',
+            'filter'    => ['+' => [$parent->id . '/*']],
+            'is_active' => true
+        ]));
+
+        dispatch_now(CreateBlock::basic('Sidebar right', $en, $user, [
+            'body'      => 'Block in sidebar right region',
+            'region'    => 'sidebarRight',
+            'filter'    => ['-' => [$parent->id . '/*']],
+            'is_active' => true
+        ]));
+
+        $I->amOnPage('parent/content');
+        $I->seeResponseCodeIs(200);
+        $I->see('Sidebar left', '#sidebarLeft .block-title');
+        $I->see('Block in sidebar left region', '#sidebarLeft .block-body');
+        $I->dontSee('Sidebar right', '#sidebarRight .block-title');
+        $I->dontSee('Block in sidebar right region', '#sidebarRight .block-body');
+    }
+
+    public function shouldNotBeAbleToSeeFilteredBlocksOnDescendantsRoutes(FunctionalTester $I)
+    {
+        $user = factory(User::class)->create();
+        $en   = new Language(['code' => 'en']);
+
+        $root = dispatch_now(CreateContent::category('Root', $en, $user, [
+            'published_at' => Carbon::now(),
+            'is_active'    => true
+        ]));
+
+        $parent = dispatch_now(CreateContent::category('Parent', $en, $user, [
+            'parent_id'    => $root->id,
+            'published_at' => Carbon::now(),
+            'is_active'    => true
+        ]));
+
+        dispatch_now(CreateContent::content('Content', $en, $user, [
+            'parent_id'    => $parent->id,
+            'published_at' => Carbon::now(),
+            'is_active'    => true
+        ]));
+
+        dispatch_now(CreateBlock::basic('Sidebar left', $en, $user, [
+            'body'      => 'Block in sidebar left region',
+            'region'    => 'sidebarLeft',
+            'filter'    => ['+' => [$root->id . '/*']],
+            'is_active' => true
+        ]));
+
+        dispatch_now(CreateBlock::basic('Sidebar right', $en, $user, [
+            'body'      => 'Block in sidebar right region',
+            'region'    => 'sidebarRight',
+            'filter'    => ['-' => [$root->id . '/' . $parent->id . '/*']],
+            'is_active' => true
+        ]));
+
+        $I->amOnPage('root/parent/content');
+        $I->seeResponseCodeIs(200);
+        $I->see('Sidebar left', '#sidebarLeft .block-title');
+        $I->see('Block in sidebar left region', '#sidebarLeft .block-body');
+        $I->dontSee('Sidebar right', '#sidebarRight .block-title');
+        $I->dontSee('Block in sidebar right region', '#sidebarRight .block-body');
+    }
+
+    public function blockShouldRemainHiddenWithFilterSetToShowAndHideForSpecificContent(FunctionalTester $I)
+    {
+        $user = factory(User::class)->create();
+        $en   = new Language(['code' => 'en']);
+
+        $content = dispatch_now(CreateContent::content('Content', $en, $user, [
+            'published_at' => Carbon::now(),
+            'is_active'    => true
+        ]));
+
+        dispatch_now(CreateBlock::basic('Sidebar right', $en, $user, [
+            'body'      => 'Block in sidebar right region',
+            'region'    => 'sidebarRight',
+            'filter'    => ['+' => [$content->id . '/'], '-' => [$content->id . '/']],
+            'is_active' => true
+        ]));
+
+        $I->amOnPage('content');
+        $I->seeResponseCodeIs(200);
         $I->dontSee('Sidebar right', '#sidebarRight .block-title');
         $I->dontSee('Block in sidebar right region', '#sidebarRight .block-body');
     }
