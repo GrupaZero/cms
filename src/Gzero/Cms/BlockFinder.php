@@ -2,6 +2,7 @@
 
 use Gzero\Cms\Models\Block;
 use Gzero\Cms\Repositories\BlockReadRepository;
+use Gzero\Core\Models\Routable;
 use Illuminate\Cache\CacheManager;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -32,30 +33,30 @@ class BlockFinder {
     /**
      * It returns blocks ids that should be displayed on specified content
      *
-     * @param string $contentPath Content path
-     * @param bool   $onlyActive  Trigger to display only active blocks
+     * @param string|Routable $routable   Routable
+     * @param bool            $onlyActive Trigger to display only active blocks
      *
      * @return array
      */
-    public function getBlocksIds($contentPath, $onlyActive = false)
+    public function getBlocksIds($routable, $onlyActive = false)
     {
-        return $this->findBlocksForPath($contentPath, $this->getFilterArray($onlyActive));
+        return $this->findBlocksForPath($routable, $this->getFilterArray($onlyActive));
     }
 
     /**
      * Find all blocks ids that should be displayed on specific path
      *
-     * @param string $path   Content path or static page named route
-     * @param array  $filter Array with all filters
+     * @param string|Routable $routable Routable path or static page named route
+     * @param array           $filter   Array with all filters
      *
      * @return array
      */
-    protected function findBlocksForPath($path, $filter)
+    protected function findBlocksForPath($routable, $filter)
     {
-        if ($this->isStaticPage($path)) { // static page like "home", "contact" etc.
-            return $this->handleStaticPageCase($path, $filter);
+        if (is_string($routable)) { // static page like "home", "contact" etc.
+            return $this->handleStaticPageCase($routable, $filter);
         }
-        $ids      = explode('/', rtrim($path, '/'));
+        $ids      = $routable->getTreePath();
         $idsCount = count($ids);
         $blockIds = [];
         if ($idsCount === 1) { // Root case
