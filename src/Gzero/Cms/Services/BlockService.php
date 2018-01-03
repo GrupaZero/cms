@@ -1,7 +1,5 @@
 <?php namespace Gzero\Cms\Services;
 
-use Illuminate\Support\Facades\Cache;
-
 class BlockService {
 
     /**
@@ -11,6 +9,6 @@ class BlockService {
      */
     public function clearBlocksCache()
     {
-        return Cache::forget('blocks:filter:public') && Cache::forget('blocks:filter:admin');
+        return cache()->forget('blocks:filter:public') && cache()->forget('blocks:filter:admin');
     }
 }
