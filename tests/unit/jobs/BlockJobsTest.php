@@ -191,4 +191,16 @@ class BlockJobsTest extends Unit {
 
         $this->assertNull(Block::find($block->id));
     }
+
+    /** @test */
+    public function canSetBlockFilterAsNull()
+    {
+        $block = $this->tester->haveblock(['type' => 'basic', 'filter' => ['+' => ['1/2/3']]]);
+
+        dispatch_now(new UpdateBlock($block, ['filter' => null]));
+
+        $block = Block::find($block->id);
+
+        $this->assertNull($block->filter);
+    }
 }

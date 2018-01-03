@@ -3,6 +3,7 @@
 use Bkwld\Croppa\ServiceProvider as CroppaServiceProvider;
 use DaveJamesMiller\Breadcrumbs\Facade as BreadcrumbsFacade;
 use DaveJamesMiller\Breadcrumbs\ServiceProvider as BreadcrumbServiceProvider;
+use Gzero\Cms\Listeners\BlockCacheClear;
 use Gzero\Cms\Listeners\BlockLoad;
 use Gzero\Cms\Policies\BlockPolicy;
 use Gzero\Cms\Policies\ContentPolicy;
@@ -264,6 +265,7 @@ class ServiceProvider extends AbstractServiceProvider {
     {
         Event::listen(RouteMatched::class, BlockLoad::class);
         Event::listen(GzeroRouteMatched::class, BlockLoad::class);
+        Event::listen('block.*', BlockCacheClear::class);
     }
 
 }
