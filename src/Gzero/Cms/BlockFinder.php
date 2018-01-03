@@ -1,14 +1,15 @@
 <?php namespace Gzero\Cms;
 
 use Gzero\Cms\Models\Block;
-use Gzero\Cms\Services\BlockService;
+use Gzero\Cms\Repositories\BlockReadRepository;
+use Gzero\Core\Models\Routable;
 use Illuminate\Cache\CacheManager;
 use Illuminate\Database\Eloquent\Collection;
 
 class BlockFinder {
 
     /**
-     * @var BlockService
+     * @var BlockReadRepository
      */
     protected $blockRepository;
 
@@ -20,10 +21,10 @@ class BlockFinder {
     /**
      * BlockFinder constructor
      *
-     * @param BlockService $block Block repository
-     * @param CacheManager $cache Cache
+     * @param BlockReadRepository $block Block repository
+     * @param CacheManager        $cache Cache
      */
-    public function __construct(BlockService $block, CacheManager $cache)
+    public function __construct(BlockReadRepository $block, CacheManager $cache)
     {
         $this->blockRepository = $block;
         $this->cache           = $cache;
@@ -32,30 +33,30 @@ class BlockFinder {
     /**
      * It returns blocks ids that should be displayed on specified content
      *
-     * @param string $contentPath Content path
-     * @param bool   $isPublic    Trigger to display only public blocks
+     * @param string|Routable $routable   Routable
+     * @param bool            $onlyActive Trigger to display only active blocks
      *
      * @return array
      */
-    public function getBlocksIds($contentPath, $isPublic = false)
+    public function getBlocksIds($routable, $onlyActive = false)
     {
-        return $this->findBlocksForPath($contentPath, $this->getFilterArray($isPublic));
+        return $this->findBlocksForPath($routable, $this->getFilterArray($onlyActive));
     }
 
     /**
      * Find all blocks ids that should be displayed on specific path
      *
-     * @param string $path   Content path or static page named route
-     * @param array  $filter Array with all filters
+     * @param string|Routable $routable Routable path or static page named route
+     * @param array           $filter   Array with all filters
      *
      * @return array
      */
-    protected function findBlocksForPath($path, $filter)
+    protected function findBlocksForPath($routable, $filter)
     {
-        if ($this->isStaticPage($path)) { // static page like "home", "contact" etc.
-            return $this->handleStaticPageCase($path, $filter);
+        if (is_string($routable)) { // static page like "home", "contact" etc.
+            return $this->handleStaticPageCase($routable, $filter);
         }
-        $ids      = explode('/', rtrim($path, '/'));
+        $ids      = $routable->getTreePath();
         $idsCount = count($ids);
         $blockIds = [];
         if ($idsCount === 1) { // Root case
@@ -86,26 +87,17 @@ class BlockFinder {
     /**
      * It builds filter array with all blocks
      *
-     * @param bool $isPublic Filter only public blocks
+     * @param bool $onlyActive Filter only public blocks
      *
      * @return array
      */
-    protected function getFilterArray($isPublic)
+    protected function getFilterArray($onlyActive)
     {
-        $cacheKey = ($isPublic) ? 'public' : 'admin';
+        $cacheKey = ($onlyActive) ? 'public' : 'admin';
         if ($this->cache->has('blocks:filter:' . $cacheKey)) {
             return $this->cache->get('blocks:filter:' . $cacheKey);
         } else {
-            if ($isPublic) {
-                $blocks = $this->blockRepository->getBlocks(
-                    [['filter', '!=', null], ['is_active', '=', true]],
-                    [['weight', 'ASC']],
-                    null,
-                    null
-                );
-            } else {
-                $blocks = $this->blockRepository->getBlocks([['filter', '!=', null]], [['weight', 'ASC']], null, null);
-            }
+            $blocks = $this->blockRepository->getBlocksWithFilter($onlyActive);
             $filter = $this->buildFilterArray($blocks);
             $this->cache->forever('blocks:filter:' . $cacheKey, $filter);
             return $filter;

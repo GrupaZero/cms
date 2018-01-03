@@ -3,6 +3,7 @@
 use Codeception\Test\Unit;
 use Gzero\Cms\BlockFinder;
 use Gzero\Cms\Models\Block;
+use Gzero\Cms\Models\Content;
 use Illuminate\Cache\CacheManager;
 use Mockery as m;
 
@@ -21,7 +22,7 @@ class BlockFinderTest extends Unit {
     protected function _before()
     {
         // Start the Laravel application
-        $this->repo   = m::mock('Gzero\Cms\Services\BlockService');
+        $this->repo   = m::mock('Gzero\Cms\Repositories\BlockReadRepository');
         $this->finder = new BlockFinder($this->repo, new CacheManager(app()));
     }
 
@@ -31,13 +32,11 @@ class BlockFinderTest extends Unit {
         m::close();
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function itFindsCorrectBlock()
     {
         // Our content path
-        $contentPath = '1/2/3/4/5/6/';
+        $content = new Content(['path' => '1/2/3/4/5/6/']);
         // Content root path
         $rootPath = '1/';
         // Block visible on all pages (get by SQL query)
@@ -69,7 +68,7 @@ class BlockFinderTest extends Unit {
         $block7->filter = ['-' => ['1/2/3/*']];
 
         // Check for repository method call
-        $this->repo->shouldReceive('getBlocks')->andReturn(
+        $this->repo->shouldReceive('getBlocksWithFilter')->andReturn(
             [
                 $block1,
                 $block2,
@@ -81,19 +80,19 @@ class BlockFinderTest extends Unit {
             ]
         );
         // Should not contain block visible on all pages those blocks are get by SQL query
-        $this->assertNotContains(1, $this->finder->getBlocksIds($contentPath));
+        $this->assertNotContains(1, $this->finder->getBlocksIds($content));
         //  Block should be visible on all root children's pages
-        $this->assertContains(2, $this->finder->getBlocksIds($contentPath));
+        $this->assertContains(2, $this->finder->getBlocksIds($content));
         //  Block should be hidden on all root children's pages
-        $this->assertNotContains(3, $this->finder->getBlocksIds($contentPath));
+        $this->assertNotContains(3, $this->finder->getBlocksIds($content));
         //  Block should be visible only on that content
-        $this->assertContains(4, $this->finder->getBlocksIds($contentPath));
+        $this->assertContains(4, $this->finder->getBlocksIds($content));
         //  Block should be hidden only on that content
-        $this->assertNotContains(5, $this->finder->getBlocksIds($contentPath));
+        $this->assertNotContains(5, $this->finder->getBlocksIds($content));
         //  Block should be visible for all content parents children's
-        $this->assertContains(6, $this->finder->getBlocksIds($contentPath));
+        $this->assertContains(6, $this->finder->getBlocksIds($content));
         //  Block should be hidden for all content parents children's
-        $this->assertNotContains(7, $this->finder->getBlocksIds($contentPath));
+        $this->assertNotContains(7, $this->finder->getBlocksIds($content));
         // Blocks that should be hidden on root path
         $this->assertNotContains(1, $this->finder->getBlocksIds($rootPath));
         $this->assertNotContains(2, $this->finder->getBlocksIds($rootPath));
@@ -105,15 +104,13 @@ class BlockFinderTest extends Unit {
         $this->assertContains(7, $this->finder->getBlocksIds($rootPath));
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function itFindsCorrectBlockForStaticPages()
     {
         // Home page route name
         $findPath = 'home';
         // Content root path
-        $rootPath = '1/';
+        $rootPath = new Content(['path' => '1/']);
         // Block visible on home page
         $block1         = new Block();
         $block1->id     = 1;
@@ -136,7 +133,7 @@ class BlockFinderTest extends Unit {
         $block5->filter = ['+' => ['1/2/3/4/5/6/'], '-' => ['home']];
 
         // Check for repository method call
-        $this->repo->shouldReceive('getBlocks')->andReturn(
+        $this->repo->shouldReceive('getBlocksWithFilter')->andReturn(
             [
                 $block1,
                 $block2,
@@ -148,7 +145,7 @@ class BlockFinderTest extends Unit {
         // Block should be visible on home page
         $this->assertContains(1, $this->finder->getBlocksIds($findPath));
         // Block should be visible on other page
-        $this->assertContains(5, $this->finder->getBlocksIds('1/2/3/4/5/6/'));
+        $this->assertContains(5, $this->finder->getBlocksIds(new Content(['path' => '1/2/3/4/5/6/'])));
         // All other blocks should be hidden
         $this->assertNotContains(2, $this->finder->getBlocksIds($findPath));
         $this->assertNotContains(3, $this->finder->getBlocksIds($findPath));
@@ -162,16 +159,13 @@ class BlockFinderTest extends Unit {
         $this->assertContains(5, $this->finder->getBlocksIds($rootPath));
     }
 
-
-    /**
-     * @test
-     */
+    /** @test */
     public function itFindsBlockWithOnlyHiddenFilterOnOtherPages()
     {
         // Our content path
-        $findPath = '1/2/3/4/5/6/';
+        $content = new Content(['path' => '1/2/3/4/5/6/']);
         // Our root path
-        $rootPath = '1/';
+        $root = new Content(['path' => '1/']);
         // Block hidden on home page - should be visible on our content
         $block1         = new Block();
         $block1->id     = 1;
@@ -190,7 +184,7 @@ class BlockFinderTest extends Unit {
         $block4->filter = ['+' => [], '-' => ['1/2/3/4/5/6/']];
 
         // Check for repository method call
-        $this->repo->shouldReceive('getBlocks')->andReturn(
+        $this->repo->shouldReceive('getBlocksWithFilter')->andReturn(
             [
                 $block1,
                 $block2,
@@ -204,20 +198,18 @@ class BlockFinderTest extends Unit {
         $this->assertContains(3, $this->finder->getBlocksIds('home'));
         $this->assertContains(4, $this->finder->getBlocksIds('home'));
         // Blocks that should be visible on our content
-        $this->assertContains(1, $this->finder->getBlocksIds($findPath));
-        $this->assertNotContains(2, $this->finder->getBlocksIds($findPath));
-        $this->assertNotContains(3, $this->finder->getBlocksIds($findPath));
-        $this->assertNotContains(4, $this->finder->getBlocksIds($findPath));
+        $this->assertContains(1, $this->finder->getBlocksIds($content));
+        $this->assertNotContains(2, $this->finder->getBlocksIds($content));
+        $this->assertNotContains(3, $this->finder->getBlocksIds($content));
+        $this->assertNotContains(4, $this->finder->getBlocksIds($content));
         // Blocks that should be visible on root path
-        $this->assertContains(1, $this->finder->getBlocksIds($rootPath));
-        $this->assertContains(2, $this->finder->getBlocksIds($rootPath));
-        $this->assertContains(3, $this->finder->getBlocksIds($rootPath));
-        $this->assertContains(4, $this->finder->getBlocksIds($rootPath));
+        $this->assertContains(1, $this->finder->getBlocksIds($root));
+        $this->assertContains(2, $this->finder->getBlocksIds($root));
+        $this->assertContains(3, $this->finder->getBlocksIds($root));
+        $this->assertContains(4, $this->finder->getBlocksIds($root));
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function itFindsBlockWithOnlyHiddenFilterOnRootPages()
     {
         // Our content root path
@@ -232,7 +224,7 @@ class BlockFinderTest extends Unit {
         $block2->filter = ['+' => [], '-' => ['1/']];
 
         // Check for repository method call
-        $this->repo->shouldReceive('getBlocks')->andReturn(
+        $this->repo->shouldReceive('getBlocksWithFilter')->andReturn(
             [
                 $block1,
                 $block2
@@ -246,9 +238,7 @@ class BlockFinderTest extends Unit {
         $this->assertNotContains(2, $this->finder->getBlocksIds($findPath));
     }
 
-    /**
-     * @test
-     */
+    /** @test */
     public function itUsesCorrectOrderOfOperations()
     {
         // Our content path
@@ -258,19 +248,13 @@ class BlockFinderTest extends Unit {
         $block1->filter = ['+' => ['1/*'], '-' => [$contentPath]];
 
         // Check for repository method call
-        $this->repo->shouldReceive('getBlocks')->andReturn(
-            [
-                $block1
-            ]
-        );
+        $this->repo->shouldReceive('getBlocksWithFilter')->andReturn([$block1]);
+
         // Block should be hidden because of order operation
         $this->assertNotContains(1, $this->finder->getBlocksIds($contentPath));
     }
 
-
-    /**
-     * @test
-     */
+    /** @test */
     public function itFindsCorrectBlockForNotFilteredPages()
     {
         // Our pages paths
@@ -296,7 +280,7 @@ class BlockFinderTest extends Unit {
         $block4->filter = ['+' => ['home'], '-' => []];
 
         // Check for repository method call
-        $this->repo->shouldReceive('getBlocks')->andReturn(
+        $this->repo->shouldReceive('getBlocksWithFilter')->andReturn(
             [
                 $block1,
                 $block2,

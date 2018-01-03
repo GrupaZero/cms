@@ -4,7 +4,7 @@ use Codeception\Test\Unit;
 use Gzero\Cms\ViewModels\BlockViewModel;
 use Gzero\Core\Models\User;
 
-class BlockPresenterTest extends Unit {
+class BlockViewModelTest extends Unit {
 
     /** @test */
     public function canInstantiate()
