@@ -348,7 +348,7 @@ class ContentCest {
         {
             "@type": "Organization",
             "url": "http://dev.gzero.pl",
-            "name": "Laravel",
+            "name": "' . config('app.name') . '",
             "logo": {
                 "@type": "ImageObject",
                 "url": "http://dev.gzero.pl/images/logo.png"
