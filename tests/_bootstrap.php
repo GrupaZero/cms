@@ -34,3 +34,5 @@ $db = new PostgreSql("pgsql:host=$host port=$port dbname=$dbName", $user, $passw
 
 $db->cleanup();
 $db->load($sql);
+
+const nonExistingThumbId = '123423423';

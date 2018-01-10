@@ -738,8 +738,9 @@ class ContentJobsTest extends Unit {
         $this->assertNotNull(Content::withTrashed()->find($second->id));
     }
 
+
     /** @test */
-    public function cantCreateContentWithNonExistingThumb()
+    public function cantUpdateContentWithNonExistingThumb()
     {
         $content = $this->tester->haveContent([
             'type' => 'content'
@@ -748,7 +749,7 @@ class ContentJobsTest extends Unit {
 
         try {
             dispatch_now(new UpdateContent($content, [
-                'thumb_id' => '123423423'
+                'thumb_id' => nonExistingThumbId
             ]));
         } catch (InvalidArgumentException $exception) {
             $this->assertEquals('Thumbnail file does not exist', $exception->getMessage());
