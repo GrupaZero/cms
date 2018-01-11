@@ -29,7 +29,7 @@
         @foreach($children as $index => $child)
             @include('gzero-cms::contents._article', ['child' => $child])
         @endforeach
-        {!! $children->render() !!}
+        {!! $children->links('pagination::bootstrap-4') !!}
     @endif
     <div class="w-100 my-4"></div>
 @stop
