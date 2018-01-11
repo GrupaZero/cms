@@ -37,6 +37,8 @@ Route::group(
         $router->delete('blocks/{id}', 'BlockController@destroy');
         $router->get('blocks/{id}', 'BlockController@show');
 
+        $router->get('blocks/{id}/files', 'BlockFileController@index');
+
         $router->get('blocks/{id}/translations', 'BlockTranslationController@index');
         $router->post('blocks/{id}/translations', 'BlockTranslationController@store');
         $router->delete('blocks/{id}/translations/{translationId}', 'BlockTranslationController@destroy');
