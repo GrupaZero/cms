@@ -334,7 +334,7 @@ class ContentCest {
         $I->see('"@context": "http://schema.org"', $tag);
         $I->see('"@type": "Article"', $tag);
         $I->see('"headline": "Content Title"', $tag);
-        $I->see('"url": "http://dev.gzero.pl/content-title"', $tag);
+        $I->see('"url": "http://localhost/content-title"', $tag);
         $I->see('"datePublished": "' . $content->published_at->toDateTimeString() . '"', $tag);
         $I->see('"dateModified": "' . $content->updated_at->toDateTimeString() . '"', $tag);
 
@@ -347,22 +347,22 @@ class ContentCest {
         $I->see('"publisher": 
         {
             "@type": "Organization",
-            "url": "http://dev.gzero.pl",
+            "url": "http://localhost",
             "name": "' . config('app.name') . '",
             "logo": {
                 "@type": "ImageObject",
-                "url": "http://dev.gzero.pl/images/logo.png"
+                "url": "http://localhost/images/logo.png"
             }
         }', $tag);
 
         $I->see('"mainEntityOfPage": {
             "@type": "WebPage",
-            "@id": "http://dev.gzero.pl"
+            "@id": "http://localhost"
         }', $tag);
 
         $I->see('"image": {
             "@type": "ImageObject",
-            "url": "http://dev.gzero.pl/images/share-logo.png",
+            "url": "http://localhost/images/share-logo.png",
             "width": "' . $thumbWidth . '",
             "height": "auto"
         }', $tag);
