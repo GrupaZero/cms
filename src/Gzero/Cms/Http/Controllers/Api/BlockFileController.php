@@ -31,7 +31,7 @@ class BlockFileController extends ApiController
      * BlockController constructor.
      *
      * @param BlockReadRepository $repository Block repository
-     * @param BlockValidator  $validator  Block's files validator
+     * @param BlockValidator      $validator  Block's files validator
      * @param Request             $request    Request object
      */
     public function __construct(BlockReadRepository $repository, BlockValidator $validator, Request $request)
@@ -157,7 +157,7 @@ class BlockFileController extends ApiController
 
         $input = $this->validator->validate('syncFiles');
 
-        dispatch_now(new SyncFiles($block, array_pluck([$input],'data.id')));
+        dispatch_now(new SyncFiles($block, array_pluck([$input], 'data.id')));
 
         $files = $block->fresh()->files->load('translations');
 
