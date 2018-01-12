@@ -71,13 +71,13 @@ class BlockFileController extends ApiController
      *  )
      * )
      *
-     * @param $id Block id.
+     * @param int $id Block id.
      *
      * @return FileCollection
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
-    public function index($id)
+    public function index(int $id)
     {
         $block = $this->repository->getById($id);
         if (!$block) {
