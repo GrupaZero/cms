@@ -13,8 +13,8 @@ use Illuminate\Http\Request;
  * Class BlockFileController
  *
  * @SWG\Tag(
- *   name="block",
- *   description="Everything about app block"
+ *   name="blocks",
+ *   description="Everything about app blocks"
  *   )
  */
 class BlockFileController extends ApiController
@@ -47,7 +47,7 @@ class BlockFileController extends ApiController
      *
      * @SWG\Get(
      *   path="/blocks/{id}/files",
-     *   tags={"blocks, files"},
+     *   tags={"blocks"},
      *   summary="List of files synced with block",
      *   description="List of files synced with block",
      *   produces={"application/json"},
@@ -55,7 +55,7 @@ class BlockFileController extends ApiController
      *   @SWG\Parameter(
      *     name="id",
      *     in="path",
-     *     description="Id of block which files need to be returned.",
+     *     description="Id of block for which files need to be returned.",
      *     required=true,
      *     type="integer"
      *   ),
