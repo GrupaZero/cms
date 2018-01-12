@@ -2,6 +2,7 @@
 
 use Cms\FunctionalTester;
 use Gzero\Cms\Jobs\CreateBlock;
+use Gzero\Core\Jobs\AddFileTranslation;
 use Gzero\Core\Jobs\CreateFile;
 use Gzero\Core\Jobs\SyncFiles;
 use Gzero\Core\Models\Language;
@@ -30,11 +31,14 @@ class BlockFileCest
 
         $image  = UploadedFile::fake()->image('file.jpg')->size(10);
 
-        $file = dispatch_now(CreateFile::image($image, 'Image', new Language(['code' => 'en']), $author, [
+        $file = dispatch_now(CreateFile::image($image, 'Image', $language, $author, [
             'info'        => 'info text',
             'description' => 'My image',
             'is_active'   => true,
         ]));
+        $translation = dispatch_now(new AddFileTranslation($file, 'New translation', $language, $author,
+            ['description' => 'Description']
+        ));
 
         dispatch_now(new SyncFiles($block, [$file->id => ['weight' => 3]]));
 
@@ -42,20 +46,29 @@ class BlockFileCest
 
         $I->seeResponseCodeIs(200);
         $I->seeResponseIsJson();
-
         $I->seeResponseContainsJson(
             [
                 [
                     'id' => $file->id,
                     'author_id' => $author->id,
-                    'name' => $file->name,
-                    'extension' => $file->extension,
-                    'size' => $file->size,
-                    'mime_type' => $file->mime_type,
-                    'info' => $file->info,
-                    'is_active' => $file->is_active,
+                    'name' => 'file',
+                    'extension' => 'jpg',
+                    'size' => 10240,
+                    'mime_type' => 'image/jpeg',
+                    'info' => 'info text',
+                    'is_active' => true,
                     'created_at' => $file->created_at->toAtomString(),
-                    'updated_at' => $file->updated_at->toAtomString()
+                    'updated_at' => $file->updated_at->toAtomString(),
+                    'translations'=> [
+                        [
+                            'author_id' => $author->id,
+                            'language_code' => 'en',
+                            'title' => 'New translation',
+                            'description' => 'Description',
+                            'created_at' => $translation->created_at->toAtomString(),
+                            'updated_at' => $file->updated_at->toAtomString()
+                        ]
+                    ]
                 ]
             ]
         );

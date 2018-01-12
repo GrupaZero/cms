@@ -86,7 +86,7 @@ class BlockFileController extends ApiController
         $this->authorize('read', $block);
 
         $this->authorize('readList', File::class);
-        $files = $block->files;
+        $files = $block->files->load('translations');
         if (!$files) {
             return $this->errorNotFound();
         }
