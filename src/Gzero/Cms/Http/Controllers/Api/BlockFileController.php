@@ -1,11 +1,11 @@
 <?php namespace Gzero\Cms\Http\Controllers\Api;
 
 use Gzero\Cms\Repositories\BlockReadRepository;
+use Gzero\Cms\Validators\BlockValidator;
 use Gzero\Core\Http\Controllers\ApiController;
 use Gzero\Core\Http\Resources\FileCollection;
 use Gzero\Core\Jobs\SyncFiles;
 use Gzero\Core\Models\File;
-use Gzero\Core\Validators\FileValidator;
 use Illuminate\Http\Request;
 
 /**
@@ -21,7 +21,7 @@ class BlockFileController extends ApiController
     /** @var BlockReadRepository */
     protected $repository;
 
-    /** @var FileValidator */
+    /** @var BlockValidator */
     protected $validator;
 
     /** @var Request */
@@ -31,10 +31,10 @@ class BlockFileController extends ApiController
      * BlockController constructor.
      *
      * @param BlockReadRepository $repository Block repository
-     * @param FileValidator       $validator  Content validator
+     * @param BlockValidator  $validator  Block's files validator
      * @param Request             $request    Request object
      */
-    public function __construct(BlockReadRepository $repository, FileValidator $validator, Request $request)
+    public function __construct(BlockReadRepository $repository, BlockValidator $validator, Request $request)
     {
         $this->validator  = $validator->setData($request->all());
         $this->repository = $repository;
@@ -95,9 +95,11 @@ class BlockFileController extends ApiController
     }
 
     /**
+     * @todo update body parameter to reflect validator structure
+     *
      * Updates the specified resource in the database.
      *
-     * @SWG\Post(
+     * @SWG\Put(
      *   path="blocks/{id}/files",
      *   tags={"blocks"},
      *   summary="Sync files for specified block",
@@ -145,7 +147,7 @@ class BlockFileController extends ApiController
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
-    public function store($id)
+    public function sync($id)
     {
         $block = $this->repository->getById($id);
         if (!$block) {
@@ -153,7 +155,9 @@ class BlockFileController extends ApiController
         }
         $this->authorize('update', $block);
 
-        dispatch_now(new SyncFiles($block, $this->request->all()));
+        $input = $this->validator->validate('syncFiles');
+
+        dispatch_now(new SyncFiles($block, array_pluck([$input],'data.id')));
 
         $files = $block->fresh()->files->load('translations');
 

@@ -38,7 +38,7 @@ Route::group(
         $router->get('blocks/{id}', 'BlockController@show');
 
         $router->get('blocks/{id}/files', 'BlockFileController@index');
-        $router->post('blocks/{id}/files', 'BlockFileController@store');
+        $router->put('blocks/{id}/files', 'BlockFileController@sync');
 
         $router->get('blocks/{id}/translations', 'BlockTranslationController@index');
         $router->post('blocks/{id}/translations', 'BlockTranslationController@store');

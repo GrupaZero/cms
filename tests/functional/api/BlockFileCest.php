@@ -95,7 +95,11 @@ class BlockFileCest
             ['description' => 'Description']
         ));
 
-        $I->sendPOST(apiUrl("blocks/$block->id/files"), [$file->id]);
+        $I->sendPUT(apiUrl("blocks/$block->id/files"), [
+            'data' => [
+                'id' => $file->id
+            ]
+        ]);
 
         $I->seeResponseCodeIs(200);
         $I->seeResponseIsJson();
