@@ -71,7 +71,7 @@ class BlockFileController extends ApiController
      *  )
      * )
      *
-     * @param $id
+     * @param $id Block id.
      *
      * @return FileCollection
      *
@@ -80,14 +80,16 @@ class BlockFileController extends ApiController
     public function index($id)
     {
         $block = $this->repository->getById($id);
-
+        if (!$block) {
+            return $this->errorNotFound();
+        }
         $this->authorize('read', $block);
 
-        $block->setPath(apiUrl('blocks/'.$id.'/files'));
-
         $this->authorize('readList', File::class);
-
         $files = $block->files;
+        if (!$files) {
+            return $this->errorNotFound();
+        }
 
         return new FileCollection($files);
     }

@@ -5,11 +5,8 @@ use Gzero\Cms\Jobs\AddBlockTranslation;
 use Gzero\Cms\Jobs\AddContentTranslation;
 use Gzero\Cms\Jobs\CreateBlock;
 use Gzero\Cms\Jobs\CreateContent;
-use Gzero\Core\Jobs\CreateFile;
-use Gzero\Core\Jobs\SyncFiles;
 use Gzero\Core\Models\Language;
 use Gzero\Core\Models\User;
-use Illuminate\Http\UploadedFile;
 use Illuminate\Routing\Router;
 
 class BlockCest {
@@ -346,27 +343,4 @@ class BlockCest {
         $I->dontSee('Sidebar right', '#sidebarRight .block-title');
         $I->dontSee('Block in sidebar right region', '#sidebarRight .block-body');
     }
-    
-// todo
-//    public function shouldGetFilesSyncedWithBlock(FunctionalTester $I)
-//    {
-//        $user   = factory(User::class)->create();
-//        $en   = new Language(['code' => 'en']);
-//        $block = dispatch_now(CreateBlock::basic('Block title', $en, $user, [
-//            'body'      => 'Block body',
-//            'region'    => 'homepage',
-//            'is_active' => true
-//        ]));
-//        $image  = UploadedFile::fake()->image('file.jpg')->size(10);
-//
-//        $file = dispatch_now(CreateFile::image($image, 'Image', new Language(['code' => 'en']), $user, [
-//            'info'        => 'info',
-//            'description' => 'My image',
-//            'is_active'   => true,
-//        ]));
-//
-//        dispatch_now(new SyncFiles($block, [$file->id => ['weight' => 3]]));
-//
-//        dd($block->files);
-//    }
 }
