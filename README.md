@@ -19,7 +19,7 @@ To run tests you can use one of these commands:
 
 `composer test tests/functional/api/ContentCest.php:shouldBeAbleToGetCategoryChildren`
 
-##### single tests with --debug
+##### single test with --debug
 
 `composer test-debug tests/functional/api/ContentCest.php:shouldBeAbleToGetCategoryChildren`
 
