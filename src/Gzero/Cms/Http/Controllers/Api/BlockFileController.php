@@ -72,9 +72,9 @@ class BlockFileController extends ApiController
      *   @SWG\Response(response=404, description="Block or files not found"),
      * )
      *
-     * @param int $id Block id.
+     * @param UrlParamsProcessor $processor Params processor
      *
-     * @param UrlParamsProcessor $processor
+     * @param int                $id        Block id.
      *
      * @return FileCollection
      *
@@ -142,9 +142,9 @@ class BlockFileController extends ApiController
      *   @SWG\Response(response=404, description="Block not found")
      * )
      *
-     * @param UrlParamsProcessor $processor
+     * @param UrlParamsProcessor $processor Params processor
      *
-     * @param int $id Block id
+     * @param int                $id        Block id
      *
      * @return FileCollection
      *
