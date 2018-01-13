@@ -38,7 +38,8 @@
         }
     },
     "scripts": {
-        "test": "./vendor/bin/codecept run"
+        "test": "./vendor/bin/codecept run",
+        "test-debug": "./vendor/bin/codecept --debug run"
     },
     "extra": {
         "laravel": {
