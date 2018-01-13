@@ -10,7 +10,7 @@ modules:
         Laravel5:
             root: vendor/orchestra/testbench-core/laravel/ # we're use testbench package to bootstrap fake laravel app
             bootstrap: '../../../../codecept_setup.php' # bootstrap fake laravel app
-            vendor_dir: '../../../../vendor' # api/vendor
+            vendor_dir: '../../../../vendor'
             cleanup: true
             disable_events: false
             disable_exception_handling: false

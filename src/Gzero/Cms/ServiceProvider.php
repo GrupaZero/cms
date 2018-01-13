@@ -3,14 +3,17 @@
 use Bkwld\Croppa\ServiceProvider as CroppaServiceProvider;
 use DaveJamesMiller\Breadcrumbs\Facade as BreadcrumbsFacade;
 use DaveJamesMiller\Breadcrumbs\ServiceProvider as BreadcrumbServiceProvider;
+use Gzero\Cms\Listeners\BlockCacheClear;
+use Gzero\Cms\Listeners\BlockLoad;
+use Gzero\Cms\Policies\BlockPolicy;
+use Gzero\Cms\Policies\ContentPolicy;
 use Gzero\Core\AbstractServiceProvider;
+use Gzero\Core\Events\RouteMatched as GzeroRouteMatched;
 use Illuminate\Database\Eloquent\Factory;
 use Gzero\Cms\Models\Block;
 use Gzero\Cms\Models\Content;
-use Gzero\Cms\Models\File;
-use Gzero\Core\Policies\BlockPolicy;
-use Gzero\Core\Policies\ContentPolicy;
-use Gzero\Core\Policies\FilePolicy;
+use Illuminate\Routing\Events\RouteMatched;
+use Illuminate\Support\Facades\Event;
 
 class ServiceProvider extends AbstractServiceProvider {
 
@@ -40,8 +43,7 @@ class ServiceProvider extends AbstractServiceProvider {
      */
     protected $policies = [
         Block::class   => BlockPolicy::class,
-        Content::class => ContentPolicy::class,
-        File::class    => FilePolicy::class,
+        Content::class => ContentPolicy::class
     ];
 
     /**
@@ -69,6 +71,7 @@ class ServiceProvider extends AbstractServiceProvider {
         $this->registerFactories();
         $this->registerViews();
         $this->registerViewComposers();
+        $this->registerListeners();
         $this->registerPublishes();
     }
 
@@ -251,6 +254,18 @@ class ServiceProvider extends AbstractServiceProvider {
             ],
             'gzero-cms views'
         );
+    }
+
+    /**
+     * It registers event listeners
+     *
+     * @return void
+     */
+    protected function registerListeners()
+    {
+        Event::listen(RouteMatched::class, BlockLoad::class);
+        Event::listen(GzeroRouteMatched::class, BlockLoad::class);
+        Event::listen('block.*', BlockCacheClear::class);
     }
 
 }

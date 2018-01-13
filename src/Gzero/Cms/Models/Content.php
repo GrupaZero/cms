@@ -216,6 +216,16 @@ class Content extends Tree implements PresentableInterface, Uploadable, Routable
     }
 
     /**
+     * Returns tree path to handle block load
+     *
+     * @return array
+     */
+    public function getTreePath(): array
+    {
+        return explode('/', rtrim($this->path, '/'));
+    }
+
+    /**
      * Creates route with unique path based on content translation title, and tree hierarchy
      *
      * @param ContentTranslation $translation Translation

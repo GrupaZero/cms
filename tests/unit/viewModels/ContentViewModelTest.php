@@ -5,7 +5,7 @@ use Codeception\Test\Unit;
 use Gzero\Cms\ViewModels\ContentViewModel;
 use Gzero\Core\Models\User;
 
-class ContentPresenterTest extends Unit {
+class ContentViewModelTest extends Unit {
 
     /** @test */
     public function canInstantiate()

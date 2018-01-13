@@ -3,6 +3,15 @@
 
 use Codeception\Lib\Driver\PostgreSql;
 
+$isPlatformRun = function () {
+    return preg_match('|vendor\/gzero\/cms\/$|', \Codeception\Configuration::projectDir());
+};
+
+if ($isPlatformRun()) {
+    class_exists('\App\User') ?: require_once __DIR__ . '/fixture/User.php';
+    return;
+}
+
 if (file_exists(dirname(__DIR__) . '/.env.testing')) {
     (new \Dotenv\Dotenv(dirname(__DIR__), '.env.testing'))->load();
 }

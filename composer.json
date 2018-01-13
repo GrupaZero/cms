@@ -16,7 +16,7 @@
     "require": {
         "php": ">=7.1.0",
         "davejamesmiller/laravel-breadcrumbs": "3.0.*",
-        "gzero/core": "dev-master",
+        "gzero/core": "3.0.0-alpha2",
         "bkwld/croppa": "~4.0"
     },
     "require-dev": {
@@ -39,7 +39,7 @@
     },
     "scripts": {
         "test": "./vendor/bin/codecept run",
-        "test-debug": "./vendor/bin/codecept run --debug"
+        "test-debug": "./vendor/bin/codecept --debug run"
     },
     "extra": {
         "laravel": {

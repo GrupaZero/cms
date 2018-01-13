@@ -7,6 +7,7 @@ use Gzero\Cms\Jobs\DeleteBlock;
 use Gzero\Cms\Jobs\DeleteBlockTranslation;
 use Gzero\Cms\Jobs\UpdateBlock;
 use Gzero\Cms\Models\Block;
+use Gzero\Cms\Models\BlockTranslation;
 use Gzero\Core\Models\Language;
 use Gzero\DomainException;
 use Gzero\InvalidArgumentException;
@@ -32,8 +33,8 @@ class BlockJobsTest extends Unit {
             'is_cacheable'  => true
         ]));
 
-        $block       = $block->fresh();
-        $translation = $block->translations->first();
+        $block       = Block::find($block->id);
+        $translation = $block->translations->firstWhere('language_code', 'en');
 
         $this->assertTrue($block->is_active);
         $this->assertTrue($block->is_cacheable);
@@ -84,7 +85,7 @@ class BlockJobsTest extends Unit {
             ]
         ));
 
-        $translation = $translation->fresh();
+        $translation = BlockTranslation::find($translation->id);
 
         $this->assertEquals(1, $block->translations()->count());
         $this->assertEquals($user->id, $translation->author->id);
@@ -96,7 +97,7 @@ class BlockJobsTest extends Unit {
     }
 
     /** @test */
-    public function canDeleteInactiveTranslation()
+    public function canDeleteInactiveBlockTranslation()
     {
         $withActive = false;
         $block      = $this->tester->haveBlock(
@@ -124,7 +125,7 @@ class BlockJobsTest extends Unit {
     }
 
     /** @test */
-    public function cantDeleteActiveTranslation()
+    public function cantDeleteActiveBlockTranslation()
     {
         $block = $this->tester->haveBlock(
             [
@@ -189,5 +190,17 @@ class BlockJobsTest extends Unit {
         dispatch_now(new DeleteBlock($block));
 
         $this->assertNull(Block::find($block->id));
+    }
+
+    /** @test */
+    public function canSetBlockFilterAsNull()
+    {
+        $block = $this->tester->haveblock(['type' => 'basic', 'filter' => ['+' => ['1/2/3']]]);
+
+        dispatch_now(new UpdateBlock($block, ['filter' => null]));
+
+        $block = Block::find($block->id);
+
+        $this->assertNull($block->filter);
     }
 }

@@ -334,7 +334,7 @@ class ContentCest {
         $I->see('"@context": "http://schema.org"', $tag);
         $I->see('"@type": "Article"', $tag);
         $I->see('"headline": "Content Title"', $tag);
-        $I->see('"url": "http://localhost/content-title"', $tag);
+        $I->see('"url": "http://dev.gzero.pl/content-title"', $tag);
         $I->see('"datePublished": "' . $content->published_at->toDateTimeString() . '"', $tag);
         $I->see('"dateModified": "' . $content->updated_at->toDateTimeString() . '"', $tag);
 
@@ -347,22 +347,22 @@ class ContentCest {
         $I->see('"publisher": 
         {
             "@type": "Organization",
-            "url": "http://localhost",
-            "name": "Laravel",
+            "url": "http://dev.gzero.pl",
+            "name": "' . config('app.name') . '",
             "logo": {
                 "@type": "ImageObject",
-                "url": "http://localhost/images/logo.png"
+                "url": "http://dev.gzero.pl/images/logo.png"
             }
         }', $tag);
 
         $I->see('"mainEntityOfPage": {
             "@type": "WebPage",
-            "@id": "http://localhost"
+            "@id": "http://dev.gzero.pl"
         }', $tag);
 
         $I->see('"image": {
             "@type": "ImageObject",
-            "url": "http://localhost/images/share-logo.png",
+            "url": "http://dev.gzero.pl/images/share-logo.png",
             "width": "' . $thumbWidth . '",
             "height": "auto"
         }', $tag);
@@ -405,7 +405,7 @@ class ContentCest {
 
         dispatch_now(CreateContent::content('Content Title', $language, $user, [
             'published_at' => Carbon::now(),
-            'teaser'       => 'Content teaser. <img src="http://localhost/images/first-image.png" class="img-fluid">',
+            'teaser'       => 'Content teaser. <img src="http://dev.gzero.pl/images/first-image.png" class="img-fluid">',
             'body'         => 'Content body.',
             'is_active'    => true
         ]));
@@ -414,7 +414,7 @@ class ContentCest {
         $I->seeResponseCodeIs(200);
         $I->see('"image": {
             "@type": "ImageObject",
-            "url": "http://localhost/images/first-image.png",
+            "url": "http://dev.gzero.pl/images/first-image.png",
             "width": "' . $thumbWidth . '",
             "height": "auto"
         }', 'script[type="application/ld+json"]');

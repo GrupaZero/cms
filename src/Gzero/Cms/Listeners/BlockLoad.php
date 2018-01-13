@@ -3,6 +3,7 @@
 use Gzero\Cms\Repositories\BlockReadRepository;
 use Gzero\Cms\BlockFinder;
 use Gzero\Core\Events\RouteMatched as GzeroRouteMatched;
+use Gzero\Core\Http\Middleware\MultiLanguage;
 use Gzero\Core\Services\LanguageService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Routing\Events\RouteMatched;
@@ -62,16 +63,17 @@ class BlockLoad {
      * @param RouteMatched $event dispatched event
      *
      * @return void
-     *
      */
     public function handleLaravelRoute(RouteMatched $event)
     {
-        if ($this->ifFrontendRoute($event)) {
-            $blockIds = $this->blockFinder->getBlocksIds($event->route->getName(), true);
-            $blocks   = $this->blockRepository->getVisibleBlocks($blockIds, $this->languageService->getCurrent(), true);
-            $this->handleBlockRendering($blocks);
-            $blocks = $blocks->groupBy('region');
-            view()->share('blocks', $blocks);
+        if ($this->isValidFrontendRoute($event)) {
+            MultiLanguage::addCallback(function () use ($event) {
+                $blockIds = $this->blockFinder->getBlocksIds($event->route->getName(), true);
+                $blocks   = $this->blockRepository->getVisibleBlocks($blockIds, $this->languageService->getCurrent(), true);
+                $this->handleBlockRendering($blocks);
+                $blocks = $blocks->groupBy('region');
+                view()->share('blocks', $blocks);
+            });
         }
     }
 
@@ -81,11 +83,10 @@ class BlockLoad {
      * @param GzeroRouteMatched $event dispatched event
      *
      * @return void
-     *
      */
     public function handleRoute(GzeroRouteMatched $event)
     {
-        $blockIds = $this->blockFinder->getBlocksIds($event->route->path, true);
+        $blockIds = $this->blockFinder->getBlocksIds($event->route->getRoutable(), true);
         $blocks   = $this->blockRepository->getVisibleBlocks($blockIds, $this->languageService->getCurrent(), true);
         $this->handleBlockRendering($blocks);
         $blocks = $blocks->groupBy('region');
@@ -112,7 +113,7 @@ class BlockLoad {
      *
      * @return bool
      */
-    protected function ifFrontendRoute(RouteMatched $event): bool
+    protected function isValidFrontendRoute(RouteMatched $event): bool
     {
         return $event->request->method() === 'GET'
             && $event->route->domain() !== 'api.' . env('DOMAIN')

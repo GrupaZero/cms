@@ -54,7 +54,7 @@ class BlockReadRepository implements ReadRepository {
     }
 
     /**
-     * Get all visible blocks
+     * Returns all visible blocks
      *
      * @param array    $ids        Array with blocks ids returned from block finder
      * @param Language $language   Language
@@ -81,6 +81,27 @@ class BlockReadRepository implements ReadRepository {
                 $query->where('block_translations.is_active', true)
                     ->where('language_code', $language->code);
             })->where('is_active', '=', true);
+        }
+
+        $blocks = $query->orderBy('weight', 'ASC')->get();
+
+        return $blocks;
+    }
+
+    /**
+     * Returns all blocks with filter
+     *
+     * @param bool $onlyActive Return only active blocks
+     *
+     * @return Collection
+     */
+    public function getBlocksWithFilter($onlyActive = true)
+    {
+        $query = Block::query()->with(self::$loadRelations)
+            ->where('filter', '!=', null);
+
+        if ($onlyActive) {
+            $query->where('is_active', '=', true);
         }
 
         $blocks = $query->orderBy('weight', 'ASC')->get();

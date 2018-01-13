@@ -173,6 +173,7 @@ class DeletedContentController extends ApiController {
             return $this->errorNotFound();
         }
 
+        $this->authorize('delete', $content);
         dispatch_now(new ForceDeleteContent($content));
 
         return $this->successNoContent();

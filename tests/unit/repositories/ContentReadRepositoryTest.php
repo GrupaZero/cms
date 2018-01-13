@@ -176,38 +176,10 @@ class ContentReadRepositoryTest extends Unit {
     public function canPaginateResults()
     {
         $this->tester->haveContents([
-            [
-                'translations' => [
-                    [
-                        'language_code' => 'en',
-                        'title'         => 'A title'
-                    ]
-                ]
-            ],
-            [
-                'translations' => [
-                    [
-                        'language_code' => 'en',
-                        'title'         => 'B title'
-                    ]
-                ]
-            ],
-            [
-                'translations' => [
-                    [
-                        'language_code' => 'en',
-                        'title'         => 'C title'
-                    ]
-                ]
-            ],
-            [
-                'translations' => [
-                    [
-                        'language_code' => 'en',
-                        'title'         => 'D title'
-                    ]
-                ]
-            ]
+            ['translations' => [['language_code' => 'en', 'title' => 'A title']]],
+            ['translations' => [['language_code' => 'en', 'title' => 'B title']]],
+            ['translations' => [['language_code' => 'en', 'title' => 'C title']]],
+            ['translations' => [['language_code' => 'en', 'title' => 'D title']]]
         ]);
 
         $result = $this->repository->getMany(

@@ -46,7 +46,7 @@ class FileService extends BaseService {
         $this->model      = $file;
         $this->typeModel  = $fileType;
         $this->events     = $events;
-        $this->filesystem = $filesystem->disk(config('gzero.upload.disk'));
+        $this->filesystem = $filesystem->disk(config('gzero-cms.upload.disk'));
     }
 
     /**

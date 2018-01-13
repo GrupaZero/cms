@@ -2,8 +2,8 @@
 
 use Gzero\Cms\Models\Content;
 use Gzero\Cms\Repositories\ContentReadRepository;
-use Gzero\Cms\Services\FileService;
 use Gzero\Core\Models\Language;
+use Gzero\Core\Repositories\FileReadRepository;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 
@@ -15,7 +15,7 @@ class ContentHandler implements ContentTypeHandler {
     /** @var ContentReadRepository */
     protected $repository;
 
-    /** @var FileService */
+    /** @var FileReadRepository */
     protected $fileRepo;
 
     /** @var \DaveJamesMiller\Breadcrumbs\Manager */
@@ -27,10 +27,10 @@ class ContentHandler implements ContentTypeHandler {
     /**
      * Content constructor
      *
-     * @param FileService $fileRepo File repository
-     * @param Request     $request  Request object
+     * @param FileReadRepository $fileRepo File repository
+     * @param Request            $request  Request object
      */
-    public function __construct(FileService $fileRepo, Request $request)
+    public function __construct(FileReadRepository $fileRepo, Request $request)
     {
         $this->fileRepo = $fileRepo;
         $this->request  = $request;
@@ -46,7 +46,8 @@ class ContentHandler implements ContentTypeHandler {
      */
     public function handle(Content $content, Language $language): Response
     {
-        $files = $this->fileRepo->getEntityFiles($content, [['is_active', '=', true]]);
+        //$files = $this->fileRepo->getEntityFiles($content, [['is_active', '=', true]]);
+        $files = collect();
 
         self::buildBreadcrumbs($content, $language);
 

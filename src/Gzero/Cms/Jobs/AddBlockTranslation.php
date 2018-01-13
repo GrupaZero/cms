@@ -69,7 +69,7 @@ class AddBlockTranslation {
                 'language_code' => $this->language->code,
                 'body'          => $this->attributes['body'],
                 'custom_fields' => $this->attributes['custom_fields'],
-                'is_active'     => true,
+                'is_active'     => true
             ]);
             $translation->author()->associate($this->author);
 

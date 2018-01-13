@@ -199,7 +199,7 @@ class BlockController extends ApiController {
     }
 
     /**
-     * Stores newly created content in database.
+     * Stores newly created block in database.
      *
      * @SWG\Post(path="/blocks",
      *   tags={"blocks"},
@@ -225,7 +225,7 @@ class BlockController extends ApiController {
      *       @SWG\Property(property="options", type="array", example="{'key':'value'}", @SWG\Items(type="string")),
      *       @SWG\Property(property="is_active", type="boolean", example="true"),
      *       @SWG\Property(property="is_cacheable", type="boolean", example="true"),
-     *       @SWG\Property(property="body", type="string", example="Example Body"),
+     *       @SWG\Property(property="body", type="string", example="Example body"),
      *       @SWG\Property(property="custom_fields", type="array", example="{'key':'value'}", @SWG\Items(type="string")),
      *     )
      *   ),
@@ -359,6 +359,7 @@ class BlockController extends ApiController {
             return $this->errorNotFound();
         }
 
+        $this->authorize('delete', $block);
         dispatch_now(new DeleteBlock($block));
 
         return $this->successNoContent();
