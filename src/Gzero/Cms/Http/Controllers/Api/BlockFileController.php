@@ -6,6 +6,7 @@ use Gzero\Core\Http\Controllers\ApiController;
 use Gzero\Core\Http\Resources\FileCollection;
 use Gzero\Core\Jobs\SyncFiles;
 use Gzero\Core\Models\File;
+use Gzero\Core\UrlParamsProcessor;
 use Illuminate\Http\Request;
 
 /**
@@ -73,11 +74,13 @@ class BlockFileController extends ApiController
      *
      * @param int $id Block id.
      *
+     * @param UrlParamsProcessor $processor
+     *
      * @return FileCollection
      *
      * @throws \Illuminate\Auth\Access\AuthorizationException
      */
-    public function index(int $id)
+    public function index(UrlParamsProcessor $processor, int $id)
     {
         $block = $this->repository->getById($id);
         if (!$block) {
@@ -86,17 +89,14 @@ class BlockFileController extends ApiController
         $this->authorize('read', $block);
 
         $this->authorize('readList', File::class);
-        $files = $block->files->load('translations');
-        if (!$files) {
-            return $this->errorNotFound();
-        }
 
-        return new FileCollection($files);
+        $results = $this->repository->getManyFiles($block, $processor->buildQueryBuilder());
+        $results->setPath(apiUrl("blocks/$block->id/files"));
+
+        return new FileCollection($results);
     }
 
     /**
-     * @todo update body parameter to reflect validator structure
-     *
      * Updates the specified resource in the database.
      *
      * @SWG\Put(
@@ -119,13 +119,14 @@ class BlockFileController extends ApiController
      *     description="Files ids to sync.",
      *     required=true,
      *     @SWG\Schema(
-     *       type="array",
-     *       @SWG\Items(
-     *         title="id",
-     *         description="Id of existing file.",
-     *         type="numeric",
-     *         example="1",
-     *       )
+     *       required={"data"},
+     *       @SWG\Property(property="data", type="array",
+     *         @SWG\Items(
+     *           type="object",
+     *           @SWG\Property(property="id", description="Id of existing file that needs to be synced.", type="integer"),
+     *           @SWG\Property(property="weight", description="Weight of file.", type="integer"),
+     *         ),
+     *       ),
      *     )
      *   ),
      *   @SWG\Response(
@@ -141,13 +142,19 @@ class BlockFileController extends ApiController
      *   @SWG\Response(response=404, description="Block not found")
      * )
      *
+     * @param UrlParamsProcessor $processor
+     *
      * @param int $id Block id
      *
      * @return FileCollection
      *
+     * @throws \Gzero\InvalidArgumentException
+     *
      * @throws \Illuminate\Auth\Access\AuthorizationException
+     *
+     * @throws \Illuminate\Validation\ValidationException
      */
-    public function sync($id)
+    public function sync(UrlParamsProcessor $processor, int $id)
     {
         $block = $this->repository->getById($id);
         if (!$block) {
@@ -159,8 +166,9 @@ class BlockFileController extends ApiController
 
         dispatch_now(new SyncFiles($block, array_pluck([$input], 'data.id')));
 
-        $files = $block->fresh()->files->load('translations');
+        $results = $this->repository->getManyFiles($block, $processor->buildQueryBuilder());
+        $results->setPath(apiUrl("blocks/$block->id/files"));
 
-        return new FileCollection($files);
+        return new FileCollection($results);
     }
 }

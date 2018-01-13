@@ -180,4 +180,33 @@ class BlockReadRepository implements ReadRepository {
             $builder->getPage()
         );
     }
+
+    /**
+     * Get all files with translations for specified content.
+     *
+     * @param Block        $block   Content model
+     * @param QueryBuilder $builder Query builder
+     *
+     * @return Collection|LengthAwarePaginator
+     */
+    public function getManyFiles(Block $block, QueryBuilder $builder): LengthAwarePaginator
+    {
+        $query = $block->files(false)->with('translations')->newQuery()->getQuery();
+
+        $builder->applyFilters($query);
+        $builder->applySorts($query);
+
+        $count = clone $query->getQuery();
+
+        $results = $query->limit($builder->getPageSize())
+            ->offset($builder->getPageSize() * ($builder->getPage() - 1))
+            ->get(['files.*']);
+
+        return new LengthAwarePaginator(
+            $results,
+            $count->select('files.id')->get()->count(),
+            $builder->getPageSize(),
+            $builder->getPage()
+        );
+    }
 }
