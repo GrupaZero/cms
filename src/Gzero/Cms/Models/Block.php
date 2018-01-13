@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Gzero\InvalidArgumentException;
 use Robbo\Presenter\PresentableInterface;
+use Gzero\Core\Models\Uploadable;
 
 class Block extends Model implements Uploadable, PresentableInterface {
 
@@ -78,14 +79,17 @@ class Block extends Model implements Uploadable, PresentableInterface {
      *
      * @param bool $active Only active file
      *
-     * @return \Illuminate\Database\Eloquent\Relations\morphToMany
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany|\Illuminate\Database\Eloquent\Relations\morphToMany
      */
     public function files($active = true)
     {
         if ($active) {
-            return $this->morphToMany(File::class, 'uploadable')->where('is_active', '=', 1)->withPivot('weight')
+            return $this->morphToMany(File::class, 'uploadable')
+                ->where('is_active', '=', 1)
+                ->withPivot('weight')
                 ->withTimestamps();
         }
+
         return $this->morphToMany(File::class, 'uploadable')->withPivot('weight')->withTimestamps();
     }
 

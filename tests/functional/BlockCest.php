@@ -5,9 +5,13 @@ use Gzero\Cms\Jobs\AddBlockTranslation;
 use Gzero\Cms\Jobs\AddContentTranslation;
 use Gzero\Cms\Jobs\CreateBlock;
 use Gzero\Cms\Jobs\CreateContent;
+use Gzero\Core\Jobs\CreateFile;
+use Gzero\Core\Jobs\SyncFiles;
 use Gzero\Core\Models\Language;
 use Gzero\Core\Models\User;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Routing\Router;
+use Illuminate\Support\Facades\Storage;
 
 class BlockCest {
 
@@ -342,5 +346,40 @@ class BlockCest {
         $I->seeResponseCodeIs(200);
         $I->dontSee('Sidebar right', '#sidebarRight .block-title');
         $I->dontSee('Block in sidebar right region', '#sidebarRight .block-body');
+    }
+
+
+    public function shouldGetOnlyActiveFilesSyncedWithBlock(FunctionalTester $I)
+    {
+        $author   = factory(User::class)->create();
+        $language   = new Language(['code' => 'en']);
+        $block = dispatch_now(CreateBlock::basic('Block title', $language, $author, [
+            'body'      => 'Block body',
+            'region'    => 'homepage',
+            'is_active' => true
+        ]));
+
+        Storage::fake('uploads');
+        $activeImage = UploadedFile::fake()->image('active-file.jpg')->size(10);
+        $inactiveImage = UploadedFile::fake()->image('inactive-file.jpg')->size(10);
+
+        $activeFile = dispatch_now(CreateFile::image($activeImage, 'Image', $language, $author, [
+            'info'        => 'active\'s file info',
+            'description' => 'active\'s file description',
+            'is_active'   => true,
+        ]));
+        $inactiveFile = dispatch_now(CreateFile::image($inactiveImage, 'Image', $language, $author, [
+            'info'        => 'inactive\'s file info',
+            'description' => 'inactive\'s file description',
+            'is_active'   => false,
+        ]));
+
+        dispatch_now(new SyncFiles($block, [
+            $activeFile->id => ['weight' => 3],
+            $inactiveFile->id => ['weight' => 2]
+        ]));
+
+        $I->assertCount(1, $block->fresh()->files()->get());
+        $I->assertEquals('active\'s file info', $block->fresh()->files()->first()->info);
     }
 }
