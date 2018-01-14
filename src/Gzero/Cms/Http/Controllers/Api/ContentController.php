@@ -173,6 +173,7 @@ class ContentController extends ApiController {
             ->addFilter(new StringParser('type'))
             ->addFilter(new NumericParser('level'))
             ->addFilter(new NumericParser('author_id'))
+            ->addFilter(new StringParser('translations.language_code'))
             ->addFilter(new BoolParser('is_sticky'))
             ->addFilter(new BoolParser('is_on_home'))
             ->addFilter(new BoolParser('is_promoted'))

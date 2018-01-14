@@ -139,11 +139,12 @@ class BlockController extends ApiController {
      */
     public function index(UrlParamsProcessor $processor)
     {
-        $this->authorize('readList', Content::class);
+        $this->authorize('readList', Block::class);
 
         $processor
             ->addFilter(new StringParser('type'))
             ->addFilter(new StringParser('region'))
+            ->addFilter(new StringParser('translations.language_code'))
             ->addFilter(new NumericParser('author_id'))
             ->addFilter(new BoolParser('is_active'))
             ->addFilter(new BoolParser('is_cacheable'))
