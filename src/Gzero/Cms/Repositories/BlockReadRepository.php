@@ -135,8 +135,8 @@ class BlockReadRepository implements ReadRepository {
             optional($builder->getSort('type'))->apply($query, 'bt', 'name');
         }
 
-        $builder->applyFilters($query);
-        $builder->applySorts($query);
+        $builder->applyFilters($query, 'blocks');
+        $builder->applySorts($query, 'blocks');
 
         $count = clone $query->getQuery();
 
@@ -164,8 +164,8 @@ class BlockReadRepository implements ReadRepository {
     {
         $query = $block->translations(false)->newQuery()->getQuery();
 
-        $builder->applyFilters($query);
-        $builder->applySorts($query);
+        $builder->applyFilters($query, 'block_translations');
+        $builder->applySorts($query, 'block_translations');
 
         $count = clone $query->getQuery();
 
@@ -193,8 +193,8 @@ class BlockReadRepository implements ReadRepository {
     {
         $query = $block->files(false)->with('translations')->newQuery()->getQuery();
 
-        $builder->applyFilters($query);
-        $builder->applySorts($query);
+        $builder->applyFilters($query, 'files');
+        $builder->applySorts($query, 'files');
 
         $count = clone $query->getQuery();
 
