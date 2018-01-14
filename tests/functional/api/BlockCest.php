@@ -223,6 +223,39 @@ class BlockCest {
         );
     }
 
+    public function shouldBeAbleToSortListOfBlocksByTranslationsTitle(FunctionalTester $I)
+    {
+        $user     = factory(User::class)->create();
+        $language = new Language(['code' => 'en']);
+
+        dispatch_now(CreateBlock::basic('Basic Title', $language, $user, ['is_active' => true]));
+        dispatch_now(CreateBlock::slider('Slider Title', $language, $user, ['is_active' => true]));
+
+        $I->sendGET(apiUrl('blocks?translations[language_code]=en&sort=translations.title'));
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeResponseJsonMatchesJsonPath('data[*]');
+
+        $first  = $I->grabDataFromResponseByJsonPath('data[0].translations[0].title');
+        $second = $I->grabDataFromResponseByJsonPath('data[1].translations[0].title');
+
+        $I->assertEquals('Basic Title', head($first));
+        $I->assertEquals('Slider Title', head($second));
+
+        $I->sendGET(apiUrl('blocks?translations[language_code]=en&sort=-translations.title'));
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeResponseJsonMatchesJsonPath('data[*]');
+
+        $first  = $I->grabDataFromResponseByJsonPath('data[0].translations[0].title');
+        $second = $I->grabDataFromResponseByJsonPath('data[1].translations[0].title');
+
+        $I->assertEquals('Slider Title', head($first));
+        $I->assertEquals('Basic Title', head($second));
+    }
+
     public function shouldBeAbleToSortListOfBlocksByType(FunctionalTester $I)
     {
         $user     = factory(User::class)->create();

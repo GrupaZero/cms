@@ -85,6 +85,14 @@ class ContentController extends ApiController {
      *     default="1"
      *   ),
      *   @SWG\Parameter(
+     *     name="translations[language_code]",
+     *     in="query",
+     *     description="Translation relation language code to filter by",
+     *     required=false,
+     *     type="string",
+     *     default="en"
+     *   ),
+     *   @SWG\Parameter(
      *     name="is_sticky",
      *     in="query",
      *     description="Sticked contents filter",
@@ -173,6 +181,7 @@ class ContentController extends ApiController {
             ->addFilter(new StringParser('type'))
             ->addFilter(new NumericParser('level'))
             ->addFilter(new NumericParser('author_id'))
+            ->addFilter(new StringParser('translations.language_code'))
             ->addFilter(new BoolParser('is_sticky'))
             ->addFilter(new BoolParser('is_on_home'))
             ->addFilter(new BoolParser('is_promoted'))

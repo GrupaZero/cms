@@ -385,6 +385,39 @@ class ContentCest {
         );
     }
 
+    public function shouldBeAbleToSortListOfContentsByTranslationsTitle(FunctionalTester $I)
+    {
+        $user     = factory(User::class)->create();
+        $language = new Language(['code' => 'en']);
+
+        dispatch_now(CreateContent::content('Content Title', $language, $user, ['is_active' => true]));
+        dispatch_now(CreateContent::category('Category Title', $language, $user, ['is_active' => true]));
+
+        $I->sendGET(apiUrl('contents?translations[language_code]=en&sort=translations.title'));
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeResponseJsonMatchesJsonPath('data[*]');
+
+        $first  = $I->grabDataFromResponseByJsonPath('data[0].translations[0].title');
+        $second = $I->grabDataFromResponseByJsonPath('data[1].translations[0].title');
+
+        $I->assertEquals('Category Title', head($first));
+        $I->assertEquals('Content Title', head($second));
+
+        $I->sendGET(apiUrl('contents?translations[language_code]=en&sort=-translations.title'));
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeResponseJsonMatchesJsonPath('data[*]');
+
+        $first  = $I->grabDataFromResponseByJsonPath('data[0].translations[0].title');
+        $second = $I->grabDataFromResponseByJsonPath('data[1].translations[0].title');
+
+        $I->assertEquals('Content Title', head($first));
+        $I->assertEquals('Category Title', head($second));
+    }
+
     public function shouldBeAbleToSortListOfContentsByType(FunctionalTester $I)
     {
         $user     = factory(User::class)->create();
