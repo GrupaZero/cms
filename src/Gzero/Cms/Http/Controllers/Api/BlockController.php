@@ -39,7 +39,7 @@ class BlockController extends ApiController {
      * BlockController constructor.
      *
      * @param BlockReadRepository $repository Block repository
-     * @param BlockValidator      $validator  Content validator
+     * @param BlockValidator      $validator  Block validator
      * @param Request             $request    Request object
      */
     public function __construct(BlockReadRepository $repository, BlockValidator $validator, Request $request)
@@ -74,6 +74,14 @@ class BlockController extends ApiController {
      *     required=false,
      *     type="string",
      *     default="sidebarLeft"
+     *   ),
+     *   @SWG\Parameter(
+     *     name="translations[language_code]",
+     *     in="query",
+     *     description="Translation relation language code to filter by",
+     *     required=false,
+     *     type="string",
+     *     default="en"
      *   ),
      *   @SWG\Parameter(
      *     name="author_id",

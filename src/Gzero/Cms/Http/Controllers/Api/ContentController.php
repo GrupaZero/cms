@@ -85,6 +85,14 @@ class ContentController extends ApiController {
      *     default="1"
      *   ),
      *   @SWG\Parameter(
+     *     name="translations[language_code]",
+     *     in="query",
+     *     description="Translation relation language code to filter by",
+     *     required=false,
+     *     type="string",
+     *     default="en"
+     *   ),
+     *   @SWG\Parameter(
      *     name="is_sticky",
      *     in="query",
      *     description="Sticked contents filter",
