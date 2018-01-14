@@ -233,8 +233,8 @@ class ContentReadRepository implements ReadRepository {
             optional($builder->getSort('type'))->apply($query, 'ct', 'name');
         }
 
-        $builder->applyFilters($query);
-        $builder->applySorts($query);
+        $builder->applyFilters($query, 'contents');
+        $builder->applySorts($query, 'contents');
 
         $count = clone $query->getQuery();
 
@@ -262,8 +262,8 @@ class ContentReadRepository implements ReadRepository {
     {
         $query = $content->translations(false)->newQuery()->getQuery();
 
-        $builder->applyFilters($query);
-        $builder->applySorts($query);
+        $builder->applyFilters($query, 'content_translations');
+        $builder->applySorts($query, 'content_translations');
 
         $count = clone $query->getQuery();
 
