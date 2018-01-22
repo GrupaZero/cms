@@ -69,7 +69,7 @@ class ContentFileCest
                                 'title' => 'New translation',
                                 'description' => 'Description',
                                 'created_at' => $translation->created_at->toAtomString(),
-                                'updated_at' => $file->updated_at->toAtomString()
+                                'updated_at' => $translation->updated_at->toAtomString()
                             ]
                         ]
                     ]
@@ -129,7 +129,7 @@ class ContentFileCest
                             'title' => 'New translation',
                             'description' => 'Description',
                             'created_at' => $translation->created_at->toAtomString(),
-                            'updated_at' => $file->updated_at->toAtomString()
+                            'updated_at' => $translation->updated_at->toAtomString()
                         ]
                     ]
                 ]
