@@ -182,9 +182,9 @@ class BlockReadRepository implements ReadRepository {
     }
 
     /**
-     * Get all files with translations for specified content.
+     * Get all files with translations for specified block.
      *
-     * @param Block        $block   Content model
+     * @param Block        $block   Block model
      * @param QueryBuilder $builder Query builder
      *
      * @return Collection|LengthAwarePaginator
