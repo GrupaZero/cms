@@ -9,14 +9,6 @@ use Gzero\Core\Models\File;
 use Gzero\Core\UrlParamsProcessor;
 use Illuminate\Http\Request;
 
-/**
- * Class ContentFileController
- *
- * @SWG\Tag(
- *   name="content",
- *   description="Everything about app content"
- *   )
- */
 class ContentFileController extends ApiController
 {
     /** @var ContentReadRepository */
@@ -29,7 +21,7 @@ class ContentFileController extends ApiController
     protected $request;
 
     /**
-     * BlockController constructor.
+     * ContentFileController constructor.
      *
      * @param ContentReadRepository $repository Content repository
      * @param ContentValidator      $validator  Content's files validator

@@ -9,14 +9,6 @@ use Gzero\Core\Models\File;
 use Gzero\Core\UrlParamsProcessor;
 use Illuminate\Http\Request;
 
-/**
- * Class BlockFileController
- *
- * @SWG\Tag(
- *   name="blocks",
- *   description="Everything about app blocks"
- *   )
- */
 class BlockFileController extends ApiController
 {
     /** @var BlockReadRepository */
@@ -29,7 +21,7 @@ class BlockFileController extends ApiController
     protected $request;
 
     /**
-     * BlockController constructor.
+     * BlockFileController constructor.
      *
      * @param BlockReadRepository $repository Block repository
      * @param BlockValidator      $validator  Block's files validator
