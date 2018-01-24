@@ -156,7 +156,15 @@ class BlockFileController extends ApiController
 
         $input = $this->validator->validate('syncFiles');
 
-        dispatch_now(new SyncFiles($block, array_pluck([$input], 'data.id')));
+        $fileIdsWithWeight = collect(array_get($input, 'data'))->mapWithKeys(function ($item) {
+            return [
+                $item['id'] => [
+                    'weight' => $item['weight']
+                ]
+            ];
+        })->toArray();
+
+        dispatch_now(new SyncFiles($block, $fileIdsWithWeight));
 
         $results = $this->repository->getManyFiles($block, $processor->buildQueryBuilder());
         $results->setPath(apiUrl("blocks/$block->id/files"));

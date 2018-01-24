@@ -191,10 +191,7 @@ class BlockReadRepository implements ReadRepository {
      */
     public function getManyFiles(Block $block, QueryBuilder $builder): LengthAwarePaginator
     {
-        $query = $block->files(false)->with('translations')->newQuery()->getQuery();
-
-        $builder->applyFilters($query, 'files');
-        $builder->applySorts($query, 'files');
+        $query = $block->files(false)->with('translations');
 
         $count = clone $query->getQuery();
 

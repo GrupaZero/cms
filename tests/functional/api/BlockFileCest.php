@@ -61,6 +61,7 @@ class BlockFileCest
                         'mime_type' => 'image/jpeg',
                         'info' => 'info text',
                         'is_active' => true,
+                        'weight' => 3,
                         'created_at' => $file->created_at->toAtomString(),
                         'updated_at' => $file->updated_at->toAtomString(),
                         'translations'=> [
