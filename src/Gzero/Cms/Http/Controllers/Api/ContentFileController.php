@@ -156,7 +156,15 @@ class ContentFileController extends ApiController
 
         $input = $this->validator->validate('syncFiles');
 
-        dispatch_now(new SyncFiles($content, array_pluck([$input], 'data.id')));
+        $fileIdsWithWeight = collect(array_get($input, 'data'))->mapWithKeys(function ($item) {
+            return [
+                $item['id'] => [
+                    'weight' => $item['weight']
+                ]
+            ];
+        })->toArray();
+
+        dispatch_now(new SyncFiles($content, $fileIdsWithWeight));
 
         $results = $this->repository->getManyFiles($content, $processor->buildQueryBuilder());
         $results->setPath(apiUrl("contents/$content->id/files"));

@@ -100,7 +100,10 @@ class ContentFileCest
 
         $I->sendPUT(apiUrl("contents/$content->id/files"), [
             'data' => [
-                'id' => $file->id
+                [
+                    'id' => $file->id,
+                    'weight' => 10
+                ]
             ]
         ]);
 
@@ -112,24 +115,27 @@ class ContentFileCest
         $I->seeResponseContainsJson(
             [
                 'data' => [
-                    'id' => $file->id,
-                    'author_id' => $author->id,
-                    'name' => 'file',
-                    'extension' => 'jpg',
-                    'size' => 10240,
-                    'mime_type' => 'image/jpeg',
-                    'info' => 'info text',
-                    'is_active' => true,
-                    'created_at' => $file->created_at->toAtomString(),
-                    'updated_at' => $file->updated_at->toAtomString(),
-                    'translations'=> [
-                        [
-                            'author_id' => $author->id,
-                            'language_code' => 'en',
-                            'title' => 'New translation',
-                            'description' => 'Description',
-                            'created_at' => $translation->created_at->toAtomString(),
-                            'updated_at' => $translation->updated_at->toAtomString()
+                    [
+                        'id' => $file->id,
+                        'author_id' => $author->id,
+                        'name' => 'file',
+                        'extension' => 'jpg',
+                        'size' => 10240,
+                        'mime_type' => 'image/jpeg',
+                        'info' => 'info text',
+                        'is_active' => true,
+                        'weight' => 10,
+                        'created_at' => $file->created_at->toAtomString(),
+                        'updated_at' => $file->updated_at->toAtomString(),
+                        'translations'=> [
+                            [
+                                'author_id' => $author->id,
+                                'language_code' => 'en',
+                                'title' => 'New translation',
+                                'description' => 'Description',
+                                'created_at' => $translation->created_at->toAtomString(),
+                                'updated_at' => $translation->updated_at->toAtomString()
+                            ]
                         ]
                     ]
                 ]
