@@ -1,7 +1,7 @@
 <?php namespace Gzero\Cms\Http\Controllers\Api;
 
-use Gzero\Cms\Repositories\BlockReadRepository;
-use Gzero\Cms\Validators\BlockValidator;
+use Gzero\Cms\Repositories\ContentReadRepository;
+use Gzero\Cms\Validators\ContentValidator;
 use Gzero\Core\Http\Controllers\ApiController;
 use Gzero\Core\Http\Resources\FileCollection;
 use Gzero\Core\Jobs\SyncFiles;
@@ -9,25 +9,25 @@ use Gzero\Core\Models\File;
 use Gzero\Core\UrlParamsProcessor;
 use Illuminate\Http\Request;
 
-class BlockFileController extends ApiController
+class ContentFileController extends ApiController
 {
-    /** @var BlockReadRepository */
+    /** @var ContentReadRepository */
     protected $repository;
 
-    /** @var BlockValidator */
+    /** @var ContentValidator */
     protected $validator;
 
     /** @var Request */
     protected $request;
 
     /**
-     * BlockFileController constructor.
+     * ContentFileController constructor.
      *
-     * @param BlockReadRepository $repository Block repository
-     * @param BlockValidator      $validator  Block's files validator
-     * @param Request             $request    Request object
+     * @param ContentReadRepository $repository Content repository
+     * @param ContentValidator      $validator  Content's files validator
+     * @param Request               $request    Request object
      */
-    public function __construct(BlockReadRepository $repository, BlockValidator $validator, Request $request)
+    public function __construct(ContentReadRepository $repository, ContentValidator $validator, Request $request)
     {
         $this->validator  = $validator->setData($request->all());
         $this->repository = $repository;
@@ -38,16 +38,16 @@ class BlockFileController extends ApiController
      * Display a listing of the resource.
      *
      * @SWG\Get(
-     *   path="blocks/{id}/files",
-     *   tags={"blocks"},
-     *   summary="List of files synced with block",
-     *   description="List of files synced with block",
+     *   path="contents/{id}/files",
+     *   tags={"content"},
+     *   summary="List of files synced with content",
+     *   description="List of files synced with content",
      *   produces={"application/json"},
      *   security={{"AdminAccess": {}}},
      *   @SWG\Parameter(
      *     name="id",
      *     in="path",
-     *     description="Id of block for which files need to be returned.",
+     *     description="Id of content for which files need to be returned.",
      *     required=true,
      *     type="integer"
      *   ),
@@ -61,7 +61,7 @@ class BlockFileController extends ApiController
      *     description="Validation Error",
      *     @SWG\Schema(ref="#/definitions/ValidationErrors")
      *  ),
-     *   @SWG\Response(response=404, description="Block or files not found"),
+     *   @SWG\Response(response=404, description="Content or files not found"),
      * )
      *
      * @param UrlParamsProcessor $processor Params processor
@@ -74,16 +74,16 @@ class BlockFileController extends ApiController
      */
     public function index(UrlParamsProcessor $processor, int $id)
     {
-        $block = $this->repository->getById($id);
-        if (!$block) {
+        $content = $this->repository->getById($id);
+        if (!$content) {
             return $this->errorNotFound();
         }
-        $this->authorize('read', $block);
+        $this->authorize('read', $content);
 
         $this->authorize('readList', File::class);
 
-        $results = $this->repository->getManyFiles($block, $processor->buildQueryBuilder());
-        $results->setPath(apiUrl("blocks/$block->id/files"));
+        $results = $this->repository->getManyFiles($content, $processor->buildQueryBuilder());
+        $results->setPath(apiUrl("contents/$content->id/files"));
 
         return new FileCollection($results);
     }
@@ -92,16 +92,16 @@ class BlockFileController extends ApiController
      * Updates the specified resource in the database.
      *
      * @SWG\Put(
-     *   path="blocks/{id}/files",
-     *   tags={"blocks"},
-     *   summary="Sync files for specified block",
-     *   description="Sync files for specified block",
+     *   path="contents/{id}/files",
+     *   tags={"content"},
+     *   summary="Sync files for specified content",
+     *   description="Sync files for specified content",
      *   produces={"application/json"},
      *   security={{"AdminAccess": {}}},
      *   @SWG\Parameter(
      *     name="id",
      *     in="path",
-     *     description="Id of block for which files need to be updated.",
+     *     description="Id of content for which files need to be updated.",
      *     required=true,
      *     type="integer"
      *   ),
@@ -131,12 +131,12 @@ class BlockFileController extends ApiController
      *     description="Validation Error",
      *     @SWG\Schema(ref="#/definitions/ValidationErrors")
      *  ),
-     *   @SWG\Response(response=404, description="Block not found")
+     *   @SWG\Response(response=404, description="Content not found")
      * )
      *
      * @param UrlParamsProcessor $processor Params processor
      *
-     * @param int                $id        Block id
+     * @param int                $id        Content id
      *
      * @return FileCollection
      *
@@ -148,11 +148,11 @@ class BlockFileController extends ApiController
      */
     public function sync(UrlParamsProcessor $processor, int $id)
     {
-        $block = $this->repository->getById($id);
-        if (!$block) {
+        $content = $this->repository->getById($id);
+        if (!$content) {
             return $this->errorNotFound();
         }
-        $this->authorize('update', $block);
+        $this->authorize('update', $content);
 
         $input = $this->validator->validate('syncFiles');
 
@@ -170,10 +170,10 @@ class BlockFileController extends ApiController
             ];
         })->toArray();
 
-        dispatch_now(new SyncFiles($block, $fileIdsWithWeight));
+        dispatch_now(new SyncFiles($content, $fileIdsWithWeight));
 
-        $results = $this->repository->getManyFiles($block, $processor->buildQueryBuilder());
-        $results->setPath(apiUrl("blocks/$block->id/files"));
+        $results = $this->repository->getManyFiles($content, $processor->buildQueryBuilder());
+        $results->setPath(apiUrl("contents/$content->id/files"));
 
         return new FileCollection($results);
     }

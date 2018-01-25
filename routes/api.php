@@ -26,6 +26,9 @@ Route::group(
         $router->post('contents/{id}/translations', 'ContentTranslationController@store');
         $router->delete('contents/{id}/translations/{translationId}', 'ContentTranslationController@destroy');
 
+        $router->get('contents/{id}/files', 'ContentFileController@index');
+        $router->put('contents/{id}/files', 'ContentFileController@sync');
+
         $router->get('deleted-contents', 'DeletedContentController@index');
         $router->delete('deleted-contents/{id}', 'DeletedContentController@destroy');
         $router->post('deleted-contents/{id}/restore', 'DeletedContentController@restore');

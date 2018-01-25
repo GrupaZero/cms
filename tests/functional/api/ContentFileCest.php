@@ -1,7 +1,7 @@
 <?php namespace Cms\api;
 
 use Cms\FunctionalTester;
-use Gzero\Cms\Jobs\CreateBlock;
+use Gzero\Cms\Jobs\CreateContent;
 use Gzero\Core\Jobs\AddFileTranslation;
 use Gzero\Core\Jobs\CreateFile;
 use Gzero\Core\Jobs\SyncFiles;
@@ -10,7 +10,7 @@ use Gzero\Core\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
-class BlockFileCest
+class ContentFileCest
 {
     public function _before(FunctionalTester $I)
     {
@@ -19,13 +19,12 @@ class BlockFileCest
         Storage::fake('uploads');
     }
 
-    public function shouldGetFilesSyncedWithBlock(FunctionalTester $I)
+    public function shouldGetFilesSyncedWithContent(FunctionalTester $I)
     {
         $author   = factory(User::class)->create();
         $language   = new Language(['code' => 'en']);
-        $block = dispatch_now(CreateBlock::basic('Block title', $language, $author, [
-            'body'      => 'Block body',
-            'region'    => 'homepage',
+        $content = dispatch_now(CreateContent::content('Content title', $language, $author, [
+            'body'      => 'Content body',
             'is_active' => true
         ]));
 
@@ -40,9 +39,9 @@ class BlockFileCest
             ['description' => 'Description']
         ));
 
-        dispatch_now(new SyncFiles($block, [$file->id => ['weight' => 3]]));
+        dispatch_now(new SyncFiles($content, [$file->id => ['weight' => 3]]));
 
-        $I->sendGet(apiUrl("blocks/$block->id/files"));
+        $I->sendGet(apiUrl("contents/$content->id/files"));
 
         $I->seeResponseCodeIs(200);
         $I->seeResponseIsJson();
@@ -80,13 +79,12 @@ class BlockFileCest
         );
     }
 
-    public function shouldSyncFilesWithBlock(FunctionalTester $I)
+    public function shouldSyncFilesWithContent(FunctionalTester $I)
     {
         $author   = factory(User::class)->create();
         $language   = new Language(['code' => 'en']);
-        $block = dispatch_now(CreateBlock::basic('Block title', $language, $author, [
-            'body'      => 'Block body',
-            'region'    => 'homepage',
+        $content = dispatch_now(CreateContent::content('Content title', $language, $author, [
+            'body'      => 'Content body',
             'is_active' => true
         ]));
 
@@ -101,11 +99,11 @@ class BlockFileCest
             ['description' => 'Description']
         ));
 
-        $I->sendPUT(apiUrl("blocks/$block->id/files"), [
+        $I->sendPUT(apiUrl("contents/$content->id/files"), [
             'data' => [
                 [
                     'id' => $file->id,
-                    'weight' => 3
+                    'weight' => 10
                 ]
             ]
         ]);
@@ -118,25 +116,27 @@ class BlockFileCest
         $I->seeResponseContainsJson(
             [
                 'data' => [
-                    'id' => $file->id,
-                    'author_id' => $author->id,
-                    'name' => 'file',
-                    'extension' => 'jpg',
-                    'size' => 10240,
-                    'mime_type' => 'image/jpeg',
-                    'info' => 'info text',
-                    'is_active' => true,
-                    'weight' => 3,
-                    'created_at' => $file->created_at->toAtomString(),
-                    'updated_at' => $file->updated_at->toAtomString(),
-                    'translations'=> [
-                        [
-                            'author_id' => $author->id,
-                            'language_code' => 'en',
-                            'title' => 'New translation',
-                            'description' => 'Description',
-                            'created_at' => $translation->created_at->toAtomString(),
-                            'updated_at' => $translation->updated_at->toAtomString()
+                    [
+                        'id' => $file->id,
+                        'author_id' => $author->id,
+                        'name' => 'file',
+                        'extension' => 'jpg',
+                        'size' => 10240,
+                        'mime_type' => 'image/jpeg',
+                        'info' => 'info text',
+                        'is_active' => true,
+                        'weight' => 10,
+                        'created_at' => $file->created_at->toAtomString(),
+                        'updated_at' => $file->updated_at->toAtomString(),
+                        'translations'=> [
+                            [
+                                'author_id' => $author->id,
+                                'language_code' => 'en',
+                                'title' => 'New translation',
+                                'description' => 'Description',
+                                'created_at' => $translation->created_at->toAtomString(),
+                                'updated_at' => $translation->updated_at->toAtomString()
+                            ]
                         ]
                     ]
                 ]
@@ -144,13 +144,12 @@ class BlockFileCest
         );
     }
 
-    public function shouldSyncFilesWithoutWeightFieldWithBlock(FunctionalTester $I)
+    public function shouldSyncFilesWithoutWeightFieldWithContent(FunctionalTester $I)
     {
         $author   = factory(User::class)->create();
         $language   = new Language(['code' => 'en']);
-        $block = dispatch_now(CreateBlock::basic('Block title', $language, $author, [
-            'body'      => 'Block body',
-            'region'    => 'homepage',
+        $content = dispatch_now(CreateContent::content('Content title', $language, $author, [
+            'body'      => 'Content body',
             'is_active' => true
         ]));
 
@@ -165,7 +164,7 @@ class BlockFileCest
             ['description' => 'Description']
         ));
 
-        $I->sendPUT(apiUrl("blocks/$block->id/files"), [
+        $I->sendPUT(apiUrl("contents/$content->id/files"), [
             'data' => [
                 [
                     'id' => $file->id
@@ -181,25 +180,27 @@ class BlockFileCest
         $I->seeResponseContainsJson(
             [
                 'data' => [
-                    'id' => $file->id,
-                    'author_id' => $author->id,
-                    'name' => 'file',
-                    'extension' => 'jpg',
-                    'size' => 10240,
-                    'mime_type' => 'image/jpeg',
-                    'info' => 'info text',
-                    'is_active' => true,
-                    'weight' => 0,
-                    'created_at' => $file->created_at->toAtomString(),
-                    'updated_at' => $file->updated_at->toAtomString(),
-                    'translations'=> [
-                        [
-                            'author_id' => $author->id,
-                            'language_code' => 'en',
-                            'title' => 'New translation',
-                            'description' => 'Description',
-                            'created_at' => $translation->created_at->toAtomString(),
-                            'updated_at' => $translation->updated_at->toAtomString()
+                    [
+                        'id' => $file->id,
+                        'author_id' => $author->id,
+                        'name' => 'file',
+                        'extension' => 'jpg',
+                        'size' => 10240,
+                        'mime_type' => 'image/jpeg',
+                        'info' => 'info text',
+                        'is_active' => true,
+                        'weight' => 0,
+                        'created_at' => $file->created_at->toAtomString(),
+                        'updated_at' => $file->updated_at->toAtomString(),
+                        'translations'=> [
+                            [
+                                'author_id' => $author->id,
+                                'language_code' => 'en',
+                                'title' => 'New translation',
+                                'description' => 'Description',
+                                'created_at' => $translation->created_at->toAtomString(),
+                                'updated_at' => $translation->updated_at->toAtomString()
+                            ]
                         ]
                     ]
                 ]

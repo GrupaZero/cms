@@ -330,4 +330,29 @@ class ContentReadRepository implements ReadRepository {
         );
     }
 
+    /**
+     * Get all files with translations for specified content.
+     *
+     * @param Content      $content Content model
+     * @param QueryBuilder $builder Query builder
+     *
+     * @return Collection|LengthAwarePaginator
+     */
+    public function getManyFiles(Content $content, QueryBuilder $builder): LengthAwarePaginator
+    {
+        $query = $content->files(false)->with('translations');
+
+        $count = clone $query->getQuery();
+
+        $results = $query->limit($builder->getPageSize())
+            ->offset($builder->getPageSize() * ($builder->getPage() - 1))
+            ->get(['files.*']);
+
+        return new LengthAwarePaginator(
+            $results,
+            $count->select('files.id')->get()->count(),
+            $builder->getPageSize(),
+            $builder->getPage()
+        );
+    }
 }

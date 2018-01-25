@@ -1,6 +1,7 @@
 <?php namespace Gzero\Cms\Models;
 
 use Carbon\Carbon;
+use Gzero\Core\Models\Uploadable;
 use Gzero\DomainException;
 use Gzero\InvalidArgumentException;
 use Gzero\Cms\Handlers\Content\ContentTypeHandler;

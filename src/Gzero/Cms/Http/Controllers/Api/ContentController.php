@@ -243,32 +243,6 @@ class ContentController extends ApiController {
     }
 
     /**
-     * Display a listing of the resource.
-     *
-     * @param int|null $contentId Content id for which we are displaying files
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function indexOfFiles($contentId)
-    {
-        $this->authorize('readList', File::class);
-        $input   = $this->validator->validate('files');
-        $params  = $this->processor->process($input)->getProcessedFields();
-        $content = $this->repository->getById($contentId);
-        if (empty($content)) {
-            return $this->respondNotFound();
-        }
-        $results = $this->fileRepository->getEntityFiles(
-            $content,
-            $params['filter'],
-            $params['orderBy'],
-            $params['page'],
-            $params['perPage']
-        );
-        return $this->respondWithSuccess($results, new FileTransformer);
-    }
-
-    /**
      * Display a specified content.
      *
      * @SWG\Get(
@@ -483,40 +457,4 @@ class ContentController extends ApiController {
 
         return $this->successNoContent();
     }
-
-    /**
-     * Sync files with specific content
-     *
-     * @param int $contentId Content id
-     *
-     * @return mixed
-     */
-    public function syncFiles($contentId)
-    {
-        $content = $this->repository->getById($contentId);
-        if (empty($content)) {
-            return $this->respondNotFound();
-        }
-        $this->authorize('update', $content);
-        $input   = $this->validator->validate('syncFiles');
-        $content = $this->fileRepository->syncWith($content, $this->buildSyncData($input));
-        return $this->respondWithSuccess($content);
-    }
-
-    /**
-     * It builds syncData
-     *
-     * @param array $input Validated input
-     *
-     * @return mixed
-     */
-    protected function buildSyncData(array $input)
-    {
-        $syncData = [];
-        foreach ($input['data'] as $item) {
-            $syncData[$item['id']] = ['weight' => isset($item['weight']) ? $item['weight'] : 0];
-        }
-        return $syncData;
-    }
-
 }
