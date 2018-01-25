@@ -157,10 +157,16 @@ class ContentFileController extends ApiController
         $input = $this->validator->validate('syncFiles');
 
         $fileIdsWithWeight = collect(array_get($input, 'data'))->mapWithKeys(function ($item) {
+            if (array_key_exists('weight', $item)) {
+                return [
+                    $item['id'] => [
+                        'weight' => $item['weight']
+                    ]
+                ];
+            }
+
             return [
-                $item['id'] => [
-                    'weight' => $item['weight']
-                ]
+                $item['id']
             ];
         })->toArray();
 
