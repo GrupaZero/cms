@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Gzero\InvalidArgumentException;
 use Robbo\Presenter\PresentableInterface;
+use Gzero\Core\Models\File;
 use Gzero\Core\Models\Uploadable;
 
 class Block extends Model implements Uploadable, PresentableInterface {

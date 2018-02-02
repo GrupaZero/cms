@@ -377,7 +377,7 @@ class ContentReadRepository implements ReadRepository {
      */
     public function getManyFiles(Content $content, QueryBuilder $builder): LengthAwarePaginator
     {
-        $query = $content->files(false)->with('translations');
+        $query = $content->files(false)->with(['type','translations']);
 
         $count = clone $query->getQuery();
 

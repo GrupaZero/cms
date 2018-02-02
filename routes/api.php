@@ -47,6 +47,10 @@ Route::group(
         $router->get('blocks/{id}/translations', 'BlockTranslationController@index');
         $router->post('blocks/{id}/translations', 'BlockTranslationController@store');
         $router->delete('blocks/{id}/translations/{translationId}', 'BlockTranslationController@destroy');
+
+        $router->get('deleted-blocks', 'DeletedBlockController@index');
+        $router->delete('deleted-blocks/{id}', 'DeletedBlockController@destroy');
+        $router->post('deleted-blocks/{id}/restore', 'DeletedBlockController@restore');
     }
 );
 

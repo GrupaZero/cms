@@ -2,7 +2,7 @@
 
 use Carbon\Carbon;
 use Gzero\Cms\Models\Content;
-use Gzero\Cms\Models\File;
+use Gzero\Core\Models\File;
 use Gzero\Core\DBTransactionTrait;
 use Gzero\InvalidArgumentException;
 

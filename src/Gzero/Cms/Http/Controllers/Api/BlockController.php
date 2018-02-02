@@ -2,6 +2,7 @@
 
 use Gzero\Cms\Jobs\CreateBlock;
 use Gzero\Cms\Jobs\DeleteBlock;
+use Gzero\Cms\Jobs\ForceDeleteBlock;
 use Gzero\Cms\Jobs\UpdateBlock;
 use Gzero\Cms\Models\Block;
 use Gzero\Cms\Validators\BlockValidator;
