@@ -31,7 +31,7 @@ class DeletedBlockController extends ApiController {
      *
      * @param BlockReadRepository $repository Block repository
      * @param BlockValidator      $validator  Block validator
-     * @param Request               $request    Request object
+     * @param Request             $request    Request object
      */
     public function __construct(BlockReadRepository $repository, BlockValidator $validator, Request $request)
     {
