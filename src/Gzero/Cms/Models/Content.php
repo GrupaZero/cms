@@ -10,6 +10,7 @@ use Gzero\Core\Models\Language;
 use Gzero\Core\Models\Routable;
 use Gzero\Core\Models\Route;
 use Gzero\Core\Models\User;
+use Gzero\Core\Models\File;
 use Gzero\Cms\ViewModels\ContentViewModel;
 use Gzero\EloquentTree\Model\Tree;
 use Illuminate\Http\Response;
@@ -116,7 +117,7 @@ class Content extends Tree implements PresentableInterface, Uploadable, Routable
      */
     public function thumb()
     {
-        return $this->belongsTo(File::class, 'thumb_id', 'id');
+        return $this->belongsTo(File::class, 'thumb_id', 'id')->with('type');
     }
 
     /**
