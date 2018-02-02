@@ -32,6 +32,30 @@ class BlockReadRepository implements ReadRepository {
     }
 
     /**
+     * Retrieve single softDeleted entity
+     *
+     * @param integer $id Entity id
+     *
+     * @return mixed
+     */
+    public function getDeletedById($id)
+    {
+        return $this->loadRelations(Block::onlyTrashed()->find($id));
+    }
+
+    /**
+     * Retrieve single softDeleted entity
+     *
+     * @param integer $id Entity id
+     *
+     * @return mixed
+     */
+    public function getByIdWithTrashed($id)
+    {
+        return $this->loadRelations(Block::withTrashed()->find($id));
+    }
+
+    /**
      * @param QueryBuilder $builder Query builder
      *
      * @return Collection|LengthAwarePaginator
@@ -39,6 +63,16 @@ class BlockReadRepository implements ReadRepository {
     public function getMany(QueryBuilder $builder)
     {
         return $this->getManyFrom(Block::query(), $builder);
+    }
+
+    /**
+     * @param QueryBuilder $builder Query builder
+     *
+     * @return Collection|LengthAwarePaginator
+     */
+    public function getManyDeleted(QueryBuilder $builder)
+    {
+        return $this->getManyFrom(Block::query()->onlyTrashed(), $builder);
     }
 
     /**
