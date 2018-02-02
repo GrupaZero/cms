@@ -1465,4 +1465,10 @@ class ContentCest {
         );
     }
 
+    public function canCallContentTree(FunctionalTester $I)
+    {
+        $I->sendGET(apiUrl("contents-tree"));
+
+        $I->seeResponseCodeIs(200);
+    }
 }
