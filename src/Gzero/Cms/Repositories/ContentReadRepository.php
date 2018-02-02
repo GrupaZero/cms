@@ -63,7 +63,6 @@ class ContentReadRepository implements ReadRepository {
      *
      * @return Collection|\Illuminate\Support\Collection|static
      * @throws InvalidArgumentException
-     * @throws \Gzero\EloquentTree\Model\Exception\MissingParentException
      */
     public function getTree(QueryBuilder $builder)
     {
@@ -92,7 +91,13 @@ class ContentReadRepository implements ReadRepository {
 
         $results = $query->get(['contents.*']);
         $trees   = (new Content)->buildTree($results, true);
-        return ($trees instanceof Collection) ? $trees : collect([$trees]);
+        if ($trees === null) {
+            return collect([]);
+        }
+        if (!$trees instanceof Collection) {
+            return collect([$trees]);
+        }
+        return $trees;
     }
 
     /**
@@ -377,7 +382,7 @@ class ContentReadRepository implements ReadRepository {
      */
     public function getManyFiles(Content $content, QueryBuilder $builder): LengthAwarePaginator
     {
-        $query = $content->files(false)->with(['type','translations']);
+        $query = $content->files(false)->with(['type', 'translations']);
 
         $count = clone $query->getQuery();
 

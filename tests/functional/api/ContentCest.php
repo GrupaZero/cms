@@ -1471,6 +1471,7 @@ class ContentCest {
 
         $I->sendGET(apiUrl("contents-tree"));
 
+        $I->seeResponseCodeIs(200);
         $I->seeResponseIsJson();
         $I->seeResponseJsonMatchesJsonPath('data[*]');
         $I->seeResponseContainsJson(
@@ -1496,6 +1497,7 @@ class ContentCest {
 
         $I->sendGET(apiUrl("contents-tree?only_categories=true"));
 
+        $I->seeResponseCodeIs(200);
         $I->seeResponseIsJson();
         $I->seeResponseJsonMatchesJsonPath('data[*]');
         $I->dontSeeResponseContainsJson([
@@ -1530,40 +1532,45 @@ class ContentCest {
 
         $I->sendGET(apiUrl("contents-tree"));
 
+        $I->seeResponseCodeIs(200);
         $I->seeResponseIsJson();
         $I->seeResponseJsonMatchesJsonPath('data[*]');
-        $I->seeResponseContainsJson(
-            [
-                'data' => [
-                    [
-                        'id'       => $category->id,
-                        'children' => [['id' => $category2->id]]
-                    ],
-                    [
-                        'id'       => $category3->id,
-                        'children' => [['id' => $content->id]]
-                    ]
+        $I->seeResponseContainsJson([
+            'data' => [
+                [
+                    'id'       => $category->id,
+                    'children' => [['id' => $category2->id]]
                 ],
-            ]
-        );
+                [
+                    'id'       => $category3->id,
+                    'children' => [['id' => $content->id]]
+                ]
+            ],
+        ]);
 
 
         $I->sendGET(apiUrl("contents-tree?only_categories=true"));
 
-        $I->seeResponseContainsJson(
-            [
-                'data' => [
-                    [
-                        'id'       => $category->id,
-                        'children' => [['id' => $category2->id]]
-                    ],
-                    [
-                        'id'       => $category3->id,
-                        'children' => []
-                    ]
+        $I->seeResponseContainsJson([
+            'data' => [
+                [
+                    'id'       => $category->id,
+                    'children' => [['id' => $category2->id]]
                 ],
-            ]
-        );
+                [
+                    'id'       => $category3->id,
+                    'children' => []
+                ]
+            ],
+        ]);
+    }
 
+    public function shouldReturnEmptyResultOnEmptyDB(FunctionalTester $I)
+    {
+        $I->sendGET(apiUrl("contents-tree"));
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson(['data' => []]);
     }
 }

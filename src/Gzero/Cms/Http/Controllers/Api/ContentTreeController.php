@@ -1,6 +1,7 @@
 <?php namespace Gzero\Cms\Http\Controllers\Api;
 
 use Gzero\Cms\Http\Resources\ContentCollection;
+use Gzero\Cms\Models\Content;
 use Gzero\Cms\Repositories\ContentReadRepository;
 use Gzero\Cms\Validators\ContentValidator;
 use Gzero\Core\Http\Controllers\ApiController;
@@ -40,12 +41,37 @@ class ContentTreeController extends ApiController {
 
 
     /**
-     * @param UrlParamsProcessor $processor
+     * Fetches all content in a tree structure
+     *
+     * @SWG\Get(
+     *   path="/contents-tree",
+     *   tags={"content"},
+     *   summary="Fetches all content in a tree structure",
+     *   produces={"application/json"},
+     *   security={{"AdminAccess": {}}},
+     *   @SWG\Parameter(
+     *     name="only_category",
+     *     in="query",
+     *     description="Should fetch only categories?",
+     *     required=false,
+     *     type="boolean",
+     *     default="false"
+     *   ),
+     *   @SWG\Response(
+     *      response=200,
+     *      description="Successful operation",
+     *      @SWG\Schema(type="array", @SWG\Items(ref="#/definitions/Content"))
+     *   ),
+     * ),
+     *
+     * @param UrlParamsProcessor $processor params processor
      *
      * @return string
      */
     public function index(UrlParamsProcessor $processor)
     {
+        $this->authorize('readList', Content::class);
+
         // @TODO Implement contents/{id}/tree
         $processor
             ->addFilter(new BoolParser('only_categories'))
