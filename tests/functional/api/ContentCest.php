@@ -1467,8 +1467,27 @@ class ContentCest {
 
     public function canCallContentTree(FunctionalTester $I)
     {
+        $user     = factory(User::class)->create();
+        $language = new Language(['code' => 'en']);
+
+        $category = dispatch_now(CreateContent::category('Original Title', $language, $user));
+        $content  = dispatch_now(CreateContent::content('Original Title', $language, $user, ['parent_id' => $category->id]));
+
         $I->sendGET(apiUrl("contents-tree"));
 
-        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeResponseJsonMatchesJsonPath('data[*]');
+        $I->seeResponseContainsJson(
+            [
+                'data' => [
+                    [
+                        'id'       => $category->id,
+                        'children' => [
+                            ['id' => $content->id]
+                        ]
+                    ]
+                ],
+            ]
+        );
     }
 }

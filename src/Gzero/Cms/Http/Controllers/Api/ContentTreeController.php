@@ -1,16 +1,13 @@
 <?php namespace Gzero\Cms\Http\Controllers\Api;
 
 use Gzero\Cms\Http\Resources\ContentCollection;
-use Gzero\Cms\Models\Content;
 use Gzero\Cms\Repositories\ContentReadRepository;
 use Gzero\Cms\Validators\ContentValidator;
 use Gzero\Core\Http\Controllers\ApiController;
 use Gzero\Core\Parsers\BoolParser;
-use Gzero\Core\Parsers\DateRangeParser;
-use Gzero\Core\Parsers\NumericParser;
-use Gzero\Core\Parsers\StringParser;
 use Gzero\Core\UrlParamsProcessor;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\Resource;
 
 /**
  * Class NestedContentController
@@ -42,9 +39,24 @@ class ContentTreeController extends ApiController {
     }
 
 
+    /**
+     * @param UrlParamsProcessor $processor
+     * @param null               $id
+     *
+     * @return string
+     */
     public function index(UrlParamsProcessor $processor, $id = null)
     {
-        return "OK";
+        if ($id) {
+            return 'id tree';
+        }
+        // All trees
+        $processor
+            ->addFilter(new BoolParser('only_categories'))
+            ->process($this->request);
+
+        Resource::wrap('data');
+        return (new ContentCollection($this->repository->getTree($processor->buildQueryBuilder())));
     }
 
 }

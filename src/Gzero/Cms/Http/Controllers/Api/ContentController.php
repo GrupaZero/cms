@@ -227,13 +227,13 @@ class ContentController extends ApiController {
         }
         // All trees
         //$params['filter'] = array_merge(['type' => ['value' => 'category', 'relation' => null]], $params['filter']);
-        $nodes = $this->repository->getContentsByLevel(
+        $nodes = $this->repository->getTree(
             $params['filter'],
             $params['orderBy'],
             null
         );
 
-        $trees = $this->repository->buildTree($nodes);
+        $trees = $this->repository->getTree($nodes);
         // We need to guarantee LaravelCollection here because buildTree will return single root
         // if we have only one
         if (!empty($trees) && !$trees instanceof LaravelCollection) {

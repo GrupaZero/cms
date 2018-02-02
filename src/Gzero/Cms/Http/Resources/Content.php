@@ -131,6 +131,9 @@ class Content extends Resource {
                 return Route::collection($this->routes);
             }),
             'translations'       => ContentTranslation::collection($this->whenLoaded('translations')),
+            'children'           => $this->when(!empty($this->children), function () {
+                return Content::collection($this->children);
+            }),
         ];
     }
 
