@@ -9,6 +9,7 @@ use Gzero\Cms\Repositories\ContentReadRepository;
 use Gzero\Cms\Validators\ContentValidator;
 use Gzero\Core\Http\Controllers\ApiController;
 use Gzero\Core\Parsers\DateRangeParser;
+use Gzero\Core\Parsers\StringParser;
 use Gzero\Core\UrlParamsProcessor;
 use Illuminate\Http\Request;
 
@@ -51,6 +52,14 @@ class DeletedContentController extends ApiController {
      *   produces={"application/json"},
      *   security={{"AdminAccess": {}}},
      *   @SWG\Parameter(
+     *     name="type",
+     *     in="query",
+     *     description="Type to filter by",
+     *     required=false,
+     *     type="string",
+     *     default="content"
+     *   ),
+     *   @SWG\Parameter(
      *     name="deleted_at",
      *     in="query",
      *     description="Date range to filter by",
@@ -82,6 +91,7 @@ class DeletedContentController extends ApiController {
         $this->authorize('readList', Content::class);
 
         $processor
+            ->addFilter(new StringParser('type'))
             ->addFilter(new DateRangeParser('deleted_at'))
             ->process($this->request);
 

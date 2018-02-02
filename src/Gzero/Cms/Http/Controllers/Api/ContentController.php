@@ -197,52 +197,7 @@ class ContentController extends ApiController {
         return new ContentCollection($results);
     }
 
-    /**
-     * Display a listing of the resource as nested tree.
-     *
-     * @param int|null $id Id used for nested resources
-     *
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function indexTree($id = null)
-    {
-        $this->authorize('readList', Content::class);
-        $input  = $this->validator->validate('tree');
-        $params = $this->processor->process($input)->getProcessedFields();
-        $this->getSerializer()->parseIncludes('children'); // We need to enable children include to return tree from api
-        if ($id) { // Single tree
-            $content = $this->repository->getById($id);
-            if (!empty($content)) {
-                return $this->respondWithSuccess(
-                    $this->repository->getTree(
-                        $content,
-                        $params['filter'],
-                        $params['orderBy']
-                    ),
-                    new ContentTransformer
-                );
-            } else {
-                return $this->respondNotFound();
-            }
-        }
-        // All trees
-        //$params['filter'] = array_merge(['type' => ['value' => 'category', 'relation' => null]], $params['filter']);
-        $nodes = $this->repository->getContentsByLevel(
-            $params['filter'],
-            $params['orderBy'],
-            null
-        );
-
-        $trees = $this->repository->buildTree($nodes);
-        // We need to guarantee LaravelCollection here because buildTree will return single root
-        // if we have only one
-        if (!empty($trees) && !$trees instanceof LaravelCollection) {
-            $trees = new LaravelCollection([$trees]);
-        }
-        return $this->respondWithSuccess($trees, new ContentTransformer);
-    }
-
-    /**
+   /**
      * Display a specified content.
      *
      * @SWG\Get(

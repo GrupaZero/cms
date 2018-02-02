@@ -59,6 +59,48 @@ class ContentReadRepository implements ReadRepository {
     }
 
     /**
+     * @param QueryBuilder $builder Query builder
+     *
+     * @return Collection|\Illuminate\Support\Collection|static
+     * @throws InvalidArgumentException
+     */
+    public function getTree(QueryBuilder $builder)
+    {
+        $query = Content::with(self::$loadRelations);
+
+        if (optional($builder->getFilter('only_categories'))->getValue()) {
+            $query->join('content_types as ct', 'contents.type_id', '=', 'ct.id');
+            $query->where('ct.name', 'category');
+        }
+
+        $builder = (new QueryBuilder())
+            ->where('translations.language_code', '=', 'en')
+            ->orderBy('translations.title', 'asc');
+        $query->orderBy('level', 'ASC');
+
+        if ($builder->hasRelation('translations')) {
+            if (!$builder->getFilter('translations.language_code')) {
+                throw new InvalidArgumentException('Language code is required');
+            }
+            $query->join('content_translations as t', 'contents.id', '=', 't.content_id');
+            $builder->applyRelationFilters('translations', 't', $query);
+            $builder->applyRelationSorts('translations', 't', $query);
+        }
+
+        $builder->applySorts($query, 'contents');
+
+        $results = $query->get(['contents.*']);
+        $trees   = (new Content)->buildTree($results, true);
+        if ($trees === null) {
+            return collect([]);
+        }
+        if (!$trees instanceof Collection) {
+            return collect([$trees]);
+        }
+        return $trees;
+    }
+
+    /**
      * Retrieve a content by given path
      *
      * @param string $path         URI path
@@ -340,7 +382,7 @@ class ContentReadRepository implements ReadRepository {
      */
     public function getManyFiles(Content $content, QueryBuilder $builder): LengthAwarePaginator
     {
-        $query = $content->files(false)->with(['type','translations']);
+        $query = $content->files(false)->with(['type', 'translations']);
 
         $count = clone $query->getQuery();
 

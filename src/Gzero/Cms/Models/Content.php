@@ -1,22 +1,22 @@
 <?php namespace Gzero\Cms\Models;
 
 use Carbon\Carbon;
-use Gzero\DomainException;
-use Gzero\InvalidArgumentException;
 use Gzero\Cms\Handlers\Content\ContentTypeHandler;
 use Gzero\Cms\Repositories\ContentReadRepository;
+use Gzero\Cms\ViewModels\ContentViewModel;
+use Gzero\Core\Models\File;
 use Gzero\Core\Models\Language;
 use Gzero\Core\Models\Routable;
 use Gzero\Core\Models\Route;
-use Gzero\Core\Models\User;
-use Gzero\Core\Models\File;
 use Gzero\Core\Models\Uploadable;
-use Gzero\Cms\ViewModels\ContentViewModel;
+use Gzero\Core\Models\User;
+use Gzero\DomainException;
 use Gzero\EloquentTree\Model\Tree;
+use Gzero\InvalidArgumentException;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Http\Response;
 use Robbo\Presenter\PresentableInterface;
 use Robbo\Presenter\Robbo;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Content extends Tree implements PresentableInterface, Uploadable, Routable {
 
@@ -119,7 +119,7 @@ class Content extends Tree implements PresentableInterface, Uploadable, Routable
      */
     public function thumb()
     {
-        return $this->belongsTo(File::class, 'thumb_id', 'id');
+        return $this->belongsTo(File::class, 'thumb_id', 'id')->with('type');
     }
 
     /**

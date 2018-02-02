@@ -42,12 +42,12 @@
         @endif
     </div>
     @if($content->hasThumbnail())
-        <?php $thumbTranslation = $content->thumb->translation($language->code); ?>
+        <?php $thumbTranslation = $content->thumbnail()->translation($language->code); ?>
         <div class="row mb-2">
             <div class="col">
                 <img class="img-fluid img-thumbnail"
                      title="{{($thumbTranslation)? $thumbTranslation->title : ''}}"
-                     src="{{croppaUrl($content->thumb->getFullPath(),
+                     src="{{croppaUrl($content->thumbnail()->getFullPath(),
                         config('gzero.image.thumb.width'), config('gzero.image.thumb.height'), ['resize'])}}"
                      alt="{{($thumbTranslation)? $thumbTranslation->title : ''}}">
             </div>

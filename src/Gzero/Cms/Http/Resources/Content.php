@@ -1,6 +1,7 @@
 <?php namespace Gzero\Cms\Http\Resources;
 
 use Gzero\Core\Http\Resources\Route;
+use Gzero\Core\Http\Resources\File;
 use Illuminate\Http\Resources\Json\Resource;
 
 /**
@@ -116,6 +117,9 @@ class Content extends Resource {
             'type'               => $this->whenLoaded('type', function () {
                 return $this->type->name;
             }),
+            'thumbnail'          => $this->whenLoaded('thumb', function () {
+                return new File($this->thumb);
+            }),
             'theme'              => $this->theme,
             'weight'             => $this->weight,
             'rating'             => $this->rating,
@@ -131,6 +135,9 @@ class Content extends Resource {
                 return Route::collection($this->routes);
             }),
             'translations'       => ContentTranslation::collection($this->whenLoaded('translations')),
+            'children'           => $this->when(!empty($this->children), function () {
+                return Content::collection($this->children);
+            }),
         ];
     }
 
