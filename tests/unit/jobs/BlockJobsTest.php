@@ -1,10 +1,13 @@
 <?php namespace Cms;
 
+use Carbon\Carbon;
 use Codeception\Test\Unit;
 use Gzero\Cms\Jobs\AddBlockTranslation;
 use Gzero\Cms\Jobs\CreateBlock;
 use Gzero\Cms\Jobs\DeleteBlock;
 use Gzero\Cms\Jobs\DeleteBlockTranslation;
+use Gzero\Cms\Jobs\ForceDeleteBlock;
+use Gzero\Cms\Jobs\RestoreBlock;
 use Gzero\Cms\Jobs\UpdateBlock;
 use Gzero\Cms\Models\Block;
 use Gzero\Cms\Models\BlockTranslation;
@@ -45,7 +48,7 @@ class BlockJobsTest extends Unit {
         $this->assertEquals('options', $block->options);
         $this->assertEquals($user->id, $block->author->id, 'Author was set');
 
-        $this->assertEquals('basic', $block->type->name, 'Correct content type was set');
+        $this->assertEquals('basic', $block->type->name, 'Correct block type was set');
 
         $this->assertEquals('New One', $translation->title, 'Title was set');
         $this->assertEquals('Body', $translation->body, 'Body was set');
@@ -189,7 +192,46 @@ class BlockJobsTest extends Unit {
 
         dispatch_now(new DeleteBlock($block));
 
+        $this->assertNotNull(Block::withTrashed()->find($block->id));
+    }
+
+    /** @test */
+    public function canForceDeleteBlock()
+    {
+        $block = $this->tester->haveBlock();
+
+        dispatch_now(new ForceDeleteBlock($block));
+
         $this->assertNull(Block::find($block->id));
+        $this->assertNull(Block::withTrashed()->find($block->id));
+    }
+
+    /** @test */
+    public function canForceDeleteSoftDeletedBlock()
+    {
+        $block = $this->tester->haveBlock();
+
+        dispatch_now(new DeleteBlock($block));
+
+        $this->assertNull(Block::find($block->id));
+
+        dispatch_now(new ForceDeleteBlock($block));
+
+        $this->assertNull(Block::withTrashed()->find($block->id));
+    }
+
+    /** @test */
+    public function canRestoreBlock()
+    {
+        $block = $this->tester->haveBlock(['deleted_at' => Carbon::now()->subDay()]);
+
+        $this->assertNull(Block::find($block->id));
+
+        dispatch_now(new RestoreBlock($block));
+
+        $block = Block::find($block->id);
+
+        $this->assertNull($block->deleted_at);
     }
 
     /** @test */
