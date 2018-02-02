@@ -1458,14 +1458,10 @@ class ContentCest {
         $I->seeResponseCodeIs(400);
         $I->seeResponseIsJson();
         $I->dontSeeResponseJsonMatchesJsonPath('data[*]');
-        $I->seeResponseContainsJson(
-            [
-                'message' => 'Cannot delete active translation'
-            ]
-        );
+        $I->seeResponseContainsJson(['message' => 'Cannot delete active translation']);
     }
 
-    public function canCallContentTree(FunctionalTester $I)
+    public function shouldBeAbleToSeeContentsAsTree(FunctionalTester $I)
     {
         $user     = factory(User::class)->create();
         $language = new Language(['code' => 'en']);
@@ -1482,12 +1478,92 @@ class ContentCest {
                 'data' => [
                     [
                         'id'       => $category->id,
-                        'children' => [
-                            ['id' => $content->id]
-                        ]
+                        'children' => [['id' => $content->id]]
                     ]
                 ],
             ]
         );
+    }
+
+    public function shouldBeAbleToSeeOnlyCategoriesAsTree(FunctionalTester $I)
+    {
+        $user     = factory(User::class)->create();
+        $language = new Language(['code' => 'en']);
+
+        $category  = dispatch_now(CreateContent::category('Original Title', $language, $user));
+        $category2 = dispatch_now(CreateContent::category('Original Title', $language, $user, ['parent_id' => $category->id]));
+        $content   = dispatch_now(CreateContent::content('Original Title', $language, $user, ['parent_id' => $category->id]));
+
+        $I->sendGET(apiUrl("contents-tree?only_categories=true"));
+
+        $I->seeResponseIsJson();
+        $I->seeResponseJsonMatchesJsonPath('data[*]');
+        $I->dontSeeResponseContainsJson([
+            'data' => [
+                [
+                    'id'       => $category->id,
+                    'children' => [['id' => $content->id]]
+                ]
+            ],
+        ]);
+        $I->seeResponseContainsJson(
+            [
+                'data' => [
+                    [
+                        'id'       => $category->id,
+                        'children' => [['id' => $category2->id]]
+                    ]
+                ],
+            ]
+        );
+    }
+
+    public function shouldBeAbleToSeeMoreThanOneTree(FunctionalTester $I)
+    {
+        $user     = factory(User::class)->create();
+        $language = new Language(['code' => 'en']);
+
+        $category  = dispatch_now(CreateContent::category('Original Title', $language, $user));
+        $category2 = dispatch_now(CreateContent::category('Original1 Title', $language, $user, ['parent_id' => $category->id]));
+        $category3 = dispatch_now(CreateContent::category('Original2 Title', $language, $user));
+        $content   = dispatch_now(CreateContent::content('Original3 Title', $language, $user, ['parent_id' => $category3->id]));
+
+        $I->sendGET(apiUrl("contents-tree"));
+
+        $I->seeResponseIsJson();
+        $I->seeResponseJsonMatchesJsonPath('data[*]');
+        $I->seeResponseContainsJson(
+            [
+                'data' => [
+                    [
+                        'id'       => $category->id,
+                        'children' => [['id' => $category2->id]]
+                    ],
+                    [
+                        'id'       => $category3->id,
+                        'children' => [['id' => $content->id]]
+                    ]
+                ],
+            ]
+        );
+
+
+        $I->sendGET(apiUrl("contents-tree?only_categories=true"));
+
+        $I->seeResponseContainsJson(
+            [
+                'data' => [
+                    [
+                        'id'       => $category->id,
+                        'children' => [['id' => $category2->id]]
+                    ],
+                    [
+                        'id'       => $category3->id,
+                        'children' => []
+                    ]
+                ],
+            ]
+        );
+
     }
 }

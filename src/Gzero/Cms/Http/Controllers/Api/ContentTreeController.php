@@ -41,16 +41,12 @@ class ContentTreeController extends ApiController {
 
     /**
      * @param UrlParamsProcessor $processor
-     * @param null               $id
      *
      * @return string
      */
-    public function index(UrlParamsProcessor $processor, $id = null)
+    public function index(UrlParamsProcessor $processor)
     {
-        if ($id) {
-            return 'id tree';
-        }
-        // All trees
+        // @TODO Implement contents/{id}/tree
         $processor
             ->addFilter(new BoolParser('only_categories'))
             ->process($this->request);
