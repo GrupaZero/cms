@@ -1573,4 +1573,67 @@ class ContentCest {
         $I->seeResponseIsJson();
         $I->seeResponseContainsJson(['data' => []]);
     }
+
+    public function shouldBeAbleToFilterListOfContentsToGetOnlyPublishedOnes(FunctionalTester $I)
+    {
+        $user = factory(User::class)->create();
+        $en   = new Language(['code' => 'en']);
+        $pl   = new Language(['code' => 'pl']);
+
+        dispatch_now(CreateContent::content('Content Title', $en, $user, [
+            'is_active'    => true,
+            'published_at' => Carbon::now()
+        ]));
+        dispatch_now(CreateContent::category('Tytuł kategorii', $pl, $user, [
+            'is_active'    => false,
+            'published_at' => Carbon::now()
+        ]));
+
+        $I->sendGET(apiUrl('contents?only_published=true'));
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeResponseJsonMatchesJsonPath('data[*]');
+        $I->seeResponseContainsJson([
+            'data' => [
+                ['title' => 'Content Title']
+            ]
+        ]);
+        $I->dontSeeResponseContainsJson([
+            'data' => [
+                ['title' => 'Tytuł kategorii']
+            ]
+        ]);
+    }
+
+    public function shouldBeAbleToFilterListOfContentsToGetOnlyNotPublishedOnes(FunctionalTester $I)
+    {
+        $user     = factory(User::class)->create();
+        $language = new Language(['code' => 'en']);
+
+        dispatch_now(CreateContent::content('Active Title', $language, $user, [
+            'is_active'    => false,
+            'published_at' => Carbon::now()
+        ]));
+        dispatch_now(CreateContent::category('Inactive Title', $language, $user, [
+            'is_active'    => true,
+            'published_at' => Carbon::now()
+        ]));
+
+        $I->sendGET(apiUrl('contents?only_not_published=true'));
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeResponseJsonMatchesJsonPath('data[*]');
+        $I->seeResponseContainsJson([
+            'data' => [
+                ['title' => 'Active Title']
+            ]
+        ]);
+        $I->dontSeeResponseContainsJson([
+            'data' => [
+                ['title' => 'Inactive Title']
+            ]
+        ]);
+    }
 }

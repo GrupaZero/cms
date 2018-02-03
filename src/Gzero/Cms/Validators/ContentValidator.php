@@ -6,21 +6,25 @@ class ContentValidator extends AbstractValidator {
 
     /** @var array */
     protected $rules = [
-        'tree'      => [
+        'tree'        => [
             'lang'      => 'required_with:sort|in:pl,en,de,fr',
             'type'      => 'in:category',
             'weight'    => 'numeric',
             'is_active' => 'boolean',
             'sort'      => ''
         ],
-        'files'     => [
+        'files'       => [
             'lang'      => 'required_with:sort|in:pl,en,de,fr',
             'page'      => 'numeric',
             'per_page'  => 'numeric',
             'type'      => 'in:image,document',
             'is_active' => 'boolean',
         ],
-        'create'    => [
+        'blocks'      => [
+            'language_code' => 'required|in:pl,en,de,fr',
+            'only_active'   => ''
+        ],
+        'create'      => [
             'type'               => 'required|in:content,category',
             'language_code'      => 'required|in:pl,en,de,fr',
             'title'              => 'required',
@@ -38,7 +42,7 @@ class ContentValidator extends AbstractValidator {
             'theme'              => '',
             'weight'             => 'numeric'
         ],
-        'update'    => [
+        'update'      => [
             'parent_id'          => 'numeric|nullable',
             'thumb_id'           => 'numeric|nullable',
             'published_at'       => 'date',
@@ -50,7 +54,12 @@ class ContentValidator extends AbstractValidator {
             'weight'             => 'numeric',
             'rating'             => 'numeric',
         ],
-        'syncFiles' => [
+        'updateRoute' => [
+            'language_code' => 'required|in:pl,en,de,fr',
+            'path'          => 'required',
+            'is_active'     => 'boolean',
+        ],
+        'syncFiles'   => [
             'data'          => 'present|array',
             'data.*.id'     => 'numeric',
             'data.*.weight' => 'numeric',
