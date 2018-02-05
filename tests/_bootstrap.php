@@ -8,7 +8,7 @@ $isPlatformRun = function () {
 };
 
 if ($isPlatformRun()) {
-    class_exists('\App\User') ?: require_once __DIR__ . '/fixture/User.php';
+    class_exists('\App\Models\User') ?: require_once __DIR__ . '/fixture/User.php';
     return;
 }
 
