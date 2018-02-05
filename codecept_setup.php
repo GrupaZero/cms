@@ -77,6 +77,8 @@ if (!class_exists('App\TestApp')) {
             $app['config']->set('auth.guards.api.driver', 'passport');
             // We want to return Access-Control-Allow-Credentials header as well
             $app['config']->set('cors.supportsCredentials', true);
+            // We moved user model in platform
+            $app['config']->set('auth.providers.users.model', \App\Models\User::class);
         }
     }
 
