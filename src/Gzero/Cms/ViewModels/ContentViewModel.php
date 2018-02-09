@@ -35,7 +35,8 @@ class ContentViewModel {
         'is_sticky',
         'is_comment_allowed',
         'published_at',
-        'updated_at'
+        'updated_at',
+        'thumb_id'
     ];
 
     /**
@@ -123,7 +124,7 @@ class ContentViewModel {
      */
     public function hasThumbnail()
     {
-        return array_has($this->data, 'thumb_id');
+        return $this->data['thumb_id'] !== null;
     }
 
     /**
