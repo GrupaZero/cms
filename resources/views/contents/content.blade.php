@@ -41,16 +41,14 @@
             </div>
         @endif
     </div>
-    <?php //dd($images) ?>
     @if($content->hasThumbnail())
-        <?php $thumbTranslation = $content->thumbnail()->translations->where('language_code', $language->code)->first(); ?>
         <div class="row mb-2">
             <div class="col">
                 <img class="img-fluid img-thumbnail"
-                     title="{{($thumbTranslation)? $thumbTranslation->title : ''}}"
-                     src="{{croppaUrl($content->thumbnail()->getFullPath(),
+                     title="{{($thumb)? $thumb->title($language->code) : ''}}"
+                     src="{{croppaUrl($thumb->uploadPath(),
                         config('gzero.image.thumb.width'), config('gzero.image.thumb.height'), ['resize'])}}"
-                     alt="{{($thumbTranslation)? $thumbTranslation->title : ''}}">
+                     alt="{{($thumb)? $thumb->title($language->code) : ''}}">
             </div>
         </div>
     @endif

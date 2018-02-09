@@ -31,7 +31,7 @@
             "image": {
                 "@type": "ImageObject",
                 @if($content->hasThumbnail())
-                    "url": "{{ asset(croppaUrl($content->thumb->getFullPath())) }}",
+                    "url": "{{ asset(croppaUrl($thumb->uploadPath())) }}",
                     "width": "{{ isset($width) ? $width : config('gzero-cms.image.thumb.width') }}",
                     "height": "{{ isset($height) ? $height : 'auto' }}"
                 @else
