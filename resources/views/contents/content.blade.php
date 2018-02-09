@@ -41,8 +41,9 @@
             </div>
         @endif
     </div>
+    <?php //dd($images) ?>
     @if($content->hasThumbnail())
-        <?php $thumbTranslation = $content->thumbnail()->translation($language->code); ?>
+        <?php $thumbTranslation = $content->thumbnail()->translations->where('language_code', $language->code)->first(); ?>
         <div class="row mb-2">
             <div class="col">
                 <img class="img-fluid img-thumbnail"
@@ -59,7 +60,7 @@
         </p>
     @endif
     {!! $content->body() !!}
-    {{--@include('gzero-cms::contents._gallery', ['images' => $images, 'thumb' => $content->thumb])--}}
+    @include('gzero-cms::contents._gallery', ['images' => $images, 'thumb' => $thumb])
     @if(config('gzero-cms.disqus.enabled') && $content->isCommentAllowed())
         <div class="row">
             <div class="col">

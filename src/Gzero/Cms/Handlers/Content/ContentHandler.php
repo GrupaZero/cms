@@ -46,8 +46,7 @@ class ContentHandler implements ContentTypeHandler {
      */
     public function handle(Content $content, Language $language): Response
     {
-        //$files = $this->fileRepo->getEntityFiles($content, [['is_active', '=', true]]);
-        $files = collect();
+        $files = $content->files;
 
         self::buildBreadcrumbs($content, $language);
 
@@ -55,9 +54,10 @@ class ContentHandler implements ContentTypeHandler {
             'gzero-cms::contents.content',
             [
                 'content'   => $content,
+                'thumb'     => $this->fileRepo->getById($content->thumb_id),
                 'images'    => $files->filter(
                     function ($file) use ($content) {
-                        return $file->type === 'image' && $file->id !== $content->thumb_id;
+                        return str_contains($file->mime_type, 'image') && $file->id !== $content->thumb_id;
                     }
                 ),
                 'documents' => $files->filter(
