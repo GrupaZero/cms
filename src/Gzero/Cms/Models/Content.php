@@ -133,13 +133,13 @@ class Content extends Tree implements PresentableInterface, Uploadable, Routable
      */
     public function getPath($languageCode)
     {
-        $routeTranslation = $this->routes()->newQuery()
+        $route = $this->routes()->newQuery()
             ->where('language_code', $languageCode)
             ->first();
-        if (empty($routeTranslation->path)) {
+        if (empty($route->path)) {
             throw new DomainException("There is no route in '$languageCode' language for content: $this->id");
         }
-        return $routeTranslation->path;
+        return $route->path;
     }
 
     /**

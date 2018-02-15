@@ -190,6 +190,52 @@ class ContentReadRepository implements ReadRepository {
     }
 
     /**
+     * Get only publicly accessible data on published content.
+     *
+     * @param QueryBuilder $builder Query builder
+     *
+     * @return Collection|LengthAwarePaginator
+     */
+    public function getManyPublished(QueryBuilder $builder)
+    {
+        return $this->getManyPublishedFrom(Content::query()->with('type'), $builder);
+    }
+
+    /**
+     * @param Content      $content Content model
+     * @param QueryBuilder $builder Query builder
+     *
+     * @return Collection|LengthAwarePaginator
+     */
+    public function getManyPublishedChildren(Content $content, QueryBuilder $builder)
+    {
+        return $this->getManyPublishedFrom($content->children()->newQuery()->with('type')->getQuery(), $builder);
+    }
+
+    /**
+     * Get only publicly accessible data on published content.
+     *
+     * @param QueryBuilder $builder Query builder
+     *
+     * @return Collection|LengthAwarePaginator
+     */
+    public function getManyNotPublished(QueryBuilder $builder)
+    {
+        return $this->getManyNotPublishedFrom(Content::query()->with('type'), $builder);
+    }
+
+    /**
+     * @param Content      $content Content model
+     * @param QueryBuilder $builder Query builder
+     *
+     * @return Collection|LengthAwarePaginator
+     */
+    public function getManyNotPublishedChildren(Content $content, QueryBuilder $builder)
+    {
+        return $this->getManyNotPublishedFrom($content->children()->newQuery()->with('type')->getQuery(), $builder);
+    }
+
+    /**
      * Get all children specific content
      *
      * @param Content  $content  parent
@@ -322,21 +368,26 @@ class ContentReadRepository implements ReadRepository {
     }
 
     /**
-     * Get only publicly accessible data on published content.
-     *
-     * @param QueryBuilder $builder Query builder
+     * @param Builder|RawBuilder $query   Eloquent query object
+     * @param QueryBuilder       $builder Query builder
      *
      * @return LengthAwarePaginator
      */
-    public function getManyPublished(QueryBuilder $builder): LengthAwarePaginator
+    public function getManyPublishedFrom(Builder $query, QueryBuilder $builder): LengthAwarePaginator
     {
-        $query = Content::query()->where('published_at', '<=', Carbon::now())
+        $query = $query->where('published_at', '<=', Carbon::now())
             ->join('routes as r', function ($join) {
                 $join->on('contents.id', '=', 'r.routable_id')
                     ->where('r.routable_type', '=', Content::class)
                     ->where('r.is_active', true);
             })
             ->distinct();
+
+        if ($builder->hasFilter('type') || $builder->hasSort('type')) {
+            $query->join('content_types as ct', 'contents.type_id', '=', 'ct.id');
+            optional($builder->getFilter('type'))->apply($query, 'ct', 'name');
+            optional($builder->getSort('type'))->apply($query, 'ct', 'name');
+        }
 
         $count = clone $query->getQuery();
 
@@ -350,6 +401,62 @@ class ContentReadRepository implements ReadRepository {
                 [
                     'routes' => function ($query) {
                         $query->where('is_active', true);
+                    }
+                ]
+            )
+        );
+
+        $results->transform(function ($content) {
+            $languages            = $content->routes->pluck('language_code');
+            $filteredTranslations = $content->translations->filter(function ($translation) use ($languages) {
+                return $languages->contains($translation->language_code);
+            });
+            $content->setRelation('translations', $filteredTranslations);
+            return $content;
+        });
+
+        return new LengthAwarePaginator(
+            $results,
+            $count->select('contents.id')->get()->count(),
+            $builder->getPageSize(),
+            $builder->getPage()
+        );
+    }
+
+    /**
+     * @param Builder|RawBuilder $query   Eloquent query object
+     * @param QueryBuilder       $builder Query builder
+     *
+     * @return LengthAwarePaginator
+     */
+    public function getManyNotPublishedFrom(Builder $query, QueryBuilder $builder): LengthAwarePaginator
+    {
+        $query = $query->where('published_at', '<=', Carbon::now())
+            ->join('routes as r', function ($join) {
+                $join->on('contents.id', '=', 'r.routable_id')
+                    ->where('r.routable_type', '=', Content::class)
+                    ->where('r.is_active', false);
+            })
+            ->distinct();
+
+        if ($builder->hasFilter('type') || $builder->hasSort('type')) {
+            $query->join('content_types as ct', 'contents.type_id', '=', 'ct.id');
+            optional($builder->getFilter('type'))->apply($query, 'ct', 'name');
+            optional($builder->getSort('type'))->apply($query, 'ct', 'name');
+        }
+
+        $count = clone $query->getQuery();
+
+        $results = $query->limit($builder->getPageSize())
+            ->offset($builder->getPageSize() * ($builder->getPage() - 1))
+            ->get(['contents.*']);
+
+        $results->load(
+            array_merge(
+                self::$loadRelations,
+                [
+                    'routes' => function ($query) {
+                        $query->where('is_active', false);
                     }
                 ]
             )
