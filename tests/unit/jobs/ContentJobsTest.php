@@ -5,6 +5,7 @@ use Codeception\Test\Unit;
 use Gzero\Cms\Handlers\Content\ContentHandler;
 use Gzero\Cms\Jobs\RestoreContent;
 use Gzero\Cms\Jobs\UpdateContent;
+use Gzero\Cms\Jobs\UpdateContentRoute;
 use Gzero\Cms\Models\Content;
 use Gzero\Cms\Jobs\CreateContent;
 use Gzero\Cms\Jobs\DeleteContent;
@@ -46,9 +47,9 @@ class ContentJobsTest extends Unit {
             'published_at'       => Carbon::now()
         ]));
 
-        $content          = $content->fresh();
-        $translation      = $content->translations->first();
-        $routeTranslation = $content->routes->first();
+        $content     = $content->fresh();
+        $translation = $content->translations->first();
+        $route       = $content->routes->first();
 
         $this->assertTrue($content->is_on_home);
         $this->assertTrue($content->is_promoted);
@@ -67,9 +68,9 @@ class ContentJobsTest extends Unit {
         $this->assertEquals('en', $translation->language_code, 'Language code was set');
         $this->assertEquals($user->id, $translation->author->id, 'Translation author was set');
 
-        $this->assertEquals('new-one', $routeTranslation->path, 'Language code was set');
-        $this->assertEquals('en', $routeTranslation->language_code, 'Route language code was set');
-        $this->assertTrue($routeTranslation->is_active, 'Route was set to active');
+        $this->assertEquals('new-one', $route->path, 'Route path was set');
+        $this->assertEquals('en', $route->language_code, 'Route language code was set');
+        $this->assertTrue($route->is_active, 'Route was set to active');
     }
 
     /** @test */
@@ -781,6 +782,76 @@ class ContentJobsTest extends Unit {
         }
 
         $this->fail('Exception should be thrown');
+    }
+
+    /** @test */
+    public function canUpdateContentRoute()
+    {
+        $user     = $this->tester->haveUser();
+        $language = new Language(['code' => 'en']);
+        $content  = dispatch_now(CreateContent::content('New One', $language, $user, [
+            'is_active' => true
+        ]));
+
+        dispatch_now(new UpdateContentRoute($content, $language, [
+            'path'      => 'new-path',
+            'is_active' => false
+        ]));
+
+        $content = Content::find($content->id);
+        $route   = $content->routes->first();
+
+        $this->assertFalse($route->is_active);
+        $this->assertEquals('new-path', $route->path);
+        $this->assertEquals('en', $route->language_code);
+    }
+
+    /** @test */
+    public function shouldUpdateContentRouteWithUniquePath()
+    {
+        $user     = $this->tester->haveUser();
+        $language = new Language(['code' => 'en']);
+        $content  = dispatch_now(CreateContent::content('My content', $language, $user, [
+            'is_active' => true
+        ]));
+
+        dispatch_now(CreateContent::content('New One', $language, $user, [
+            'is_active' => true
+        ]));
+
+        dispatch_now(new UpdateContentRoute($content, $language, [
+            'path'      => 'new-one',
+            'is_active' => false
+        ]));
+
+        $content = Content::find($content->id);
+        $route   = $content->routes->first();
+
+        $this->assertFalse($route->is_active);
+        $this->assertEquals('new-one-1', $route->path);
+        $this->assertEquals('en', $route->language_code);
+    }
+
+    /** @test */
+    public function shouldNotUpdateContentRoutePathIfItsNotChanged()
+    {
+        $user     = $this->tester->haveUser();
+        $language = new Language(['code' => 'en']);
+        $content  = dispatch_now(CreateContent::content('New One', $language, $user, [
+            'is_active' => true
+        ]));
+
+        dispatch_now(new UpdateContentRoute($content, $language, [
+            'path'      => 'new-one',
+            'is_active' => false
+        ]));
+
+        $content = Content::find($content->id);
+        $route   = $content->routes->first();
+
+        $this->assertFalse($route->is_active);
+        $this->assertEquals('new-one', $route->path);
+        $this->assertEquals('en', $route->language_code);
     }
 
     /** @test */

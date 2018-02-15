@@ -18,6 +18,7 @@ Route::group(
         $router->get('contents', 'ContentController@index');
         $router->post('contents', 'ContentController@store');
         $router->patch('contents/{id}', 'ContentController@update');
+        $router->patch('contents/{id}/route', 'ContentController@updateRoute');
         $router->delete('contents/{id}', 'ContentController@destroy');
         $router->get('contents-tree', 'ContentTreeController@index');
         $router->get('contents/{id}', 'ContentController@show');
@@ -26,6 +27,8 @@ Route::group(
         $router->get('contents/{id}/translations', 'ContentTranslationController@index');
         $router->post('contents/{id}/translations', 'ContentTranslationController@store');
         $router->delete('contents/{id}/translations/{translationId}', 'ContentTranslationController@destroy');
+
+        $router->get('contents/{id}/blocks', 'ContentBlockController@index');
 
         $router->get('contents/{id}/files', 'ContentFileController@index');
         $router->put('contents/{id}/files', 'ContentFileController@sync');

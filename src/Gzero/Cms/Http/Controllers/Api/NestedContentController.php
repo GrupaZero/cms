@@ -91,6 +91,22 @@ class NestedContentController extends ApiController {
      *     default="true"
      *   ),
      *   @SWG\Parameter(
+     *     name="only_published",
+     *     in="query",
+     *     description="Only published contents filter",
+     *     required=false,
+     *     type="boolean",
+     *     default="true"
+     *   ),
+     *   @SWG\Parameter(
+     *     name="only_not_published",
+     *     in="query",
+     *     description="Only not published contents filter",
+     *     required=false,
+     *     type="boolean",
+     *     default="true"
+     *   ),
+     *   @SWG\Parameter(
      *     name="is_on_home",
      *     in="query",
      *     description="Contents being displayed on homepage filter",
@@ -179,6 +195,8 @@ class NestedContentController extends ApiController {
             ->addFilter(new StringParser('type'))
             ->addFilter(new NumericParser('level'))
             ->addFilter(new NumericParser('author_id'))
+            ->addFilter(new BoolParser('only_published'))
+            ->addFilter(new BoolParser('only_not_published'))
             ->addFilter(new BoolParser('is_sticky'))
             ->addFilter(new BoolParser('is_on_home'))
             ->addFilter(new BoolParser('is_promoted'))
@@ -188,7 +206,15 @@ class NestedContentController extends ApiController {
             ->addFilter(new DateRangeParser('updated_at'))
             ->process($this->request);
 
-        $results = $this->repository->getManyChildren($content, $processor->buildQueryBuilder());
+
+        if ($this->request->has('only_published')) {
+            $results = $this->repository->getManyPublishedChildren($content, $processor->buildQueryBuilder());
+        } elseif ($this->request->has('only_not_published')) {
+            $results = $this->repository->getManyNotPublishedChildren($content, $processor->buildQueryBuilder());
+        } else {
+            $results = $this->repository->getManyChildren($content, $processor->buildQueryBuilder());
+        }
+
         $results->setPath(apiUrl('contents/{id}/children', ['id' => $id]));
 
         return new ContentCollection($results);

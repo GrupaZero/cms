@@ -4,6 +4,7 @@ use Gzero\Cms\Http\Resources\ContentCollection;
 use Gzero\Cms\Jobs\CreateContent;
 use Gzero\Cms\Jobs\DeleteContent;
 use Gzero\Cms\Jobs\UpdateContent;
+use Gzero\Cms\Jobs\UpdateContentRoute;
 use Gzero\Cms\Models\Content;
 use Gzero\Cms\Http\Resources\Content as ContentResource;
 use Gzero\Cms\Repositories\ContentReadRepository;
@@ -15,7 +16,6 @@ use Gzero\Core\Parsers\NumericParser;
 use Gzero\Core\Parsers\StringParser;
 use Gzero\Core\UrlParamsProcessor;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection as LaravelCollection;
 
 /**
  * Class ContentController
@@ -96,6 +96,22 @@ class ContentController extends ApiController {
      *     name="is_sticky",
      *     in="query",
      *     description="Sticked contents filter",
+     *     required=false,
+     *     type="boolean",
+     *     default="true"
+     *   ),
+     *   @SWG\Parameter(
+     *     name="only_published",
+     *     in="query",
+     *     description="Only published contents filter",
+     *     required=false,
+     *     type="boolean",
+     *     default="true"
+     *   ),
+     *   @SWG\Parameter(
+     *     name="only_not_published",
+     *     in="query",
+     *     description="Only not published contents filter",
      *     required=false,
      *     type="boolean",
      *     default="true"
@@ -182,6 +198,8 @@ class ContentController extends ApiController {
             ->addFilter(new NumericParser('level'))
             ->addFilter(new NumericParser('author_id'))
             ->addFilter(new StringParser('translations.language_code'))
+            ->addFilter(new BoolParser('only_published'))
+            ->addFilter(new BoolParser('only_not_published'))
             ->addFilter(new BoolParser('is_sticky'))
             ->addFilter(new BoolParser('is_on_home'))
             ->addFilter(new BoolParser('is_promoted'))
@@ -191,13 +209,20 @@ class ContentController extends ApiController {
             ->addFilter(new DateRangeParser('updated_at'))
             ->process($this->request);
 
-        $results = $this->repository->getMany($processor->buildQueryBuilder());
+        if ($this->request->has('only_published')) {
+            $results = $this->repository->getManyPublished($processor->buildQueryBuilder());
+        } elseif ($this->request->has('only_not_published')) {
+            $results = $this->repository->getManyNotPublished($processor->buildQueryBuilder());
+        } else {
+            $results = $this->repository->getMany($processor->buildQueryBuilder());
+        }
+
         $results->setPath(apiUrl('contents'));
 
         return new ContentCollection($results);
     }
 
-   /**
+    /**
      * Display a specified content.
      *
      * @SWG\Get(
@@ -368,6 +393,68 @@ class ContentController extends ApiController {
         $input = $this->validator->validate('update');
 
         $content = dispatch_now(new UpdateContent($content, $input));
+
+        return new ContentResource($this->repository->loadRelations($content));
+    }
+
+    /**
+     * Updates the specified resource in the database.
+     *
+     * @param int $id Content id
+     *
+     * @SWG\Patch(path="/contents/{id}/route",
+     *   tags={"content"},
+     *   summary="Updates route of specified content",
+     *   description="Updates route of specified content",
+     *   produces={"application/json"},
+     *   security={{"AdminAccess": {}}},
+     *   @SWG\Parameter(
+     *     name="id",
+     *     in="path",
+     *     description="ID of content which route needs to be updated.",
+     *     required=true,
+     *     type="integer"
+     *   ),
+     *   @SWG\Parameter(
+     *     in="body",
+     *     name="body",
+     *     description="Fields to update.",
+     *     required=true,
+     *     @SWG\Schema(
+     *       type="object",
+     *       @SWG\Property(property="path", type="string", example="url-slug"),
+     *       @SWG\Property(property="is_active", type="boolean", example="true"),
+     *     )
+     *   ),
+     *   @SWG\Response(
+     *     response=200,
+     *     description="Successful operation",
+     *     @SWG\Schema(type="object", ref="#/definitions/Content"),
+     *   ),
+     *   @SWG\Response(
+     *     response=422,
+     *     description="Validation Error",
+     *     @SWG\Schema(ref="#/definitions/ValidationErrors")
+     *  ),
+     *   @SWG\Response(response=404, description="Content not found")
+     * )
+     *
+     * @return ContentResource
+     */
+    public function updateRoute($id)
+    {
+        $content = $this->repository->getById($id);
+
+        if (!$content) {
+            return $this->errorNotFound();
+        }
+
+        $this->authorize('updateRoute', $content);
+
+        $input = $this->validator->validate('updateRoute');
+        $language = language(array_get($input, 'language_code'));
+
+        $content = dispatch_now(new UpdateContentRoute($content, $language, $input));
 
         return new ContentResource($this->repository->loadRelations($content));
     }
