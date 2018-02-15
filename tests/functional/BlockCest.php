@@ -19,8 +19,15 @@ class BlockCest {
     {
         $I->haveMlRoutes(function ($router, $language) {
             /** @var Router $router */
-            $router->get('/', 'Gzero\Cms\Http\Controllers\HomeController@index')->name(mlSuffix('home', $language));
-            $router->get('{path?}', 'Gzero\Core\Http\Controllers\RouteController@dynamicRouter')->where('path', '.*');
+            $router->get('/', 'Gzero\Cms\Http\Controllers\HomeController@index')
+                ->middleware('web')
+                ->name(mlSuffix('home', $language));
+        });
+
+        $I->haveCatchAllRoute(function ($router) {
+            $router->get('{path?}', 'Gzero\Core\Http\Controllers\RouteController@dynamicRouter')
+                ->middleware('web')
+                ->where('path', '.*');
         });
     }
 
@@ -352,18 +359,18 @@ class BlockCest {
     public function shouldGetOnlyActiveFilesSyncedWithBlock(FunctionalTester $I)
     {
         $author   = factory(User::class)->create();
-        $language   = new Language(['code' => 'en']);
-        $block = dispatch_now(CreateBlock::basic('Block title', $language, $author, [
+        $language = new Language(['code' => 'en']);
+        $block    = dispatch_now(CreateBlock::basic('Block title', $language, $author, [
             'body'      => 'Block body',
             'region'    => 'homepage',
             'is_active' => true
         ]));
 
         Storage::fake('uploads');
-        $activeImage = UploadedFile::fake()->image('active-file.jpg')->size(10);
+        $activeImage   = UploadedFile::fake()->image('active-file.jpg')->size(10);
         $inactiveImage = UploadedFile::fake()->image('inactive-file.jpg')->size(10);
 
-        $activeFile = dispatch_now(CreateFile::image($activeImage, 'Image', $language, $author, [
+        $activeFile   = dispatch_now(CreateFile::image($activeImage, 'Image', $language, $author, [
             'info'        => 'active\'s file info',
             'description' => 'active\'s file description',
             'is_active'   => true,
@@ -375,7 +382,7 @@ class BlockCest {
         ]));
 
         dispatch_now(new SyncFiles($block, [
-            $activeFile->id => ['weight' => 3],
+            $activeFile->id   => ['weight' => 3],
             $inactiveFile->id => ['weight' => 2]
         ]));
 
