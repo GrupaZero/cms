@@ -42,14 +42,13 @@
         @endif
     </div>
     @if($content->hasThumbnail())
-        <?php $thumbTranslation = $content->thumbnail()->translation($language->code); ?>
         <div class="row mb-2">
             <div class="col">
-                <img class="img-fluid img-thumbnail"
-                     title="{{($thumbTranslation)? $thumbTranslation->title : ''}}"
-                     src="{{croppaUrl($content->thumbnail()->getFullPath(),
-                        config('gzero.image.thumb.width'), config('gzero.image.thumb.height'), ['resize'])}}"
-                     alt="{{($thumbTranslation)? $thumbTranslation->title : ''}}">
+                <img class="img-fluid"
+                     title="{{$content->thumbnail()->title()}}"
+                     src="{{croppaUrl($content->thumbnail()->uploadPath(),
+                                config('gzero.image.thumb.width'), config('gzero.image.thumb.height'), ['resize'])}}"
+                     alt="{{$content->thumbnail()->title()}}">
             </div>
         </div>
     @endif
@@ -59,7 +58,7 @@
         </p>
     @endif
     {!! $content->body() !!}
-    {{--@include('gzero-cms::contents._gallery', ['images' => $images, 'thumb' => $content->thumb])--}}
+    @include('gzero-cms::contents._gallery', ['images' => $images])
     @if(config('gzero-cms.disqus.enabled') && $content->isCommentAllowed())
         <div class="row">
             <div class="col">

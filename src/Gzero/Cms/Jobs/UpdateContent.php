@@ -51,9 +51,6 @@ class UpdateContent {
     /**
      * Execute the job.
      *
-     * @throws InvalidArgumentException
-     * @throws \Exception|\Throwable
-     *
      * @return Content
      */
     public function handle()
@@ -98,20 +95,20 @@ class UpdateContent {
      *
      * @throws InvalidArgumentException
      *
-     * @return void
+     * @return \Illuminate\Database\Eloquent\Model
      */
     protected function handleThumb()
     {
         if ($this->thumbId !== $this->content->thumb_id) {
             if ($this->thumbId === null) {
-                $this->content->thumb()->dissociate();
+                return $this->content->thumb()->dissociate();
             }
 
             $thumb = File::find($this->thumbId);
             if (empty($thumb)) {
                 throw new InvalidArgumentException('Thumbnail file does not exist');
             }
-            $this->content->thumb()->associate($thumb);
+            return $this->content->thumb()->associate($thumb);
         }
     }
 }

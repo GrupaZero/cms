@@ -46,9 +46,7 @@ class ContentHandler implements ContentTypeHandler {
      */
     public function handle(Content $content, Language $language): Response
     {
-        //$files = $this->fileRepo->getEntityFiles($content, [['is_active', '=', true]]);
-        $files = collect();
-
+        $files = $content->files;
         self::buildBreadcrumbs($content, $language);
 
         return response()->view(
@@ -56,13 +54,13 @@ class ContentHandler implements ContentTypeHandler {
             [
                 'content'   => $content,
                 'images'    => $files->filter(
-                    function ($file) use ($content) {
-                        return $file->type === 'image' && $file->id !== $content->thumb_id;
+                    function ($file) {
+                        return $file->type->name === 'image';
                     }
                 ),
                 'documents' => $files->filter(
                     function ($file) {
-                        return $file->type === 'document';
+                        return $file->type->name === 'document';
                     }
                 )
             ]

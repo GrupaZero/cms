@@ -23,14 +23,13 @@
         @endif
     </div>
     @if($child->hasThumbnail())
-        <?php $thumbTranslation = $child->thumb->translation($language->code); ?>
         <div class="row mb-2">
             <div class="col">
-                <img class="img-fluid img-thumbnail"
-                     title="{{($thumbTranslation)? $thumbTranslation->title : ''}}"
-                     src="{{croppaUrl($child->thumb->getFullPath(),
+                <img class="img-fluid"
+                     title="{{$child->thumbnail()->title()}}"
+                     src="{{croppaUrl($child->thumbnail()->uploadPath(),
                                 config('gzero.image.thumb.width'), config('gzero.image.thumb.height'), ['resize'])}}"
-                     alt="{{($thumbTranslation)? $thumbTranslation->title : ''}}">
+                     alt="{{$child->thumbnail()->title()}}">
             </div>
         </div>
     @endif

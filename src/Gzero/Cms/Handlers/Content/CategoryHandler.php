@@ -13,7 +13,7 @@ class CategoryHandler implements ContentTypeHandler {
     /** @var ContentReadRepository */
     protected $repo;
 
-    /** @var FileService */
+    /** @var FileReadRepository */
     protected $fileRepo;
 
     /** @var Request */
@@ -47,27 +47,25 @@ class CategoryHandler implements ContentTypeHandler {
     public function handle(Content $content, Language $language): Response
     {
         $children = $this->repo->getChildren($content, $language)->setPath($this->request->url());
-        //$files    = $this->fileRepo->getEntityFiles($content, [['is_active', '=', true]]);
-        $files = collect();
+        $files    = $content->files;
 
         ContentHandler::buildBreadcrumbs($content, $language);
 
         return response()->view(
             'gzero-cms::contents.category',
             [
-                'content'     => $content,
-                'translation' => $content->getActiveTranslation($language->code),
-                'images'      => $files->filter(
+                'content'   => $content,
+                'images'    => $files->filter(
                     function ($file) {
-                        return $file->type === 'image';
+                        return $file->type->name === 'image';
                     }
                 ),
-                'documents'   => $files->filter(
+                'documents' => $files->filter(
                     function ($file) {
-                        return $file->type === 'document';
+                        return $file->type->name === 'document';
                     }
                 ),
-                'children'    => $children
+                'children'  => $children
             ]
         );
     }

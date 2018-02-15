@@ -18,7 +18,7 @@ class ContentViewModelTest extends Unit {
     {
         $date      = Carbon::now();
         $user      = factory(User::class)->create(['name' => 'John Doe']);
-        $presenter = new ContentViewModel([
+        $viewModel = new ContentViewModel([
             'id'                 => 1,
             'theme'              => 'is-sticky',
             'weight'             => 10,
@@ -48,26 +48,26 @@ class ContentViewModelTest extends Unit {
             ]
         ]);
 
-        $this->assertTrue($presenter->isOnHome());
-        $this->assertTrue($presenter->isPromoted());
-        $this->assertTrue($presenter->isSticky());
-        $this->assertTrue($presenter->isCommentAllowed());
-        $this->assertEquals(1, $presenter->id());
-        $this->assertEquals('Example title', $presenter->title());
-        $this->assertEquals('Example teaser', $presenter->teaser());
-        $this->assertEquals('Example body', $presenter->body());
-        $this->assertEquals(urlMl('example-title', 'en'), $presenter->url());
-        $this->assertEquals('is-sticky', $presenter->theme());
-        $this->assertEquals('SEO title', $presenter->seoTitle());
-        $this->assertEquals('SEO description', $presenter->seoDescription());
-        $this->assertEquals($date, $presenter->publishedAt());
-        $this->assertEquals('John Doe', $presenter->author()->displayName());
+        $this->assertTrue($viewModel->isOnHome());
+        $this->assertTrue($viewModel->isPromoted());
+        $this->assertTrue($viewModel->isSticky());
+        $this->assertTrue($viewModel->isCommentAllowed());
+        $this->assertEquals(1, $viewModel->id());
+        $this->assertEquals('Example title', $viewModel->title());
+        $this->assertEquals('Example teaser', $viewModel->teaser());
+        $this->assertEquals('Example body', $viewModel->body());
+        $this->assertEquals(urlMl('example-title', 'en'), $viewModel->url());
+        $this->assertEquals('is-sticky', $viewModel->theme());
+        $this->assertEquals('SEO title', $viewModel->seoTitle());
+        $this->assertEquals('SEO description', $viewModel->seoDescription());
+        $this->assertEquals($date, $viewModel->publishedAt());
+        $this->assertEquals('John Doe', $viewModel->author()->displayName());
     }
 
     /** @test */
     public function shouldBeAbleToGetTitleInSpecifiedLanguage()
     {
-        $presenter = new ContentViewModel([
+        $viewModel = new ContentViewModel([
             'translations' => [
                 [
                     'language_code' => 'en',
@@ -80,14 +80,14 @@ class ContentViewModelTest extends Unit {
             ]
         ]);
 
-        $this->assertEquals('Example title', $presenter->title());
-        $this->assertEquals('Przykładowy tytuł', $presenter->title('pl'));
+        $this->assertEquals('Example title', $viewModel->title());
+        $this->assertEquals('Przykładowy tytuł', $viewModel->title('pl'));
     }
 
     /** @test */
     public function shouldBeAbleToGetBodyInSpecifiedLanguage()
     {
-        $presenter = new ContentViewModel([
+        $viewModel = new ContentViewModel([
             'translations' => [
                 [
                     'language_code' => 'en',
@@ -100,14 +100,14 @@ class ContentViewModelTest extends Unit {
             ]
         ]);
 
-        $this->assertEquals('Example body', $presenter->body());
-        $this->assertEquals('Przykładowa treść', $presenter->body('pl'));
+        $this->assertEquals('Example body', $viewModel->body());
+        $this->assertEquals('Przykładowa treść', $viewModel->body('pl'));
     }
 
     /** @test */
     public function shouldBeAbleToGetTeaserInSpecifiedLanguage()
     {
-        $presenter = new ContentViewModel([
+        $viewModel = new ContentViewModel([
             'translations' => [
                 [
                     'language_code' => 'en',
@@ -120,14 +120,14 @@ class ContentViewModelTest extends Unit {
             ]
         ]);
 
-        $this->assertEquals('Example teaser', $presenter->teaser());
-        $this->assertEquals('Przykładowy wstęp', $presenter->teaser('pl'));
+        $this->assertEquals('Example teaser', $viewModel->teaser());
+        $this->assertEquals('Przykładowy wstęp', $viewModel->teaser('pl'));
     }
 
     /** @test */
     public function shouldBeAbleToGetUrlInSpecifiedLanguage()
     {
-        $presenter = new ContentViewModel([
+        $viewModel = new ContentViewModel([
             'routes' => [
                 [
                     'language_code' => 'en',
@@ -142,14 +142,14 @@ class ContentViewModelTest extends Unit {
             ]
         ]);
 
-        $this->assertEquals(urlMl('example-title', 'en'), $presenter->url());
-        $this->assertEquals(urlMl('przykladowy-tytul', 'pl'), $presenter->url('pl'));
+        $this->assertEquals(urlMl('example-title', 'en'), $viewModel->url());
+        $this->assertEquals(urlMl('przykladowy-tytul', 'pl'), $viewModel->url('pl'));
     }
 
     /** @test */
     public function shouldNotBeAbleToGetInactiveUrlInSpecifiedLanguage()
     {
-        $presenter = new ContentViewModel([
+        $viewModel = new ContentViewModel([
             'routes' => [
                 [
                     'language_code' => 'en',
@@ -164,14 +164,14 @@ class ContentViewModelTest extends Unit {
             ]
         ]);
 
-        $this->assertNull($presenter->url());
-        $this->assertNull($presenter->url('pl'));
+        $this->assertNull($viewModel->url());
+        $this->assertNull($viewModel->url('pl'));
     }
 
     /** @test */
     public function shouldBeAbleToGetSeoTitleFromAlternativeField()
     {
-        $presenter = new ContentViewModel([
+        $viewModel = new ContentViewModel([
             'translations' => [
                 [
                     'language_code' => 'en',
@@ -181,13 +181,13 @@ class ContentViewModelTest extends Unit {
             ]
         ]);
 
-        $this->assertEquals('Example title', $presenter->seoTitle());
+        $this->assertEquals('Example title', $viewModel->seoTitle());
     }
 
     /** @test */
     public function shouldBeAbleToGetSeoDescriptionFromAlternativeField()
     {
-        $presenter = new ContentViewModel([
+        $viewModel = new ContentViewModel([
             'translations' => [
                 [
                     'language_code'   => 'en',
@@ -197,13 +197,13 @@ class ContentViewModelTest extends Unit {
             ]
         ]);
 
-        $this->assertEquals('Example body', $presenter->seoDescription());
+        $this->assertEquals('Example body', $viewModel->seoDescription());
     }
 
     /** @test */
     public function shouldBeAbleToGetFirstImageUrlFromSpecifiedField()
     {
-        $presenter = new ContentViewModel([
+        $viewModel = new ContentViewModel([
             'translations' => [
                 [
                     'language_code' => 'en',
@@ -212,13 +212,13 @@ class ContentViewModelTest extends Unit {
             ]
         ]);
 
-        $this->assertEquals('http://localhost/images/first-image.png', $presenter->firstImageUrl($presenter->body()));
+        $this->assertEquals('http://localhost/images/first-image.png', $viewModel->firstImageUrl($viewModel->body()));
     }
 
     /** @test */
     public function shouldBeAbleToGetAncestorsNamesFromRoutePath()
     {
-        $presenter = new ContentViewModel([
+        $viewModel = new ContentViewModel([
             'routes' => [
                 [
                     'language_code' => 'en',
@@ -228,6 +228,30 @@ class ContentViewModelTest extends Unit {
             ]
         ]);
 
-        $this->assertEquals(['Offer', 'Category'], $presenter->ancestorsNames());
+        $this->assertEquals(['Offer', 'Category'], $viewModel->ancestorsNames());
+    }
+
+    /** @test */
+    public function shouldBeAbleToGetThumbnail()
+    {
+        $viewModel = new ContentViewModel([
+            'thumb' => [
+                'type'      => [
+                    'name' => 'image'
+                ],
+                'name'      => 'example',
+                'extension' => 'jpg',
+                'size'      => 250899,
+                'mime_type' => 'image/jpeg',
+                'is_active' => true
+            ]
+        ]);
+
+        $this->assertEquals('example', $viewModel->thumbnail()->name());
+        $this->assertEquals('jpg', $viewModel->thumbnail()->extension());
+        $this->assertEquals('image/jpeg', $viewModel->thumbnail()->mimeType());
+        $this->assertEquals(250899, $viewModel->thumbnail()->size());
+        $this->assertEquals('images/example.jpg', $viewModel->thumbnail()->uploadPath());
+        $this->assertTrue($viewModel->thumbnail()->isActive());
     }
 }

@@ -34,6 +34,7 @@
     <div class="w-100 my-4"></div>
 @stop
 @section('footerScripts')
+    @parent
     @if(config('gzero-cms.disqus.enabled') && config('gzero-cms.disqus.domain'))
         <script id="dsq-count-scr" src="//{{config('gzero-cms.disqus.domain')}}.disqus.com/count.js" async></script>
     @endif
