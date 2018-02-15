@@ -14,8 +14,15 @@ class ContentCest {
     {
         $I->haveMlRoutes(function ($router, $language) {
             /** @var Router $router */
-            $router->get('/')->name('home-' . $language);
-            $router->get('{path?}', 'Gzero\Core\Http\Controllers\RouteController@dynamicRouter')->where('path', '.*');
+            $router->get('/', 'Gzero\Cms\Http\Controllers\HomeController@index')
+                ->middleware('web')
+                ->name(mlSuffix('home', $language));
+        });
+
+        $I->haveCatchAllRoute(function ($router) {
+            $router->get('{path?}', 'Gzero\Core\Http\Controllers\RouteController@dynamicRouter')
+                ->middleware('web')
+                ->where('path', '.*');
         });
     }
 

@@ -3,7 +3,7 @@
 use Gzero\Cms\Repositories\BlockReadRepository;
 use Gzero\Cms\BlockFinder;
 use Gzero\Core\Events\RouteMatched as GzeroRouteMatched;
-use Gzero\Core\Http\Middleware\MultiLanguage;
+use Gzero\Core\Http\Middleware\ViewComposer;
 use Gzero\Core\Services\LanguageService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Routing\Events\RouteMatched;
@@ -67,7 +67,7 @@ class BlockLoad {
     public function handleLaravelRoute(RouteMatched $event)
     {
         if ($this->isValidFrontendRoute($event)) {
-            MultiLanguage::addCallback(function () use ($event) {
+            ViewComposer::addCallback(function () use ($event) {
                 $blockIds = $this->blockFinder->getBlocksIds($event->route->getName(), true);
                 $blocks   = $this->blockRepository->getVisibleBlocks($blockIds, $this->languageService->getCurrent(), true);
                 $this->handleBlockRendering($blocks);

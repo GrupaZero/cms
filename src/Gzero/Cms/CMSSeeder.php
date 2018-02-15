@@ -136,7 +136,7 @@ class CMSSeeder extends Seeder {
                 'is_active'          => (bool) rand(0, 1),
                 'published_at'       => Carbon::now()
             ],
-            $this->generateContentTranslation($pl)
+            $this->generateContentTranslation($en)
         )));
 
         $faker = Factory::create($pl->i18n);
