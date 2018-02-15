@@ -1,5 +1,6 @@
 <div id="disqus_thread"></div>
 @section('footerScripts')
+    @parent
     @if(config('gzero-cms.disqus.domain') && config('gzero-cms.disqus.api_key'))
         <script>
             var disqus_config = function() {
@@ -24,7 +25,7 @@
             })();
         </script>
     @endif
-@append
+@stop
 <noscript>
     <div class="alert alert-info" role="alert">
         @lang('gzero-core::common.comments_no_js_message')

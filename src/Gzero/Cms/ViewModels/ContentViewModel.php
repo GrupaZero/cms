@@ -1,6 +1,7 @@
 <?php namespace Gzero\Cms\ViewModels;
 
 use Carbon\Carbon;
+use Gzero\Core\ViewModels\FileViewModel;
 use Gzero\Core\ViewModels\UserViewModel;
 
 class ContentViewModel {
@@ -13,6 +14,9 @@ class ContentViewModel {
 
     /** @var array */
     protected $route;
+
+    /** @var array */
+    protected $thumb;
 
     /** @var array */
     protected $routes;
@@ -49,7 +53,8 @@ class ContentViewModel {
         $this->data         = array_only($data, $this->allowedAttributes);
         $this->routes       = array_get($data, 'routes', []);
         $this->translations = array_get($data, 'translations', []);
-        $this->author       = new UserViewModel(array_get($data, 'author', []));
+        $this->author       = new UserViewModel(array_get($data, 'author') ?: []);
+        $this->thumb        = new FileViewModel(array_get($data, 'thumb') ?: []);
 
         $this->translation = array_first($this->translations, function ($translation) {
             return $translation['language_code'] === app()->getLocale();
@@ -124,7 +129,7 @@ class ContentViewModel {
      */
     public function hasThumbnail()
     {
-        return $this->data['thumb_id'] !== null;
+        return array_get($this->data, 'thumb_id') !== null;
     }
 
     /**
@@ -311,13 +316,23 @@ class ContentViewModel {
     }
 
     /**
-     * This function returns author first and last name
+     * This function returns author
      *
      * @return UserViewModel
      */
     public function author()
     {
         return optional($this->author);
+    }
+
+    /**
+     * This function returns thumbnail
+     *
+     * @return UserViewModel
+     */
+    public function thumbnail()
+    {
+        return optional($this->thumb);
     }
 
     /**

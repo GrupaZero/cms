@@ -12,16 +12,25 @@ use Gzero\Cms\Jobs\DeleteContentTranslation;
 use Gzero\Cms\Jobs\ForceDeleteContent;
 use Gzero\Cms\Jobs\AddContentTranslation;
 use Gzero\Cms\Models\ContentTranslation;
+use Gzero\Core\Jobs\CreateFile;
 use Gzero\Core\Models\Language;
 use Gzero\Core\Models\Route;
 use Gzero\Core\Exception;
 use Gzero\DomainException;
 use Gzero\InvalidArgumentException;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+
 
 class ContentJobsTest extends Unit {
 
     /** @var UnitTester */
     protected $tester;
+
+    protected function _before()
+    {
+        Storage::fake('uploads');
+    }
 
     /** @test */
     public function canCreateContent()
@@ -738,6 +747,24 @@ class ContentJobsTest extends Unit {
         $this->assertNotNull(Content::withTrashed()->find($second->id));
     }
 
+    /** @test */
+    public function canAddContentThumb()
+    {
+        $user    = $this->tester->haveUser();
+        $image   = UploadedFile::fake()->image('file.jpg')->size(10);
+        $content = $this->tester->haveContent();
+        $file    = dispatch_now(CreateFile::image($image, 'Image', new Language(['code' => 'en']), $user, [
+            'info'        => 'info',
+            'description' => 'My image',
+            'is_active'   => true,
+        ]));
+
+        dispatch_now(new UpdateContent($content, [
+            'thumb_id' => $file->id
+        ]));
+
+        $this->assertEquals($file->id, $content->thumb_id);
+    }
 
     /** @test */
     public function cantUpdateContentWithNonExistingThumb()
@@ -754,5 +781,27 @@ class ContentJobsTest extends Unit {
         }
 
         $this->fail('Exception should be thrown');
+    }
+
+    /** @test */
+    public function canRemoveContentThumb()
+    {
+        $user  = $this->tester->haveUser();
+        $image = UploadedFile::fake()->image('file.jpg')->size(10);
+        $file  = dispatch_now(CreateFile::image($image, 'Image', new Language(['code' => 'en']), $user, [
+            'info'        => 'info',
+            'description' => 'My image',
+            'is_active'   => true,
+        ]));
+
+        $content = $this->tester->haveContent(['thumb_id' => $file->id]);
+
+        dispatch_now(new UpdateContent($content, [
+            'thumb_id' => null
+        ]));
+
+        $content = Content::find($content->id);
+
+        $this->assertNull($content->thumb_id);
     }
 }

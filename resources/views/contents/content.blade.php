@@ -44,11 +44,11 @@
     @if($content->hasThumbnail())
         <div class="row mb-2">
             <div class="col">
-                <img class="img-fluid img-thumbnail"
-                     title="{{($thumb)? $thumb->title($language->code) : ''}}"
-                     src="{{croppaUrl($thumb->uploadPath(),
-                        config('gzero.image.thumb.width'), config('gzero.image.thumb.height'), ['resize'])}}"
-                     alt="{{($thumb)? $thumb->title($language->code) : ''}}">
+                <img class="img-fluid"
+                     title="{{$content->thumbnail()->title()}}"
+                     src="{{croppaUrl($content->thumbnail()->uploadPath(),
+                                config('gzero.image.thumb.width'), config('gzero.image.thumb.height'), ['resize'])}}"
+                     alt="{{$content->thumbnail()->title()}}">
             </div>
         </div>
     @endif
@@ -58,7 +58,7 @@
         </p>
     @endif
     {!! $content->body() !!}
-    @include('gzero-cms::contents._gallery', ['images' => $images, 'thumb' => $thumb])
+    @include('gzero-cms::contents._gallery', ['images' => $images])
     @if(config('gzero-cms.disqus.enabled') && $content->isCommentAllowed())
         <div class="row">
             <div class="col">

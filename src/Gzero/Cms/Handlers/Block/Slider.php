@@ -37,17 +37,15 @@ class Slider implements BlockTypeHandler {
         if ($html !== null) {
             return $html;
         }
-        //$images = $this->fileRepo->getEntityFiles(
-        //    $block,
-        //    [
-        //        ['type', '=', 'image'],
-        //        ['is_active', '=', true]
-        //    ]
-        //);
-        $images = collect();
+
+        $files = $block->files;
         $html   = view('gzero-cms::blocks.slider', [
             'block'  => $block,
-            'images' => $images
+            'images' => $files->filter(
+                function ($file) {
+                    return $file->type->name === 'image';
+                }
+            )
         ])->render();
         $this->putInCache($block, $language, $html);
         return $html;

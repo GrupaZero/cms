@@ -158,7 +158,7 @@ class BlockViewModel {
      */
     public function theme($default = null)
     {
-        return array_get($this->data, 'theme', $default);
+        return array_get($this->data, 'theme') ?: $default;
     }
 
     /**
