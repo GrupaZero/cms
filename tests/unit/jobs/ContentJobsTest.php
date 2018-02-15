@@ -768,6 +768,28 @@ class ContentJobsTest extends Unit {
     }
 
     /** @test */
+    public function canRemoveContentThumb()
+    {
+        $user  = $this->tester->haveUser();
+        $image = UploadedFile::fake()->image('file.jpg')->size(10);
+        $file  = dispatch_now(CreateFile::image($image, 'Image', new Language(['code' => 'en']), $user, [
+            'info'        => 'info',
+            'description' => 'My image',
+            'is_active'   => true,
+        ]));
+
+        $content = $this->tester->haveContent(['thumb_id' => $file->id]);
+
+        dispatch_now(new UpdateContent($content, [
+            'thumb_id' => null
+        ]));
+
+        $content = Content::find($content->id);
+
+        $this->assertNull($content->thumb_id);
+    }
+
+    /** @test */
     public function cantUpdateContentWithNonExistingThumb()
     {
         $content = $this->tester->haveContent();
@@ -852,27 +874,5 @@ class ContentJobsTest extends Unit {
         $this->assertFalse($route->is_active);
         $this->assertEquals('new-one', $route->path);
         $this->assertEquals('en', $route->language_code);
-    }
-
-    /** @test */
-    public function canRemoveContentThumb()
-    {
-        $user  = $this->tester->haveUser();
-        $image = UploadedFile::fake()->image('file.jpg')->size(10);
-        $file  = dispatch_now(CreateFile::image($image, 'Image', new Language(['code' => 'en']), $user, [
-            'info'        => 'info',
-            'description' => 'My image',
-            'is_active'   => true,
-        ]));
-
-        $content = $this->tester->haveContent(['thumb_id' => $file->id]);
-
-        dispatch_now(new UpdateContent($content, [
-            'thumb_id' => null
-        ]));
-
-        $content = Content::find($content->id);
-
-        $this->assertNull($content->thumb_id);
     }
 }
