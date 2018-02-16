@@ -16,7 +16,7 @@ trait CacheBlockTrait {
     protected function getFromCache(Block $block, Language $language)
     {
         if ($block->is_cacheable) {
-            return cache('blocks:cache:' . $block->id . ':' . $language->code, null);
+            return cache()->tags(['blocks'])->get('blocks:cache:' . $block->id . ':' . $language->code, null);
         }
         return null;
     }
@@ -33,7 +33,7 @@ trait CacheBlockTrait {
     protected function putInCache(Block $block, Language $language, $html)
     {
         if ($block->is_cacheable) {
-            cache()->forever('blocks:cache:' . $block->id . ':' . $language->code, $html);
+            cache()->tags(['blocks'])->forever('blocks:cache:' . $block->id . ':' . $language->code, $html);
         }
     }
 

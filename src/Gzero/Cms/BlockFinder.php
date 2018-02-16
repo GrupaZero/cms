@@ -94,12 +94,12 @@ class BlockFinder {
     protected function getFilterArray($onlyActive)
     {
         $cacheKey = ($onlyActive) ? 'public' : 'admin';
-        if ($this->cache->has('blocks:filter:' . $cacheKey)) {
-            return $this->cache->get('blocks:filter:' . $cacheKey);
+        if ($this->cache->tags(['blocks'])->has('blocks:filter:' . $cacheKey)) {
+            return $this->cache->tags(['blocks'])->get('blocks:filter:' . $cacheKey);
         } else {
             $blocks = $this->blockRepository->getBlocksWithFilter($onlyActive);
             $filter = $this->buildFilterArray($blocks);
-            $this->cache->forever('blocks:filter:' . $cacheKey, $filter);
+            $this->cache->tags(['blocks'])->forever('blocks:filter:' . $cacheKey, $filter);
             return $filter;
         }
     }

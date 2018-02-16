@@ -9,6 +9,6 @@ class BlockService {
      */
     public function clearBlocksCache()
     {
-        return cache()->forget('blocks:filter:public') && cache()->forget('blocks:filter:admin');
+        return cache()->tags(['blocks'])->flush();
     }
 }
