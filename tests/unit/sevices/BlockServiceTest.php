@@ -20,14 +20,13 @@ class BlockServiceTest extends Unit {
     /** @test */
     public function canClearBlocksCache()
     {
-        Cache::shouldReceive('forget')
+        Cache::shouldReceive('tags')
             ->once()
-            ->with('blocks:filter:public')
-            ->andReturnTrue();
+            ->with(['blocks'])
+            ->andReturnSelf();
 
-        Cache::shouldReceive('forget')
+        Cache::shouldReceive('flush')
             ->once()
-            ->with('blocks:filter:admin')
             ->andReturnTrue();
 
         $this->tester->assertTrue($this->service->clearBlocksCache());
