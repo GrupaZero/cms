@@ -88,7 +88,7 @@ class CMSSeeder extends Seeder {
         $offer   = dispatch_now(CreateContent::category('Offer', $en, $user, ['is_active' => true, 'published_at' => $date]));
         $aboutUs = dispatch_now(CreateContent::content('About us', $en, $user, array_merge(
             ['is_active' => true, 'published_at' => $date],
-            $this->generateContentTranslation($pl)
+            $this->generateContentTranslation($en)
         )));
 
         dispatch_now(new AddContentTranslation($news, 'Aktualności', $pl, $user));
