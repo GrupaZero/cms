@@ -12,8 +12,8 @@
             </p>
             @guest
                 <p>
-                    <a href="{{routeMl('login')}}" class="btn btn-primary">@lang('gzero-core::common.login')</a>
-                    <a href="{{routeMl('register')}}" class="btn btn-secondary"> @lang('gzero-core::common.register')</a>
+                    <a href="{{route('login')}}" class="btn btn-primary">@lang('gzero-core::common.login')</a>
+                    <a href="{{route('register')}}" class="btn btn-secondary"> @lang('gzero-core::common.register')</a>
                 </p>
             @endguest
         </div>
@@ -27,7 +27,7 @@
                 {{ Auth::user()->name }}
             </p>
             <p>
-                <a href="{{routeMl('account')}}" class="btn btn-primary">@lang('gzero-core::common.account')</a>
+                <a href="{{route('account')}}" class="btn btn-primary">@lang('gzero-core::common.account')</a>
                 <a href="{{route('logout')}}" class="btn btn-secondary">@lang('gzero-core::common.logout')</a>
             </p>
         @endauth
