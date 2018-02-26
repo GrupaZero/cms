@@ -5,7 +5,7 @@
         "@type": "Article",
         "publisher": {
             "@type": "Organization",
-            "url": "{{ routeMl('home') }}",
+            "url": "{{ route('home') }}",
             "name": "{{ config('app.name') }}",
             "logo": {
                 "@type": "ImageObject",
@@ -14,7 +14,7 @@
         },
         "mainEntityOfPage": {
             "@type": "WebPage",
-            "@id": "{{ routeMl('home') }}"
+            "@id": "{{ route('home') }}"
         },
         @if(isset($content))
             "headline": "{{ $content->title()}}",

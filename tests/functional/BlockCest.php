@@ -199,14 +199,14 @@ class BlockCest {
         dispatch_now(CreateBlock::basic('Sidebar left', $en, $user, [
             'body'      => 'Block in sidebar left region',
             'region'    => 'sidebarLeft',
-            'filter'    => ['+' => ['home-en']],
+            'filter'    => ['+' => ['home']],
             'is_active' => true
         ]));
 
         dispatch_now(CreateBlock::basic('Sidebar right', $en, $user, [
             'body'      => 'Block in sidebar right region',
             'region'    => 'sidebarRight',
-            'filter'    => ['-' => ['home-en']],
+            'filter'    => ['-' => ['home']],
             'is_active' => true
         ]));
 
