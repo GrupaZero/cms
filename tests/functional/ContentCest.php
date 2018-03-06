@@ -470,16 +470,16 @@ class ContentCest {
             "@type":"ItemList",
             "itemListElement":[{
                 "@type": "ListItem",
-                "position": 1,
-                "url":"http://dev.gzero.pl/parent-title/child-3-title"
+                "position": \\d,
+                "url":"http://dev.gzero.pl/parent-title/child-1-title"
             },{
                 "@type": "ListItem",
-                "position": 2,
+                "position": \\d,
                 "url":"http://dev.gzero.pl/parent-title/child-2-title"
             },{
                 "@type": "ListItem",
-                "position": 3,
-                "url":"http://dev.gzero.pl/parent-title/child-1-title"
+                "position": \\d,
+                "url":"http://dev.gzero.pl/parent-title/child-3-title"
             }]
         ', $tag);
         $I->dontSee('"url":"http://dev.gzero.pl/parent-title/child-not-published-title"', $tag);
