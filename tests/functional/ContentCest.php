@@ -341,7 +341,7 @@ class ContentCest {
         $I->see('"@context": "http://schema.org"', $tag);
         $I->see('"@type": "Article"', $tag);
         $I->see('"headline": "Content Title"', $tag);
-        $I->see('"url": "http://dev.gzero.pl/content-title"', $tag);
+        $I->see('"url": "'.url('content-title').'"', $tag);
         $I->see('"datePublished": "' . $content->published_at->toDateTimeString() . '"', $tag);
         $I->see('"dateModified": "' . $content->updated_at->toDateTimeString() . '"', $tag);
 
@@ -354,22 +354,22 @@ class ContentCest {
         $I->see('"publisher": 
         {
             "@type": "Organization",
-            "url": "http://dev.gzero.pl",
+            "url": "'.url('/').'",
             "name": "' . config('app.name') . '",
             "logo": {
                 "@type": "ImageObject",
-                "url": "http://dev.gzero.pl/images/logo.png"
+                "url": "'.url('images/logo.png').'"
             }
         }', $tag);
 
         $I->see('"mainEntityOfPage": {
             "@type": "WebPage",
-            "@id": "http://dev.gzero.pl"
+            "@id": "'.url('/').'"
         }', $tag);
 
         $I->see('"image": {
             "@type": "ImageObject",
-            "url": "http://dev.gzero.pl/images/share-logo.png",
+            "url": "'.url('images/share-logo.png').'",
             "width": "' . $thumbWidth . '",
             "height": "auto"
         }', $tag);
@@ -471,18 +471,18 @@ class ContentCest {
             "itemListElement":[{
                 "@type": "ListItem",
                 "position": 1,
-                "url":"http://dev.gzero.pl/parent-title/child-1-title"
+                "url":"'.url('parent-title/child-1-title').'"
             },{
                 "@type": "ListItem",
                 "position": 2,
-                "url":"http://dev.gzero.pl/parent-title/child-2-title"
+                "url":"'.url('parent-title/child-2-title').'"
             },{
                 "@type": "ListItem",
                 "position": 3,
-                "url":"http://dev.gzero.pl/parent-title/child-3-title"
+                "url":"'.url('parent-title/child-3-title').'"
             }]
         ', $tag);
-        $I->dontSee('"url":"http://dev.gzero.pl/parent-title/child-not-published-title"', $tag);
+        $I->dontSee('"url":"'.url('parent-title/child-not-published-title').'"', $tag);
         $I->see('Child 1 - Title', Locator::firstElement('article'));
         $I->see('Child 2 - Title', Locator::elementAt('article', 2));
         $I->see('Child 3 - Title', Locator::lastElement('article'));
