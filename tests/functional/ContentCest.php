@@ -440,19 +440,19 @@ class ContentCest {
         dispatch_now(CreateContent::category('Child 1 - Title', $language, $user, [
             'teaser'       => 'Child 1 - Title',
             'parent_id'    => $root->id,
-            'published_at' => Carbon::now(),
+            'published_at' => Carbon::now()->subDay(),
             'is_active'    => true
         ]));
         dispatch_now(CreateContent::content('Child 2 - Title', $language, $user, [
             'Child'        => 'Child 2 teaser',
             'parent_id'    => $root->id,
-            'published_at' => Carbon::now(),
+            'published_at' => Carbon::now()->subDays(2),
             'is_active'    => true
         ]));
         dispatch_now(CreateContent::content('Child 3 - Title', $language, $user, [
             'Child'        => 'Child 3 teaser',
             'parent_id'    => $root->id,
-            'published_at' => Carbon::now(),
+            'published_at' => Carbon::now()->subDays(3),
             'is_active'    => true
         ]));
         dispatch_now(CreateContent::content('Child not published - Title', $language, $user, [
@@ -470,18 +470,21 @@ class ContentCest {
             "@type":"ItemList",
             "itemListElement":[{
                 "@type": "ListItem",
-                "position": \\d,
+                "position": 1,
                 "url":"http://dev.gzero.pl/parent-title/child-1-title"
             },{
                 "@type": "ListItem",
-                "position": \\d,
+                "position": 2,
                 "url":"http://dev.gzero.pl/parent-title/child-2-title"
             },{
                 "@type": "ListItem",
-                "position": \\d,
+                "position": 3,
                 "url":"http://dev.gzero.pl/parent-title/child-3-title"
             }]
         ', $tag);
         $I->dontSee('"url":"http://dev.gzero.pl/parent-title/child-not-published-title"', $tag);
+        $I->see('Child 1 - Title', Locator::firstElement('article'));
+        $I->see('Child 2 - Title', Locator::elementAt('article', 2));
+        $I->see('Child 3 - Title', Locator::lastElement('article'));
     }
 }
