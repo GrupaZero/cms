@@ -341,7 +341,7 @@ class ContentCest {
         $I->see('"@context": "http://schema.org"', $tag);
         $I->see('"@type": "Article"', $tag);
         $I->see('"headline": "Content Title"', $tag);
-        $I->see('"url": "http://dev.gzero.pl/content-title"', $tag);
+        $I->see('"url": "'.url('content-title').'"', $tag);
         $I->see('"datePublished": "' . $content->published_at->toDateTimeString() . '"', $tag);
         $I->see('"dateModified": "' . $content->updated_at->toDateTimeString() . '"', $tag);
 
@@ -354,22 +354,22 @@ class ContentCest {
         $I->see('"publisher": 
         {
             "@type": "Organization",
-            "url": "http://dev.gzero.pl",
+            "url": "'.url('/').'",
             "name": "' . config('app.name') . '",
             "logo": {
                 "@type": "ImageObject",
-                "url": "http://dev.gzero.pl/images/logo.png"
+                "url": "'.url('images/logo.png').'"
             }
         }', $tag);
 
         $I->see('"mainEntityOfPage": {
             "@type": "WebPage",
-            "@id": "http://dev.gzero.pl"
+            "@id": "'.url('/').'"
         }', $tag);
 
         $I->see('"image": {
             "@type": "ImageObject",
-            "url": "http://dev.gzero.pl/images/share-logo.png",
+            "url": "'.url('images/share-logo.png').'",
             "width": "' . $thumbWidth . '",
             "height": "auto"
         }', $tag);
@@ -425,5 +425,66 @@ class ContentCest {
             "width": "' . $thumbWidth . '",
             "height": "auto"
         }', 'script[type="application/ld+json"]');
+    }
+
+    public function canSeeStDataMarkupWithItemListTypeOnCategoryPage(FunctionalTester $I)
+    {
+        $user = factory(User::class)->create();
+        $language = new Language(['code' => 'en']);
+
+        $root = dispatch_now(CreateContent::category('Parent - Title', $language, $user, [
+            'teaser'       => 'Parent - Title',
+            'published_at' => Carbon::now(),
+            'is_active'    => true
+        ]));
+        dispatch_now(CreateContent::category('Child 1 - Title', $language, $user, [
+            'teaser'       => 'Child 1 - Title',
+            'parent_id'    => $root->id,
+            'published_at' => Carbon::now()->subDay(),
+            'is_active'    => true
+        ]));
+        dispatch_now(CreateContent::content('Child 2 - Title', $language, $user, [
+            'Child'        => 'Child 2 teaser',
+            'parent_id'    => $root->id,
+            'published_at' => Carbon::now()->subDays(2),
+            'is_active'    => true
+        ]));
+        dispatch_now(CreateContent::content('Child 3 - Title', $language, $user, [
+            'Child'        => 'Child 3 teaser',
+            'parent_id'    => $root->id,
+            'published_at' => Carbon::now()->subDays(3),
+            'is_active'    => true
+        ]));
+        dispatch_now(CreateContent::content('Child not published - Title', $language, $user, [
+            'Child'        => 'Child not published - Title',
+            'parent_id'    => $root->id,
+            'published_at' => Carbon::now()->addDay(),
+            'is_active'    => true
+        ]));
+
+        $I->amOnPage('parent-title');
+
+        $tag = 'script[type="application/ld+json"]';
+
+        $I->see('
+            "@type":"ItemList",
+            "itemListElement":[{
+                "@type": "ListItem",
+                "position": 1,
+                "url":"'.url('parent-title/child-1-title').'"
+            },{
+                "@type": "ListItem",
+                "position": 2,
+                "url":"'.url('parent-title/child-2-title').'"
+            },{
+                "@type": "ListItem",
+                "position": 3,
+                "url":"'.url('parent-title/child-3-title').'"
+            }]
+        ', $tag);
+        $I->dontSee('"url":"'.url('parent-title/child-not-published-title').'"', $tag);
+        $I->see('Child 1 - Title', Locator::firstElement('article'));
+        $I->see('Child 2 - Title', Locator::elementAt('article', 2));
+        $I->see('Child 3 - Title', Locator::lastElement('article'));
     }
 }

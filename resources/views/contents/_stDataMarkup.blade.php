@@ -41,5 +41,13 @@
                 @endif
             }
         @endif
-    }
+    },
+    @if(isset($children))
+        "@type":"ItemList",
+        "itemListElement":[@foreach ($children as $index => $child){
+            "@type": "ListItem",
+            "position": {{$index+1}},
+            "url":"{{$child->url()}}"
+        }{{($children->count() !== $index+1) ? ',': ''}}@endforeach]
+    @endif
 </script>

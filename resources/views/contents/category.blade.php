@@ -14,7 +14,7 @@
     @parent
     @include('gzero-cms::contents._canonical', ['paginator' => $children])
     @include('gzero-cms::contents._alternateLinks', ['content' => $content])
-    @include('gzero-cms::contents._stDataMarkup', ['content' => $content])
+    @include('gzero-cms::contents._stDataMarkup', ['content' => $content, 'children' => $children])
 @stop
 @section('breadcrumbs')
     {!! Breadcrumbs::render('category') !!}
