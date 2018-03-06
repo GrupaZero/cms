@@ -466,22 +466,22 @@ class ContentCest {
 
         $tag = 'script[type="application/ld+json"]';
 
-        $I->see('"@type":"ItemList"', $tag);
-        $I->see('"itemListElement":{
-            "@type": "ListItem",
-            "position": 1,
-            "url":"http://dev.gzero.pl/parent-title/child-1-title"
-        }', $tag);
-        $I->see('"itemListElement":{
-            "@type": "ListItem",
-            "position": 2,
-            "url":"http://dev.gzero.pl/parent-title/child-2-title"
-        }', $tag);
-        $I->see('"itemListElement":{
-            "@type": "ListItem",
-            "position": 3,
-            "url":"http://dev.gzero.pl/parent-title/child-3-title"
-        }', $tag);
+        $I->see('
+            "@type":"ItemList",
+            "itemListElement":[{
+                "@type": "ListItem",
+                "position": 1,
+                "url":"http://dev.gzero.pl/parent-title/child-3-title"
+            },{
+                "@type": "ListItem",
+                "position": 2,
+                "url":"http://dev.gzero.pl/parent-title/child-2-title"
+            },{
+                "@type": "ListItem",
+                "position": 3,
+                "url":"http://dev.gzero.pl/parent-title/child-1-title"
+            }]
+        ', $tag);
         $I->dontSee('"url":"http://dev.gzero.pl/parent-title/child-not-published-title"', $tag);
     }
 }
