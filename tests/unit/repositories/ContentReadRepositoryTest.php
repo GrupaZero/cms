@@ -312,7 +312,6 @@ class ContentReadRepositoryTest extends Unit {
         );
     }
 
-
     /** @test */
     public function getChildrenShouldReturnOnlyActiveChildren()
     {
