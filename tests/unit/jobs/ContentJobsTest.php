@@ -666,10 +666,9 @@ class ContentJobsTest extends Unit {
         dispatch_now(new RestoreContent($category));
 
         $category = Content::find($category->id);
-        $content  = Content::find($content->id);
 
         $this->assertNull($category->deleted_at);
-        $this->assertNull($content->deleted_at);
+        $this->assertNull(Content::find($content->id));
     }
 
     /** @test */

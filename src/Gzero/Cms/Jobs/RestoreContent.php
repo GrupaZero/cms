@@ -29,10 +29,6 @@ class RestoreContent {
     {
         return $this->dbTransaction(function () {
             $lastAction = $this->content->restore();
-            // When we're using softDelete, we need to manually restore descendants rows
-            foreach ($this->content->findDescendantsWithTrashed()->get() as $node) {
-                $node->restore();
-            }
 
             event('content.restored', [$this->content]);
 

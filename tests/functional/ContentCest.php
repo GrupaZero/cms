@@ -556,7 +556,7 @@ class ContentCest {
         $I->seeResponseCodeIs(200);
     }
 
-    public function canSeeChildrenOfRestoredContent(FunctionalTester $I)
+    public function cantSeeChildrenOfRestoredContent(FunctionalTester $I)
     {
         $en   = new Language(['code' => 'en']);
         $user = factory(User::class)->create();
@@ -586,9 +586,9 @@ class ContentCest {
         $I->seeResponseCodeIs(200);
 
         $I->amOnPage('/grandparent-title/parent-title');
-        $I->seeResponseCodeIs(200);
+        $I->seeResponseCodeIs(404);
 
         $I->amOnPage('/grandparent-title/parent-title/child-title');
-        $I->seeResponseCodeIs(200);
+        $I->seeResponseCodeIs(404);
     }
 }
