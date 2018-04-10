@@ -654,6 +654,24 @@ class ContentJobsTest extends Unit {
     }
 
     /** @test */
+    public function restoresContentWithoutChildren()
+    {
+        $category = $this->tester->haveContent(['type' => 'category', 'deleted_at' => Carbon::now()->subDay()]);
+        $content  = $this->tester->haveContent(['deleted_at' => Carbon::now()->subDay()]);
+        $content->setChildOf($category);
+
+        $this->assertNull(Content::find($category->id));
+        $this->assertNull(Content::find($content->id));
+
+        dispatch_now(new RestoreContent($category));
+
+        $category = Content::find($category->id);
+
+        $this->assertNull($category->deleted_at);
+        $this->assertNull(Content::find($content->id));
+    }
+
+    /** @test */
     public function canDeleteInactiveTranslation()
     {
         $withActive = false;

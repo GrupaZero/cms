@@ -4,6 +4,8 @@ use Carbon\Carbon;
 use Codeception\Util\Locator;
 use Gzero\Cms\Jobs\AddContentTranslation;
 use Gzero\Cms\Jobs\CreateContent;
+use Gzero\Cms\Jobs\DeleteContent;
+use Gzero\Cms\Jobs\RestoreContent;
 use Gzero\Core\Models\Language;
 use Gzero\Core\Models\User;
 use Illuminate\Routing\Router;
@@ -486,5 +488,107 @@ class ContentCest {
         $I->see('Child 1 - Title', Locator::firstElement('article'));
         $I->see('Child 2 - Title', Locator::elementAt('article', 2));
         $I->see('Child 3 - Title', Locator::lastElement('article'));
+    }
+
+    public function cantSeeSoftDeletedContent(FunctionalTester $I)
+    {
+        $user = factory(User::class)->create();
+
+        $content = dispatch_now(CreateContent::content('Content Title', new Language(['code' => 'en']), $user, [
+            'published_at' => Carbon::now(),
+            'is_active'    => true
+        ]));
+
+        dispatch_now(new DeleteContent($content));
+
+        $I->amOnPage('content-title');
+        $I->seeResponseCodeIs(404);
+    }
+
+    public function cantSeeChildrenOfSoftDeletedContent(FunctionalTester $I)
+    {
+        $en   = new Language(['code' => 'en']);
+        $user = factory(User::class)->create();
+
+
+        $root = dispatch_now(CreateContent::category('Grandparent - Title', $en, $user, [
+            'published_at' => Carbon::now(),
+            'is_active'    => true
+        ]));
+
+        $parent = dispatch_now(CreateContent::category('Parent - Title', $en, $user, [
+            'published_at' => Carbon::now(),
+            'parent_id'    => $root->id,
+            'is_active'    => true
+        ]));
+
+        dispatch_now(CreateContent::content('Child - Title', $en, $user, [
+            'published_at' => Carbon::now(),
+            'parent_id'    => $parent->id,
+            'is_active'    => true
+        ]));
+
+        dispatch_now(new DeleteContent($root));
+
+        $I->amOnPage('/grandparent-title');
+        $I->seeResponseCodeIs(404);
+
+        $I->amOnPage('/grandparent-title/parent-title');
+        $I->seeResponseCodeIs(404);
+
+        $I->amOnPage('/grandparent-title/parent-title/child-title');
+        $I->seeResponseCodeIs(404);
+    }
+
+    public function canSeeRestoredContent(FunctionalTester $I)
+    {
+        $user = factory(User::class)->create();
+
+        $content = dispatch_now(CreateContent::content('Content Title', new Language(['code' => 'en']), $user, [
+            'published_at' => Carbon::now(),
+            'is_active'    => true
+        ]));
+
+        dispatch_now(new DeleteContent($content));
+        dispatch_now(new RestoreContent($content));
+
+        $I->amOnPage('content-title');
+        $I->seeResponseCodeIs(200);
+    }
+
+    public function cantSeeChildrenOfRestoredContent(FunctionalTester $I)
+    {
+        $en   = new Language(['code' => 'en']);
+        $user = factory(User::class)->create();
+
+
+        $root = dispatch_now(CreateContent::category('Grandparent - Title', $en, $user, [
+            'published_at' => Carbon::now(),
+            'is_active'    => true
+        ]));
+
+        $parent = dispatch_now(CreateContent::category('Parent - Title', $en, $user, [
+            'published_at' => Carbon::now(),
+            'parent_id'    => $root->id,
+            'is_active'    => true
+        ]));
+
+        dispatch_now(CreateContent::content('Child - Title', $en, $user, [
+            'published_at' => Carbon::now(),
+            'parent_id'    => $parent->id,
+            'is_active'    => true
+        ]));
+
+        dispatch_now(new DeleteContent($root));
+        dispatch_now(new RestoreContent($root));
+
+        $I->amOnPage('/grandparent-title');
+        $I->seeResponseCodeIs(200);
+
+        $I->amOnPage('/grandparent-title/parent-title');
+        $I->seeResponseCodeIs(404);
+
+        $I->amOnPage('/grandparent-title/parent-title/child-title');
+        $I->seeResponseCodeIs(404);
     }
 }
