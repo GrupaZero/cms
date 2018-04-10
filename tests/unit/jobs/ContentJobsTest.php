@@ -654,7 +654,7 @@ class ContentJobsTest extends Unit {
     }
 
     /** @test */
-    public function canRestoreContentWithChildren()
+    public function restoresContentWithoutChildren()
     {
         $category = $this->tester->haveContent(['type' => 'category', 'deleted_at' => Carbon::now()->subDay()]);
         $content  = $this->tester->haveContent(['deleted_at' => Carbon::now()->subDay()]);
