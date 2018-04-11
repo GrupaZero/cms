@@ -6,6 +6,7 @@ use Gzero\Cms\Jobs\AddContentTranslation;
 use Gzero\Cms\Jobs\CreateContent;
 use Gzero\Cms\Jobs\DeleteContent;
 use Gzero\Cms\Jobs\RestoreContent;
+use Gzero\Cms\Models\Content;
 use Gzero\Core\Models\Language;
 use Gzero\Core\Models\User;
 use Illuminate\Routing\Router;
@@ -590,5 +591,34 @@ class ContentCest {
 
         $I->amOnPage('/grandparent-title/parent-title/child-title');
         $I->seeResponseCodeIs(404);
+    }
+
+    public function canCreateContentWithTheSameTitleAsOneAlreadySoftDeleted(FunctionalTester $I)
+    {
+        $user     = factory(User::class)->create();
+        $language = new Language(['code' => 'en']);
+
+        $content = dispatch_now(CreateContent::content('Example Title', $language, $user, [
+            'published_at' => Carbon::now(),
+            'is_active'    => true
+        ]));
+
+        dispatch_now(new DeleteContent($content));
+
+        $category = dispatch_now(CreateContent::category('Example Title', $language, $user, [
+            'published_at' => Carbon::now(),
+            'is_active'    => true
+        ]));
+
+        dispatch_now(new RestoreContent($content));
+
+        $content       = Content::find($content->id);
+        $category      = Content::find($category->id);
+        $contentRoute  = $content->routes->first();
+        $categoryRoute = $category->routes->first();
+
+        $I->assertEquals($content->title, $category->title);
+        $I->assertEquals('example-title', $contentRoute->path);
+        $I->assertEquals('example-title-1', $categoryRoute->path);
     }
 }
