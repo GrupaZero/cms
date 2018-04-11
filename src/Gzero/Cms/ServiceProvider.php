@@ -1,8 +1,6 @@
 <?php namespace Gzero\Cms;
 
 use Bkwld\Croppa\ServiceProvider as CroppaServiceProvider;
-use DaveJamesMiller\Breadcrumbs\Facade as BreadcrumbsFacade;
-use DaveJamesMiller\Breadcrumbs\ServiceProvider as BreadcrumbServiceProvider;
 use Gzero\Cms\Listeners\BlockCacheClear;
 use Gzero\Cms\Listeners\BlockLoad;
 use Gzero\Cms\Policies\BlockPolicy;
@@ -23,7 +21,6 @@ class ServiceProvider extends AbstractServiceProvider {
      * @var array
      */
     protected $providers = [
-        BreadcrumbServiceProvider::class,
         CroppaServiceProvider::class,
     ];
 
@@ -32,9 +29,7 @@ class ServiceProvider extends AbstractServiceProvider {
      *
      * @var array
      */
-    protected $aliases = [
-        'Breadcrumbs' => BreadcrumbsFacade::class
-    ];
+    protected $aliases = [];
 
     /**
      * The policy mappings for the application.
