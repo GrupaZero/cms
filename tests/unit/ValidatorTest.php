@@ -102,7 +102,7 @@ class ValidatorTest extends Unit {
      * @test
      * @expectedException \Illuminate\Validation\ValidationException
      */
-    public function itThrowEequiredErrorForArrays()
+    public function itThrowRequiredErrorForArrays()
     {
         $this->input['data'] = [[]];
         try {
