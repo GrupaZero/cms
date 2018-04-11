@@ -20,7 +20,7 @@ class MenuRegisterTest extends Unit {
     /**
      * @test
      */
-    public function it_adds_simple_links()
+    public function itAddsSimpleLinks()
     {
         $this->register->add(new Link('url-1', 'title for url 1'));
         $this->register->add(new Link('url-2', 'title for url 2', 99));
@@ -38,7 +38,7 @@ class MenuRegisterTest extends Unit {
     /**
      * @test
      */
-    public function it_sorts_by_weight()
+    public function itSortsByWeight()
     {
         $this->register->add(new Link('url-1', 'title for url 1', 1337));
         $this->register->add(new Link('url-2', 'title for url 2', 99));
@@ -56,7 +56,7 @@ class MenuRegisterTest extends Unit {
     /**
      * @test
      */
-    public function it_allows_to_add_child_link()
+    public function itAllowsToAddChildLink()
     {
         $this->register->add(new Link('url-1', 'title for url 1', 1337));
         $this->register->add(new Link('url-2', 'title for url 2', 99));
