@@ -13,6 +13,7 @@ use Gzero\Core\Http\Controllers\ApiController;
 use Gzero\Core\Parsers\BoolParser;
 use Gzero\Core\Parsers\DateRangeParser;
 use Gzero\Core\Parsers\NumericParser;
+use Gzero\Core\Parsers\RangeParser;
 use Gzero\Core\Parsers\StringParser;
 use Gzero\Core\UrlParamsProcessor;
 use Illuminate\Http\Request;
@@ -141,6 +142,17 @@ class ContentController extends ApiController {
      *     default="true"
      *   ),
      *   @SWG\Parameter(
+     *     name="rating",
+     *     in="query",
+     *     description="Rating range to filter by",
+     *     required=false,
+     *     type="array",
+     *     minItems=2,
+     *     maxItems=2,
+     *     default={1,5},
+     *     @SWG\Items(type="string")
+     *   ),
+     *   @SWG\Parameter(
      *     name="published_at",
      *     in="query",
      *     description="Date range to filter by",
@@ -204,6 +216,7 @@ class ContentController extends ApiController {
             ->addFilter(new BoolParser('is_on_home'))
             ->addFilter(new BoolParser('is_promoted'))
             ->addFilter(new BoolParser('is_comment_allowed'))
+            ->addFilter(new RangeParser('rating'))
             ->addFilter(new DateRangeParser('published_at'))
             ->addFilter(new DateRangeParser('created_at'))
             ->addFilter(new DateRangeParser('updated_at'))
