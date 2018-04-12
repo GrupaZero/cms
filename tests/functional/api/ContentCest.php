@@ -665,7 +665,7 @@ class ContentCest {
         $I->assertEquals($user1->id, head($second));
     }
 
-    public function shouldBeAbleToFilterListOfContentsByIsSticked(FunctionalTester $I)
+    public function shouldBeAbleToFilterListOfContentsByIsSticky(FunctionalTester $I)
     {
         $I->haveContents([
             [
@@ -1635,5 +1635,67 @@ class ContentCest {
                 ['title' => 'Inactive Title']
             ]
         ]);
+    }
+
+    public function shouldBeAbleToFilterListOfContentsByRatingRange(FunctionalTester $I)
+    {
+        $I->haveContents([
+            [
+                'rating' => 1,
+                'translations'       => [
+                    ['language_code' => 'en', 'title' => 'Rating 1']
+                ]
+            ],
+            [
+                'rating' => 2,
+                'translations'       => [
+                    ['language_code' => 'en', 'title' => 'Rating 2']
+                ]
+            ],
+            [
+                'rating' => 3,
+                'translations'       => [
+                    ['language_code' => 'en', 'title' => 'Rating 3']
+                ]
+            ],
+            [
+                'rating' => 4,
+                'translations'       => [
+                    ['language_code' => 'en', 'title' => 'Rating 4']
+                ]
+            ],
+            [
+                'rating' => 5,
+                'translations'       => [
+                    ['language_code' => 'en', 'title' => 'Rating 5']
+                ]
+            ]
+        ]);
+
+        $I->sendGET(apiUrl('contents?rating=2,4'));
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseContainsJson(
+            ['title' => 'Rating 2'],
+            ['title' => 'Rating 3'],
+            ['title' => 'Rating 4']
+        );
+        $I->dontSeeResponseContainsJson(
+            ['title' => 'Rating 1'],
+            ['title' => 'Rating 5']
+        );
+
+        $I->sendGET(apiUrl('contents?rating=!2,4'));
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseContainsJson(
+            ['title' => 'Rating 1'],
+            ['title' => 'Rating 5']
+        );
+        $I->dontSeeResponseContainsJson(
+            ['title' => 'Rating 2'],
+            ['title' => 'Rating 3'],
+            ['title' => 'Rating 4']
+        );
     }
 }
