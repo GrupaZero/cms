@@ -35,7 +35,7 @@ class ValidatorTest extends Unit {
      * @test
      * @expectedException \Illuminate\Validation\ValidationException
      */
-    public function it_throws_exceptions_with_errors()
+    public function itThrowsExceptionsWithErrors()
     {
         try {
             $this->input['type'] = 'product';
@@ -50,7 +50,7 @@ class ValidatorTest extends Unit {
      * @test
      * @expectedException \Illuminate\Validation\ValidationException
      */
-    public function can_bind_rules()
+    public function canBindRules()
     {
         try {
             $this->validator->bind('lang', ['required' => 'numeric'])->validate('update', $this->input);
@@ -64,7 +64,7 @@ class ValidatorTest extends Unit {
      * @test
      * @expectedException \Gzero\InvalidArgumentException
      */
-    public function it_checks_validation_context()
+    public function itChecksValidationContext()
     {
         $this->validator->validate('fakeContext', []);
     }
@@ -72,7 +72,7 @@ class ValidatorTest extends Unit {
     /**
      * @test
      */
-    public function only_fields_in_rules_are_returned()
+    public function onlyFieldsInRulesAreReturned()
     {
         $fakeInput = [
             'testAttribute1' => 'dummyValue1',
@@ -92,7 +92,7 @@ class ValidatorTest extends Unit {
     /**
      * @test
      */
-    public function it_apply_filters()
+    public function itApplyFilters()
     {
         $this->input['title'] = 'Lorem Ipsum        ';
         $this->assertNotEquals($this->input, $this->validator->validate('list', $this->input));
@@ -102,7 +102,7 @@ class ValidatorTest extends Unit {
      * @test
      * @expectedException \Illuminate\Validation\ValidationException
      */
-    public function it_throw_required_error_for_arrays()
+    public function itThrowRequiredErrorForArrays()
     {
         $this->input['data'] = [[]];
         try {
@@ -117,7 +117,7 @@ class ValidatorTest extends Unit {
      * @test
      * @expectedException \Illuminate\Validation\ValidationException
      */
-    public function it_throw_numeric_error_for_arrays()
+    public function itThrowNumericErrorForArrays()
     {
         $this->input['data'] = [['id' => 1337], ['id' => 'asdas']];
         try {
@@ -131,7 +131,7 @@ class ValidatorTest extends Unit {
     /**
      * @test
      */
-    public function it_validates_arrays()
+    public function itValidatesArrays()
     {
         $this->input['data'] = [['id' => 1337], ['id' => 999]];
 
