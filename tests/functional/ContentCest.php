@@ -45,6 +45,37 @@ class ContentCest {
         $I->seeElement('.breadcrumb');
     }
 
+    public function canSeeContentPublishedInDifferentTimezone(FunctionalTester $I)
+    {
+        $user = factory(User::class)->create();
+        $now = Carbon::now('+03:00');
+        $nowInUTC = $now->copy()->setTimezone('UTC');
+
+        // ---- pass published_at as a DateTime instance ----
+        $content1 = dispatch_now(CreateContent::content('First Content Title', new Language(['code' => 'en']), $user, [
+            'published_at' => $now,
+            'is_active'    => true
+        ]));
+        $content1 = $content1->fresh();
+
+        // ---- pass published_at as a date formatted with its timezone ----
+        $content2 = dispatch_now(CreateContent::content('Second Content Title', new Language(['code' => 'en']), $user, [
+            'published_at' => $now->toIso8601String(),
+            'is_active'    => true
+        ]));
+        $content2 = $content2->fresh();
+
+        $I->assertEquals(new \DateTime($nowInUTC), $content1->published_at);
+        $I->amOnPage('first-content-title');
+        $I->seeResponseCodeIs(200);
+        $I->seeInTitle('First Content Title');
+
+        $I->assertEquals(new \DateTime($nowInUTC), $content2->published_at);
+        $I->amOnPage('second-content-title');
+        $I->seeResponseCodeIs(200);
+        $I->seeInTitle('Second Content Title');
+    }
+
     public function canSeeTeaserAndBodyOnContentPage(FunctionalTester $I)
     {
         $user = factory(User::class)->create();

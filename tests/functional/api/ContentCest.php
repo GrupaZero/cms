@@ -15,6 +15,67 @@ class ContentCest {
         $I->apiLoginAsAdmin();
     }
 
+    public function shouldGetListOfContentsWithDatesConvertedToRequestTimezone(FunctionalTester $I)
+    {
+        $requestedTimezone = 'Australia/Adelaide';
+
+        $user = factory(User::class)->create();
+        $en   = new Language(['code' => 'en']);
+        $pl   = new Language(['code' => 'pl']);
+
+        $category = dispatch_now(CreateContent::category('Category Title', $en, $user, [
+            'published_at' => Carbon::now()
+        ]));
+
+        $content1 = dispatch_now(CreateContent::content('Content 1 Title', $en, $user, [
+            'parent_id' => $category->id,
+            'published_at' => Carbon::now()->addDay()
+        ]));
+        $content2 = dispatch_now(CreateContent::content('Content 2 Title', $en, $user, [
+            'parent_id' => $category->id,
+            'published_at' => Carbon::now()->subDay()
+        ]));
+
+        $I->haveHttpHeader('Accept-Timezone', $requestedTimezone);
+        $I->sendGet(apiUrl('contents'));
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeResponseJsonMatchesJsonPath('data[*]');
+        $nowInRequestTimezoneInIso8601String = Carbon::now()->setTimezone($requestedTimezone)->toIso8601String();
+        $I->seeResponseContainsJson([
+            [
+                'type'         => 'category',
+                'parent_id'    => null,
+                'published_at' => $category->published_at->copy()->setTimezone($requestedTimezone)->toIso8601String(),
+                'created_at'   => $nowInRequestTimezoneInIso8601String,
+                'updated_at'   => $nowInRequestTimezoneInIso8601String,
+            ],
+            [
+                'type'         => 'content',
+                'published_at' => $content2->published_at->copy()->setTimezone($requestedTimezone)->toIso8601String(),
+                'created_at'   => $nowInRequestTimezoneInIso8601String,
+                'updated_at'   => $nowInRequestTimezoneInIso8601String,
+                'translations' => [
+                    'title'      => 'Content 2 Title',
+                    'created_at' => $nowInRequestTimezoneInIso8601String,
+                    'updated_at' => $nowInRequestTimezoneInIso8601String,
+                ]
+            ],
+            [
+                'type'         => 'content',
+                'published_at' => $content1->published_at->copy()->setTimezone($requestedTimezone)->toIso8601String(),
+                'created_at'   => $nowInRequestTimezoneInIso8601String,
+                'updated_at'   => $nowInRequestTimezoneInIso8601String,
+                'translations' => [
+                    'title' => 'Content 1 Title',
+                    'created_at'   => $nowInRequestTimezoneInIso8601String,
+                    'updated_at'   => $nowInRequestTimezoneInIso8601String,
+                ]
+            ]
+        ]);
+    }
+
     public function shouldGetListOfContents(FunctionalTester $I)
     {
         $user = factory(User::class)->create();
@@ -164,18 +225,25 @@ class ContentCest {
 
     public function shouldBeAbleToFilterListOfContentsByCreatedAt(FunctionalTester $I)
     {
+        $from = "2021-05-02T00:43:31+09:30";
+        $to = '2021-05-01T23:43:31-04:00';
+        $createdAt = '2021-05-01 18:43:31';
+
         $user     = factory(User::class)->create();
         $language = new Language(['code' => 'en']);
 
-        dispatch_now(CreateContent::content('Content Title', $language, $user, ['is_active' => true]));
+        dispatch_now(CreateContent::content('Content Title', $language, $user, [
+            'is_active' => true,
+            'created_at' => $createdAt
+        ]));
 
-        $I->sendGET(apiUrl('contents?created_at=2017-10-09,2017-10-10'));
+        $I->sendGET(route('contents', ['created_at' =>  $from . "," . $to]));
 
         $I->seeResponseCodeIs(200);
         $I->seeResponseIsJson();
         $I->assertEmpty($I->grabDataFromResponseByJsonPath('data[*]'));
 
-        $I->sendGET(apiUrl('contents?created_at=!2017-10-09,2017-10-10'));
+        $I->sendGET(route('contents', ['created_at' => "!" . $from . "," . $to]));
 
         $I->seeResponseCodeIs(200);
         $I->seeResponseIsJson();
@@ -196,14 +264,15 @@ class ContentCest {
 
     public function shouldBeAbleToFilterListOfContentsByUpdatedAt(FunctionalTester $I)
     {
-        $fourDaysAgo = Carbon::now()->subDays(4);
-        $yesterday   = Carbon::yesterday()->format('Y-m-d');
-        $tomorrow    = Carbon::tomorrow()->format('Y-m-d');
+        $from = "2021-05-02T00:43:31+09:30";
+        $to = '2021-05-01T23:43:31-04:00';
+        $updatedAt = '2021-05-01 18:43:31';
+        $createdAt = $updatedAt;
 
         $content = $I->haveContent([
             'type'         => 'content',
-            'created_at'   => $fourDaysAgo,
-            'updated_at'   => $fourDaysAgo,
+            'created_at'   => $createdAt,
+            'updated_at'   => $updatedAt,
             'translations' => [
                 [
                     'language_code' => 'en',
@@ -213,14 +282,16 @@ class ContentCest {
             ]
         ]);
 
-        $I->sendGET(apiUrl("contents?updated_at=$yesterday,$tomorrow"));
+        $I->sendGET(route('contents', ['updated_at' => "!" . $from . "," . $to]));
         $I->assertEmpty($I->grabDataFromResponseByJsonPath('data[*]'));
 
+        Carbon::setTestNow(Carbon::parse($updatedAt)->addMinute());
         dispatch_now((new UpdateContent($content, ['is_sticky' => true])));
 
-        $I->sendGET(apiUrl("contents?updated_at=$yesterday,$tomorrow"));
+        $I->sendGET(route('contents', ['updated_at' => $from . "," . $to]));
         $I->seeResponseCodeIs(200);
         $I->seeResponseIsJson();
+
         $I->seeResponseJsonMatchesJsonPath('data[*]');
         $I->seeResponseContainsJson(
             [
@@ -237,6 +308,7 @@ class ContentCest {
                 ]
             ]
         );
+        Carbon::setTestNow();
     }
 
     public function shouldFailIfUpdatedAtIsNotDateRangeFormat(FunctionalTester $I)
@@ -254,66 +326,106 @@ class ContentCest {
 
     public function shouldBeAbleToFilterListOfContentsByPublishedAt(FunctionalTester $I)
     {
+        $from = "2021-05-02T00:43:31+09:30";
+        $to = '2021-05-01T23:43:31-04:00';
+
         $user     = factory(User::class)->create();
         $language = new Language(['code' => 'en']);
 
-        dispatch_now(CreateContent::content("Tomorrow's content", $language, $user, [
-            'published_at' => Carbon::tomorrow(),
+        dispatch_now(CreateContent::content("content on left edge", $language, $user, [
+            'published_at' => Carbon::parse($from),
             'is_active'    => true
         ]));
 
-        dispatch_now(CreateContent::content("Today's content", $language, $user, [
-            'published_at' => Carbon::today(),
+        dispatch_now(CreateContent::content("content behind left edge", $language, $user, [
+            'published_at' => Carbon::parse($from)->subSecond(),
             'is_active'    => true
         ]));
 
-        dispatch_now(CreateContent::category("Three day's ago content", $language, $user, [
-            'published_at' => Carbon::now()->subDays(3),
+        dispatch_now(CreateContent::category("category on right edge", $language, $user, [
+            'published_at' => Carbon::parse($to),
             'is_active'    => true
         ]));
 
-        $start = Carbon::yesterday()->format('Y-m-d');
-        $end   = Carbon::tomorrow()->format('Y-m-d');
-        $I->sendGET(apiUrl("contents?published_at=$start,$end"));
+        dispatch_now(CreateContent::category("category behind right edge", $language, $user, [
+            'published_at' => Carbon::parse($to)->addSecond(),
+            'is_active'    => true
+        ]));
 
-        $I->seeResponseCodeIs(200);
-        $I->seeResponseIsJson();
-        $I->seeResponseContainsJson(
+        dispatch_now(CreateContent::content("content in between", $language, $user, [
+            'published_at' => Carbon::parse($from)->addHour(),
+            'is_active'    => true
+        ]));
+
+        $expectedInsidersJson = [
             [
-                [
-                    'type'         => 'content',
-                    'translations' => [
-                        [
-                            'language_code' => 'en',
-                            'title'         => "Today's content",
-                            'is_active'     => true,
-                        ]
-                    ]
-                ],
-                [
-                    'type'         => 'content',
-                    'translations' => [
-                        [
-                            'language_code' => 'en',
-                            'title'         => "Tomorrow's content",
-                            'is_active'     => true,
-                        ]
+                'type'         => 'content',
+                'translations' => [
+                    [
+                        'language_code' => 'en',
+                        'title'         => "content in between",
+                        'is_active'     => true,
                     ]
                 ]
-            ]
-        );
-        $I->dontSeeResponseContainsJson(
+            ],
+            [
+                'type'         => 'content',
+                'translations' => [
+                    [
+                        'language_code' => 'en',
+                        'title'         => "content on left edge",
+                        'is_active'     => true,
+                    ]
+                ]
+            ],
             [
                 'type'         => 'category',
                 'translations' => [
                     [
                         'language_code' => 'en',
-                        'title'         => "Three day's ago content",
+                        'title'         => "category on right edge",
                         'is_active'     => true,
                     ]
                 ]
             ]
-        );
+        ];
+
+        $expectedOutsidersJson = [
+            [
+                'type'         => 'category',
+                'translations' => [
+                    [
+                        'language_code' => 'en',
+                        'title'         => "category behind right edge",
+                        'is_active'     => true,
+                    ]
+                ]
+            ],
+            [
+                'type'         => 'content',
+                'translations' => [
+                    [
+                        'language_code' => 'en',
+                        'title'         => "content behind left edge",
+                        'is_active'     => true,
+                    ]
+                ]
+            ],
+        ];
+
+        $I->sendGET(route('contents', ['published_at' => $from . "," . $to]));
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson($expectedInsidersJson);
+        $I->dontSeeResponseContainsJson($expectedOutsidersJson);
+
+        $I->sendGET(route('contents', ['published_at' => "!" . $from . "," . $to]));
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeResponseContainsJson($expectedOutsidersJson);
+        $I->dontSeeResponseContainsJson($expectedInsidersJson);
     }
 
     public function shouldBeAbleToFilterListOfContentsByType(FunctionalTester $I)
@@ -911,7 +1023,6 @@ class ContentCest {
                 'is_promoted'        => true,
                 'is_sticky'          => true,
                 'is_comment_allowed' => true,
-                'published_at'       => Carbon::now()->toIso8601String(),
                 'weight'             => 10,
                 'theme'              => 'is-content',
             ]);
@@ -1297,30 +1408,36 @@ class ContentCest {
 
     public function shouldBeAbleToFilterListOfContentTranslationsByCreatedAt(FunctionalTester $I)
     {
-        $fourDaysAgo = Carbon::now()->subDays(4);
-        $yesterday   = Carbon::yesterday()->format('Y-m-d');
-        $today       = Carbon::now()->format('Y-m-d');
+        $from = "2021-05-02T00:43:31+09:30";
+        $to = '2021-05-01T23:43:31-04:00';
+        $createdAt = '2021-05-01 18:43:31';
 
         $content = $I->haveContent([
             'type'         => 'content',
-            'created_at'   => $fourDaysAgo,
+            'created_at'   => $createdAt,
             'translations' => [
                 [
                     'language_code' => 'en',
                     'title'         => "Four day's ago content's content",
                     'is_active'     => true,
-                    'created_at'    => $fourDaysAgo
+                    'created_at'    => $createdAt
                 ]
             ]
         ]);
 
-        $I->sendGET(apiUrl("contents/$content->id/translations?created_at=$yesterday,$today"));
+        $I->sendGET(route(
+            "contents.translations",
+            [$content->id, 'created_at' => "!" . $from . "," . $to]
+        ));
 
         $I->seeResponseCodeIs(200);
         $I->seeResponseIsJson();
         $I->assertEmpty($I->grabDataFromResponseByJsonPath('data[*]'));
 
-        $I->sendGET(apiUrl("contents/$content->id/translations?created_at=!$yesterday,$today"));
+        $I->sendGET(route(
+            "contents.translations",
+            [$content->id, 'created_at' => $from . "," . $to]
+        ));
 
         $I->seeResponseCodeIs(200);
         $I->seeResponseIsJson();
@@ -1334,30 +1451,37 @@ class ContentCest {
 
     public function shouldBeAbleToFilterListOfContentTranslationsByUpdatedAt(FunctionalTester $I)
     {
-        $fourDaysAgo = Carbon::now()->subDays(4);
-        $yesterday   = Carbon::yesterday()->format('Y-m-d');
-        $today       = Carbon::now()->format('Y-m-d');
+        $from = "2021-05-02T00:43:31+09:30";
+        $to = '2021-05-01T23:43:31-04:00';
+        $createdAt = '2021-05-01 18:43:31';
+        $updatedAt = '2021-05-01 19:41:12';
 
         $content = $I->haveContent([
             'type'         => 'content',
-            'created_at'   => $fourDaysAgo,
+            'created_at'   => $createdAt,
             'translations' => [
                 [
                     'language_code' => 'en',
                     'title'         => "Four day's ago content's content",
                     'is_active'     => true,
-                    'updated_at'    => $fourDaysAgo
+                    'updated_at'    => $updatedAt
                 ]
             ]
         ]);
 
-        $I->sendGET(apiUrl("contents/$content->id/translations?updated_at=$yesterday,$today"));
+        $I->sendGET(route(
+            "contents.translations",
+            [$content->id, 'updated_at' => "!" . $from . "," . $to]
+        ));
 
         $I->seeResponseCodeIs(200);
         $I->seeResponseIsJson();
         $I->assertEmpty($I->grabDataFromResponseByJsonPath('data[*]'));
 
-        $I->sendGET(apiUrl("contents/$content->id/translations?updated_at=!$yesterday,$today"));
+        $I->sendGET(route(
+            "contents.translations",
+            [$content->id, 'updated_at' => $from . "," . $to]
+        ));
 
         $I->seeResponseCodeIs(200);
         $I->seeResponseIsJson();

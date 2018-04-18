@@ -49,6 +49,16 @@ class Content extends Tree implements PresentableInterface, Uploadable, Routable
      */
     protected $dates = ['published_at', 'deleted_at'];
 
+    public function setPublishedAtAttribute($value)
+    {
+        $this->attributes['published_at'] = dateTimeToUTC($value);
+    }
+
+    public function setCreatedAtAttribute($value)
+    {
+        $this->attributes['created_at'] = dateTimeToUTC($value);
+    }
+
     /**
      * Content type relation
      *

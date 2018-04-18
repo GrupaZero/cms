@@ -23,6 +23,11 @@ class ContentTranslation extends Model {
     ];
 
 
+    public function setCreatedAtAttribute($value)
+    {
+        $this->attributes['created_at'] = dateTimeToUTC($value);
+    }
+
     /**
      * Content reverse relation
      *

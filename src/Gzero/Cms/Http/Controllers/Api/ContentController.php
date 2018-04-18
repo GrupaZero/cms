@@ -12,6 +12,7 @@ use Gzero\Cms\Validators\ContentValidator;
 use Gzero\Core\Http\Controllers\ApiController;
 use Gzero\Core\Parsers\BoolParser;
 use Gzero\Core\Parsers\DateRangeParser;
+use Gzero\Core\Parsers\DateTimeRangeParser;
 use Gzero\Core\Parsers\NumericParser;
 use Gzero\Core\Parsers\RangeParser;
 use Gzero\Core\Parsers\StringParser;
@@ -217,9 +218,9 @@ class ContentController extends ApiController {
             ->addFilter(new BoolParser('is_promoted'))
             ->addFilter(new BoolParser('is_comment_allowed'))
             ->addFilter(new RangeParser('rating'))
-            ->addFilter(new DateRangeParser('published_at'))
-            ->addFilter(new DateRangeParser('created_at'))
-            ->addFilter(new DateRangeParser('updated_at'))
+            ->addFilter(new DateTimeRangeParser('published_at'))
+            ->addFilter(new DateTimeRangeParser('created_at'))
+            ->addFilter(new DateTimeRangeParser('updated_at'))
             ->process($this->request);
 
         if ($this->request->has('only_published')) {

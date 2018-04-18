@@ -80,8 +80,8 @@ class ContentTranslation extends Resource {
             'seo_title'       => $this->seo_title,
             'seo_description' => $this->seo_description,
             'is_active'       => $this->is_active,
-            'created_at'      => $this->created_at->toIso8601String(),
-            'updated_at'      => $this->updated_at->toIso8601String(),
+            'created_at'      => dateTimeToRequestTimezone($this->created_at)->toIso8601String(),
+            'updated_at'      => dateTimeToRequestTimezone($this->updated_at)->toIso8601String(),
         ];
     }
 }

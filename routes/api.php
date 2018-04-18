@@ -13,7 +13,7 @@ addRoutes([
     /** @var \Illuminate\Routing\Router $router */
 
     // ======== Contents ========
-    $router->get('contents', 'ContentController@index');
+    $router->get('contents', 'ContentController@index')->name('contents');
     $router->post('contents', 'ContentController@store');
     $router->patch('contents/{id}', 'ContentController@update');
     $router->patch('contents/{id}/route', 'ContentController@updateRoute');
@@ -22,7 +22,7 @@ addRoutes([
     $router->get('contents/{id}', 'ContentController@show');
     $router->get('contents/{id}/children', 'NestedContentController@index');
 
-    $router->get('contents/{id}/translations', 'ContentTranslationController@index');
+    $router->get('contents/{id}/translations', 'ContentTranslationController@index')->name('contents.translations');
     $router->post('contents/{id}/translations', 'ContentTranslationController@store');
     $router->delete('contents/{id}/translations/{translationId}', 'ContentTranslationController@destroy');
 

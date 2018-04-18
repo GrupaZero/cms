@@ -128,8 +128,7 @@ class CreateContent {
                 'is_promoted'        => $this->attributes['is_promoted'],
                 'is_sticky'          => $this->attributes['is_sticky'],
                 'is_comment_allowed' => $this->attributes['is_comment_allowed'],
-                'published_at'       => $this->attributes['published_at'] ?
-                    Carbon::parse($this->attributes['published_at'])->setTimezone('UTC') : null
+                'published_at'       => $this->attributes['published_at']
             ]);
             $content->author()->associate($this->author);
 
