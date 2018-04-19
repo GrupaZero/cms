@@ -22,6 +22,29 @@ class ContentTranslation extends Model {
         'is_active' => false
     ];
 
+    /**
+     * It converts the created_at date passed to the model to UTC timezone
+     *
+     * @param \DateTime|string $value dateTime value
+     *
+     * @return void
+     */
+    public function setCreatedAtAttribute($value)
+    {
+        $this->attributes['created_at'] = dateTimeToUTC($value);
+    }
+
+    /**
+     * It converts the updated_at date passed to the model to UTC timezone
+     *
+     * @param \DateTime|string $value dateTime value
+     *
+     * @return void
+     */
+    public function setUpdatedAtAttribute($value)
+    {
+        $this->attributes['updated_at'] = dateTimeToUTC($value);
+    }
 
     /**
      * Content reverse relation

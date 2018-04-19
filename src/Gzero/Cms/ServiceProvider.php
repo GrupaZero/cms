@@ -50,6 +50,7 @@ class ServiceProvider extends AbstractServiceProvider {
     {
         parent::register();
         $this->mergeConfig();
+        $this->registerHelpers();
         $this->bindRepositories();
     }
 
@@ -93,6 +94,16 @@ class ServiceProvider extends AbstractServiceProvider {
                 return app('filesystem')->disk(config('gzero.upload.disk'))->getDriver();
             }
         );
+    }
+
+    /**
+     * Add additional file to store helpers
+     *
+     * @return void
+     */
+    protected function registerHelpers()
+    {
+        require __DIR__ . '/helpers.php';
     }
 
     /**
