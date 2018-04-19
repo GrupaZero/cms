@@ -15,6 +15,11 @@ class ContentCest {
         $I->apiLoginAsAdmin();
     }
 
+    public function _after(FunctionalTester $I)
+    {
+        Carbon::setTestNow();
+    }
+
     public function shouldGetListOfContentsWithDatesConvertedToRequestTimezone(FunctionalTester $I)
     {
         $requestedTimezone = 'Australia/Adelaide';
@@ -28,51 +33,53 @@ class ContentCest {
         ]));
 
         $content1 = dispatch_now(CreateContent::content('Content 1 Title', $en, $user, [
-            'parent_id' => $category->id,
+            'parent_id'    => $category->id,
             'published_at' => Carbon::now()->addDay()
         ]));
         $content2 = dispatch_now(CreateContent::content('Content 2 Title', $en, $user, [
-            'parent_id' => $category->id,
+            'parent_id'    => $category->id,
             'published_at' => Carbon::now()->subDay()
         ]));
 
         $I->haveHttpHeader('Accept-Timezone', $requestedTimezone);
         $I->sendGet(apiUrl('contents'));
-
         $I->seeResponseCodeIs(200);
         $I->seeResponseIsJson();
         $I->seeResponseJsonMatchesJsonPath('data[*]');
-        $nowInRequestTimezoneInIso8601String = Carbon::now()->setTimezone($requestedTimezone)->toIso8601String();
         $I->seeResponseContainsJson([
             [
                 'type'         => 'category',
                 'parent_id'    => null,
                 'published_at' => $category->published_at->copy()->setTimezone($requestedTimezone)->toIso8601String(),
-                'created_at'   => $nowInRequestTimezoneInIso8601String,
-                'updated_at'   => $nowInRequestTimezoneInIso8601String,
+                'created_at'   => $category->created_at->copy()->setTimezone($requestedTimezone)->toIso8601String(),
+                'updated_at'   => $category->updated_at->copy()->setTimezone($requestedTimezone)->toIso8601String(),
             ],
             [
                 'type'         => 'content',
                 'published_at' => $content2->published_at->copy()->setTimezone($requestedTimezone)->toIso8601String(),
-                'created_at'   => $nowInRequestTimezoneInIso8601String,
-                'updated_at'   => $nowInRequestTimezoneInIso8601String,
+                'created_at'   => $content2->created_at->copy()->setTimezone($requestedTimezone)->toIso8601String(),
+                'updated_at'   => $content2->updated_at->copy()->setTimezone($requestedTimezone)->toIso8601String(),
                 'translations' => [
                     'title'      => 'Content 2 Title',
-                    'created_at' => $nowInRequestTimezoneInIso8601String,
-                    'updated_at' => $nowInRequestTimezoneInIso8601String,
+                    'created_at' => $content2->translations->first()->created_at->copy()->setTimezone($requestedTimezone)
+                        ->toIso8601String(),
+                    'updated_at' => $content2->translations->first()->updated_at->copy()->setTimezone($requestedTimezone)
+                        ->toIso8601String(),
                 ]
             ],
             [
                 'type'         => 'content',
                 'published_at' => $content1->published_at->copy()->setTimezone($requestedTimezone)->toIso8601String(),
-                'created_at'   => $nowInRequestTimezoneInIso8601String,
-                'updated_at'   => $nowInRequestTimezoneInIso8601String,
+                'created_at'   => $content1->created_at->copy()->setTimezone($requestedTimezone)->toIso8601String(),
+                'updated_at'   => $content1->updated_at->copy()->setTimezone($requestedTimezone)->toIso8601String(),
                 'translations' => [
-                    'title' => 'Content 1 Title',
-                    'created_at'   => $nowInRequestTimezoneInIso8601String,
-                    'updated_at'   => $nowInRequestTimezoneInIso8601String,
+                    'title'      => 'Content 1 Title',
+                    'created_at' => $content1->translations->first()->created_at->copy()->setTimezone($requestedTimezone)
+                        ->toIso8601String(),
+                    'updated_at' => $content1->translations->first()->updated_at->copy()->setTimezone($requestedTimezone)
+                        ->toIso8601String(),
                 ]
-            ]
+            ],
         ]);
     }
 
@@ -308,7 +315,6 @@ class ContentCest {
                 ]
             ]
         );
-        Carbon::setTestNow();
     }
 
     public function shouldFailIfUpdatedAtIsNotDateRangeFormat(FunctionalTester $I)
