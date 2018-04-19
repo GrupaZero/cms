@@ -70,23 +70,25 @@ class ContentTranslationController extends ApiController {
      *   @SWG\Parameter(
      *     name="created_at",
      *     in="query",
-     *     description="Date range to filter by",
+     *     description="DateTime range to filter by.\
+    Format: `<left-date-time>,<right-date-time>`\
+    DateTime must be in the ISO8601 format, e.g. `2019-08-12T03:32:41+09:30`"
      *     required=false,
      *     type="array",
      *     minItems=2,
      *     maxItems=2,
-     *     default={"2017-10-01","2017-10-07"},
      *     @SWG\Items(type="string")
      *   ),
      *   @SWG\Parameter(
      *     name="updated_at",
      *     in="query",
-     *     description="Date range to filter by",
+     *     description="DateTime range to filter by.\
+    Format: `<left-date-time>,<right-date-time>`\
+    DateTime must be in the ISO8601 format, e.g. `2019-08-12T03:32:41+09:30`"
      *     required=false,
      *     type="array",
      *     minItems=2,
      *     maxItems=2,
-     *     default={"2017-10-01","2017-10-07"},
      *     @SWG\Items(type="string")
      *   ),
      *   @SWG\Response(
