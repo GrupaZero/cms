@@ -244,13 +244,13 @@ class ContentCest {
             'created_at' => $createdAt
         ]));
 
-        $I->sendGET(route('contents', ['created_at' =>  $from . "," . $to]));
+        $I->sendGET(route('api.contents', ['created_at' =>  $from . "," . $to]));
 
         $I->seeResponseCodeIs(200);
         $I->seeResponseIsJson();
         $I->assertEmpty($I->grabDataFromResponseByJsonPath('data[*]'));
 
-        $I->sendGET(route('contents', ['created_at' => "!" . $from . "," . $to]));
+        $I->sendGET(route('api.contents', ['created_at' => "!" . $from . "," . $to]));
 
         $I->seeResponseCodeIs(200);
         $I->seeResponseIsJson();
@@ -289,13 +289,13 @@ class ContentCest {
             ]
         ]);
 
-        $I->sendGET(route('contents', ['updated_at' => "!" . $from . "," . $to]));
+        $I->sendGET(route('api.contents', ['updated_at' => "!" . $from . "," . $to]));
         $I->assertEmpty($I->grabDataFromResponseByJsonPath('data[*]'));
 
         Carbon::setTestNow(Carbon::parse($updatedAt)->addMinute());
         dispatch_now((new UpdateContent($content, ['is_sticky' => true])));
 
-        $I->sendGET(route('contents', ['updated_at' => $from . "," . $to]));
+        $I->sendGET(route('api.contents', ['updated_at' => $from . "," . $to]));
         $I->seeResponseCodeIs(200);
         $I->seeResponseIsJson();
 
@@ -419,14 +419,14 @@ class ContentCest {
             ],
         ];
 
-        $I->sendGET(route('contents', ['published_at' => $from . "," . $to]));
+        $I->sendGET(route('api.contents', ['published_at' => $from . "," . $to]));
 
         $I->seeResponseCodeIs(200);
         $I->seeResponseIsJson();
         $I->seeResponseContainsJson($expectedInsidersJson);
         $I->dontSeeResponseContainsJson($expectedOutsidersJson);
 
-        $I->sendGET(route('contents', ['published_at' => "!" . $from . "," . $to]));
+        $I->sendGET(route('api.contents', ['published_at' => "!" . $from . "," . $to]));
 
         $I->seeResponseCodeIs(200);
         $I->seeResponseIsJson();
@@ -1432,7 +1432,7 @@ class ContentCest {
         ]);
 
         $I->sendGET(route(
-            "contents.translations",
+            "api.contents.translations",
             [$content->id, 'created_at' => "!" . $from . "," . $to]
         ));
 
@@ -1441,7 +1441,7 @@ class ContentCest {
         $I->assertEmpty($I->grabDataFromResponseByJsonPath('data[*]'));
 
         $I->sendGET(route(
-            "contents.translations",
+            "api.contents.translations",
             [$content->id, 'created_at' => $from . "," . $to]
         ));
 
@@ -1476,7 +1476,7 @@ class ContentCest {
         ]);
 
         $I->sendGET(route(
-            "contents.translations",
+            "api.contents.translations",
             [$content->id, 'updated_at' => "!" . $from . "," . $to]
         ));
 
@@ -1485,7 +1485,7 @@ class ContentCest {
         $I->assertEmpty($I->grabDataFromResponseByJsonPath('data[*]'));
 
         $I->sendGET(route(
-            "contents.translations",
+            "api.contents.translations",
             [$content->id, 'updated_at' => $from . "," . $to]
         ));
 
