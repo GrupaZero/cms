@@ -244,13 +244,13 @@ class ContentCest {
             'created_at' => $createdAt
         ]));
 
-        $I->sendGET(route('api.contents', ['created_at' =>  $from . "," . $to]));
+        $I->sendGET(apiUrl('contents?created_at=' . urlencode( $from . ',' . $to)));
 
         $I->seeResponseCodeIs(200);
         $I->seeResponseIsJson();
         $I->assertEmpty($I->grabDataFromResponseByJsonPath('data[*]'));
 
-        $I->sendGET(route('api.contents', ['created_at' => "!" . $from . "," . $to]));
+        $I->sendGET(apiUrl('contents?created_at=' . urlencode( '!' . $from . ',' . $to)));
 
         $I->seeResponseCodeIs(200);
         $I->seeResponseIsJson();
@@ -289,13 +289,13 @@ class ContentCest {
             ]
         ]);
 
-        $I->sendGET(route('api.contents', ['updated_at' => "!" . $from . "," . $to]));
+        $I->sendGET(apiUrl('contents?updated_at=' . urlencode('!' . $from . ',' . $to)));
         $I->assertEmpty($I->grabDataFromResponseByJsonPath('data[*]'));
 
         Carbon::setTestNow(Carbon::parse($updatedAt)->addMinute());
         dispatch_now((new UpdateContent($content, ['is_sticky' => true])));
 
-        $I->sendGET(route('api.contents', ['updated_at' => $from . "," . $to]));
+        $I->sendGET(apiUrl('contents?updated_at=' . urlencode($from . ',' . $to)));
         $I->seeResponseCodeIs(200);
         $I->seeResponseIsJson();
 
@@ -419,14 +419,14 @@ class ContentCest {
             ],
         ];
 
-        $I->sendGET(route('api.contents', ['published_at' => $from . "," . $to]));
+        $I->sendGET(apiUrl('contents?published_at=' . urlencode($from . ',' . $to)));
 
         $I->seeResponseCodeIs(200);
         $I->seeResponseIsJson();
         $I->seeResponseContainsJson($expectedInsidersJson);
         $I->dontSeeResponseContainsJson($expectedOutsidersJson);
 
-        $I->sendGET(route('api.contents', ['published_at' => "!" . $from . "," . $to]));
+        $I->sendGET(apiUrl('contents?published_at=' . urlencode('!' . $from . ',' . $to)));
 
         $I->seeResponseCodeIs(200);
         $I->seeResponseIsJson();
@@ -1431,19 +1431,13 @@ class ContentCest {
             ]
         ]);
 
-        $I->sendGET(route(
-            "api.contents.translations",
-            [$content->id, 'created_at' => "!" . $from . "," . $to]
-        ));
+        $I->sendGET(apiUrl('contents/' . $content->id . '/translations?created_at=' . urlencode('!' . $from . ',' . $to)));
 
         $I->seeResponseCodeIs(200);
         $I->seeResponseIsJson();
         $I->assertEmpty($I->grabDataFromResponseByJsonPath('data[*]'));
 
-        $I->sendGET(route(
-            "api.contents.translations",
-            [$content->id, 'created_at' => $from . "," . $to]
-        ));
+        $I->sendGET(apiUrl('contents/' . $content->id . '/translations?created_at=' . urlencode($from . ',' . $to)));
 
         $I->seeResponseCodeIs(200);
         $I->seeResponseIsJson();
@@ -1475,19 +1469,13 @@ class ContentCest {
             ]
         ]);
 
-        $I->sendGET(route(
-            "api.contents.translations",
-            [$content->id, 'updated_at' => "!" . $from . "," . $to]
-        ));
+        $I->sendGET(apiUrl('contents/' . $content->id . '/translations?updated_at=' . urlencode('!' . $from . ',' . $to)));
 
         $I->seeResponseCodeIs(200);
         $I->seeResponseIsJson();
         $I->assertEmpty($I->grabDataFromResponseByJsonPath('data[*]'));
 
-        $I->sendGET(route(
-            "api.contents.translations",
-            [$content->id, 'updated_at' => $from . "," . $to]
-        ));
+        $I->sendGET(apiUrl('contents/' . $content->id . '/translations?updated_at=' . urlencode($from . ',' . $to)));
 
         $I->seeResponseCodeIs(200);
         $I->seeResponseIsJson();
