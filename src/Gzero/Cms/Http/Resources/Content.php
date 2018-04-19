@@ -128,8 +128,6 @@ class Content extends Resource {
             'is_promoted'        => $this->is_promoted,
             'is_sticky'          => $this->is_sticky,
             'path'               => $this->buildPath($this->path),
-            //'published_at'       => ($this->published_at) ? $this->published_at
-            //    ->copy()->setTimezone(getRequestTimezone())->toIso8601String() : null,
             'published_at'       => optional(dateTimeToRequestTimezone($this->published_at))->toIso8601String(),
             'created_at'         => dateTimeToRequestTimezone($this->created_at)->toIso8601String(),
             'updated_at'         => dateTimeToRequestTimezone($this->updated_at)->toIso8601String(),
