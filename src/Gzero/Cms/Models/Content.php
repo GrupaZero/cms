@@ -49,14 +49,40 @@ class Content extends Tree implements PresentableInterface, Uploadable, Routable
      */
     protected $dates = ['published_at', 'deleted_at'];
 
+    /**
+     * It converts the published_at date passed to the model to UTC timezone
+     *
+     * @param \DateTime|string $value dateTime value
+     *
+     * @return void
+     */
     public function setPublishedAtAttribute($value)
     {
         $this->attributes['published_at'] = dateTimeToUTC($value);
     }
 
+    /**
+     * It converts the created_at date passed to the model to UTC timezone
+     *
+     * @param \DateTime|string $value dateTime value
+     *
+     * @return void
+     */
     public function setCreatedAtAttribute($value)
     {
         $this->attributes['created_at'] = dateTimeToUTC($value);
+    }
+
+    /**
+     * It converts the updated_at date passed to the model to UTC timezone
+     *
+     * @param \DateTime|string $value dateTime value
+     *
+     * @return void
+     */
+    public function setUpdatedAtAttribute($value)
+    {
+        $this->attributes['updated_at'] = dateTimeToUTC($value);
     }
 
     /**
