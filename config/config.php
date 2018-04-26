@@ -22,22 +22,6 @@ return [
         'detected'  => false, // Do not change, changes in runtime!
         'subdomain' => env('MULTILANG_SUBDOMAIN', false)
     ],
-    'upload'                   => [
-        'disk'                    => env('UPLOAD_DISK', 'uploads'),
-        'allowed_file_extensions' => [
-            'image'    => ['png', 'jpg', 'jpeg', 'tif'],
-            'document' => ['pdf', 'odt', 'ods', 'doc', 'docx', 'xls', 'xlsx', 'txt'],
-            'video'    => ['mp4'],
-            'music'    => ['mp3']
-        ],
-
-    ],
-    'file_type'                => [
-        'image'    => Gzero\Cms\Handlers\File\Image::class,
-        'document' => Gzero\Cms\Handlers\File\Document::class,
-        'video'    => Gzero\Cms\Handlers\File\Video::class,
-        'music'    => Gzero\Cms\Handlers\File\Music::class
-    ],
     'available_blocks_regions' => [
         'header',
         'homepage',

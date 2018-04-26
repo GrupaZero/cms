@@ -11,6 +11,7 @@ use Gzero\Core\Models\Language;
 use Gzero\Core\Models\User;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Routing\Router;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 
 class BlockCest {
@@ -355,7 +356,6 @@ class BlockCest {
         $I->dontSee('Block in sidebar right region', '#sidebarRight .block-body');
     }
 
-
     public function shouldGetOnlyActiveFilesSyncedWithBlock(FunctionalTester $I)
     {
         $author   = factory(User::class)->create();
@@ -388,5 +388,72 @@ class BlockCest {
 
         $I->assertCount(1, $block->fresh()->files()->get());
         $I->assertEquals('active\'s file info', $block->fresh()->files()->first()->info);
+    }
+
+    public function shouldRenderBlockFromCache(FunctionalTester $I)
+    {
+        $user = factory(User::class)->create();
+        $en   = new Language(['code' => 'en']);
+
+        dispatch_now(CreateContent::content('Example', $en, $user, [
+            'published_at' => Carbon::now(),
+            'is_active'    => true
+        ]));
+
+        dispatch_now(CreateBlock::basic('Block from cache', $en, $user, [
+            'theme'        => 'my-block',
+            'region'       => 'header',
+            'is_cacheable' => true,
+            'is_active'    => true
+        ]));
+
+        $I->amOnPage('example');
+        $I->seeResponseCodeIs(200);
+        $I->see('Block from cache', '#header-region');
+
+        Cache::shouldReceive('tags')
+            ->once()
+            ->with(['blocks'])
+            ->andReturnSelf();
+    }
+
+    public function shouldRenderSliderBlock(FunctionalTester $I)
+    {
+        $user = factory(User::class)->create();
+        $en   = new Language(['code' => 'en']);
+
+        dispatch_now(CreateContent::content('Example', $en, $user, [
+            'published_at' => Carbon::now(),
+            'is_active'    => true
+        ]));
+
+        dispatch_now(CreateBlock::slider('Slider block', $en, $user, [
+            'region'       => 'header',
+            'is_active'    => true
+        ]));
+
+        $I->amOnPage('example');
+        $I->seeResponseCodeIs(200);
+        $I->see('Slider block', '#header-region .jumbotron');
+    }
+
+    public function shouldRenderMenuBlock(FunctionalTester $I)
+    {
+        $user = factory(User::class)->create();
+        $en   = new Language(['code' => 'en']);
+
+        dispatch_now(CreateContent::content('Example', $en, $user, [
+            'published_at' => Carbon::now(),
+            'is_active'    => true
+        ]));
+
+        dispatch_now(CreateBlock::menu('Menu block', $en, $user, [
+            'region'       => 'header',
+            'is_active'    => true
+        ]));
+
+        $I->amOnPage('example');
+        $I->seeResponseCodeIs(200);
+        $I->see('Menu block', '#header-region');
     }
 }

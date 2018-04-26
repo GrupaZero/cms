@@ -161,6 +161,7 @@ class BlockCest {
 
         dispatch_now(CreateBlock::basic('Basic Title', $language, $user, ['is_active' => true]));
         dispatch_now(CreateBlock::slider('Slider Title', $language, $user, ['is_active' => true]));
+        dispatch_now(CreateBlock::menu('Menu Title', $language, $user, ['is_active' => true]));
 
         $I->sendGET(apiUrl('blocks?type=basic'));
 
@@ -189,6 +190,16 @@ class BlockCest {
                         'is_active'     => true
                     ]
                 ]
+            ],
+            [
+                'type'         => 'menu',
+                'translations' => [
+                    [
+                        'language_code' => 'en',
+                        'title'         => 'Menu Title',
+                        'is_active'     => true
+                    ]
+                ]
             ]
         );
 
@@ -204,6 +215,16 @@ class BlockCest {
                     [
                         'language_code' => 'en',
                         'title'         => 'Slider Title',
+                        'is_active'     => true
+                    ]
+                ]
+            ],
+            [
+                'type'         => 'menu',
+                'translations' => [
+                    [
+                        'language_code' => 'en',
+                        'title'         => 'Menu Title',
                         'is_active'     => true
                     ]
                 ]
@@ -1116,5 +1137,25 @@ class BlockCest {
                 'message' => 'Cannot delete active translation'
             ]
         );
+    }
+
+    public function cantDeleteTranslationOfNonExistingBlock(FunctionalTester $I)
+    {
+        $I->sendDELETE(apiUrl("blocks/4000/translations", ['translationId' => '30000']));
+
+        $I->seeResponseCodeIs(404);
+        $I->seeResponseIsJson();
+    }
+
+    public function cantDeleteNonExistingBlockTranslation(FunctionalTester $I)
+    {
+        $user = factory(User::class)->create();
+        $en   = new Language(['code' => 'en']);
+        $block = dispatch_now(CreateBlock::basic('Example Title', $en, $user));
+
+        $I->sendDELETE(apiUrl("blocks/$block->id/translations", ['translationId' => '30000']));
+
+        $I->seeResponseCodeIs(404);
+        $I->seeResponseIsJson();
     }
 }
