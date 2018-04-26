@@ -1855,4 +1855,10 @@ class ContentCest {
             ]
         );
     }
+
+    public function shouldNotBeAbleToUpdateRouteOfNonExistingContent(FunctionalTester $I)
+    {
+        $I->sendPATCH(apiUrl('contents/100/route'));
+        $I->seeResponseCodeIs(404);
+    }
 }
