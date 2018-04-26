@@ -68,32 +68,4 @@ class Register {
         );
         return $this->links->sortBy('weight')->values();
     }
-
-    /**
-     * It searches parent link specified by url and adds child link to the parent
-     *
-     * @param array  $child    ['url' => $url, 'title' => $title, 'alt' => NULL]
-     * @param string $url      Link url
-     * @param array  $haystack Links array
-     *
-     * @return bool Return true if link added successfully otherwise false
-     * @throws Exception
-     */
-    protected function addNextChild(array $child, $url, array &$haystack)
-    {
-        if (!isset($child['url'])) {
-            throw new Exception("Class UserPanelMenu: 'url' key i required");
-        }
-        foreach ($haystack as &$value) {
-            if ($value['url'] == $url) {
-                $child['children']   = [];
-                $value['children'][] = $child;
-                return true;
-            }
-            if (isset($value['children']) && is_array($value['children'])) {
-                $this->addNextChild($child, $url, $value['children']);
-            }
-        }
-        return false;
-    }
 }

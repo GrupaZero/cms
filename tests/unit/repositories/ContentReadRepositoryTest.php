@@ -406,5 +406,27 @@ class ContentReadRepositoryTest extends Unit {
         $this->assertEquals('Active content', $translation->title);
         $this->assertEquals('Active category', $categoryTranslation->title);
     }
+
+    /** @test */
+    public function canGetTrashedContentById()
+    {
+        $content = $this->tester->haveContent([
+            'type'         => 'content',
+            'deleted_at'   => Carbon::now(),
+            'translations' => [
+                [
+                    'language_code' => 'en',
+                    'title'         => 'Example title',
+                    'is_active'     => false
+                ]
+            ]
+        ]);
+
+        $contentFromDb = $this->repository->getByIdWithTrashed($content->id);
+
+        $this->assertEquals($content->id, $contentFromDb->id);
+        $this->assertEquals($content->is_active, $contentFromDb->is_active);
+        $this->assertEquals($content->deleted_at, $contentFromDb->deleted_at);
+    }
 }
 
