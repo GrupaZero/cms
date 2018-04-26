@@ -232,25 +232,25 @@ class ContentCest {
 
     public function shouldBeAbleToFilterListOfContentsByCreatedAt(FunctionalTester $I)
     {
-        $from = "2021-05-02T00:43:31+09:30";
-        $to = '2021-05-01T23:43:31-04:00';
+        $from      = "2021-05-02T00:43:31+09:30";
+        $to        = '2021-05-01T23:43:31-04:00';
         $createdAt = '2021-05-01 18:43:31';
 
         $user     = factory(User::class)->create();
         $language = new Language(['code' => 'en']);
 
         dispatch_now(CreateContent::content('Content Title', $language, $user, [
-            'is_active' => true,
+            'is_active'  => true,
             'created_at' => $createdAt
         ]));
 
-        $I->sendGET(apiUrl('contents?created_at=' . urlencode( $from . ',' . $to)));
+        $I->sendGET(apiUrl('contents?created_at=' . urlencode($from . ',' . $to)));
 
         $I->seeResponseCodeIs(200);
         $I->seeResponseIsJson();
         $I->assertEmpty($I->grabDataFromResponseByJsonPath('data[*]'));
 
-        $I->sendGET(apiUrl('contents?created_at=' . urlencode( '!' . $from . ',' . $to)));
+        $I->sendGET(apiUrl('contents?created_at=' . urlencode('!' . $from . ',' . $to)));
 
         $I->seeResponseCodeIs(200);
         $I->seeResponseIsJson();
@@ -271,8 +271,8 @@ class ContentCest {
 
     public function shouldBeAbleToFilterListOfContentsByUpdatedAt(FunctionalTester $I)
     {
-        $from = "2021-05-02T00:43:31+09:30";
-        $to = '2021-05-01T23:43:31-04:00';
+        $from      = "2021-05-02T00:43:31+09:30";
+        $to        = '2021-05-01T23:43:31-04:00';
         $updatedAt = '2021-05-01 18:43:31';
         $createdAt = $updatedAt;
 
@@ -333,7 +333,7 @@ class ContentCest {
     public function shouldBeAbleToFilterListOfContentsByPublishedAt(FunctionalTester $I)
     {
         $from = "2021-05-02T00:43:31+09:30";
-        $to = '2021-05-01T23:43:31-04:00';
+        $to   = '2021-05-01T23:43:31-04:00';
 
         $user     = factory(User::class)->create();
         $language = new Language(['code' => 'en']);
@@ -1170,6 +1170,12 @@ class ContentCest {
         ]);
     }
 
+    public function shouldNotBeAbleToUpdateNonExistingContent(FunctionalTester $I)
+    {
+        $I->sendPATCH(apiUrl('contents', ['id' => 100]));
+        $I->seeResponseCodeIs(404);
+    }
+
     public function canDeleteContent(FunctionalTester $I)
     {
         $content = $I->haveContent(
@@ -1190,6 +1196,12 @@ class ContentCest {
         $I->sendDELETE(apiUrl('contents', ['id' => $content->id]));
 
         $I->seeResponseCodeIs(204);
+    }
+
+    public function shouldNotBeAbleToDeleteNonExistingContent(FunctionalTester $I)
+    {
+        $I->sendDELETE(apiUrl('contents', ['id' => 100]));
+        $I->seeResponseCodeIs(404);
     }
 
     public function shouldBeAbleToGetContentTranslations(FunctionalTester $I)
@@ -1414,8 +1426,8 @@ class ContentCest {
 
     public function shouldBeAbleToFilterListOfContentTranslationsByCreatedAt(FunctionalTester $I)
     {
-        $from = "2021-05-02T00:43:31+09:30";
-        $to = '2021-05-01T23:43:31-04:00';
+        $from      = "2021-05-02T00:43:31+09:30";
+        $to        = '2021-05-01T23:43:31-04:00';
         $createdAt = '2021-05-01 18:43:31';
 
         $content = $I->haveContent([
@@ -1451,8 +1463,8 @@ class ContentCest {
 
     public function shouldBeAbleToFilterListOfContentTranslationsByUpdatedAt(FunctionalTester $I)
     {
-        $from = "2021-05-02T00:43:31+09:30";
-        $to = '2021-05-01T23:43:31-04:00';
+        $from      = "2021-05-02T00:43:31+09:30";
+        $to        = '2021-05-01T23:43:31-04:00';
         $createdAt = '2021-05-01 18:43:31';
         $updatedAt = '2021-05-01 19:41:12';
 
@@ -1759,32 +1771,32 @@ class ContentCest {
     {
         $I->haveContents([
             [
-                'rating' => 1,
-                'translations'       => [
+                'rating'       => 1,
+                'translations' => [
                     ['language_code' => 'en', 'title' => 'Rating 1']
                 ]
             ],
             [
-                'rating' => 2,
-                'translations'       => [
+                'rating'       => 2,
+                'translations' => [
                     ['language_code' => 'en', 'title' => 'Rating 2']
                 ]
             ],
             [
-                'rating' => 3,
-                'translations'       => [
+                'rating'       => 3,
+                'translations' => [
                     ['language_code' => 'en', 'title' => 'Rating 3']
                 ]
             ],
             [
-                'rating' => 4,
-                'translations'       => [
+                'rating'       => 4,
+                'translations' => [
                     ['language_code' => 'en', 'title' => 'Rating 4']
                 ]
             ],
             [
-                'rating' => 5,
-                'translations'       => [
+                'rating'       => 5,
+                'translations' => [
                     ['language_code' => 'en', 'title' => 'Rating 5']
                 ]
             ]
@@ -1814,6 +1826,33 @@ class ContentCest {
             ['title' => 'Rating 2'],
             ['title' => 'Rating 3'],
             ['title' => 'Rating 4']
+        );
+    }
+
+    public function canUpdateContentRoute(FunctionalTester $I)
+    {
+        $user     = $I->haveUser();
+        $language = new Language(['code' => 'en']);
+        $content  = dispatch_now(CreateContent::content('New One', $language, $user, [
+            'is_active' => true
+        ]));
+
+        $I->sendPATCH(apiUrl("contents/$content->id/route"),
+            [
+                'language_code' => 'en',
+                'path'          => 'new-path',
+                'is_active'     => false
+            ]);
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->dontSeeResponseJsonMatchesJsonPath('data[*]');
+        $I->seeResponseContainsJson(
+            [
+                'routes' => [
+                    ['language_code' => 'en', 'path' => 'new-path', 'is_active' => false]
+                ]
+            ]
         );
     }
 }
