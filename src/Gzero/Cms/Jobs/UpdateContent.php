@@ -56,9 +56,6 @@ class UpdateContent {
     public function handle()
     {
         $content = $this->dbTransaction(function () {
-            if (isset($this->attributes['published_at'])) {
-                $this->attributes['published_at'] = Carbon::parse($this->attributes['published_at'])->setTimezone('UTC');
-            }
             $this->content->fill($this->attributes);
             $this->handleThumb();
 

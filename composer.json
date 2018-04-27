@@ -38,7 +38,15 @@
     },
     "scripts": {
         "test": "./vendor/bin/codecept run",
-        "test-debug": "./vendor/bin/codecept --debug run"
+        "test-debug": "./vendor/bin/codecept --debug run",
+        "test-static": [
+            "./vendor/bin/phpmd src/ text phpmd.xml",
+            "./vendor/bin/phpcs --standard=ruleset.xml src/ -n --colors"
+        ],
+        "test-all": [
+            "composer test",
+            "composer test-static"
+        ]
     },
     "extra": {
         "laravel": {
