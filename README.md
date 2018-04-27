@@ -23,3 +23,9 @@ To run tests you can use one of these commands:
 
 `composer test-debug tests/functional/api/ContentCest.php:shouldBeAbleToGetCategoryChildren`
 
+###Quality
+```
+./vendor/bin/phpmd src/ text phpmd.xml
+./vendor/bin/phpcs --standard=ruleset.xml src/ -n --colors
+```
+
