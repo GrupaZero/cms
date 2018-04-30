@@ -15,14 +15,14 @@
     ],
     "require": {
         "php": ">=7.1.0",
-        "gzero/core": "dev-master",
+        "gzero/core": "^3.0.0",
         "bkwld/croppa": "~4.0"
     },
     "require-dev": {
         "codeception/codeception": "^2.3",
         "phpunit/php-code-coverage": "5.2.*",
         "fzaninotto/faker": "~1.6",
-        "gzero/testing": "dev-master",
+        "gzero/testing": "^3.0.0",
         "orchestra/testbench": "^3.5",
         "phpmd/phpmd": "^2.6",
         "satooshi/php-coveralls": "^1.0",
