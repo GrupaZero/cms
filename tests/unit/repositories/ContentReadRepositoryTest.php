@@ -77,7 +77,7 @@ class ContentReadRepositoryTest extends Unit {
     }
 
     /** @test */
-    public function canNotGetContentTranslationWhenThereIsNotTranslationInDefaultLanguage()
+    public function getEmptyResultWhenThereIsNoTranslationInDefaultLanguage()
     {
         $this->tester->getApplication()->setLocale('pl');
 
