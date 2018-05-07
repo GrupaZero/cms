@@ -7,6 +7,7 @@ use Gzero\Cms\Repositories\ContentReadRepository;
 use Gzero\Core\Models\Language;
 use Gzero\Core\Models\User;
 use Gzero\Core\Query\QueryBuilder;
+use Gzero\Core\Services\LanguageService;
 use Gzero\InvalidArgumentException;
 
 class ContentReadRepositoryTest extends Unit {
@@ -44,6 +45,58 @@ class ContentReadRepositoryTest extends Unit {
         $this->assertEquals('en', $routeTranslation->language_code);
         // Only active route translations
         $this->assertNull($this->repository->getByPath('example-title', 'en', true));
+    }
+
+    /** @test */
+    public function canGetContentTranslationBasedOnLocale()
+    {
+        $this->tester->getApplication()->setLocale('pl');
+
+        $this->tester->haveContent([
+            'type'         => 'content',
+            'translations' => [
+                [
+                    'language_code' => 'en',
+                    'title'         => 'Example title'
+                ],
+                [
+                    'language_code' => 'pl',
+                    'title'         => 'Przykładowy tytuł'
+                ]
+            ]
+        ]);
+
+        $translations = $this->repository->getTree((new QueryBuilder()))->first()->translations;
+
+        $this->assertEquals('en', resolve(LanguageService::class)->getDefault()->code);
+        $this->assertEquals('pl', $this->tester->getApplication()->getLocale());
+
+        $this->assertCount(2, $translations);
+        $this->assertEquals('Example title', $translations[0]->title);
+        $this->assertEquals('Przykładowy tytuł', $translations[1]->title);
+    }
+
+    /** @test */
+    public function canNotGetContentTranslationWhenThereIsNotTranslationInDefaultLanguage()
+    {
+        $this->tester->getApplication()->setLocale('pl');
+
+        $this->tester->haveContent([
+            'type'         => 'content',
+            'translations' => [
+                [
+                    'language_code' => 'pl',
+                    'title'         => 'Przykładowy tytuł'
+                ]
+            ]
+        ]);
+
+        $content = $this->repository->getTree((new QueryBuilder()));
+
+        $this->assertEquals('en', resolve(LanguageService::class)->getDefault()->code);
+        $this->assertEquals('pl', $this->tester->getApplication()->getLocale());
+
+        $this->assertCount(0, $content);
     }
 
     /** @test */

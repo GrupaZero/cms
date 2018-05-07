@@ -5,6 +5,7 @@ use Gzero\Cms\Models\Content;
 use Gzero\Core\Models\Language;
 use Gzero\Core\Query\QueryBuilder;
 use Gzero\Core\Repositories\ReadRepository;
+use Gzero\Core\Services\LanguageService;
 use Gzero\InvalidArgumentException;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -74,7 +75,7 @@ class ContentReadRepository implements ReadRepository {
         }
 
         $builder = (new QueryBuilder())
-            ->where('translations.language_code', '=', 'en')
+            ->where('translations.language_code', '=', resolve(LanguageService::class)->getDefault()->code)
             ->orderBy('translations.title', 'asc');
         $query->orderBy('level', 'ASC');
 
