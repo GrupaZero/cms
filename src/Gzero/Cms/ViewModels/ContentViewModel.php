@@ -257,7 +257,7 @@ class ContentViewModel {
      */
     public function seoDescription($alternativeField = false)
     {
-        $descLength = option('seo', 'desc_length', config('gzero-cms.seo.desc_length', 160));
+        $descLength = option('seo', 'desc_length', config('gzero.seo.desc_length', 160));
         if (!$alternativeField) {
             $alternativeField = config('gzero-cms.seo.alternative_desc', 'body');
         }
