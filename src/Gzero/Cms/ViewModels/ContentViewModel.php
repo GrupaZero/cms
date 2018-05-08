@@ -235,7 +235,7 @@ class ContentViewModel {
     public function seoTitle($alternativeField = false)
     {
         if (!$alternativeField) {
-            $alternativeField = config('gzero.seo.alternative_title', 'title');
+            $alternativeField = config('gzero-cms.seo.alternative_title', 'title');
         }
 
         $text = $this->removeNewLinesAndWhitespace($this->translation[$alternativeField]);
@@ -259,7 +259,7 @@ class ContentViewModel {
     {
         $descLength = option('seo', 'desc_length', config('gzero.seo.desc_length', 160));
         if (!$alternativeField) {
-            $alternativeField = config('gzero.seo.alternative_desc', 'body');
+            $alternativeField = config('gzero-cms.seo.alternative_desc', 'body');
         }
         // if SEO description is set
         if ($this->translation['seo_description']) {

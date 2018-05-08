@@ -2,8 +2,7 @@
 return [
     'seo'                      => [
         'alternative_title' => 'title',
-        'alternative_desc'  => 'body',
-        'desc_length'       => 160
+        'alternative_desc'  => 'body'
     ],
     'available_blocks_regions' => [
         'header',
