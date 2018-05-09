@@ -1695,6 +1695,38 @@ class ContentCest {
         ]);
     }
 
+    public function shouldBeAbleToSeeOneTreeWithoutDuplicates(FunctionalTester $I)
+    {
+        $I->haveContents([
+            [
+                'type'       => 'category',
+                'translations' => [
+                    ['language_code' => 'en', 'title' => 'Title'],
+                    ['language_code' => 'pl', 'title' => 'Tytuł']
+                ]
+            ]
+        ]);
+
+        $I->sendGET(apiUrl("contents-tree?only_categories=true"));
+        //dd($I->grabResponse());
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeResponseJsonMatchesJsonPath('data[*]');
+        $I->seeResponseContainsJson([
+            'data' => [
+                [
+                    'id'       => 1,
+                    'type'       => 'category',
+                    'translations' => [
+                        ['language_code' => 'en', 'title' => 'Title'],
+                        ['language_code' => 'pl', 'title' => 'Tytuł']
+                    ]
+                ]
+            ],
+        ]);
+    }
+
     public function shouldReturnEmptyResultOnEmptyDB(FunctionalTester $I)
     {
         $I->sendGET(apiUrl("contents-tree"));

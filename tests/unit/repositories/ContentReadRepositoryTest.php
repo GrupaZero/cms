@@ -48,7 +48,7 @@ class ContentReadRepositoryTest extends Unit {
     }
 
     /** @test */
-    public function canGetContentTranslationBasedOnLocale()
+    public function canGetContentTree()
     {
         $this->tester->getApplication()->setLocale('pl');
 
@@ -66,7 +66,10 @@ class ContentReadRepositoryTest extends Unit {
             ]
         ]);
 
-        $translations = $this->repository->getTree((new QueryBuilder()))->first()->translations;
+        $content = $this->repository->getTree((new QueryBuilder()));
+
+        $this->assertCount(1, $content);
+        $translations = $content->first()->translations;
 
         $this->assertEquals('en', resolve(LanguageService::class)->getDefault()->code);
         $this->assertEquals('pl', $this->tester->getApplication()->getLocale());
@@ -77,13 +80,17 @@ class ContentReadRepositoryTest extends Unit {
     }
 
     /** @test */
-    public function getEmptyResultWhenThereIsNoTranslationInDefaultLanguage()
+    public function canGetOnlyCategoryTree()
     {
         $this->tester->getApplication()->setLocale('pl');
 
         $this->tester->haveContent([
             'type'         => 'content',
             'translations' => [
+                [
+                    'language_code' => 'en',
+                    'title'         => 'Example title'
+                ],
                 [
                     'language_code' => 'pl',
                     'title'         => 'Przykładowy tytuł'
@@ -93,10 +100,15 @@ class ContentReadRepositoryTest extends Unit {
 
         $content = $this->repository->getTree((new QueryBuilder()));
 
+        $this->assertCount(1, $content);
+        $translations = $content->first()->translations;
+
         $this->assertEquals('en', resolve(LanguageService::class)->getDefault()->code);
         $this->assertEquals('pl', $this->tester->getApplication()->getLocale());
 
-        $this->assertCount(0, $content);
+        $this->assertCount(2, $translations);
+        $this->assertEquals('Example title', $translations[0]->title);
+        $this->assertEquals('Przykładowy tytuł', $translations[1]->title);
     }
 
     /** @test */
