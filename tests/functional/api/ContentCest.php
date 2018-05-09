@@ -1708,7 +1708,6 @@ class ContentCest {
         ]);
 
         $I->sendGET(apiUrl("contents-tree?only_categories=true"));
-        //dd($I->grabResponse());
 
         $I->seeResponseCodeIs(200);
         $I->seeResponseIsJson();
