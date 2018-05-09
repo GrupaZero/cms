@@ -1717,7 +1717,6 @@ class ContentCest {
         $I->seeResponseContainsJson([
             'data' => [
                 [
-                    'id'       => 1,
                     'type'       => 'category',
                     'translations' => [
                         ['language_code' => 'en', 'title' => 'Title'],
