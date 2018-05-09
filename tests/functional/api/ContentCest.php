@@ -1701,8 +1701,10 @@ class ContentCest {
             [
                 'type'       => 'category',
                 'translations' => [
-                    ['language_code' => 'en', 'title' => 'Title'],
-                    ['language_code' => 'pl', 'title' => 'Tytuł']
+                    ['language_code' => 'en', 'title' => 'Title', 'is_active' => true],
+                    ['language_code' => 'en', 'title' => 'Not active title', 'is_active' => false],
+                    ['language_code' => 'pl', 'title' => 'Tytuł', 'is_active' => true],
+                    ['language_code' => 'pl', 'title' => 'Nie aktywny tytuł', 'is_active' => false]
                 ]
             ]
         ]);
@@ -1711,7 +1713,7 @@ class ContentCest {
 
         $I->seeResponseCodeIs(200);
         $I->seeResponseIsJson();
-        $I->seeResponseJsonMatchesJsonPath('data[*]');
+        $I->seeResponseJsonMatchesJsonPath('data[0].id');
         $I->seeResponseContainsJson([
             'data' => [
                 [
@@ -1720,6 +1722,18 @@ class ContentCest {
                     'translations' => [
                         ['language_code' => 'en', 'title' => 'Title'],
                         ['language_code' => 'pl', 'title' => 'Tytuł']
+                    ]
+                ]
+            ],
+        ]);
+        $I->dontSeeResponseJsonMatchesJsonPath('data[1].id');
+        $I->dontSeeResponseContainsJson([
+            'data' => [
+                [
+                    'type'       => 'category',
+                    'translations' => [
+                        ['language_code' => 'en', 'title' => 'Not active title'],
+                        ['language_code' => 'pl', 'title' => 'Nie aktywny tytuł']
                     ]
                 ]
             ],
