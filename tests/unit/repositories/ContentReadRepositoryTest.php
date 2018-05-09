@@ -48,55 +48,51 @@ class ContentReadRepositoryTest extends Unit {
     }
 
     /** @test */
-    public function canGetContentTranslationBasedOnLocale()
+    public function canGetContentTreeWhenLocaleIsNotDefaultLang()
     {
         $this->tester->getApplication()->setLocale('pl');
 
         $this->tester->haveContent([
             'type'         => 'content',
             'translations' => [
-                [
-                    'language_code' => 'en',
-                    'title'         => 'Example title'
-                ],
-                [
-                    'language_code' => 'pl',
-                    'title'         => 'Przykładowy tytuł'
-                ]
-            ]
-        ]);
-
-        $translations = $this->repository->getTree((new QueryBuilder()))->first()->translations;
-
-        $this->assertEquals('en', resolve(LanguageService::class)->getDefault()->code);
-        $this->assertEquals('pl', $this->tester->getApplication()->getLocale());
-
-        $this->assertCount(2, $translations);
-        $this->assertEquals('Example title', $translations[0]->title);
-        $this->assertEquals('Przykładowy tytuł', $translations[1]->title);
-    }
-
-    /** @test */
-    public function getEmptyResultWhenThereIsNoTranslationInDefaultLanguage()
-    {
-        $this->tester->getApplication()->setLocale('pl');
-
-        $this->tester->haveContent([
-            'type'         => 'content',
-            'translations' => [
-                [
-                    'language_code' => 'pl',
-                    'title'         => 'Przykładowy tytuł'
-                ]
+                ['language_code' => 'en', 'title' => 'Title', 'is_active' => true],
+                ['language_code' => 'en', 'title' => 'Not active title', 'is_active' => false],
+                ['language_code' => 'pl', 'title' => 'Tytuł', 'is_active' => true],
+                ['language_code' => 'pl', 'title' => 'Nie aktywny tytuł', 'is_active' => false]
             ]
         ]);
 
         $content = $this->repository->getTree((new QueryBuilder()));
 
+        $this->assertCount(1, $content);
+        $translations = $content->first()->translations;
+
         $this->assertEquals('en', resolve(LanguageService::class)->getDefault()->code);
         $this->assertEquals('pl', $this->tester->getApplication()->getLocale());
 
-        $this->assertCount(0, $content);
+        $this->assertCount(2, $translations);
+        $this->assertEquals('Tytuł', $translations->firstWhere('title', 'Tytuł')->title);
+        $this->assertEquals('Title', $translations->firstWhere('title', 'Title')->title);
+    }
+
+    /** @test */
+    public function canGetContentTreeWhenThereIsNoDefaultLangTranslation()
+    {
+        $this->tester->haveContent([
+            'type'         => 'content',
+            'translations' => [
+                ['language_code' => 'pl', 'title' => 'Tytuł', 'is_active' => true]
+            ]
+        ]);
+
+        $content = $this->repository->getTree((new QueryBuilder()));
+
+        $this->assertCount(1, $content);
+
+        $this->assertEquals('en', resolve(LanguageService::class)->getDefault()->code);
+        $this->assertEquals('en', $this->tester->getApplication()->getLocale());
+
+        $this->assertEquals('Tytuł', $content->first()->translations[0]->title);
     }
 
     /** @test */

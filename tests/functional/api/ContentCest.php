@@ -1695,6 +1695,50 @@ class ContentCest {
         ]);
     }
 
+    public function shouldBeAbleToSeeOneTreeWithoutDuplicates(FunctionalTester $I)
+    {
+        $I->haveContents([
+            [
+                'type'       => 'category',
+                'translations' => [
+                    ['language_code' => 'en', 'title' => 'Title', 'is_active' => true],
+                    ['language_code' => 'en', 'title' => 'Not active title', 'is_active' => false],
+                    ['language_code' => 'pl', 'title' => 'Tytuł', 'is_active' => true],
+                    ['language_code' => 'pl', 'title' => 'Nie aktywny tytuł', 'is_active' => false]
+                ]
+            ]
+        ]);
+
+        $I->sendGET(apiUrl("contents-tree?only_categories=true"));
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeResponseJsonMatchesJsonPath('data[0].id');
+        $I->seeResponseContainsJson([
+            'data' => [
+                [
+                    'type'       => 'category',
+                    'translations' => [
+                        ['language_code' => 'en', 'title' => 'Title'],
+                        ['language_code' => 'pl', 'title' => 'Tytuł']
+                    ]
+                ]
+            ],
+        ]);
+        $I->dontSeeResponseJsonMatchesJsonPath('data[1].id');
+        $I->dontSeeResponseContainsJson([
+            'data' => [
+                [
+                    'type'       => 'category',
+                    'translations' => [
+                        ['language_code' => 'en', 'title' => 'Not active title'],
+                        ['language_code' => 'pl', 'title' => 'Nie aktywny tytuł']
+                    ]
+                ]
+            ],
+        ]);
+    }
+
     public function shouldReturnEmptyResultOnEmptyDB(FunctionalTester $I)
     {
         $I->sendGET(apiUrl("contents-tree"));

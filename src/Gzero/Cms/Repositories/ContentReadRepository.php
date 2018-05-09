@@ -74,23 +74,13 @@ class ContentReadRepository implements ReadRepository {
             $query->where('ct.name', 'category');
         }
 
-        $builder = (new QueryBuilder())
-            ->where('translations.language_code', '=', resolve(LanguageService::class)->getDefault()->code)
-            ->orderBy('translations.title', 'asc');
-        $query->orderBy('level', 'ASC');
+        $builder = (new QueryBuilder())->orderBy('translations.title', 'asc');
 
-        if ($builder->hasRelation('translations')) {
-            if (!$builder->getFilter('translations.language_code')) {
-                throw new InvalidArgumentException('Language code is required');
-            }
-            $query->join('content_translations as t', 'contents.id', '=', 't.content_id');
-            $builder->applyRelationFilters('translations', 't', $query);
-            $builder->applyRelationSorts('translations', 't', $query);
-        }
+        $query->orderBy('level', 'ASC');
 
         $builder->applySorts($query, 'contents');
 
-        $results = $query->get(['contents.*']);
+        $results = $query->distinct()->get(['contents.*']);
         $trees   = (new Content)->buildTree($results, true);
         if ($trees === null) {
             return collect([]);
