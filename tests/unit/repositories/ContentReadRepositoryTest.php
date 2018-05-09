@@ -71,8 +71,8 @@ class ContentReadRepositoryTest extends Unit {
         $this->assertEquals('pl', $this->tester->getApplication()->getLocale());
 
         $this->assertCount(2, $translations);
-        $this->assertEquals('Title', $translations[0]->title);
-        $this->assertEquals('Tytuł', $translations[1]->title);
+        $this->assertEquals('Tytuł', $translations->firstWhere('title', 'Tytuł')->title);
+        $this->assertEquals('Title', $translations->firstWhere('title', 'Title')->title);
     }
 
     /** @test */
