@@ -48,7 +48,7 @@ class ContentReadRepositoryTest extends Unit {
     }
 
     /** @test */
-    public function canGetContentTreeWhenLocaleIsNotDefaultLnag()
+    public function canGetContentTreeWhenLocaleIsNotDefaultLang()
     {
         $this->tester->getApplication()->setLocale('pl');
 
