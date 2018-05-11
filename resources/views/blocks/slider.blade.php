@@ -1,5 +1,5 @@
 <?php /* @var $block \Gzero\Cms\ViewModels\BlockViewModel */ ?>
-<div class="{{ $block->theme('col-sm-12') }}">
+<div class="slider-block {{ $block->theme('col-sm-12') }}">
     @if($images->isEmpty())
         <div id="slider-{{$block->id()}}" class="slider">
             <div class="jumbotron">
@@ -12,7 +12,7 @@
             </div>
         </div>
     @elseif($images->count() > 1)
-        <div id="slider-{{$block->id()}}" class="carousel slide" data-ride="carousel">
+        <div id="slider-{{$block->id()}}" class="carousel slide carousel-fade" data-ride="carousel" data-interval="8000">
             <ol class="carousel-indicators">
                 @foreach($images as $image)
                     <li data-target="#slider-{{$block->id()}}" data-slide-to="{{$image->id()}}"
@@ -21,11 +21,11 @@
             </ol>
             <div class="carousel-inner">
                 @foreach($images as $image)
-                    <div class="carousel-item{{($loop->first) ? ' active': ''}}">
-                        <img src="{{croppaUrl($image->uploadPath())}}" alt="{{$image->title()}}" class="d-block w-100">
-                        <div class="carousel-caption d-none d-md-block">
-                            <h5>{{$image->title()}}</h5>
-                            <p>{{$image->description()}}</p>
+                    <div class="carousel-item{{($loop->first) ? ' active': ''}}"
+                         style="background-image: url('{{croppaUrl($image->uploadPath(), 1110, 530)}}');">
+                        <div class="carousel-caption">
+                            <h5 class="display-3 font-weight-bold">{{$image->title()}}</h5>
+                            <p class="lead">{{$image->description()}}</p>
                         </div>
                     </div>
                 @endforeach
@@ -42,13 +42,13 @@
     @else
         <div class="card bg-dark text-white">
             @foreach($images as $image)
-                <img class="card-img" src="{{croppaUrl($image->uploadPath())}}" alt="{{$image->title()}}">
+                <img class="card-img" src="{{croppaUrl($image->uploadPath(), 1110, 530)}}" alt="{{$image->title()}}">
                 <div class="card-img-overlay">
                     @if($block->hasTitle())
-                        <h5 class="card-title">{{ $block->title() }}</h5>
+                        <h5 class="card-title display-3 font-weight-bold">{{ $block->title() }}</h5>
                     @endif
                     @if($block->hasBody())
-                        <p class="card-text">{!! $block->body() !!}</p>
+                        <p class="card-text lead">{!! $block->body() !!}</p>
                     @endif
                 </div>
             @endforeach
