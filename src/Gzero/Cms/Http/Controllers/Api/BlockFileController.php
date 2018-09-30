@@ -81,6 +81,7 @@ class BlockFileController extends ApiController
         $this->authorize('read', $block);
 
         $this->authorize('readList', File::class);
+        $processor->process($this->request);
 
         $results = $this->repository->getManyFiles($block, $processor->buildQueryBuilder());
         $results->setPath(apiUrl("blocks/$block->id/files"));
