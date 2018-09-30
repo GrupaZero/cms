@@ -81,6 +81,7 @@ class ContentFileController extends ApiController
         $this->authorize('read', $content);
 
         $this->authorize('readList', File::class);
+        $processor->process($this->request);
 
         $results = $this->repository->getManyFiles($content, $processor->buildQueryBuilder());
         $results->setPath(apiUrl("contents/$content->id/files"));

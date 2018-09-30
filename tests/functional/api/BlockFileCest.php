@@ -80,6 +80,51 @@ class BlockFileCest
         );
     }
 
+    public function shouldSetPerPageToFilesSyncedWithBlock(FunctionalTester $I)
+    {
+        $author   = factory(User::class)->create();
+        $language   = new Language(['code' => 'en']);
+        $block = dispatch_now(CreateBlock::basic('Block title', $language, $author, [
+            'body'      => 'Block body',
+            'region'    => 'homepage',
+            'is_active' => true
+        ]));
+
+        $image  = UploadedFile::fake()->image('file.jpg')->size(10);
+
+        $file = dispatch_now(CreateFile::image($image, 'Image', $language, $author, [
+            'info'        => 'info text',
+            'description' => 'My image',
+            'is_active'   => true,
+        ]));
+        dispatch_now(new AddFileTranslation($file, 'New translation', $language, $author,
+            ['description' => 'Description']
+        ));
+
+        dispatch_now(new SyncFiles($block, [$file->id => ['weight' => 3]]));
+
+        $I->sendGet(apiUrl("blocks/$block->id/files?perPage=100"));
+
+        $I->seeResponseCodeIs(200);
+        $I->seeResponseIsJson();
+        $I->seeResponseJsonMatchesJsonPath('data[*]');
+        $I->seeResponseJsonMatchesJsonPath('links[*]');
+        $I->seeResponseJsonMatchesJsonPath('meta[*]');
+        $I->seeResponseContainsJson(
+            [
+                'meta'  => [
+                    'current_page' => 1,
+                    'from'         => 1,
+                    'last_page'    => 1,
+                    'path'         => apiUrl("blocks/$block->id/files"),
+                    'per_page'     => 100,
+                    'to'           => 1,
+                    'total'        => 1,
+                ],
+            ]
+        );
+    }
+
     public function shouldSyncFilesWithBlock(FunctionalTester $I)
     {
         $author   = factory(User::class)->create();
