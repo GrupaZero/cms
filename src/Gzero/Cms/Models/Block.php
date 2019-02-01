@@ -84,15 +84,17 @@ class Block extends Model implements Uploadable, PresentableInterface {
      */
     public function files($active = true)
     {
+        $query = $this->morphToMany(File::class, 'uploadable')
+        ->with('translations')
+        ->withPivot('weight')
+        ->orderBy('weight', 'ASC')
+        ->withTimestamps();
+
         if ($active) {
-            return $this->morphToMany(File::class, 'uploadable')
-                ->with('translations')
-                ->where('is_active', '=', 1)
-                ->withPivot('weight')
-                ->withTimestamps();
+            $query->where('is_active', '=', 1);
         }
 
-        return $this->morphToMany(File::class, 'uploadable')->with('translations')->withPivot('weight')->withTimestamps();
+        return $query;
     }
 
     /**
