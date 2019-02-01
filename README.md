@@ -3,6 +3,13 @@ GZERO CMS [![Build Status](https://travis-ci.org/GrupaZero/cms.svg?branch=master
 
 ### Testing
 
+To run the tests you need PHP >=7.1 and the following extensions:
+- xml
+- curl
+- mbstring
+- pgsql
+- gd
+
 To run tests, copy .env.example file to .env.testing and put your database credentials into it.
 
 To run tests you can use one of these commands:
@@ -28,4 +35,3 @@ To run tests you can use one of these commands:
 ./vendor/bin/phpmd src/ text phpmd.xml
 ./vendor/bin/phpcs --standard=ruleset.xml src/ -n --colors
 ```
-
