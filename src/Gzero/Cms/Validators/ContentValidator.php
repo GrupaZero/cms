@@ -34,7 +34,7 @@ class ContentValidator extends AbstractValidator {
             'seo_description'    => '',
             'is_active'          => 'boolean',
             'parent_id'          => 'numeric|nullable',
-            'published_at'       => 'date',
+            'published_at'       => 'date|nullable',
             'is_on_home'         => 'boolean',
             'is_promoted'        => 'boolean',
             'is_sticky'          => 'boolean',
